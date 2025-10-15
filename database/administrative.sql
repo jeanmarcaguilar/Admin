@@ -117,6 +117,13 @@ CREATE TABLE `case_files` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Seed: case_files
+DELETE FROM `case_files`;
+INSERT INTO `case_files` (`created_at`, `updated_at`) VALUES
+  (NOW(), NOW()),
+  (NOW(), NOW()),
+  (NOW(), NOW());
+
 DROP TABLE IF EXISTS `approvals`;
 CREATE TABLE `approvals` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -124,6 +131,12 @@ CREATE TABLE `approvals` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed: approvals
+DELETE FROM `approvals`;
+INSERT INTO `approvals` (`created_at`, `updated_at`) VALUES
+  (NOW(), NOW()),
+  (NOW(), NOW());
 
 DROP TABLE IF EXISTS `hearings`;
 CREATE TABLE `hearings` (
@@ -133,6 +146,13 @@ CREATE TABLE `hearings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Seed: hearings
+DELETE FROM `hearings`;
+INSERT INTO `hearings` (`created_at`, `updated_at`) VALUES
+  (NOW(), NOW()),
+  (NOW(), NOW()),
+  (NOW(), NOW());
+
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -140,6 +160,14 @@ CREATE TABLE `documents` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed: documents
+DELETE FROM `documents`;
+INSERT INTO `documents` (`created_at`, `updated_at`) VALUES
+  (NOW(), NOW()),
+  (NOW(), NOW()),
+  (NOW(), NOW()),
+  (NOW(), NOW());
 
 DROP TABLE IF EXISTS `activities`;
 CREATE TABLE `activities` (
@@ -149,6 +177,12 @@ CREATE TABLE `activities` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Seed: activities
+DELETE FROM `activities`;
+INSERT INTO `activities` (`created_at`, `updated_at`) VALUES
+  (NOW(), NOW()),
+  (NOW(), NOW());
+
 DROP TABLE IF EXISTS `events`;
 CREATE TABLE `events` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
@@ -156,6 +190,13 @@ CREATE TABLE `events` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed: events
+DELETE FROM `events`;
+INSERT INTO `events` (`created_at`, `updated_at`) VALUES
+  (NOW(), NOW()),
+  (NOW(), NOW()),
+  (NOW(), NOW());
 
 -- 5) seed a default admin user (username-based login)
 -- Password hash: bcrypt('password') known Laravel test hash

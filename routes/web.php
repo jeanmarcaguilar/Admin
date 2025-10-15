@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Visitor;
 
 // Test route to check authentication
 Route::get('/test-login', function () {
@@ -222,13 +223,29 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.deadline-hearing-alerts', compact('hearings','counts'));
     })->name('deadline.hearing.alerts');
 
-    // Visitors Registration (session-backed)
+    // Visitors Registration (DB-backed)
     Route::get('/visitors-registration', function () {
-        $visitors = session('visitors', []);
+        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+            return [
+                'id' => $v->code,
+                'name' => $v->name,
+                'company' => $v->company,
+                'visitor_type' => $v->visitor_type,
+                'host' => $v->host,
+                'host_department' => $v->host_department,
+                'check_in_date' => $v->check_in_date,
+                'check_in_time' => $v->check_in_time,
+                'check_out_date' => $v->check_out_date,
+                'check_out_time' => $v->check_out_time,
+                'purpose' => $v->purpose,
+                'status' => $v->status,
+                'created_at' => $v->created_at?->toDateTimeString(),
+            ];
+        })->toArray();
         $today = \Carbon\Carbon::today()->toDateString();
         $totalToday = collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today)->count();
-        $checkedIn = collect($visitors)->where('status', 'checked_in')->count();
-        $scheduledToday = collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today && ($v['status'] ?? '') === 'scheduled')->count();
+        $checkedIn = collect($visitors)->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_in')->count();
+        $scheduledToday = collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today && strtolower($v['status'] ?? '') === 'scheduled')->count();
         $pendingApprovals = 0;
         $stats = [
             'total_today' => $totalToday,
@@ -239,9 +256,25 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.visitors-registration', compact('visitors','stats'));
     })->name('visitors.registration');
     
-    // Check In/Out Tracking (session-backed)
+    // Check In/Out Tracking (DB-backed)
     Route::get('/check-in-out-tracking', function () {
-        $visitors = session('visitors', []);
+        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+            return [
+                'id' => $v->code,
+                'name' => $v->name,
+                'company' => $v->company,
+                'visitor_type' => $v->visitor_type,
+                'host' => $v->host,
+                'host_department' => $v->host_department,
+                'check_in_date' => $v->check_in_date,
+                'check_in_time' => $v->check_in_time,
+                'check_out_date' => $v->check_out_date,
+                'check_out_time' => $v->check_out_time,
+                'purpose' => $v->purpose,
+                'status' => $v->status,
+                'created_at' => $v->created_at?->toDateTimeString(),
+            ];
+        })->toArray();
         $today = \Carbon\Carbon::today()->toDateString();
 
         $currentCheckIns = collect($visitors)
@@ -320,7 +353,7 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('checkinout.tracking');
 
-    // Create a new visitor (session-backed)
+    // Create a new visitor (DB-backed)
     Route::post('/visitor/create', function (\Illuminate\Http\Request $request) {
         $validated = $request->validate([
             'firstName' => 'required|string|max:100',
@@ -347,8 +380,8 @@ Route::middleware('auth')->group(function () {
         $fullName = trim($validated['firstName'] . ' ' . $validated['lastName']);
         $hostInfo = $hostMap[$validated['hostId']] ?? ['name' => 'Host', 'department' => ''];
 
-        $payload = [
-            'id' => $id,
+        $visitor = Visitor::create([
+            'code' => $id,
             'name' => $fullName,
             'company' => $validated['company'],
             'visitor_type' => $validated['visitorType'],
@@ -358,28 +391,47 @@ Route::middleware('auth')->group(function () {
             'check_in_time' => $validated['checkInTime'],
             'purpose' => $validated['purpose'],
             'status' => 'scheduled',
-            'created_at' => now()->toDateTimeString(),
-        ];
+        ]);
 
-        $existing = session('visitors', []);
-        array_unshift($existing, $payload);
-        session(['visitors' => $existing]);
-
-        return response()->json(['success' => true, 'visitor' => $payload]);
+        return response()->json(['success' => true, 'visitor' => [
+            'id' => $visitor->code,
+            'name' => $visitor->name,
+            'company' => $visitor->company,
+            'visitor_type' => $visitor->visitor_type,
+            'host' => $visitor->host,
+            'host_department' => $visitor->host_department,
+            'check_in_date' => $visitor->check_in_date,
+            'check_in_time' => $visitor->check_in_time,
+            'purpose' => $visitor->purpose,
+            'status' => $visitor->status,
+            'created_at' => $visitor->created_at?->toDateTimeString(),
+        ]]);
     })->name('visitor.create');
 
-    // Fetch a visitor by ID (AJAX helper)
+    // Fetch a visitor by ID (AJAX helper, DB-backed)
     Route::get('/visitor/get', function (\Illuminate\Http\Request $request) {
         $request->validate(['id' => 'required|string']);
-        $visitors = session('visitors', []);
-        $v = collect($visitors)->firstWhere('id', $request->query('id'));
+        $v = Visitor::where('code', $request->query('id'))->first();
         if (!$v) {
             return response()->json(['success' => false, 'message' => 'Visitor not found'], 404);
         }
-        return response()->json(['success' => true, 'visitor' => $v]);
+        return response()->json(['success' => true, 'visitor' => [
+            'id' => $v->code,
+            'name' => $v->name,
+            'company' => $v->company,
+            'visitor_type' => $v->visitor_type,
+            'host' => $v->host,
+            'host_department' => $v->host_department,
+            'check_in_date' => $v->check_in_date,
+            'check_in_time' => $v->check_in_time,
+            'check_out_date' => $v->check_out_date,
+            'check_out_time' => $v->check_out_time,
+            'purpose' => $v->purpose,
+            'status' => $v->status,
+        ]]);
     })->name('visitor.get');
 
-    // Update visitor (limited fields) (AJAX helper)
+    // Update visitor (limited fields) (DB-backed)
     Route::post('/visitor/update', function (\Illuminate\Http\Request $request) {
         $validated = $request->validate([
             'id' => 'required|string',
@@ -390,42 +442,32 @@ Route::middleware('auth')->group(function () {
             'check_in_time' => 'nullable|date_format:H:i',
             'status' => 'nullable|string|in:scheduled,checked_in,checked_out',
         ]);
-        $visitors = session('visitors', []);
-        $updated = false;
-        foreach ($visitors as &$vi) {
-            if (($vi['id'] ?? '') === $validated['id']) {
-                foreach (['company','visitor_type','purpose','check_in_date','check_in_time','status'] as $k) {
-                    if (array_key_exists($k, $validated) && $validated[$k] !== null) {
-                        $vi[$k] = $validated[$k];
-                    }
-                }
-                // Auto-stamp checkout time/date when status changes to checked_out
-                if (($validated['status'] ?? null) === 'checked_out') {
-                    if (empty($vi['check_out_date'])) {
-                        $vi['check_out_date'] = \Carbon\Carbon::today()->toDateString();
-                    }
-                    if (empty($vi['check_out_time'])) {
-                        $vi['check_out_time'] = now()->format('H:i');
-                    }
-                }
-                $updated = true;
-                break;
+        $v = Visitor::where('code', $validated['id'])->first();
+        if (!$v) {
+            return response()->json(['success' => false, 'message' => 'Visitor not found'], 404);
+        }
+        foreach (['company','visitor_type','purpose','check_in_date','check_in_time','status'] as $k) {
+            if (array_key_exists($k, $validated) && $validated[$k] !== null) {
+                $v->{$k} = $validated[$k];
             }
         }
-        if ($updated) {
-            session(['visitors' => $visitors]);
-            return response()->json(['success' => true]);
+        if (($validated['status'] ?? null) === 'checked_out') {
+            if (empty($v->check_out_date)) {
+                $v->check_out_date = \Carbon\Carbon::today()->toDateString();
+            }
+            if (empty($v->check_out_time)) {
+                $v->check_out_time = now()->format('H:i');
+            }
         }
-        return response()->json(['success' => false, 'message' => 'Visitor not found'], 404);
+        $v->save();
+        return response()->json(['success' => true]);
     })->name('visitor.update');
 
-    // Delete a visitor by ID (AJAX helper)
+    // Delete a visitor by ID (DB-backed)
     Route::post('/visitor/delete', function (\Illuminate\Http\Request $request) {
         $request->validate(['id' => 'required|string']);
-        $visitors = session('visitors', []);
-        $filtered = array_values(array_filter($visitors, fn($x) => ($x['id'] ?? '') !== $request->input('id')));
-        session(['visitors' => $filtered]);
-        return response()->json(['success' => true]);
+        $deleted = Visitor::where('code', $request->input('id'))->delete();
+        return response()->json(['success' => (bool)$deleted]);
     })->name('visitor.delete');
     
     // Host Notification (view removed) → redirect to Visitors Registration
@@ -433,9 +475,24 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('visitors.registration');
     })->name('host.notification');
     
-    // Visitor History Records
+    // Visitor History Records (DB-backed)
     Route::get('/visitor-history', function () {
-        $visitors = session('visitors', []);
+        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+            return [
+                'id' => $v->code,
+                'name' => $v->name,
+                'company' => $v->company,
+                'visitor_type' => $v->visitor_type,
+                'host' => $v->host,
+                'host_department' => $v->host_department,
+                'check_in_date' => $v->check_in_date,
+                'check_in_time' => $v->check_in_time,
+                'check_out_date' => $v->check_out_date,
+                'check_out_time' => $v->check_out_time,
+                'purpose' => $v->purpose,
+                'status' => $v->status,
+            ];
+        })->toArray();
         return view('dashboard.visitor-history', [
             'user' => auth()->user(),
             'visitors' => $visitors,
@@ -443,7 +500,22 @@ Route::middleware('auth')->group(function () {
     })->name('visitor.history');
     
     Route::get('/visitor-history/records', function () {
-        $visitors = session('visitors', []);
+        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+            return [
+                'id' => $v->code,
+                'name' => $v->name,
+                'company' => $v->company,
+                'visitor_type' => $v->visitor_type,
+                'host' => $v->host,
+                'host_department' => $v->host_department,
+                'check_in_date' => $v->check_in_date,
+                'check_in_time' => $v->check_in_time,
+                'check_out_date' => $v->check_out_date,
+                'check_out_time' => $v->check_out_time,
+                'purpose' => $v->purpose,
+                'status' => $v->status,
+            ];
+        })->toArray();
         return view('dashboard.visitor-history', [
             'user' => auth()->user(),
             'visitors' => $visitors,
