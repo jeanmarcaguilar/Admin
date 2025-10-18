@@ -857,6 +857,8 @@ $user = auth()->user();
     const userMenuBtn = document.getElementById("userMenuBtn");
     const userMenuDropdown = document.getElementById("userMenuDropdown");
     const newVersionBtn = document.getElementById("newVersionBtn");
+    const newVersionModal = document.getElementById("newVersionModal");
+    const newVersionForm = document.getElementById("newVersionForm");
     const documentsTable = document.querySelector('table tbody');
     const profileModal = document.getElementById("profileModal");
     const openProfileBtn = document.getElementById("openProfileBtn");
@@ -886,6 +888,9 @@ $user = auth()->user();
         el.classList.add('hidden');
         document.body.style.overflow = '';
     }
+    // Expose helpers globally for inline onclick="closeModal('...')" usage
+    window.openModal = openModal;
+    window.closeModal = closeModal;
 
     // View (Version Details)
     window.showVersionDetails = function(doc) {
@@ -963,6 +968,22 @@ $user = auth()->user();
                     'Accept': 'application/json',
                 }
             });
+
+    // Close modals on outside click
+    window.addEventListener('click', (e) => {
+        if (newVersionModal && !newVersionModal.classList.contains('hidden')) {
+            const panel = newVersionModal.querySelector('div');
+            if (panel && !panel.contains(e.target)) {
+                closeModal('newVersionModal');
+            }
+        }
+    });
+
+    // Prevent modal inner clicks from closing the New Version modal
+    if (newVersionModal) {
+        const panel = newVersionModal.querySelector('div');
+        panel && panel.addEventListener('click', (e) => e.stopPropagation());
+    }
             const data = await response.json();
             if (response.ok) {
                 const row = document.querySelector(`tr[data-doc-id="${currentDocumentId}"]`);
@@ -1198,9 +1219,12 @@ $user = auth()->user();
     });
 
     // Open new version modal
-    newVersionBtn.addEventListener("click", () => {
-        openModal('newVersionModal');
-    });
+    if (newVersionBtn) {
+        newVersionBtn.addEventListener("click", () => {
+            if (newVersionForm) newVersionForm.reset();
+            openModal('newVersionModal');
+        });
+    }
 
     // Add document to table
     function addDocumentToTable(doc) {
@@ -1276,7 +1300,6 @@ $user = auth()->user();
     }
 
     // Handle new version form submission
-    const newVersionForm = document.getElementById('newVersionForm');
     if (newVersionForm) {
         newVersionForm.addEventListener('submit', async function(e) {
             e.preventDefault();

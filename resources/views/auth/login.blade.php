@@ -202,16 +202,12 @@
           errorText.style.display = 'block';
           codeInput.classList.add('border-red-500');
           codeInput.focus();
-<<<<<<< HEAD
           return;
         }
 
         // Route second submit to 2FA verification endpoint
         // Keep username and remember; password will be ignored by the verifier
         form.setAttribute('action', '{{ route('two-factor.verify') }}');
-=======
-        }
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
       });
 
       codeInput && codeInput.addEventListener('input', function() {

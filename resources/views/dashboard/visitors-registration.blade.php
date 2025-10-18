@@ -189,7 +189,6 @@ $user = auth()->user();
                 </button>
                 <h1 class="text-2xl font-bold tracking-tight">Visitors Registration</h1>
             </div>
-<<<<<<< HEAD
 
     <!-- Check In Modal (outside main content) -->
     <div id="checkInModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="check-in-modal-title">
@@ -208,8 +207,6 @@ $user = auth()->user();
         </div>
       </div>
     </div>
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             <div class="flex items-center space-x-1">
                 <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn" aria-label="Notifications">
                     <i class="fa-solid fa-bell text-xl"></i>
@@ -235,8 +232,6 @@ $user = auth()->user();
             <a class="text-[#28644c] text-xs font-semibold hover:underline" href="#">View all notifications</a>
         </div>
     </div>
-
-<<<<<<< HEAD
     <!-- View Visitor Modal (moved outside main content) -->
     <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog">
       <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4">
@@ -539,9 +534,6 @@ $user = auth()->user();
             <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
         </ul>
     </div>
-
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <div class="flex w-full min-h-screen pt-16">
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
 
@@ -723,19 +715,11 @@ $user = auth()->user();
                         <div class="dashboard-card bg-white p-5 rounded-lg shadow-sm border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
-<<<<<<< HEAD
                                     <p class="text-sm font-medium text-gray-500">Checked Out</p>
                                     <h3 class="text-2xl font-extrabold text-gray-900">{{ $stats['checked_out'] ?? 0 }}</h3>
                                 </div>
                                 <div class="p-3 rounded-full bg-gray-100 text-gray-700">
                                     <i class="fas fa-door-open text-xl"></i>
-=======
-                                    <p class="text-sm font-medium text-gray-500">Pending Approvals</p>
-                                    <h3 class="text-2xl font-extrabold text-gray-900">{{ $stats['pending_approvals'] ?? 0 }}</h3>
-                                </div>
-                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                                    <i class="fas fa-spinner text-xl"></i>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </div>
                             </div>
                         </div>
@@ -791,12 +775,9 @@ $user = auth()->user();
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <a href="#" class="visitorViewBtn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="View"><i class="fas fa-eye"></i></a>
                                                     <a href="#" class="visitorEditBtn text-blue-600 hover:text-blue-900 mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Edit"><i class="fas fa-edit"></i></a>
-<<<<<<< HEAD
                                                     @if($st !== 'checked_out' && $st !== 'checked_in')
                                                         <a href="#" class="visitorCheckInBtn text-green-600 hover:text-green-800 mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Check In"><i class="fas fa-sign-in-alt"></i></a>
                                                     @endif
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                                     <a href="#" class="visitorDeleteBtn text-red-600 hover:text-red-900" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Delete"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>
@@ -819,13 +800,6 @@ $user = auth()->user();
                     </section>
                 </div>
             </div>
-
-<<<<<<< HEAD
-            
-
-            
-            
-
         </main>
     </div>
 

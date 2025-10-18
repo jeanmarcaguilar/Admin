@@ -7,10 +7,7 @@ $user = auth()->user();
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-<<<<<<< HEAD
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <title>Access Control & Permissions | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -417,12 +414,8 @@ $user = auth()->user();
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @php
-<<<<<<< HEAD
                                             // Use permissions provided by the controller/route
                                             $permissions = $permissions ?? [];
-=======
-                                            $permissions = [];
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                         @endphp
 
                                         @forelse($permissions as $permission)
@@ -553,14 +546,9 @@ $user = auth()->user();
                         <label for="user" class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
                         <select id="user" name="user" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a user</option>
-<<<<<<< HEAD
                             @foreach(($allUsers ?? []) as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
                             @endforeach
-=======
-                            <option value="1">John Doe (john.doe@example.com)</option>
-                            <option value="2">Jane Smith (jane.smith@example.com)</option>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </select>
                     </div>
                     <div id="groupField" class="hidden">
@@ -666,14 +654,9 @@ $user = auth()->user();
                         <label for="editUser" class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
                         <select id="editUser" name="user" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a user</option>
-<<<<<<< HEAD
                             @foreach(($allUsers ?? []) as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
                             @endforeach
-=======
-                            <option value="1">John Doe (john.doe@example.com)</option>
-                            <option value="2">Jane Smith (jane.smith@example.com)</option>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </select>
                     </div>
                     <div id="editGroupField" class="hidden">
@@ -1012,6 +995,7 @@ $user = auth()->user();
             const accountSettingsModal = document.getElementById("accountSettingsModal");
             const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
             const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
+            const openSignOutBtn = document.getElementById("openSignOutBtn");
             const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
             const privacySecurityModal = document.getElementById("privacySecurityModal");
             const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
@@ -1097,6 +1081,31 @@ $user = auth()->user();
                 });
             });
 
+            // Delegated handler (more robust) for dropdown toggles
+            if (sidebar) {
+                sidebar.addEventListener("click", (e) => {
+                    const toggle = e.target.closest(".has-dropdown > div");
+                    if (!toggle) return;
+                    e.stopPropagation();
+                    const dropdown = toggle.nextElementSibling;
+                    const chevron = toggle.querySelector(".bx-chevron-down");
+
+                    // Close other dropdowns
+                    document.querySelectorAll(".has-dropdown > div").forEach((otherToggle) => {
+                        if (otherToggle !== toggle) {
+                            const otherDropdown = otherToggle.nextElementSibling;
+                            const otherChevron = otherToggle.querySelector(".bx-chevron-down");
+                            if (otherDropdown) otherDropdown.classList.add("hidden");
+                            if (otherChevron) otherChevron.classList.remove("rotate-180");
+                        }
+                    });
+
+                    // Toggle current dropdown
+                    if (dropdown) dropdown.classList.toggle("hidden");
+                    if (chevron) chevron.classList.toggle("rotate-180");
+                });
+            }
+
             // Close dropdowns when clicking outside
             document.addEventListener("click", (e) => {
                 if (!e.target.closest('.has-dropdown')) {
@@ -1130,11 +1139,11 @@ $user = auth()->user();
             }
 
             // Set up event listeners
-            toggleBtn.addEventListener("click", toggleSidebar);
+            if (toggleBtn) toggleBtn.addEventListener("click", toggleSidebar);
             window.addEventListener("resize", handleResize);
 
             // Notification dropdown
-            notificationBtn.addEventListener("click", (e) => {
+            if (notificationBtn) notificationBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 notificationDropdown.classList.toggle("hidden");
                 userMenuDropdown.classList.add("hidden");
@@ -1149,7 +1158,7 @@ $user = auth()->user();
             });
 
             // User menu dropdown
-            userMenuBtn.addEventListener("click", (e) => {
+            if (userMenuBtn) userMenuBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 userMenuDropdown.classList.toggle("hidden");
                 const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
@@ -1164,7 +1173,7 @@ $user = auth()->user();
                 deletePermissionModal.classList.remove("active");
             });
 
-            openSignOutBtn.addEventListener("click", (e) => {
+            if (openSignOutBtn) openSignOutBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 signOutModal.classList.add("active");
                 userMenuDropdown.classList.add("hidden");
@@ -1179,7 +1188,7 @@ $user = auth()->user();
             });
 
             // Profile modal
-            openProfileBtn.addEventListener("click", (e) => {
+            if (openProfileBtn) openProfileBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 profileModal.classList.add("active");
                 userMenuDropdown.classList.add("hidden");
@@ -1189,19 +1198,19 @@ $user = auth()->user();
                 notificationDropdown.classList.add("hidden");
                 signOutModal.classList.remove("active");
                 newPermissionModal.classList.remove("active");
-        editPermissionModal.classList.remove("active");
-        deletePermissionModal.classList.remove("active");
-    });
+                editPermissionModal.classList.remove("active");
+                deletePermissionModal.classList.remove("active");
+            });
 
-    closeProfileBtn.addEventListener("click", () => {
+    if (closeProfileBtn) closeProfileBtn.addEventListener("click", () => {
         profileModal.classList.remove("active");
     });
-    closeProfileBtn2.addEventListener("click", () => {
+    if (closeProfileBtn2) closeProfileBtn2.addEventListener("click", () => {
         profileModal.classList.remove("active");
     });
 
     // Account settings modal
-    openAccountSettingsBtn.addEventListener("click", (e) => {
+    if (openAccountSettingsBtn) openAccountSettingsBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         accountSettingsModal.classList.add("active");
         userMenuDropdown.classList.add("hidden");
@@ -1215,15 +1224,15 @@ $user = auth()->user();
         deletePermissionModal.classList.remove("active");
     });
 
-    closeAccountSettingsBtn.addEventListener("click", () => {
+    if (closeAccountSettingsBtn) closeAccountSettingsBtn.addEventListener("click", () => {
         accountSettingsModal.classList.remove("active");
     });
-    cancelAccountSettingsBtn.addEventListener("click", () => {
+    if (cancelAccountSettingsBtn) cancelAccountSettingsBtn.addEventListener("click", () => {
         accountSettingsModal.classList.remove("active");
     });
 
     // Privacy & Security modal
-    openPrivacySecurityBtn.addEventListener("click", (e) => {
+    if (openPrivacySecurityBtn) openPrivacySecurityBtn.addEventListener("click", (e) => {
         e.stopPropagation();
         privacySecurityModal.classList.add("active");
         userMenuDropdown.classList.add("hidden");
@@ -1237,18 +1246,18 @@ $user = auth()->user();
         deletePermissionModal.classList.remove("active");
     });
 
-    closePrivacySecurityBtn.addEventListener("click", () => {
+    if (closePrivacySecurityBtn) closePrivacySecurityBtn.addEventListener("click", () => {
         privacySecurityModal.classList.remove("active");
     });
-    cancelPrivacySecurityBtn.addEventListener("click", () => {
+    if (cancelPrivacySecurityBtn) cancelPrivacySecurityBtn.addEventListener("click", () => {
         privacySecurityModal.classList.remove("active");
     });
 
     // Sign out modal
-    cancelSignOutBtn.addEventListener("click", () => {
+    if (cancelSignOutBtn) cancelSignOutBtn.addEventListener("click", () => {
         signOutModal.classList.remove("active");
     });
-    cancelSignOutBtn2.addEventListener("click", () => {
+    if (cancelSignOutBtn2) cancelSignOutBtn2.addEventListener("click", () => {
         signOutModal.classList.remove("active");
     });
 
@@ -1285,7 +1294,7 @@ $user = auth()->user();
     });
 
     // New Permission Modal
-    newPermissionBtn.addEventListener("click", () => {
+    if (newPermissionBtn) newPermissionBtn.addEventListener("click", () => {
         newPermissionModal.classList.add("active");
         userMenuDropdown.classList.add("hidden");
         userMenuBtn.setAttribute("aria-expanded", "false");
@@ -1418,10 +1427,7 @@ $user = auth()->user();
                 </div>
             </div>
         `;
-<<<<<<< HEAD
         modal.classList.remove("hidden");
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         modal.classList.add("active");
         userMenuDropdown.classList.add("hidden");
         userMenuBtn.setAttribute("aria-expanded", "false");
@@ -1490,80 +1496,6 @@ $user = auth()->user();
         } else {
             editCustomPermissions.classList.add("hidden");
         }
-    };
-
-    // Delete Permission Confirmation
-    window.confirmDeletePermission = function(id) {
-<<<<<<< HEAD
-        deletePermissionModal.classList.remove("hidden");
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-        deletePermissionModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        notificationDropdown.classList.add("hidden");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        signOutModal.classList.remove("active");
-        newPermissionModal.classList.remove("active");
-        editPermissionModal.classList.remove("active");
-<<<<<<< HEAD
-        confirmDeleteBtn.onclick = async () => {
-            const original = confirmDeleteBtn.innerHTML;
-            confirmDeleteBtn.disabled = true;
-            confirmDeleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
-            try {
-                const resp = await fetch(`/permissions/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
-                const data = await resp.json();
-                if (!resp.ok || !data.success) throw new Error(data.message || 'Failed to delete permission');
-                const row = document.querySelector(`tr[data-permission-id="${id}"]`);
-                if (row) row.remove();
-                deletePermissionModal.classList.remove('active');
-                deletePermissionModal.classList.add('hidden');
-            } catch (e) {
-                Swal.fire({ icon: 'error', title: 'Error', text: e.message || 'Failed to delete permission' });
-            } finally {
-                confirmDeleteBtn.disabled = false;
-                confirmDeleteBtn.innerHTML = original;
-            }
-=======
-
-        confirmDeleteBtn.onclick = () => {
-            Swal.fire({
-                icon: "success",
-                title: "Permission Deleted",
-                text: `Permission with ID ${id} has been deleted.`,
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                deletePermissionModal.classList.remove("active");
-                // Simulate removal
-                const row = document.querySelector(`tr[data-permission-id="${id}"]`);
-                if (row) row.remove();
-            });
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-        };
-    };
-
-    // Close Modal Function
-    window.closeModal = function(modalId) {
-<<<<<<< HEAD
-        const el = document.getElementById(modalId);
-        if (!el) return;
-        el.classList.remove("active");
-        el.classList.add("hidden");
-=======
-        document.getElementById(modalId).classList.remove("active");
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-    };
 
     // Form Submission Handling
     document.getElementById("newPermissionForm").addEventListener("submit", (e) => {

@@ -189,6 +189,15 @@ $user = auth()->user();
       const dateInput = document.getElementById('bookingDate');
       const startInput = document.getElementById('startTime');
       const endInput = document.getElementById('endTime');
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('main-content');
+      const toggleBtn = document.getElementById('toggle-btn');
+      const overlay = document.getElementById('overlay');
+      const dropdownToggles = document.querySelectorAll('.has-dropdown > div');
+      const notificationBtn = document.getElementById('notificationBtn');
+      const notificationDropdown = document.getElementById('notificationDropdown');
+      const userMenuBtn = document.getElementById('userMenuBtn');
+      const userMenuDropdown = document.getElementById('userMenuDropdown');
 
       function hasEquipmentSelected() {
         const selects = Array.from(equipmentContainer.querySelectorAll('select[name="equipment[]"]'));
@@ -249,6 +258,128 @@ $user = auth()->user();
             return;
           }
         }
+      });
+
+      // Sidebar initial state (responsive)
+      if (window.innerWidth >= 768) {
+        sidebar.classList.remove('-ml-72');
+        mainContent.classList.add('md:ml-72', 'sidebar-open');
+        mainContent.classList.remove('sidebar-closed');
+      } else {
+        sidebar.classList.add('-ml-72');
+        mainContent.classList.remove('md:ml-72', 'sidebar-open');
+        mainContent.classList.add('sidebar-closed');
+      }
+
+      function closeAllDropdowns() {
+        dropdownToggles.forEach((toggle) => {
+          const dropdown = toggle.nextElementSibling;
+          const chevron = toggle.querySelector('.bx-chevron-down');
+          if (dropdown && !dropdown.classList.contains('hidden')) {
+            dropdown.classList.add('hidden');
+          }
+          if (chevron) chevron.classList.remove('rotate-180');
+        });
+      }
+
+      function toggleSidebar() {
+        if (window.innerWidth >= 768) {
+          sidebar.classList.toggle('md:-ml-72');
+          mainContent.classList.toggle('md:ml-72');
+          mainContent.classList.toggle('sidebar-open');
+          mainContent.classList.toggle('sidebar-closed');
+        } else {
+          sidebar.classList.toggle('-ml-72');
+          overlay.classList.toggle('hidden');
+          document.body.style.overflow = sidebar.classList.contains('-ml-72') ? '' : 'hidden';
+          mainContent.classList.toggle('sidebar-open', !sidebar.classList.contains('-ml-72'));
+          mainContent.classList.toggle('sidebar-closed', sidebar.classList.contains('-ml-72'));
+        }
+      }
+
+      // Dropdown toggles for sidebar submodules
+      dropdownToggles.forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+          const dropdown = toggle.nextElementSibling;
+          const chevron = toggle.querySelector('.bx-chevron-down');
+          // Close other dropdowns
+          dropdownToggles.forEach((other) => {
+            if (other !== toggle) {
+              const otherMenu = other.nextElementSibling;
+              const otherChevron = other.querySelector('.bx-chevron-down');
+              if (otherMenu) otherMenu.classList.add('hidden');
+              if (otherChevron) otherChevron.classList.remove('rotate-180');
+            }
+          });
+          // Toggle current
+          if (dropdown) dropdown.classList.toggle('hidden');
+          if (chevron) chevron.classList.toggle('rotate-180');
+        });
+      });
+
+      // Topbar buttons
+      if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
+      if (overlay) overlay.addEventListener('click', () => {
+        sidebar.classList.add('-ml-72');
+        overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+        mainContent.classList.remove('sidebar-open');
+        mainContent.classList.add('sidebar-closed');
+      });
+
+      if (notificationBtn && notificationDropdown) {
+        notificationBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          notificationDropdown.classList.toggle('hidden');
+          if (userMenuDropdown) userMenuDropdown.classList.add('hidden');
+          if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+        });
+      }
+
+      if (userMenuBtn && userMenuDropdown) {
+        userMenuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          userMenuDropdown.classList.toggle('hidden');
+          const expanded = userMenuBtn.getAttribute('aria-expanded') === 'true';
+          userMenuBtn.setAttribute('aria-expanded', (!expanded).toString());
+          if (notificationDropdown) notificationDropdown.classList.add('hidden');
+        });
+      }
+
+      // Close dropdowns when clicking outside
+      window.addEventListener('click', (e) => {
+        if (notificationDropdown && !notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+          notificationDropdown.classList.add('hidden');
+        }
+        if (userMenuDropdown && !userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+          userMenuDropdown.classList.add('hidden');
+          userMenuBtn.setAttribute('aria-expanded', 'false');
+        }
+        // Close sidebar dropdown menus when clicking outside of them
+        const clickedInsideDropdown = Array.from(dropdownToggles).some(t => t.contains(e.target) || (t.nextElementSibling && t.nextElementSibling.contains(e.target)));
+        if (!clickedInsideDropdown) {
+          closeAllDropdowns();
+        }
+      });
+
+      // Handle resize for sidebar responsiveness
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 768) {
+          sidebar.classList.remove('-ml-72');
+          overlay.classList.add('hidden');
+          document.body.style.overflow = '';
+          if (!mainContent.classList.contains('md:ml-72')) {
+            mainContent.classList.add('md:ml-72', 'sidebar-open');
+            mainContent.classList.remove('sidebar-closed');
+          }
+        } else {
+          sidebar.classList.add('-ml-72');
+          mainContent.classList.remove('md:ml-72', 'sidebar-open');
+          mainContent.classList.add('sidebar-closed');
+          overlay.classList.add('hidden');
+          document.body.style.overflow = '';
+        }
+        closeAllDropdowns();
       });
     });
   </script>

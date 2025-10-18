@@ -10,10 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-<<<<<<< HEAD
 use Illuminate\Support\Facades\Auth; // Added for authentication
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
 class TwoFactorController extends Controller
 {
@@ -63,7 +60,6 @@ class TwoFactorController extends Controller
         try {
             $recipientName = $user ? ($user->name ?? $user->email) : ($validated['username'] ?? 'User');
             Mail::to($recipientEmail)->send(new TwoFactorCodeMail($recipientName, $code));
-<<<<<<< HEAD
             Log::info('[2FA] Code emailed successfully', [
                 'recipient' => $recipientEmail,
                 'mail_config' => [
@@ -163,30 +159,6 @@ class TwoFactorController extends Controller
 
         // Redirect to dashboard after successful login
         return redirect()->intended(route('admin.dashboard'));
-=======
-            Log::info('[2FA] Code emailed successfully');
-        } catch (\Throwable $e) {
-            Log::warning('[2FA] Primary mail send failed: '.$e->getMessage());
-            // Fallback to log mailer (writes email content to storage/logs/laravel.log)
-            try {
-                Mail::mailer('log')->to($recipientEmail)->send(new TwoFactorCodeMail('User', $code));
-                Log::info('[2FA] Code written via log mailer');
-            } catch (\Throwable $e2) {
-                Log::error('[2FA] Log mailer also failed: '.$e2->getMessage());
-            }
-            // Still return ok for UX; include hint when debug is on
-            if (config('app.debug')) {
-                return response()->json(['ok' => true, 'note' => 'mail_failed_fallback_log', 'code' => $code]);
-            }
-            return response()->json(['ok' => true, 'note' => 'mail_failed']);
-        }
-
-        // When debug is on, include code in response to simplify testing
-        if (config('app.debug')) {
-            return response()->json(['ok' => true, 'code' => $code]);
-        }
-        return response()->json(['ok' => true]);
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     }
 
     public static function cacheKey($userId): string

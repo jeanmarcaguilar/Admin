@@ -220,12 +220,8 @@ $user = auth()->user();
 
     <div class="flex w-full min-h-screen pt-16">
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
-
-<<<<<<< HEAD
          <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
-=======
-        <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
+
             <div class="department-header px-2 py-4 mx-2 border-b border-white/50">
                 <h1 class="text-xl font-bold">Administrative Department</h1>
             </div>
@@ -330,70 +326,31 @@ $user = auth()->user();
                             </button>
                         </div>
                     </div>
-
-<<<<<<< HEAD
-
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     <!-- Stats Cards -->
-                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                         <div class="dashboard-card p-4">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Active Compliances</p>
-<<<<<<< HEAD
+
                                     <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $stats['active'] ?? 0 }}</p>
-=======
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">18</p>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
+
                                 </div>
                                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                                     <i class="fas fa-clipboard-check text-xl"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-800">Due This Month</p>
-<<<<<<< HEAD
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $stats['due_this_month'] ?? 0 }}</p>
-=======
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">5</p>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-                                </div>
-                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                    <i class="fas fa-calendar-day text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
+                        
                         <div class="dashboard-card p-4">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Pending Review</p>
-<<<<<<< HEAD
+
                                     <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $stats['pending'] ?? 0 }}</p>
-=======
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">3</p>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </div>
                                 <div class="p-3 rounded-full bg-green-100 text-green-600">
                                     <i class="fas fa-search text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-800">At Risk</p>
-<<<<<<< HEAD
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $stats['at_risk'] ?? 0 }}</p>
-=======
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">2</p>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-                                </div>
-                                <div class="p-3 rounded-full bg-red-100 text-red-600">
-                                    <i class="fas fa-exclamation-triangle text-xl"></i>
                                 </div>
                             </div>
                         </div>
@@ -441,7 +398,6 @@ $user = auth()->user();
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-<<<<<<< HEAD
                                     @forelse((isset($complianceItems) ? $complianceItems : []) as $item)
                                         @php
                                             $daysUntilDue = now()->diffInDays($item->due_date, false);
@@ -480,7 +436,6 @@ $user = auth()->user();
                                             <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500">No compliance items found.</td>
                                         </tr>
                                     @endforelse
-=======
                                     <tr class="table-row">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">CPL-2023-045</div>
@@ -506,7 +461,6 @@ $user = auth()->user();
                                             <a href="#" class="text-red-600 hover:text-red-900" data-tooltip="Delete"><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </tbody>
                             </table>
                         </div>
@@ -554,12 +508,6 @@ $user = auth()->user();
             </div>
 
             <!-- Add Compliance Modal -->
-<<<<<<< HEAD
-            
-            
-            
-            
-=======
             <div id="addComplianceModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-compliance-modal-title">
                 <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                     <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
@@ -608,7 +556,6 @@ $user = auth()->user();
                     </div>
                 </div>
             </div>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
             <!-- User Menu Dropdown -->
             <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
@@ -627,7 +574,6 @@ $user = auth()->user();
                 </ul>
             </div>
 
-<<<<<<< HEAD
             <!-- Profile, Account, Privacy, and Sign Out modals moved below to be outside main content for full-page overlay -->
         </main>
     </div>
@@ -986,8 +932,6 @@ $user = auth()->user();
             </div>
         </div>
     </div>
-
-=======
             <!-- Profile Modal -->
             <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
                 <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
@@ -1171,8 +1115,6 @@ $user = auth()->user();
             </div>
         </main>
     </div>
-
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const sidebar = document.getElementById("sidebar");
@@ -1387,8 +1329,6 @@ $user = auth()->user();
             cancelAddCompliance.addEventListener("click", () => {
                 addComplianceModal.classList.remove("active");
             });
-
-<<<<<<< HEAD
             // Handle View/Edit/Delete buttons
             const viewBtns = document.querySelectorAll('.viewComplianceBtn');
             const editBtns = document.querySelectorAll('.editComplianceBtn');
@@ -1743,7 +1683,6 @@ $user = auth()->user();
                 
                 // Then load fresh data from server
                 loadComplianceData();
-=======
             addComplianceForm.addEventListener("submit", (e) => {
                 e.preventDefault();
                 addComplianceModal.classList.remove("active");
@@ -1753,7 +1692,6 @@ $user = auth()->user();
                     text: 'The compliance has been added successfully.',
                     confirmButtonColor: '#2f855a'
                 });
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             });
 
             window.addEventListener("click", (e) => {

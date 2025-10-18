@@ -1,13 +1,8 @@
 @php
 // Get the authenticated user
 $user = auth()->user();
-<<<<<<< HEAD
 // Get calendar bookings from database (passed from route)
 $calendarBookings = $calendarBookings ?? [];
-=======
-// Merge calendar bookings from session for rendering in JS and Upcoming Events
-$calendarBookings = array_merge(session('calendar_bookings', []), session('new_bookings', []));
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -361,11 +356,7 @@ $calendarBookings = array_merge(session('calendar_bookings', []), session('new_b
                   <h3 class="text-[#1a4d38] font-bold text-sm">Upcoming Events</h3>
                 </div>
                 @php
-<<<<<<< HEAD
                   $upcoming = $calendarBookings;
-=======
-                  $upcoming = array_merge(session('calendar_bookings', []), session('new_bookings', []));
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 @endphp
                 @if (!empty($upcoming))
                   <ul class="p-4 space-y-3 text-sm">
@@ -891,12 +882,7 @@ $calendarBookings = array_merge(session('calendar_bookings', []), session('new_b
       const nextMonthBtn = document.getElementById('nextMonthBtn');
 
       let currentDate = new Date();
-
-<<<<<<< HEAD
       // Database bookings passed from backend
-=======
-      // Session bookings passed from backend (room-equipment submissions)
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
       const sessionBookings = @json($calendarBookings);
 
       function daysInMonth(year, monthIndex) {

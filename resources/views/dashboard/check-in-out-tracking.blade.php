@@ -204,9 +204,6 @@
                     <i class="fa-solid fa-chevron-down text-sm"></i>
                 </div>
             </div>
-
-<<<<<<< HEAD
-=======
             <!-- View Visitor Modal -->
             <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-visitor-modal-title">
                 <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -265,7 +262,6 @@
                     </div>
                 </div>
             </div>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         </div>
     </nav>
 
@@ -578,11 +574,6 @@
                     </section>
                 </div>
             </div>
-
-            
-
-<<<<<<< HEAD
-=======
             <!-- Check-In Modal -->
             <div id="checkInModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="check-in-modal-title">
                 <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -648,9 +639,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-
+    </div>
             <!-- User Menu Dropdown -->
             <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
                 <div class="py-4 px-6 border-b border-gray-100 text-center">
@@ -680,7 +669,6 @@
         </main>
     </div>
 
-<<<<<<< HEAD
     <!-- View Visitor Modal (moved outside main content) -->
     <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-visitor-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -806,9 +794,6 @@
             </div>
         </div>
     </div>
-
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <!-- Logout Form -->
     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
         @csrf

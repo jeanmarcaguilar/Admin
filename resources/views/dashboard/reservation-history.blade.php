@@ -458,7 +458,18 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                       <span class="{{ $statusClass }}">{{ ucfirst($status) }}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                      <button type="button"
+                              class="text-blue-600 hover:text-blue-900 mr-3 view-reservation"
+                              data-id="{{ $reservation['id'] ?? '' }}"
+                              data-title="{{ $title }}"
+                              data-type="{{ $facilityType }}"
+                              data-date="{{ $reservation['date'] ?? '' }}"
+                              data-start="{{ $reservation['start_time'] ?? '' }}"
+                              data-end="{{ $reservation['end_time'] ?? '' }}"
+                              data-status="{{ strtolower($reservation['status'] ?? 'pending') }}"
+                              data-requested-by="{{ $requestedBy }}">
+                        View
+                      </button>
                       <a href="#" class="text-green-600 hover:text-green-900">Download</a>
                     </td>
                   </tr>
@@ -716,6 +727,47 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
       </div>
     </div>
 
+    <div id="reservationDetailsModal" class="modal hidden" aria-modal="true" role="dialog">
+      <div class="bg-white rounded-lg w-full max-w-xl max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b px-6 py-4">
+          <h3 class="text-xl font-semibold text-gray-900">Reservation Details</h3>
+          <button id="closeReservationDetails" class="text-gray-400 hover:text-gray-500">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-3 text-sm" id="reservationDetailsContent">
+          <div class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Reservation ID</div>
+            <div class="col-span-2 font-medium" id="resId">—</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Title</div>
+            <div class="col-span-2 font-medium" id="resTitle">—</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Facility</div>
+            <div class="col-span-2 font-medium" id="resType">—</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Date</div>
+            <div class="col-span-2 font-medium" id="resDate">—</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Time</div>
+            <div class="col-span-2 font-medium" id="resTime">—</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Status</div>
+            <div class="col-span-2 font-medium" id="resStatus">—</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div class="text-gray-500">Requested By</div>
+            <div class="col-span-2 font-medium" id="resRequestedBy">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         const sidebar = document.getElementById("sidebar");
@@ -743,6 +795,15 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
         const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
         const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
         const openSignOutBtn = document.getElementById("openSignOutBtn");
+        const reservationModal = document.getElementById("reservationDetailsModal");
+        const closeReservationDetails = document.getElementById("closeReservationDetails");
+        const resId = document.getElementById("resId");
+        const resTitle = document.getElementById("resTitle");
+        const resType = document.getElementById("resType");
+        const resDate = document.getElementById("resDate");
+        const resTime = document.getElementById("resTime");
+        const resStatus = document.getElementById("resStatus");
+        const resRequestedBy = document.getElementById("resRequestedBy");
 
         // Initialize sidebar state based on screen size
         if (window.innerWidth >= 768) {
@@ -857,6 +918,35 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
           profileModal.classList.remove("active");
         });
 
+        document.querySelectorAll('.view-reservation').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const id = btn.getAttribute('data-id') || '—';
+            const title = btn.getAttribute('data-title') || '—';
+            const type = btn.getAttribute('data-type') || '—';
+            const date = btn.getAttribute('data-date') || '';
+            const start = btn.getAttribute('data-start') || '';
+            const end = btn.getAttribute('data-end') || '';
+            const status = btn.getAttribute('data-status') || 'pending';
+            const requestedBy = btn.getAttribute('data-requested-by') || '—';
+
+            resId.textContent = `#${id}`;
+            resTitle.textContent = title;
+            resType.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            resDate.textContent = date ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' }) : '—';
+            const timeStr = start && end ? `${start} - ${end}` : (start || end || '—');
+            resTime.textContent = timeStr;
+            resStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            resRequestedBy.textContent = requestedBy;
+
+            reservationModal.classList.add('active');
+          });
+        });
+
+        closeReservationDetails.addEventListener('click', () => {
+          reservationModal.classList.remove('active');
+        });
+
         openAccountSettingsBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           accountSettingsModal.classList.add("active");
@@ -920,6 +1010,9 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
           if (!signOutModal.contains(e.target)) {
             signOutModal.classList.remove("active");
           }
+          if (!reservationModal.contains(e.target)) {
+            reservationModal.classList.remove('active');
+          }
         });
 
         profileModal.querySelector("div").addEventListener("click", (e) => {
@@ -932,6 +1025,9 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
           e.stopPropagation();
         });
         signOutModal.querySelector("div").addEventListener("click", (e) => {
+          e.stopPropagation();
+        });
+        reservationModal.querySelector("div").addEventListener("click", (e) => {
           e.stopPropagation();
         });
 

@@ -333,11 +333,7 @@
             </div>
         </div>
     </div>
-
-<<<<<<< HEAD
-=======
     <!-- User Menu Dropdown -->
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
         <div class="py-4 px-6 border-b border-gray-100 text-center">
             <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
@@ -359,7 +355,7 @@
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
 
         <!-- Sidebar -->
-        <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
+ <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
             <div class="department-header px-2 py-4 mx-2 border-b border-white/50">
                 <h1 class="text-xl font-bold">Administrative Department</h1>
             </div>

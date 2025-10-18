@@ -27,49 +27,9 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-<<<<<<< HEAD
         $request->authenticate();
 
         $request->session()->regenerate();
-
-=======
-        // Enforce 2FA code verification BEFORE authenticating
-        $username = (string) $request->input('username');
-        $twoFaInput = trim((string) $request->input('two_factor_code', ''));
-
-        // Require code presence
-        if ($twoFaInput === '') {
-            return back()
-                ->withErrors(['two_factor_code' => 'Verification code is required.'])
-                ->withInput($request->except('password'));
-        }
-
-        // Find user by username (login identifier)
-        $user = User::where('username', $username)->first();
-        if (!$user) {
-            // Fall back to default auth flow; this will ultimately fail on credentials
-            return back()
-                ->withErrors(['username' => 'These credentials do not match our records.'])
-                ->withInput($request->except('password'));
-        }
-
-        // Load cached 2FA code
-        $cacheKey = TwoFactorController::cacheKey($user->id);
-        $cached = Cache::get($cacheKey);
-        $expected = is_array($cached) ? ($cached['code'] ?? null) : null;
-        if (!$expected || $twoFaInput !== $expected) {
-            return back()
-                ->withErrors(['two_factor_code' => 'Invalid verification code.'])
-                ->withInput($request->except('password'));
-        }
-
-        // Optionally consume the code (one-time use)
-        Cache::forget($cacheKey);
-
-        // Proceed with normal authentication
-        $request->authenticate();
-        $request->session()->regenerate();
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return redirect()->intended('/dashboard');
     }
 

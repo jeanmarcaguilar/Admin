@@ -34,8 +34,6 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
-
-<<<<<<< HEAD
         // Generate a username from the name to satisfy the non-nullable username column
         $username = \Illuminate\Support\Str::slug($request->name) ?: 'user-'.strtolower(\Illuminate\Support\Str::random(6));
         // Ensure uniqueness by appending a short random string
@@ -44,10 +42,6 @@ class RegisteredUserController extends Controller
         $user = User::create([
             'name' => $request->name,
             'username' => $username,
-=======
-        $user = User::create([
-            'name' => $request->name,
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);

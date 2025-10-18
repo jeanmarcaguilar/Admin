@@ -334,26 +334,27 @@ $user = auth()->user();
                             </button>
                         </div>
                     </div>
-
                     <!-- Stats Cards -->
-<<<<<<< HEAD
                     @php
-                        $totalContracts = (int) ($stats['total'] ?? 0);
-                        $activeCount = (int) ($stats['active'] ?? 0);
-                        $pendingCount = (int) ($stats['pending'] ?? 0);
+                        $list = is_iterable($contracts ?? []) ? $contracts : [];
+                        $totalContracts = 0;
+                        $activeCount = 0;
+                        $pendingCount = 0;
+                        foreach ($list as $item) {
+                            $status = is_array($item) ? strtolower($item['status'] ?? '') : strtolower($item->status ?? '');
+                            $totalContracts++;
+                            if ($status === 'active') { $activeCount++; }
+                            if ($status === 'pending') { $pendingCount++; }
+                        }
                         $activePct = $totalContracts > 0 ? round(($activeCount / $totalContracts) * 100) : 0;
                         $pendingPct = $totalContracts > 0 ? round(($pendingCount / $totalContracts) * 100) : 0;
                     @endphp
-                    <section class="grid grid-cols-1 md:grid-cols-2 gap-6">
-=======
-                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
+                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
                         <div class="dashboard-card p-4">
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Active Contracts</p>
-<<<<<<< HEAD
-                                    <p id="activeCountEl" class="font-extrabold text-3xl mt-1 text-gray-900">{{ $stats['active'] ?? 0 }}</p>
+                                    <p id="activeCountEl" class="font-extrabold text-3xl mt-1 text-gray-900">{{ $activeCount }}</p>
                                     <p class="text-xs text-gray-500 mt-1"><span id="activeCountText">{{ $activeCount }}</span> of <span id="totalContractsText">{{ $totalContracts }}</span> total</p>
                                 </div>
                                 <div class="p-4 rounded-full bg-blue-100 text-blue-600">
@@ -367,23 +368,6 @@ $user = auth()->user();
                                 <div class="flex justify-between text-xs text-gray-500 mt-1">
                                     <span id="activePctEl">{{ $activePct }}%</span>
                                     <span>Total: <span id="activeTotalEl">{{ $totalContracts }}</span></span>
-=======
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">24</p>
-                                </div>
-                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                    <i class="fas fa-file-contract text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-800">Expiring Soon</p>
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">5</p>
-                                </div>
-                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                    <i class="fas fa-clock text-xl"></i>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </div>
                             </div>
                         </div>
@@ -391,8 +375,7 @@ $user = auth()->user();
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Pending Review</p>
-<<<<<<< HEAD
-                                    <p id="pendingCountEl" class="font-extrabold text-3xl mt-1 text-gray-900">{{ $stats['pending'] ?? 0 }}</p>
+                                    <p id="pendingCountEl" class="font-extrabold text-3xl mt-1 text-gray-900">{{ $pendingCount }}</p>
                                     <p class="text-xs text-gray-500 mt-1"><span id="pendingCountText">{{ $pendingCount }}</span> of <span>{{ $totalContracts }}</span> total</p>
                                 </div>
                                 <div class="p-4 rounded-full bg-green-100 text-green-600">
@@ -406,23 +389,6 @@ $user = auth()->user();
                                 <div class="flex justify-between text-xs text-gray-500 mt-1">
                                     <span id="pendingPctEl">{{ $pendingPct }}%</span>
                                     <span>Total: <span id="pendingTotalEl">{{ $totalContracts }}</span></span>
-=======
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">3</p>
-                                </div>
-                                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                    <i class="fas fa-search text-xl"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-800">Total Value</p>
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">₱1,245,000</p>
-                                </div>
-                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                                    <i class="fas fa-peso-sign text-xl"></i>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </div>
                             </div>
                         </div>
@@ -472,7 +438,7 @@ $user = auth()->user();
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-<<<<<<< HEAD
+
                                     @forelse(($contracts ?? []) as $c)
                                         @php
                                             $badge = $c->type === 'nda' ? 'NDA' : ($c->type === 'service' ? 'Service' : 'Employment');
@@ -505,50 +471,6 @@ $user = auth()->user();
                                             <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">No contracts found.</td>
                                         </tr>
                                     @endforelse
-=======
-                                    <tr class="table-row">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">CT-2023-045</div>
-                                            <div class="text-xs text-gray-500">Created: 2023-10-01</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-medium text-gray-900">Service Agreement</div>
-                                            <div class="text-xs text-gray-500">Acme Corp</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Service</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View"><i class="fas fa-eye"></i></a>
-                                            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit"><i class="fas fa-edit"></i></a>
-                                            <a href="#" class="text-red-600 hover:text-red-900" data-tooltip="Delete"><i class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
-                                    <tr class="table-row">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">CT-2023-044</div>
-                                            <div class="text-xs text-gray-500">Created: 2023-09-28</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-medium text-gray-900">NDA</div>
-                                            <div class="text-xs text-gray-500">TechStart Inc</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">NDA</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending Review</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View"><i class="fas fa-eye"></i></a>
-                                            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit"><i class="fas fa-edit"></i></a>
-                                            <a href="#" class="text-red-600 hover:text-red-900" data-tooltip="Delete"><i class="fas fa-trash"></i></a>
-                                        </td>
-                                    </tr>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </tbody>
                             </table>
                         </div>
@@ -795,7 +717,7 @@ $user = auth()->user();
                     </div>
                 </div>
             </div>
-<<<<<<< HEAD
+
 
             <!-- View Contract Modal -->
             <div id="viewContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-contract-modal-title">
@@ -883,8 +805,6 @@ $user = auth()->user();
                     </div>
                 </div>
             </div>
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         </main>
     </div>
 
@@ -918,7 +838,6 @@ $user = auth()->user();
             const addContractModal = document.getElementById('addContractModal');
             const closeAddContractModal = document.getElementById('closeAddContractModal');
             const cancelAddContract = document.getElementById('cancelAddContract');
-<<<<<<< HEAD
             const viewContractModal = document.getElementById('viewContractModal');
             const closeViewContractModal = document.getElementById('closeViewContractModal');
             const closeViewContractModal2 = document.getElementById('closeViewContractModal2');
@@ -929,8 +848,6 @@ $user = auth()->user();
             const closeDeleteContractModal = document.getElementById('closeDeleteContractModal');
             const cancelDeleteContract = document.getElementById('cancelDeleteContract');
             const confirmDeleteContract = document.getElementById('confirmDeleteContract');
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
             // Initialize sidebar state based on screen size
             if (window.innerWidth >= 768) {
@@ -1002,12 +919,9 @@ $user = auth()->user();
                 accountSettingsModal.classList.remove("active");
                 privacySecurityModal.classList.remove("active");
                 signOutModal.classList.remove("active");
-<<<<<<< HEAD
                 viewContractModal.classList.remove("active");
                 editContractModal.classList.remove("active");
                 deleteContractModal.classList.remove("active");
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 addContractModal.classList.remove("active");
             });
 
@@ -1111,12 +1025,10 @@ $user = auth()->user();
                 accountSettingsModal.classList.remove("active");
                 privacySecurityModal.classList.remove("active");
                 signOutModal.classList.remove("active");
-<<<<<<< HEAD
+
                 viewContractModal.classList.remove("active");
                 editContractModal.classList.remove("active");
                 deleteContractModal.classList.remove("active");
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             }
 
             addContractBtn.addEventListener('click', toggleAddContractModal);
@@ -1143,7 +1055,6 @@ $user = auth()->user();
                 if (!signOutModal.contains(e.target)) {
                     signOutModal.classList.remove("active");
                 }
-<<<<<<< HEAD
                 if (!viewContractModal.contains(e.target)) {
                     viewContractModal.classList.remove("active");
                 }
@@ -1153,8 +1064,6 @@ $user = auth()->user();
                 if (!deleteContractModal.contains(e.target)) {
                     deleteContractModal.classList.remove("active");
                 }
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 if (!addContractModal.contains(e.target) && !addContractBtn.contains(e.target)) {
                     addContractModal.classList.remove("active");
                 }
@@ -1175,8 +1084,6 @@ $user = auth()->user();
             addContractModal.querySelector("div").addEventListener("click", (e) => {
                 e.stopPropagation();
             });
-
-<<<<<<< HEAD
             // Handle View/Edit/Delete buttons
             const viewBtns = document.querySelectorAll('.viewContractBtn');
             const editBtns = document.querySelectorAll('.editContractBtn');
@@ -1310,8 +1217,6 @@ $user = auth()->user();
                 }
             });
 
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             addContractForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 toggleAddContractModal();

@@ -226,8 +226,6 @@ $user = auth()->user();
             <a class="text-[#28644c] text-xs font-semibold hover:underline" href="#">View all notifications</a>
         </div>
     </div>
-
-<<<<<<< HEAD
     <!-- User Menu Dropdown (moved outside main content) -->
     <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
         <div class="py-4 px-6 border-b border-gray-100 text-center">
@@ -244,9 +242,6 @@ $user = auth()->user();
             <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
         </ul>
     </div>
-
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <div class="flex w-full min-h-screen pt-16">
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
 
@@ -391,7 +386,6 @@ $user = auth()->user();
 
                     <!-- Search and Filter -->
                     <section class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100">
-<<<<<<< HEAD
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div class="relative flex-1 max-w-md">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -425,37 +419,6 @@ $user = auth()->user();
                             </button>
                         </div>
                     </div>
-=======
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="relative flex-1 max-w-md">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-search text-gray-400"></i>
-                                </div>
-                                <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] text-sm" placeholder="Search alerts...">
-                            </div>
-                            <div class="flex space-x-3">
-                                <select id="filterStatus" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
-                                    <option value="">All Status</option>
-                                    <option value="today">Today</option>
-                                    <option value="upcoming">Upcoming</option>
-                                    <option value="overdue">Overdue</option>
-                                    <option value="completed">Completed</option>
-                                </select>
-                                <select id="filterType" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
-                                    <option value="">All Types</option>
-                                    <option value="court_hearing">Court Hearing</option>
-                                    <option value="filing_deadline">Filing Deadline</option>
-                                    <option value="compliance_deadline">Compliance Deadline</option>
-                                    <option value="contract">Contract</option>
-                                    <option value="meeting">Meeting</option>
-                                </select>
-                                <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
-                                    <i class="fas fa-filter text-gray-600 mr-2"></i>
-                                    <span>Filter</span>
-                                </button>
-                            </div>
-                        </div>
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     </section>
 
                     <!-- Alerts Table -->
@@ -526,7 +489,6 @@ $user = auth()->user();
                 </div>
             </div>
 
-<<<<<<< HEAD
             
 
         </main>
@@ -768,8 +730,6 @@ $user = auth()->user();
             </div>
         </div>
     </div>
-
-=======
             <!-- User Menu Dropdown -->
             <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
                 <div class="py-4 px-6 border-b border-gray-100 text-center">
@@ -1025,8 +985,6 @@ $user = auth()->user();
             </div>
         </main>
     </div>
-
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const sidebar = document.getElementById("sidebar");
