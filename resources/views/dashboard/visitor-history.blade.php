@@ -154,6 +154,7 @@ $user = auth()->user();
             background-color: #fef3c7;
             color: #92400e;
         }
+<<<<<<< HEAD
         .modal {
             display: none;
             background: rgba(0, 0, 0, 0.5);
@@ -168,11 +169,17 @@ $user = auth()->user();
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
             transition: box-shadow .2s ease-in-out;
         }
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     </style>
 </head>
 <body class="bg-gray-100">
     <nav class="w-full p-3 h-16 bg-[#28644c] text-white shadow-md fixed top-0 left-0 right-0 z-50">
+<<<<<<< HEAD
         <div class="flex justify-between items-center h-full max-w-7xl mx-auto">
+=======
+        <div class="flex justify-between items-center h-full max-w-full mx-auto px-4">
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             <div class="flex items-center space-x-4">
                 <button id="toggle-btn" class="pl-2 focus:outline-none" aria-label="Toggle Sidebar">
                     <i class="fa-solid fa-bars text-2xl cursor-pointer"></i>
@@ -180,9 +187,14 @@ $user = auth()->user();
                 <h1 class="text-2xl font-bold tracking-tight">Visitor History</h1>
             </div>
             <div class="flex items-center space-x-1">
+<<<<<<< HEAD
                 <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn">
                     <i class="fa-solid fa-bell text-xl"></i>
                     <span class="absolute top-1 right-1 bg-red-500 text-xs text-white rounded-full px-1">3</span>
+=======
+                <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn" aria-label="Notifications">
+                    <i class="fa-solid fa-bell text-xl"></i>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 </button>
                 <div class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
                     <i class="fa-solid fa-user text-[18px] bg-white text-[#28644c] px-2.5 py-2 rounded-full"></i>
@@ -201,6 +213,7 @@ $user = auth()->user();
         <div class="p-4 text-center text-sm text-gray-500">No notifications yet.</div>
     </div>
 
+<<<<<<< HEAD
     <!-- User Menu Dropdown (moved outside main content) -->
     <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
         <div class="py-4 px-6 border-b border-gray-100 text-center">
@@ -218,12 +231,18 @@ $user = auth()->user();
         </ul>
     </div>
 
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <div class="flex w-full min-h-screen pt-16">
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
 
         <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
             <div class="department-header px-2 py-4 mx-2 border-b border-white/50">
+<<<<<<< HEAD
                 <h1 class="text-xl font-bold text-white">Administrative Department</h1>
+=======
+                <h1 class="text-xl font-bold">Administrative Department</h1>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             </div>
             <div class="px-3 py-10 flex-1">
                 <ul class="space-y-6">
@@ -329,6 +348,7 @@ $user = auth()->user();
                             </button>
                         </div>
     </div>
+<<<<<<< HEAD
                     @php
                         $allVisitors = $visitors ?? [];
                         $totalVisitors = is_array($allVisitors) ? count($allVisitors) : 0;
@@ -341,12 +361,18 @@ $user = auth()->user();
                             }
                         }
                     @endphp
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                         <div class="dashboard-card bg-white p-6 rounded-lg shadow-sm">
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Total Visitors</p>
+<<<<<<< HEAD
                                     <h3 class="text-2xl font-bold text-gray-900">{{ $totalVisitors }}</h3>
+=======
+                                    <h3 class="text-2xl font-bold text-gray-900">0</h3>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </div>
                                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                                     <i class="fas fa-users text-xl"></i>
@@ -364,7 +390,11 @@ $user = auth()->user();
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Visitors Today</p>
+<<<<<<< HEAD
                                     <h3 class="text-2xl font-bold text-gray-900">{{ $visitorsToday }}</h3>
+=======
+                                    <h3 class="text-2xl font-bold text-gray-900">0</h3>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </div>
                                 <div class="p-3 rounded-full bg-green-100 text-green-600">
                                     <i class="fas fa-user-check text-xl"></i>
@@ -379,7 +409,42 @@ $user = auth()->user();
                         </div>
                     </div>
 
+<<<<<<< HEAD
                     
+=======
+                    <!-- Search and Filter -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="relative flex-1 max-w-md">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" placeholder="Search visitors...">
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
+                                    <option>All Status</option>
+                                    <option>Checked In</option>
+                                    <option>Checked Out</option>
+                                    <option>Scheduled</option>
+                                    <option>Overdue</option>
+                                </select>
+                                <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
+                                    <option>All Types</option>
+                                    <option>Client</option>
+                                    <option>Vendor</option>
+                                    <option>Contractor</option>
+                                    <option>Guest</option>
+                                </select>
+                                <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
+                                <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                                    <i class="fas fa-filter text-gray-600 mr-2"></i>
+                                    <span>Filter</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
                     <!-- Live Visitor Records (from session) -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mb-6">
@@ -431,10 +496,40 @@ $user = auth()->user();
                             </table>
                         </div>
                     </div>
+<<<<<<< HEAD
+=======
+                <!-- User Menu Dropdown -->
+                <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
+                    <div class="py-4 px-6 border-b border-gray-100 text-center">
+                        <div class="h-12 w-12 rounded-full bg-[#2f855A] flex items-center justify-center text-white text-xl font-semibold">
+                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                        </div>
+                        <p class="text-sm font-medium text-gray-900 mt-2">{{ $user->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ $user->email }}</p>
+                    </div>
+                    <div class="py-1">
+                        <a href="#" id="openProfileBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-user-circle mr-2"></i> Profile
+                        </a>
+                        <a href="#" id="openAccountSettingsBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-cog mr-2"></i> Settings
+                        </a>
+                        <a href="#" id="openPrivacySecurityBtn" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-shield-alt mr-2"></i> Privacy & Security
+                        </a>
+                    </div>
+                    <div class="py-1 border-t border-gray-100">
+                        <a href="#" id="signOutBtn" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Sign out
+                        </a>
+                    </div>
+                </div>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             </div>
         </main>
     </div>
 
+<<<<<<< HEAD
     <!-- Profile Modal (moved outside main content) -->
     <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
         <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
@@ -617,6 +712,8 @@ $user = auth()->user();
         </div>
     </div>
 
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <!-- Logout Form -->
     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
         @csrf
@@ -634,6 +731,7 @@ $user = auth()->user();
                 notificationDropdown: document.getElementById('notificationDropdown'),
                 userMenuBtn: document.getElementById('userMenuBtn'),
                 userMenuDropdown: document.getElementById('userMenuDropdown'),
+<<<<<<< HEAD
                 openProfileBtn: document.getElementById('openProfileBtn'),
                 openAccountSettingsBtn: document.getElementById('openAccountSettingsBtn'),
                 openPrivacySecurityBtn: document.getElementById('openPrivacySecurityBtn'),
@@ -650,6 +748,9 @@ $user = auth()->user();
                 cancelPrivacySecurityBtn: document.getElementById('cancelPrivacySecurityBtn'),
                 cancelSignOutBtn: document.getElementById('cancelSignOutBtn'),
                 cancelSignOutBtn2: document.getElementById('cancelSignOutBtn2'),
+=======
+                signOutBtn: document.getElementById('signOutBtn')
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             };
 
             // Initialize sidebar state
@@ -738,6 +839,7 @@ $user = auth()->user();
                 elements.notificationDropdown.classList.add('hidden');
             });
 
+<<<<<<< HEAD
             // Modal helpers
             const openModal = (m)=>{ if(!m) return; m.classList.add('active'); m.classList.remove('hidden'); };
             const closeModal = (m)=>{ if(!m) return; m.classList.remove('active'); m.classList.add('hidden'); };
@@ -758,6 +860,8 @@ $user = auth()->user();
             elements.cancelSignOutBtn?.addEventListener('click', ()=> closeModal(elements.signOutModal));
             elements.cancelSignOutBtn2?.addEventListener('click', ()=> closeModal(elements.signOutModal));
 
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             // Close dropdowns on outside click
             document.addEventListener('click', e => {
                 if (elements.notificationBtn && !elements.notificationBtn.contains(e.target) && elements.notificationDropdown && !elements.notificationDropdown.contains(e.target)) {
@@ -781,10 +885,17 @@ $user = auth()->user();
                 closeAllDropdowns();
             });
 
+<<<<<<< HEAD
             // Close modals on outside click
             [elements.profileModal, elements.accountSettingsModal, elements.privacySecurityModal, elements.signOutModal].forEach(m => {
                 m?.addEventListener('click', (e)=>{ if(e.target === m) closeModal(m); });
                 m?.querySelector('div')?.addEventListener('click', (e)=>e.stopPropagation());
+=======
+            // Sign out
+            elements.signOutBtn?.addEventListener('click', e => {
+                e.preventDefault();
+                document.getElementById('logout-form').submit();
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             });
         });
     </script>

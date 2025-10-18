@@ -7,7 +7,10 @@ $user = auth()->user();
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+<<<<<<< HEAD
     <meta name="csrf-token" content="{{ csrf_token() }}" />
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <title>Access Control & Permissions | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -414,8 +417,12 @@ $user = auth()->user();
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         @php
+<<<<<<< HEAD
                                             // Use permissions provided by the controller/route
                                             $permissions = $permissions ?? [];
+=======
+                                            $permissions = [];
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                         @endphp
 
                                         @forelse($permissions as $permission)
@@ -546,9 +553,14 @@ $user = auth()->user();
                         <label for="user" class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
                         <select id="user" name="user" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a user</option>
+<<<<<<< HEAD
                             @foreach(($allUsers ?? []) as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
                             @endforeach
+=======
+                            <option value="1">John Doe (john.doe@example.com)</option>
+                            <option value="2">Jane Smith (jane.smith@example.com)</option>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </select>
                     </div>
                     <div id="groupField" class="hidden">
@@ -654,9 +666,14 @@ $user = auth()->user();
                         <label for="editUser" class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
                         <select id="editUser" name="user" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a user</option>
+<<<<<<< HEAD
                             @foreach(($allUsers ?? []) as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
                             @endforeach
+=======
+                            <option value="1">John Doe (john.doe@example.com)</option>
+                            <option value="2">Jane Smith (jane.smith@example.com)</option>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </select>
                     </div>
                     <div id="editGroupField" class="hidden">
@@ -1401,7 +1418,10 @@ $user = auth()->user();
                 </div>
             </div>
         `;
+<<<<<<< HEAD
         modal.classList.remove("hidden");
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         modal.classList.add("active");
         userMenuDropdown.classList.add("hidden");
         userMenuBtn.setAttribute("aria-expanded", "false");
@@ -1474,7 +1494,10 @@ $user = auth()->user();
 
     // Delete Permission Confirmation
     window.confirmDeletePermission = function(id) {
+<<<<<<< HEAD
         deletePermissionModal.classList.remove("hidden");
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         deletePermissionModal.classList.add("active");
         userMenuDropdown.classList.add("hidden");
         userMenuBtn.setAttribute("aria-expanded", "false");
@@ -1485,6 +1508,7 @@ $user = auth()->user();
         signOutModal.classList.remove("active");
         newPermissionModal.classList.remove("active");
         editPermissionModal.classList.remove("active");
+<<<<<<< HEAD
         confirmDeleteBtn.onclick = async () => {
             const original = confirmDeleteBtn.innerHTML;
             confirmDeleteBtn.disabled = true;
@@ -1510,15 +1534,35 @@ $user = auth()->user();
                 confirmDeleteBtn.disabled = false;
                 confirmDeleteBtn.innerHTML = original;
             }
+=======
+
+        confirmDeleteBtn.onclick = () => {
+            Swal.fire({
+                icon: "success",
+                title: "Permission Deleted",
+                text: `Permission with ID ${id} has been deleted.`,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                deletePermissionModal.classList.remove("active");
+                // Simulate removal
+                const row = document.querySelector(`tr[data-permission-id="${id}"]`);
+                if (row) row.remove();
+            });
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         };
     };
 
     // Close Modal Function
     window.closeModal = function(modalId) {
+<<<<<<< HEAD
         const el = document.getElementById(modalId);
         if (!el) return;
         el.classList.remove("active");
         el.classList.add("hidden");
+=======
+        document.getElementById(modalId).classList.remove("active");
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     };
 
     // Form Submission Handling

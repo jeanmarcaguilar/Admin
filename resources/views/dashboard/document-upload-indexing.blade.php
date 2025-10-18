@@ -334,6 +334,10 @@
         </div>
     </div>
 
+<<<<<<< HEAD
+=======
+    <!-- User Menu Dropdown -->
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
         <div class="py-4 px-6 border-b border-gray-100 text-center">
             <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">

@@ -27,7 +27,11 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
+<<<<<<< HEAD
             'email' => ['required', 'string', 'email'],
+=======
+            'username' => ['required', 'string'],
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             'password' => ['required', 'string'],
         ];
     }
@@ -41,11 +45,19 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
+<<<<<<< HEAD
         if (! Auth::attempt($this->only('email','password'), $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
+=======
+        if (! Auth::attempt(['username' => $this->username, 'password' => $this->password], $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'username' => trans('auth.failed'),
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             ]);
         }
 
@@ -80,6 +92,10 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
+<<<<<<< HEAD
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+=======
+        return Str::transliterate(Str::lower($this->string('username')).'|'.$this->ip());
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     }
 }

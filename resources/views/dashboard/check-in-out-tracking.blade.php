@@ -205,6 +205,67 @@
                 </div>
             </div>
 
+<<<<<<< HEAD
+=======
+            <!-- View Visitor Modal -->
+            <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-visitor-modal-title">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+                        <h3 id="view-visitor-modal-title" class="text-lg font-medium text-gray-900">Visitor Details</h3>
+                        <button id="closeViewVisitorModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Visitor ID</label>
+                                <div id="view_id" class="text-sm font-semibold text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Name</label>
+                                <div id="view_name" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Company</label>
+                                <div id="view_company" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Type</label>
+                                <div id="view_type" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Host</label>
+                                <div id="view_host" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Department</label>
+                                <div id="view_department" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Check-In Date</label>
+                                <div id="view_checkin_date" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Check-In Time</label>
+                                <div id="view_checkin_time" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Purpose</label>
+                                <div id="view_purpose" class="text-sm text-gray-900">—</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Status</label>
+                                <div id="view_status" class="text-sm text-gray-900">—</div>
+                            </div>
+                        </div>
+                        <div class="pt-2 text-right">
+                            <button id="closeViewVisitorModalFooter" type="button" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         </div>
     </nav>
 
@@ -520,6 +581,75 @@
 
             
 
+<<<<<<< HEAD
+=======
+            <!-- Check-In Modal -->
+            <div id="checkInModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="check-in-modal-title">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+                        <h3 id="check-in-modal-title" class="text-lg font-medium text-gray-900">New Check-In</h3>
+                        <button id="closeCheckInModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <form id="checkInForm" class="space-y-6">
+                            <div class="grid grid-cols-1 gap-6">
+                                <div>
+                                    <label for="visitorName" class="block text-sm font-medium text-gray-700 mb-1">Visitor Name *</label>
+                                    <input type="text" id="visitorName" name="visitorName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                                <div>
+                                    <label for="hostName" class="block text-sm font-medium text-gray-700 mb-1">Host *</label>
+                                    <select id="hostName" name="hostName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                        <option value="">Select a host</option>
+                                        <option value="John Smith">John Smith (Marketing)</option>
+                                        <option value="Lisa Wang">Lisa Wang (IT Department)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="checkInTime" class="block text-sm font-medium text-gray-700 mb-1">Check-In Time *</label>
+                                    <input type="time" id="checkInTime" name="checkInTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                                <button type="button" id="cancelCheckIn" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#2f855A] hover:bg-[#28644c] focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">
+                                    Save
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check-Out Modal -->
+            <div id="checkOutModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="check-out-modal-title">
+                <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+                        <h3 id="check-out-modal-title" class="text-lg font-medium text-gray-900">Check Out Visitor</h3>
+                        <button id="closeCheckOutModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-sm text-gray-500 mb-4">Are you sure you want to check out
+                            <span id="check_out_visitor_name" class="font-semibold text-gray-800">this visitor</span>?
+                        </p>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelCheckOut" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">
+                                Cancel
+                            </button>
+                            <button type="button" id="confirmCheckOut" class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all duration-200">
+                                Check Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
             <!-- User Menu Dropdown -->
             <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
@@ -550,6 +680,7 @@
         </main>
     </div>
 
+<<<<<<< HEAD
     <!-- View Visitor Modal (moved outside main content) -->
     <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-visitor-modal-title">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
@@ -676,6 +807,8 @@
         </div>
     </div>
 
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <!-- Logout Form -->
     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
         @csrf

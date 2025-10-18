@@ -189,6 +189,7 @@ $user = auth()->user();
                 </button>
                 <h1 class="text-2xl font-bold tracking-tight">Visitors Registration</h1>
             </div>
+<<<<<<< HEAD
 
     <!-- Check In Modal (outside main content) -->
     <div id="checkInModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="check-in-modal-title">
@@ -207,6 +208,8 @@ $user = auth()->user();
         </div>
       </div>
     </div>
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             <div class="flex items-center space-x-1">
                 <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn" aria-label="Notifications">
                     <i class="fa-solid fa-bell text-xl"></i>
@@ -233,6 +236,7 @@ $user = auth()->user();
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- View Visitor Modal (moved outside main content) -->
     <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog">
       <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4">
@@ -536,6 +540,8 @@ $user = auth()->user();
         </ul>
     </div>
 
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <div class="flex w-full min-h-screen pt-16">
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
 
@@ -717,11 +723,19 @@ $user = auth()->user();
                         <div class="dashboard-card bg-white p-5 rounded-lg shadow-sm border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
+<<<<<<< HEAD
                                     <p class="text-sm font-medium text-gray-500">Checked Out</p>
                                     <h3 class="text-2xl font-extrabold text-gray-900">{{ $stats['checked_out'] ?? 0 }}</h3>
                                 </div>
                                 <div class="p-3 rounded-full bg-gray-100 text-gray-700">
                                     <i class="fas fa-door-open text-xl"></i>
+=======
+                                    <p class="text-sm font-medium text-gray-500">Pending Approvals</p>
+                                    <h3 class="text-2xl font-extrabold text-gray-900">{{ $stats['pending_approvals'] ?? 0 }}</h3>
+                                </div>
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                    <i class="fas fa-spinner text-xl"></i>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                 </div>
                             </div>
                         </div>
@@ -777,9 +791,12 @@ $user = auth()->user();
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <a href="#" class="visitorViewBtn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="View"><i class="fas fa-eye"></i></a>
                                                     <a href="#" class="visitorEditBtn text-blue-600 hover:text-blue-900 mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Edit"><i class="fas fa-edit"></i></a>
+<<<<<<< HEAD
                                                     @if($st !== 'checked_out' && $st !== 'checked_in')
                                                         <a href="#" class="visitorCheckInBtn text-green-600 hover:text-green-800 mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Check In"><i class="fas fa-sign-in-alt"></i></a>
                                                     @endif
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                                                     <a href="#" class="visitorDeleteBtn text-red-600 hover:text-red-900" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Delete"><i class="fas fa-trash"></i></a>
                                                 </td>
                                             </tr>
@@ -803,6 +820,7 @@ $user = auth()->user();
                 </div>
             </div>
 
+<<<<<<< HEAD
             
 
             
@@ -906,6 +924,410 @@ $user = auth()->user();
             </div>
         </div>
     </div>
+=======
+            <!-- View Visitor Modal -->
+            <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog">
+              <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4">
+                <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                  <h3 class="font-semibold text-sm text-gray-900">View Visitor</h3>
+                  <button type="button" id="closeViewVisitor" class="text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-times text-xs"></i></button>
+                </div>
+                <div class="px-6 py-4 text-sm text-gray-800 space-y-2">
+                  <div><span class="font-semibold">ID:</span> <span id="vvId"></span></div>
+                  <div><span class="font-semibold">Name:</span> <span id="vvName"></span></div>
+                  <div><span class="font-semibold">Company:</span> <span id="vvCompany"></span></div>
+                  <div><span class="font-semibold">Type:</span> <span id="vvType"></span></div>
+                  <div><span class="font-semibold">Host:</span> <span id="vvHost"></span></div>
+                  <div><span class="font-semibold">Department:</span> <span id="vvDept"></span></div>
+                  <div><span class="font-semibold">Date:</span> <span id="vvDate"></span></div>
+                  <div><span class="font-semibold">Time:</span> <span id="vvTime"></span></div>
+                  <div><span class="font-semibold">Status:</span> <span id="vvStatus"></span></div>
+                </div>
+                <div class="px-6 pb-4 text-right">
+                  <button type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2" id="closeViewVisitor2">Close</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Visitor Modal -->
+            <div id="editVisitorModal" class="modal hidden" aria-modal="true" role="dialog">
+              <div class="bg-white rounded-lg shadow-lg w-[460px] max-w-full mx-4">
+                <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                  <h3 class="font-semibold text-sm text-gray-900">Edit Visitor</h3>
+                  <button type="button" id="closeEditVisitor" class="text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-times text-xs"></i></button>
+                </div>
+                <form id="editVisitorForm" class="px-6 py-4 space-y-3">
+                  <input type="hidden" id="evId" />
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Company</label>
+                    <input type="text" id="evCompany" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Type</label>
+                      <select id="evType" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                        <option value="">—</option>
+                        <option value="client">Client</option>
+                        <option value="vendor">Vendor</option>
+                        <option value="contractor">Contractor</option>
+                        <option value="guest">Guest</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Purpose</label>
+                      <select id="evPurpose" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                        <option value="">—</option>
+                        <option value="meeting">Meeting</option>
+                        <option value="delivery">Delivery</option>
+                        <option value="interview">Interview</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Date</label>
+                      <input type="date" id="evDate" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Time</label>
+                      <input type="time" id="evTime" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Status</label>
+                    <select id="evStatus" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                      <option value="scheduled">Scheduled</option>
+                      <option value="checked_in">Checked In</option>
+                      <option value="checked_out">Checked Out</option>
+                    </select>
+                  </div>
+                  <div class="pt-2 text-right">
+                    <button type="button" id="cancelEditVisitor" class="mr-2 text-sm px-4 py-2 rounded border">Cancel</button>
+                    <button type="submit" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded px-4 py-2">Save</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Delete Visitor Modal -->
+            <div id="deleteVisitorModal" class="modal hidden" aria-modal="true" role="dialog">
+              <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4">
+                <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                  <h3 class="font-semibold text-sm text-gray-900">Delete Visitor</h3>
+                  <button type="button" id="closeDeleteVisitor" class="text-gray-400 hover:text-gray-600 p-2"><i class="fas fa-times text-xs"></i></button>
+                </div>
+                <div class="px-6 py-4 text-sm text-gray-800">
+                  Are you sure you want to delete visitor <span id="dvText" class="font-semibold"></span>?
+                  <input type="hidden" id="dvId" />
+                </div>
+                <div class="px-6 pb-4 text-right">
+                  <button type="button" id="cancelDeleteVisitor" class="mr-2 text-sm px-4 py-2 rounded border">Cancel</button>
+                  <button type="button" id="confirmDeleteVisitor" class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded px-4 py-2">Delete</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- User Menu Dropdown -->
+            <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
+                <div class="py-4 px-6 border-b border-gray-100 text-center">
+                    <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                        <i class="fas fa-user-circle text-3xl"></i>
+                    </div>
+                    <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                    <p class="text-xs text-gray-400">Administrator</p>
+                </div>
+                <ul class="text-sm text-gray-700">
+                    <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                    <li><button id="openAccountSettingsBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
+                    <li><button id="openPrivacySecurityBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
+                    <li><a href="{{ route('logout') }}" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1" onclick="event.preventDefault(); document.getElementById('signOutModal').classList.add('active');"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</a></li>
+                </ul>
+            </div>
+            <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
+                        <button id="closeProfileBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <div class="flex flex-col items-center mb-4">
+                            <div class="bg-[#28644c] rounded-full w-20 h-20 flex items-center justify-center mb-3">
+                                <i class="fas fa-user text-white text-3xl"></i>
+                            </div>
+                            <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
+                            <p class="text-xs text-gray-500 leading-4">Administrator</p>
+                        </div>
+                        <form class="space-y-4">
+                            <div>
+                                <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+                                <input id="emailProfile" type="email" readonly value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
+                                <input id="phone" type="text" readonly value="+1234567890" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
+                                <input id="department" type="text" readonly value="Administrative" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
+                                <input id="location" type="text" readonly value="Manila, Philippines" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
+                                <input id="joined" type="text" readonly value="{{ $user->created_at->format('F d, Y') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div class="flex justify-end pt-2">
+                                <button id="closeProfileBtn2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings Modal -->
+            <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="account-settings-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings</h3>
+                        <button id="closeAccountSettingsBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <div>
+                                <label for="username" class="block mb-1 font-semibold">Username</label>
+                                <input id="username" name="username" type="text" value="{{ $user->name }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                            </div>
+                            <div>
+                                <label for="emailAccount" class="block mb-1 font-semibold">Email</label>
+                                <input id="emailAccount" name="email" type="email" value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                            </div>
+                            <div>
+                                <label for="language" class="block mb-1 font-semibold">Language</label>
+                                <select id="language" name="language" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                                    <option selected>English</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="timezone" class="block mb-1 font-semibold">Time Zone</label>
+                                <select id="timezone" name="timezone" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                                    <option selected>Philippine Time (GMT+8)</option>
+                                </select>
+                            </div>
+                            <fieldset class="space-y-1">
+                                <legend class="font-semibold text-xs mb-1">Notifications</legend>
+                                <div class="flex items-center space-x-2">
+                                    <input id="email-notifications" name="email_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                                    <label for="email-notifications" class="text-xs">Email notifications</label>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input id="browser-notifications" name="browser_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                                    <label for="browser-notifications" class="text-xs">Browser notifications</label>
+                                </div>
+                            </fieldset>
+                            <div class="flex justify-end space-x-3 pt-2">
+                                <button type="button" id="cancelAccountSettingsBtn" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                                <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy & Security Modal -->
+            <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="privacy-security-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy & Security</h3>
+                        <button id="closePrivacySecurityBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <fieldset>
+                                <legend class="font-semibold mb-2 select-none">Change Password</legend>
+                                <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
+                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="current-password" name="current_password" type="password"/>
+                                <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
+                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="new-password" name="new_password" type="password"/>
+                                <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
+                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="confirm-password" name="confirm_password" type="password"/>
+                            </fieldset>
+                            <fieldset>
+                                <legend class="font-semibold mb-1 select-none">Two-Factor Authentication</legend>
+                                <p class="text-[10px] mb-1 select-none">Enhance your account security</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] text-[#2f855A] font-semibold select-none">Status: Enabled</span>
+                                    <button class="text-[10px] bg-gray-200 text-gray-700 rounded-lg px-3 py-1.5 font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" type="button">Configure</button>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend class="font-semibold mb-1 select-none">Session Management</legend>
+                                <div class="bg-gray-100 rounded px-3 py-2 text-[10px] text-gray-700 select-none">
+                                    <div class="font-semibold">Current Session</div>
+                                    <div class="text-[9px] text-gray-500">Manila, Philippines â€¢ Chrome</div>
+                                    <div class="inline-block mt-1 bg-green-100 text-green-700 text-[9px] font-semibold rounded px-2 py-0.5 select-none">Active</div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend class="font-semibold mb-1 select-none">Privacy Settings</legend>
+                                <label class="flex items-center space-x-2 text-[10px] select-none">
+                                    <input checked class="w-3 h-3" type="checkbox" name="show_profile" />
+                                    <span>Show my profile to all employees</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-[10px] select-none mt-1">
+                                    <input checked class="w-3 h-3" type="checkbox" name="log_activity" />
+                                    <span>Log my account activity</span>
+                                </label>
+                            </fieldset>
+                            <div class="flex justify-end space-x-3 pt-2">
+                                <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" type="button">Cancel</button>
+                                <button class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sign Out Modal -->
+            <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="sign-out-modal-title">
+                <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4 text-center" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="sign-out-modal-title" class="font-semibold text-sm text-gray-900 select-none">Sign Out</h3>
+                        <button id="cancelSignOutBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-6">Are you sure you want to sign out of your account?</p>
+                        <div class="flex justify-center space-x-4">
+                            <button id="cancelSignOutBtn2" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Visitor Modal -->
+            <div id="addVisitorModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-visitor-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4 max-h-[90vh] overflow-y-auto" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="add-visitor-modal-title" class="font-semibold text-sm text-gray-900 select-none">Register New Visitor</h3>
+                        <button id="closeAddVisitorModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <form id="addVisitorForm" class="space-y-4 text-xs text-gray-700">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="col-span-2">
+                                    <h4 class="text-sm font-semibold text-gray-900 mb-2">Visitor Information</h4>
+                                </div>
+                                <div>
+                                    <label for="firstName" class="block mb-1 font-semibold">First Name *</label>
+                                    <input type="text" id="firstName" name="firstName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                                <div>
+                                    <label for="lastName" class="block mb-1 font-semibold">Last Name *</label>
+                                    <input type="text" id="lastName" name="lastName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                                <div class="col-span-2">
+                                    <label for="email" class="block mb-1 font-semibold">Email Address</label>
+                                    <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]">
+                                </div>
+                                <div>
+                                    <label for="phone" class="block mb-1 font-semibold">Phone Number *</label>
+                                    <input type="tel" id="phone" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                                <div>
+                                    <label for="company" class="block mb-1 font-semibold">Company *</label>
+                                    <input type="text" id="company" name="company" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                                <div class="col-span-2">
+                                    <label for="visitorType" class="block mb-1 font-semibold">Visitor Type *</label>
+                                    <select id="visitorType" name="visitorType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                        <option value="">Select visitor type</option>
+                                        <option value="client">Client</option>
+                                        <option value="vendor">Vendor</option>
+                                        <option value="contractor">Contractor</option>
+                                        <option value="guest">Guest</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="col-span-2 border-t border-gray-200 pt-4">
+                                    <h4 class="text-sm font-semibold text-gray-900 mb-2">Visit Details</h4>
+                                </div>
+                                <div>
+                                    <label for="hostId" class="block mb-1 font-semibold">Host *</label>
+                                    <select id="hostId" name="hostId" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                        <option value="">Select a host</option>
+                                        <option value="1">Sarah Johnson (Procurement)</option>
+                                        <option value="2">Michael Brown (Sales)</option>
+                                        <option value="3">Jennifer Lee (Business Development)</option>
+                                        <option value="4">Robert Chen (IT)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="purpose" class="block mb-1 font-semibold">Purpose of Visit *</label>
+                                    <select id="purpose" name="purpose" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                        <option value="">Select purpose</option>
+                                        <option value="meeting">Meeting</option>
+                                        <option value="delivery">Delivery</option>
+                                        <option value="interview">Interview</option>
+                                        <option value="maintenance">Maintenance</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="checkInDate" class="block mb-1 font-semibold">Check-In Date *</label>
+                                    <input type="date" id="checkInDate" name="checkInDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                                <div>
+                                    <label for="checkInTime" class="block mb-1 font-semibold">Check-In Time *</label>
+                                    <input type="time" id="checkInTime" name="checkInTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                </div>
+                                <div class="col-span-2">
+                                    <label for="notes" class="block mb-1 font-semibold">Additional Notes</label>
+                                    <textarea id="notes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]"></textarea>
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="flex items-center space-x-2">
+                                        <input id="sendEmailNotification" name="sendEmailNotification" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                                        <span>Send email notification to host</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="flex justify-end space-x-3 pt-2">
+                                <button type="button" id="cancelAddVisitor" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                                <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Register Visitor</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const sidebar = document.getElementById("sidebar");
@@ -917,7 +1339,10 @@ $user = auth()->user();
             const notificationDropdown = document.getElementById("notificationDropdown");
             const userMenuBtn = document.getElementById("userMenuBtn");
             const userMenuDropdown = document.getElementById("userMenuDropdown");
+<<<<<<< HEAD
             const openSignOutBtn = document.getElementById("openSignOutBtn");
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             const profileModal = document.getElementById("profileModal");
             const openProfileBtn = document.getElementById("openProfileBtn");
             const closeProfileBtn = document.getElementById("closeProfileBtn");
@@ -930,10 +1355,13 @@ $user = auth()->user();
             const privacySecurityModal = document.getElementById("privacySecurityModal");
             const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
             const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
+<<<<<<< HEAD
             const checkInModal = document.getElementById("checkInModal");
             const closeCheckIn = document.getElementById("closeCheckIn");
             const cancelCheckIn = document.getElementById("cancelCheckIn");
             const confirmCheckIn = document.getElementById("confirmCheckIn");
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             const signOutModal = document.getElementById("signOutModal");
             const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
             const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
@@ -978,6 +1406,7 @@ $user = auth()->user();
                         chevron.classList.remove("rotate-180");
                     }
                 });
+<<<<<<< HEAD
             openSignOutBtn?.addEventListener("click", (e) => {
                 e.stopPropagation();
                 signOutModal.classList.add("active");
@@ -989,6 +1418,8 @@ $user = auth()->user();
                 privacySecurityModal.classList.remove("active");
                 addVisitorModal.classList.remove("active");
             });
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             }
 
             dropdownToggles.forEach((toggle) => {
@@ -1116,7 +1547,10 @@ $user = auth()->user();
                 accountSettingsModal.classList.remove("active");
                 privacySecurityModal.classList.remove("active");
                 signOutModal.classList.remove("active");
+<<<<<<< HEAD
                 checkInModal.classList.remove("active");
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             }
 
             addVisitorBtn.addEventListener("click", toggleVisitorModal);
@@ -1146,10 +1580,13 @@ $user = auth()->user();
                 if (!addVisitorModal.contains(e.target) && !addVisitorBtn.contains(e.target)) {
                     addVisitorModal.classList.remove("active");
                 }
+<<<<<<< HEAD
                 // Only close Check In modal when clicking outside and not on the trigger itself
                 if (!checkInModal.contains(e.target) && !e.target.closest('.visitorCheckInBtn')) {
                     checkInModal.classList.remove("active");
                 }
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             });
 
             // Visitor modals logic
@@ -1160,6 +1597,7 @@ $user = auth()->user();
             function openModal(m){ m.classList.add('active'); m.classList.remove('hidden'); }
             function closeModal(m){ m.classList.remove('active'); m.classList.add('hidden'); }
 
+<<<<<<< HEAD
             // Check In modal actions
             closeCheckIn?.addEventListener('click', ()=> closeModal(checkInModal));
             cancelCheckIn?.addEventListener('click', ()=> closeModal(checkInModal));
@@ -1184,6 +1622,8 @@ $user = auth()->user();
                 }
             });
 
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             // Close buttons
             document.getElementById('closeViewVisitor')?.addEventListener('click', ()=>closeModal(viewVisitorModal));
             document.getElementById('closeViewVisitor2')?.addEventListener('click', ()=>closeModal(viewVisitorModal));
@@ -1193,7 +1633,11 @@ $user = auth()->user();
             document.getElementById('cancelDeleteVisitor')?.addEventListener('click', ()=>closeModal(deleteVisitorModal));
 
             // Stop propagation inside modal content
+<<<<<<< HEAD
             [viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal].forEach(m => {
+=======
+            [viewVisitorModal, editVisitorModal, deleteVisitorModal].forEach(m => {
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 m?.addEventListener('click', (e)=>{ if(e.target === m) closeModal(m); });
                 m?.querySelector('div')?.addEventListener('click', (e)=>e.stopPropagation());
             });
@@ -1211,10 +1655,16 @@ $user = auth()->user();
                 const vView = e.target.closest('.visitorViewBtn');
                 const vEdit = e.target.closest('.visitorEditBtn');
                 const vDel = e.target.closest('.visitorDeleteBtn');
+<<<<<<< HEAD
                 const vIn = e.target.closest('.visitorCheckInBtn');
                 if (!vView && !vEdit && !vDel && !vIn) return;
                 e.preventDefault();
                 const id = (vView||vEdit||vDel||vIn).dataset.id;
+=======
+                if (!vView && !vEdit && !vDel) return;
+                e.preventDefault();
+                const id = (vView||vEdit||vDel).dataset.id;
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
                 if (vView) {
                     const v = await fetchVisitor(id);
@@ -1252,6 +1702,7 @@ $user = auth()->user();
                     openModal(deleteVisitorModal);
                     return;
                 }
+<<<<<<< HEAD
 
                 if (vIn) {
                     // Prevent window click handler from firing right after opening modal
@@ -1261,6 +1712,8 @@ $user = auth()->user();
                     openModal(checkInModal);
                     return;
                 }
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             });
 
             // Submit edit visitor
@@ -1332,8 +1785,12 @@ $user = auth()->user();
                     phone: formEl.phone.value,
                     company: formEl.company.value,
                     visitorType: formEl.visitorType.value,
+<<<<<<< HEAD
                     hostName: formEl.hostName.value,
                     hostDepartment: formEl.hostDepartment.value || null,
+=======
+                    hostId: formEl.hostId.value,
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     purpose: formEl.purpose.value,
                     checkInDate: formEl.checkInDate.value,
                     checkInTime: formEl.checkInTime.value,
@@ -1342,16 +1799,23 @@ $user = auth()->user();
                 try {
                     const res = await fetch(`{{ route('visitor.create') }}`, {
                         method: 'POST',
+<<<<<<< HEAD
                         credentials: 'same-origin',
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': csrf,
+<<<<<<< HEAD
                             'X-Requested-With': 'XMLHttpRequest',
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         },
                         body: JSON.stringify(payload)
                     });
                     if (!res.ok) {
+<<<<<<< HEAD
                         let msg = 'Failed to register visitor';
                         try {
                             const err = await res.json();
@@ -1362,6 +1826,10 @@ $user = auth()->user();
                             else if (txt) msg = txt.substring(0, 300);
                         }
                         throw new Error(msg);
+=======
+                        const err = await res.json().catch(()=>({}));
+                        throw new Error(err.message || 'Failed to register visitor');
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     }
                     toggleVisitorModal();
                     location.reload();

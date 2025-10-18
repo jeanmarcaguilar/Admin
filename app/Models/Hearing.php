@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hearing extends Model
 {
+<<<<<<< HEAD
     protected $fillable = [
         'title',
         'type',
@@ -27,4 +28,7 @@ class Hearing extends Model
         'hearing_date' => 'date',
         'reminder_sent' => 'boolean'
     ];
+=======
+    //
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 }

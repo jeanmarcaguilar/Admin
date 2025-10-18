@@ -1497,8 +1497,15 @@ $user = auth()->user();
         
         if (response.ok) {
           showSuccessMessage('Booking created successfully');
+<<<<<<< HEAD
           
           // Reset form
+=======
+          // Add the booking to the table immediately with the response data
+          if (responseData.booking || responseData) {
+            addBookingToTable(responseData.booking || responseData);
+          }
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
           this.reset();
           
           // Reset equipment container
@@ -1509,11 +1516,14 @@ $user = auth()->user();
               equipmentContainer.removeChild(equipmentContainer.lastChild);
             }
           }
+<<<<<<< HEAD
           
           // Redirect to calendar page to see the new booking
           setTimeout(() => {
             window.location.href = '{{ route("scheduling.calendar") }}';
           }, 1500);
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         } else {
           // Handle validation errors
           if (responseData.errors) {

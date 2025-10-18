@@ -330,11 +330,26 @@ $user = auth()->user();
         <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md border border-gray-100 p-8 space-y-6">
           <h2 class="text-[#1a4d38] font-bold text-xl mb-1"><i class="bx bx-grid-alt mr-2 align-middle"></i>Admin Dashboard</h2>
           @php
+<<<<<<< HEAD
             // Use real statistics from database (passed from route)
             $checkedInCount = $stats['checked_in_visitors'] ?? 0;
             $totalVisitors = $stats['total_visitors'] ?? 0;
             $documentsCount = $stats['uploaded_documents'] ?? 0;
             $activeCases = $stats['active_cases'] ?? 0;
+=======
+            $visitors = session('visitors', []);
+            $checkedInCount = collect($visitors)->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_in')->count();
+            $totalVisitors = count($visitors);
+            $documents = session('uploaded_documents', []);
+            $documentsCount = count($documents);
+            $cases = session('cases', []);
+            $activeCases = collect($cases)->filter(function ($c) {
+              $s = strtolower($c['status'] ?? '');
+              return $s !== 'closed' && $s !== 'completed';
+            })->count();
+            $approvalRequests = session('approval_requests', []);
+            $approvalsCount = is_array($approvalRequests) ? count($approvalRequests) : 0;
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
           @endphp
           <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A]">
@@ -370,10 +385,54 @@ $user = auth()->user();
               <p class="text-xs text-gray-500 mt-1">Legal Management</p>
             </div>
           </section>
+<<<<<<< HEAD
           <section class="grid grid-cols-1 gap-4 chart-container">
             <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100 flex flex-col w-full">
               <h3 class="font-bold text-sm text-[#1a4d38] mb-4">Module Overview</h3>
               <div class="relative" style="height: 380px;">
+=======
+          <section class="grid grid-cols-1 gap-4">
+            <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100 min-h-[280px] flex flex-col w-full">
+              <h3 class="font-bold text-sm text-[#1a4d38] mb-4">Recent Activities</h3>
+              <ul class="divide-y divide-gray-200 flex-grow">
+                <li class="activity-item flex space-x-3 py-3">
+                  <div class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700">
+                    <i class="bx bx-user-plus text-base"></i>
+                  </div>
+                  <div class="flex-grow">
+                    <p class="text-sm font-semibold text-gray-800">New user registered</p>
+                    <p class="text-xs text-gray-600 mt-0.5">{{ $user->name }} just signed up</p>
+                  </div>
+                  <div class="flex-shrink-0 text-xs text-gray-500 self-start pt-0.5">2 minutes ago</div>
+                </li>
+                <li class="activity-item flex space-x-3 py-3">
+                  <div class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700">
+                    <i class="bx bx-file text-base"></i>
+                  </div>
+                  <div class="flex-grow">
+                    <p class="text-sm font-semibold text-gray-800">Document uploaded</p>
+                    <p class="text-xs text-gray-600 mt-0.5">Q3 financial report</p>
+                  </div>
+                  <div class="flex-shrink-0 text-xs text-gray-500 self-start pt-0.5">1 hour ago</div>
+                </li>
+                <li class="activity-item flex space-x-3 py-3">
+                  <div class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-700">
+                    <i class="bx bx-calendar-check text-base"></i>
+                  </div>
+                  <div class="flex-grow">
+                    <p class="text-sm font-semibold text-gray-800">Meeting scheduled</p>
+                    <p class="text-xs text-gray-600 mt-0.5">Team sync at 2:00 PM</p>
+                  </div>
+                  <div class="flex-shrink-0 text-xs text-gray-500 self-start pt-0.5">3 hours ago</div>
+                </li>
+              </ul>
+            </div>
+          </section>
+          <section class="grid grid-cols-1 gap-4 chart-container">
+            <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100 flex flex-col w-full">
+              <h3 class="font-bold text-sm text-[#1a4d38] mb-4">Module Overview</h3>
+              <div class="relative" style="height: 300px;">
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 <canvas id="dashboardChart"></canvas>
               </div>
             </div>
@@ -815,6 +874,7 @@ $user = auth()->user();
         closeAllDropdowns();
       });
 
+<<<<<<< HEAD
       // Initialize Chart.js (Doughnut for module distribution) with aesthetic upgrades
       const canvas = document.getElementById('dashboardChart');
       const ctx = canvas.getContext('2d');
@@ -890,6 +950,29 @@ $user = auth()->user();
             hoverOffset: 10,
             spacing: 4,
             cutout: '65%'
+=======
+      // Initialize Chart.js (Doughnut for module distribution)
+      const ctx = document.getElementById('dashboardChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Visitors (Checked In)', 'Total Visitors', 'Documents', 'Active Cases'],
+          datasets: [{
+            data: [
+              {{ $checkedInCount }},
+              {{ $totalVisitors }},
+              {{ $documentsCount }},
+              {{ $activeCases }}
+            ],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.85)',
+              'rgba(59, 130, 246, 0.85)',
+              'rgba(245, 158, 11, 0.85)',
+              'rgba(139, 92, 246, 0.85)'
+            ],
+            borderColor: ['#10b981','#3b82f6','#f59e0b','#8b5cf6'],
+            borderWidth: 1
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
           }]
         },
         options: {
@@ -899,14 +982,19 @@ $user = auth()->user();
             legend: {
               position: 'bottom',
               labels: {
+<<<<<<< HEAD
                 usePointStyle: true,
                 pointStyle: 'circle',
                 boxWidth: 8,
                 padding: 16,
+=======
+                boxWidth: 12,
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 font: { family: '"Inter", sans-serif', size: 12 },
                 color: '#1f2937'
               }
             },
+<<<<<<< HEAD
             tooltip: {
               backgroundColor: 'rgba(17,24,39,0.9)',
               titleColor: '#fff',
@@ -921,6 +1009,8 @@ $user = auth()->user();
                 }
               }
             },
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             title: {
               display: true,
               text: 'Module Distribution',
@@ -928,9 +1018,14 @@ $user = auth()->user();
               color: '#1a4d38'
             }
           },
+<<<<<<< HEAD
           animation: { duration: 900, easing: 'easeOutQuart' }
         },
         plugins: [centerTextPlugin, softShadowPlugin]
+=======
+          animation: { duration: 800, easing: 'easeOutCubic' }
+        }
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
       });
     });
   </script>

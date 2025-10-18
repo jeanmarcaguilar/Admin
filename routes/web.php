@@ -44,6 +44,7 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     $user = auth()->user();
     
+<<<<<<< HEAD
     // Get real statistics from database
     $visitors = \App\Models\Visitor::all();
     $checkedInCount = $visitors->filter(fn($v) => strtolower($v->status ?? '') === 'checked_in')->count();
@@ -112,6 +113,55 @@ Route::get('/dashboard', function () {
             'description' => 'Booking for ' . $booking->purpose
         ];
     }
+=======
+    // Sample data for the dashboard
+    $stats = [
+        'total_cases' => \App\Models\CaseFile::count(),
+        'pending_approvals' => 0, // Default value since we don't have data yet
+        'upcoming_hearings' => 0, // Default value since we don't have data yet
+        'documents_pending' => 0, // Default value since we don't have data yet
+    ];
+    
+    // Sample recent activities
+    $recentActivities = [
+        (object)[
+            'id' => 1,
+            'description' => 'New case filed by John Doe',
+            'created_at' => now()->subMinutes(15),
+            'type' => 'case_created'
+        ],
+        (object)[
+            'id' => 2,
+            'description' => 'Document approved by Jane Smith',
+            'created_at' => now()->subHours(1),
+            'type' => 'document_approved'
+        ],
+        (object)[
+            'id' => 3,
+            'description' => 'New user registered: michael@example.com',
+            'created_at' => now()->subHours(3),
+            'type' => 'user_registered'
+        ]
+    ];
+    
+    // Sample upcoming events
+    $upcomingEvents = [
+        (object)[
+            'id' => 1,
+            'title' => 'Case Hearing: Smith vs Johnson',
+            'start_date' => now()->addDays(1),
+            'location' => 'Courtroom 5B',
+            'description' => 'Preliminary hearing for case #2023-045'
+        ],
+        (object)[
+            'id' => 2,
+            'title' => 'Team Meeting',
+            'start_date' => now()->addDays(2),
+            'location' => 'Conference Room A',
+            'description' => 'Weekly team sync'
+        ]
+    ];
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     
     return view('dashboard.dashboard', [
         'user' => $user,
@@ -133,6 +183,7 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 Route::post('/two-factor/email', [TwoFactorController::class, 'sendEmailCode'])
     ->name('twofactor.email');
 
+<<<<<<< HEAD
 // 2FA: Verify code and log in (public, CSRF protected)
 Route::post('/two-factor/verify', [TwoFactorController::class, 'verifyCode'])
     ->name('two-factor.verify');
@@ -165,6 +216,12 @@ Route::middleware('auth')->group(function () {
                 'hearing_time' => $c->hearing_time ?? null,
             ];
         })->toArray();
+=======
+Route::middleware('auth')->group(function () {
+    // Case Management
+    Route::get('/case-management', function () {
+        $cases = session('cases', []);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         $total = count($cases);
         $activeCount = collect($cases)->filter(function ($c) {
             $s = strtolower($c['status'] ?? '');
@@ -221,11 +278,16 @@ Route::middleware('auth')->group(function () {
 
     // Compliance Tracking
     Route::get('/compliance-tracking', function () {
+<<<<<<< HEAD
         return redirect()->route('document.compliance.tracking');
+=======
+        return view('dashboard.compliance-tracking');
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     })->name('compliance.tracking');
     
     // Contract Management
     Route::get('/contract-management', function () {
+<<<<<<< HEAD
         $contractsQuery = \DB::table('contracts');
         $total = $contractsQuery->count();
         $active = \DB::table('contracts')->where('status', 'active')->count();
@@ -340,6 +402,43 @@ Route::middleware('auth')->group(function () {
             ->sortBy('carbon')
             ->values()
             ->all();
+=======
+        return view('dashboard.contract-management');
+    })->name('contract.management');
+
+    // Deadline & Hearing Alerts (connected to session-backed cases)
+    Route::get('/deadline-hearing-alerts', function () {
+        $cases = session('cases', []);
+        $today = \Carbon\Carbon::today();
+
+        // Build a normalized hearings list from cases that have hearing_date
+        $hearings = collect($cases)->filter(function ($c) {
+            return !empty($c['hearing_date']);
+        })->map(function ($c) {
+            $d = null;
+            try { $d = $c['hearing_date'] ? \Carbon\Carbon::parse($c['hearing_date']) : null; } catch (\Exception $e) {}
+            return [
+                'number' => $c['number'] ?? '',
+                'title' => $c['name'] ?? 'Hearing',
+                'type' => $c['type_badge'] ?? 'Case',
+                'date' => $d ? $d->format('M d, Y') : '-',
+                'time' => $c['hearing_time'] ?? '',
+                'priority' => strtolower($c['status'] ?? '') === 'urgent' ? 'High' : 'Normal',
+                'status' => null, // filled below once we know relative to today
+                'carbon' => $d,
+            ];
+        })->map(function ($h) use ($today) {
+            if (!$h['carbon']) { $h['status'] = 'upcoming'; return $h; }
+            if ($h['carbon']->isSameDay($today)) {
+                $h['status'] = 'today';
+            } elseif ($h['carbon']->lessThan($today)) {
+                $h['status'] = 'overdue';
+            } else {
+                $h['status'] = 'upcoming';
+            }
+            return $h;
+        })->sortBy('carbon')->values()->all();
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
         // Counts
         $counts = [
@@ -348,7 +447,11 @@ Route::middleware('auth')->group(function () {
             'overdue' => collect($hearings)->where('status','overdue')->count(),
         ];
 
+<<<<<<< HEAD
         return view('dashboard.deadline-hearing-alerts', compact('hearings', 'counts'));
+=======
+        return view('dashboard.deadline-hearing-alerts', compact('hearings','counts'));
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     })->name('deadline.hearing.alerts');
 
     // Visitors Registration (DB-backed)
@@ -373,14 +476,20 @@ Route::middleware('auth')->group(function () {
         $today = \Carbon\Carbon::today()->toDateString();
         $totalToday = collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today)->count();
         $checkedIn = collect($visitors)->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_in')->count();
+<<<<<<< HEAD
         $checkedOut = collect($visitors)->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_out')->count();
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         $scheduledToday = collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today && strtolower($v['status'] ?? '') === 'scheduled')->count();
         $pendingApprovals = 0;
         $stats = [
             'total_today' => $totalToday,
             'checked_in' => $checkedIn,
             'scheduled_today' => $scheduledToday,
+<<<<<<< HEAD
             'checked_out' => $checkedOut,
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             'pending_approvals' => $pendingApprovals,
         ];
         return view('dashboard.visitors-registration', compact('visitors','stats'));
@@ -492,11 +601,15 @@ Route::middleware('auth')->group(function () {
             'phone' => 'required|string|max:50',
             'company' => 'required|string|max:150',
             'visitorType' => 'required|string|in:client,vendor,contractor,guest,other',
+<<<<<<< HEAD
             // New flexible host inputs
             'hostName' => 'nullable|string|max:150',
             'hostDepartment' => 'nullable|string|max:150',
             // Backward compatibility
             'hostId' => 'nullable|string|in:1,2,3,4',
+=======
+            'hostId' => 'required|string|in:1,2,3,4',
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             'purpose' => 'required|string|in:meeting,delivery,interview,maintenance,other',
             'checkInDate' => 'required|date',
             'checkInTime' => 'required|date_format:H:i',
@@ -510,6 +623,7 @@ Route::middleware('auth')->group(function () {
             '4' => ['name' => 'Robert Chen', 'department' => 'IT'],
         ];
 
+<<<<<<< HEAD
         // Resolve host info from new fields or fallback to legacy hostId
         $resolvedHostName = trim((string)($validated['hostName'] ?? ''));
         $resolvedHostDept = trim((string)($validated['hostDepartment'] ?? ''));
@@ -530,14 +644,24 @@ Route::middleware('auth')->group(function () {
 
         $id = 'V-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         $fullName = trim($validated['firstName'] . ' ' . $validated['lastName']);
+=======
+        $id = 'V-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        $fullName = trim($validated['firstName'] . ' ' . $validated['lastName']);
+        $hostInfo = $hostMap[$validated['hostId']] ?? ['name' => 'Host', 'department' => ''];
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
         $visitor = Visitor::create([
             'code' => $id,
             'name' => $fullName,
             'company' => $validated['company'],
             'visitor_type' => $validated['visitorType'],
+<<<<<<< HEAD
             'host' => $resolvedHostName,
             'host_department' => $resolvedHostDept,
+=======
+            'host' => $hostInfo['name'],
+            'host_department' => $hostInfo['department'],
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             'check_in_date' => $validated['checkInDate'],
             'check_in_time' => $validated['checkInTime'],
             'purpose' => $validated['purpose'],
@@ -675,6 +799,7 @@ Route::middleware('auth')->group(function () {
     
     // Scheduling & Calendar
     Route::get('/scheduling-calendar', function () {
+<<<<<<< HEAD
         // Get all bookings from database for calendar display
         $calendarBookings = \App\Models\Booking::orderByDesc('created_at')->get()->map(function ($b) {
             return [
@@ -695,11 +820,16 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.scheduling-calendar', [
             'user' => auth()->user(),
             'calendarBookings' => $calendarBookings
+=======
+        return view('dashboard.scheduling-calendar', [
+            'user' => auth()->user()
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         ]);
     })->name('scheduling.calendar');
     
     // Approval Workflow
     Route::get('/approval-workflow', function () {
+<<<<<<< HEAD
         $requests = \App\Models\Booking::where('status', 'pending')->get()->map(function ($b) {
             return [
                 'id' => $b->code,
@@ -710,6 +840,9 @@ Route::middleware('auth')->group(function () {
                 'status' => $b->status,
             ];
         })->toArray();
+=======
+        $requests = session('approval_requests', []);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return view('dashboard.approval-workflow', compact('requests'));
     })->name('approval.workflow');
     
@@ -750,6 +883,7 @@ Route::middleware('auth')->group(function () {
     
     // Document Upload & Indexing
     Route::get('/document-upload-indexing', function () {
+<<<<<<< HEAD
         $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
             return [
                 'id' => $d->code ?? '',
@@ -762,6 +896,9 @@ Route::middleware('auth')->group(function () {
                 'status' => $d->status ?? 'Indexed',
             ];
         })->toArray();
+=======
+        $documents = session('uploaded_documents', []);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return view('dashboard.document-upload-indexing', compact('documents'));
     })->name('document.upload.indexing');
     // Upload documents (AJAX)
@@ -772,6 +909,10 @@ Route::middleware('auth')->group(function () {
         ]);
 
         $uploaded = [];
+<<<<<<< HEAD
+=======
+        $existing = session('uploaded_documents', []);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         $inputCategory = strtolower($request->input('category', '')) ?: null; // financial, hr, legal, operations
         $inputDocType = $request->input('docType', ''); // PDF, Word, Excel, PowerPoint, Other
         foreach ($request->file('documents', []) as $file) {
@@ -792,6 +933,7 @@ Route::middleware('auth')->group(function () {
                 in_array($ext, ['pdf']) => 'legal',
                 default => 'operations',
             };
+<<<<<<< HEAD
             
             // Save to database using actual columns
             $document = \App\Models\Document::create([
@@ -817,6 +959,24 @@ Route::middleware('auth')->group(function () {
             $uploaded[] = $doc;
         }
 
+=======
+            $doc = [
+                'id' => 'DOC-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+                'name' => $file->getClientOriginalName(),
+                'type' => $type,
+                'category' => $category,
+                'size' => number_format($file->getSize() / (1024 * 1024), 1) . ' MB',
+                'uploaded' => now()->toDateString(),
+                'status' => 'Indexed',
+            ];
+            $uploaded[] = $doc;
+            $existing[] = $doc;
+        }
+
+        // Persist to session so they render after refresh
+        session(['uploaded_documents' => $existing]);
+
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return response()->json([
             'success' => true,
             'message' => count($uploaded) . ' file(s) uploaded successfully!',
@@ -826,22 +986,40 @@ Route::middleware('auth')->group(function () {
 
     // Delete document (AJAX)
     Route::post('/document/{id}/delete', function ($id) {
+<<<<<<< HEAD
         $deleted = \App\Models\Document::where('code', $id)->delete();
 
         return response()->json([
             'success' => (bool)$deleted,
             'message' => $deleted ? 'Document #' . $id . ' deleted successfully.' : 'Document not found.',
+=======
+        $docs = session('uploaded_documents', []);
+        $filtered = array_values(array_filter($docs, function ($d) use ($id) {
+            return ($d['id'] ?? null) !== $id;
+        }));
+        session(['uploaded_documents' => $filtered]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Document #' . $id . ' deleted successfully.',
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         ]);
     })->name('document.delete');
 
     // Download document (placeholder stream)
     Route::get('/document/{id}/download', function ($id) {
+<<<<<<< HEAD
         $document = \App\Models\Document::where('code', $id)->first();
         if (!$document) {
             return response()->json(['error' => 'Document not found'], 404);
         }
         
         $fileName = $document->name ?? ($id . '.txt');
+=======
+        $docs = session('uploaded_documents', []);
+        $doc = collect($docs)->firstWhere('id', $id);
+        $fileName = ($doc['name'] ?? ($id . '.txt'));
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         $content = "This is a placeholder download for {$fileName}.\nSince files are not stored, this file is generated dynamically.";
         return response()->streamDownload(function () use ($content) {
             echo $content;
@@ -863,7 +1041,11 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('document.case.management.records');
     
+<<<<<<< HEAD
     // Create a new case (database-backed)
+=======
+    // Create a new case (session-backed demo endpoint)
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     Route::post('/case/create', function (\Illuminate\Http\Request $request) {
         $validated = $request->validate([
             'case_name' => 'required|string|max:255',
@@ -883,22 +1065,36 @@ Route::middleware('auth')->group(function () {
             'ip' => ['label' => 'Intellectual Property', 'badge' => 'IP'],
         ];
         $typeLabel = $typeMap[$validated['case_type']]['label'] ?? ucfirst($validated['case_type']);
+<<<<<<< HEAD
+=======
+        $typeBadge = $typeMap[$validated['case_type']]['badge'] ?? ucfirst($validated['case_type']);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
         $client = $validated['client_name'];
         $initials = collect(explode(' ', $client))->map(fn($p) => strtoupper(substr($p,0,1)))->implode('');
 
+<<<<<<< HEAD
         // Save to database
         $caseFile = \App\Models\CaseFile::create([
             'number' => $number,
             'name' => $validated['case_name'],
             'type_label' => $typeLabel,
             'type_badge' => $typeLabel,
+=======
+        $payload = [
+            'number' => $number,
+            'filed' => now()->toDateString(),
+            'name' => $validated['case_name'],
+            'type_label' => $typeLabel,
+            'type_badge' => $typeBadge,
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             'client' => $client,
             'client_org' => '',
             'client_initials' => $initials ?: '--',
             'status' => $validated['status'],
             'hearing_date' => $validated['hearing_date'] ?? null,
             'hearing_time' => $validated['hearing_time'] ?? null,
+<<<<<<< HEAD
         ]);
 
         $payload = [
@@ -915,13 +1111,26 @@ Route::middleware('auth')->group(function () {
             'hearing_time' => $caseFile->hearing_time,
         ];
 
+=======
+        ];
+
+        // Persist to session so the case remains after refresh (demo storage)
+        $existing = session('cases', []);
+        array_unshift($existing, $payload);
+        session(['cases' => $existing]);
+
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return response()->json([
             'success' => true,
             'case' => $payload,
         ]);
     })->name('case.create');
 
+<<<<<<< HEAD
     // Update a case (database-backed)
+=======
+    // Update a case (session-backed)
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     Route::post('/case/update', function (\Illuminate\Http\Request $request) {
         $validated = $request->validate([
             'number' => 'required|string',
@@ -932,6 +1141,7 @@ Route::middleware('auth')->group(function () {
             'hearing_date' => 'nullable|date',
             'hearing_time' => 'nullable|date_format:H:i',
         ]);
+<<<<<<< HEAD
         
         $caseFile = \App\Models\CaseFile::where('number', $validated['number'])->first();
         if (!$caseFile) {
@@ -968,11 +1178,50 @@ Route::middleware('auth')->group(function () {
         $request->validate(['number' => 'required|string']);
         $deleted = \App\Models\CaseFile::where('number', $request->input('number'))->delete();
         return response()->json(['success' => (bool)$deleted]);
+=======
+        $cases = session('cases', []);
+        foreach ($cases as &$c) {
+            if (($c['number'] ?? '') === $validated['number']) {
+                $typeMap = [
+                    'civil' => ['label' => 'Civil', 'badge' => 'Civil'],
+                    'criminal' => ['label' => 'Criminal Defense', 'badge' => 'Criminal'],
+                    'family' => ['label' => 'Family Law', 'badge' => 'Family'],
+                    'corporate' => ['label' => 'Corporate', 'badge' => 'Corporate'],
+                    'ip' => ['label' => 'Intellectual Property', 'badge' => 'IP'],
+                ];
+                $typeLabel = $typeMap[$validated['case_type']]['label'] ?? ucfirst($validated['case_type']);
+                $typeBadge = $typeMap[$validated['case_type']]['badge'] ?? ucfirst($validated['case_type']);
+                $client = $validated['client_name'];
+                $initials = collect(explode(' ', $client))->map(fn($p) => strtoupper(substr($p,0,1)))->implode('');
+                $c['name'] = $validated['case_name'];
+                $c['client'] = $client;
+                $c['client_initials'] = $initials ?: '--';
+                $c['type_label'] = $typeLabel;
+                $c['type_badge'] = $typeBadge;
+                $c['status'] = $validated['status'];
+                $c['hearing_date'] = $validated['hearing_date'] ?? null;
+                $c['hearing_time'] = $validated['hearing_time'] ?? null;
+                break;
+            }
+        }
+        session(['cases' => $cases]);
+        return response()->json(['success' => true, 'case' => $validated['number']]);
+    })->name('case.update');
+
+    // Delete a case (session-backed)
+    Route::post('/case/delete', function (\Illuminate\Http\Request $request) {
+        $request->validate(['number' => 'required|string']);
+        $cases = session('cases', []);
+        $filtered = array_values(array_filter($cases, fn($c) => ($c['number'] ?? '') !== $request->input('number')));
+        session(['cases' => $filtered]);
+        return response()->json(['success' => true]);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     })->name('case.delete');
 
     // Fetch a case by number (AJAX helper)
     Route::get('/case/get', function (\Illuminate\Http\Request $request) {
         $request->validate(['number' => 'required|string']);
+<<<<<<< HEAD
         $caseFile = \App\Models\CaseFile::where('number', $request->query('number'))->first();
         if (!$caseFile) {
             return response()->json(['success' => false, 'message' => 'Case not found'], 404);
@@ -992,6 +1241,13 @@ Route::middleware('auth')->group(function () {
             'hearing_time' => $caseFile->hearing_time,
         ];
         
+=======
+        $cases = session('cases', []);
+        $case = collect($cases)->firstWhere('number', $request->query('number'));
+        if (!$case) {
+            return response()->json(['success' => false, 'message' => 'Case not found'], 404);
+        }
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return response()->json(['success' => true, 'case' => $case]);
     })->name('case.get');
 
@@ -1002,6 +1258,7 @@ Route::middleware('auth')->group(function () {
             'hearing_date' => 'nullable|date',
             'hearing_time' => 'nullable|date_format:H:i',
         ]);
+<<<<<<< HEAD
         
         $caseFile = \App\Models\CaseFile::where('number', $validated['number'])->first();
         if (!$caseFile) {
@@ -1030,10 +1287,32 @@ Route::middleware('auth')->group(function () {
                 'version' => $d->version ?? '1.0',
             ];
         })->toArray();
+=======
+        $cases = session('cases', []);
+        $updated = false;
+        foreach ($cases as &$c) {
+            if (($c['number'] ?? '') === $validated['number']) {
+                $c['hearing_date'] = $validated['hearing_date'] ?? null;
+                $c['hearing_time'] = $validated['hearing_time'] ?? null;
+                $updated = true;
+                break;
+            }
+        }
+        if ($updated) {
+            session(['cases' => $cases]);
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false, 'message' => 'Case not found'], 404);
+    })->name('case.update.hearing');
+    
+    Route::get('/version/control', function () {
+        $documents = session('uploaded_documents', []);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return view('dashboard.version-control', compact('documents'));
     })->name('document.version.control');
     
     Route::get('/access/control', function () {
+<<<<<<< HEAD
         // Load permissions from DB and shape for the table
         $rows = \Illuminate\Support\Facades\DB::table('permissions')
             ->orderByDesc('updated_at')
@@ -1060,16 +1339,25 @@ Route::middleware('auth')->group(function () {
             'user' => auth()->user(),
             'permissions' => $permissions,
             'allUsers' => $allUsers,
+=======
+        return view('dashboard.access-control', [
+            'user' => auth()->user()
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         ]);
     })->name('document.access.control.permissions');
     
     Route::get('/archival/policy', function () {
+<<<<<<< HEAD
         // Settings still session-based for simplicity
+=======
+        // Provide settings and documents from session
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         $settings = session('archival_settings', [
             'default_retention' => '5',
             'auto_archive' => true,
             'notification_emails' => '',
         ]);
+<<<<<<< HEAD
 
         // Load all documents from DB so current and future uploads appear automatically
         $all = \App\Models\Document::orderByDesc('created_at')->get();
@@ -1092,6 +1380,10 @@ Route::middleware('auth')->group(function () {
         $documents = $all->where('is_archived', false)->map($map)->values()->toArray();
         $archivedDocuments = $all->where('is_archived', true)->map($map)->values()->toArray();
 
+=======
+        $documents = session('uploaded_documents', []);
+        $archivedDocuments = session('archived_documents', []);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return view('dashboard.archival-retention', compact('settings', 'documents', 'archivedDocuments'));
     })->name('document.archival.retention.policy');
 
@@ -1174,6 +1466,7 @@ Route::middleware('auth')->group(function () {
     
     // Compliance Tracking
     Route::get('/compliance/tracking', function () {
+<<<<<<< HEAD
         // Initialize default values
         $complianceItems = collect();
         $stats = [
@@ -1334,6 +1627,11 @@ Route::middleware('auth')->group(function () {
         return response()->json($debug, 200, [], JSON_PRETTY_PRINT);
     });
     
+=======
+        return view('dashboard.compliance-tracking');
+    })->name('document.compliance.tracking');
+    
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     // Handle document version uploads
     Route::post('/document/version/upload', function (\Illuminate\Http\Request $request) {
         // Validate fields to match the frontend form names and constraints
@@ -1445,6 +1743,7 @@ Route::middleware('auth')->group(function () {
         return back()->with('success', 'Calendar cleared successfully.');
     })->name('calendar.clear');
     
+<<<<<<< HEAD
     // Reservation History - database-backed
     Route::get('/reservation-history', function () {
         $bookings = \App\Models\Booking::orderByDesc('created_at')->get()->map(function ($b) {
@@ -1461,11 +1760,17 @@ Route::middleware('auth')->group(function () {
                 'purpose' => $b->purpose,
             ];
         })->toArray();
+=======
+    // Reservation History - session-backed
+    Route::get('/reservation-history', function () {
+        $bookings = session('calendar_bookings', []);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         return view('dashboard.reservation-history', compact('bookings'));
     })->name('reservation.history');
     
     // Room & Equipment Booking
     Route::get('/room-equipment', function () {
+<<<<<<< HEAD
         // Get the authenticated user's bookings from database
         $bookings = \App\Models\Booking::orderByDesc('created_at')->get()->map(function ($b) {
             return [
@@ -1481,6 +1786,31 @@ Route::middleware('auth')->group(function () {
                 'purpose' => $b->purpose,
             ];
         })->toArray();
+=======
+        // Get the authenticated user's bookings
+        $bookings = [
+            [
+                'id' => 'BK-2023-001',
+                'type' => 'room',
+                'name' => 'Conference Room',
+                'date' => '2023-10-25',
+                'start_time' => '10:00',
+                'end_time' => '11:30',
+                'status' => 'confirmed',
+                'purpose' => 'Team meeting'
+            ],
+            [
+                'id' => 'BK-2023-002',
+                'type' => 'equipment',
+                'name' => 'Projector',
+                'date' => '2023-10-26',
+                'return_date' => '2023-10-27',
+                'quantity' => 1,
+                'status' => 'pending',
+                'purpose' => 'Client presentation'
+            ]
+        ];
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         
         return view('dashboard.room-equipment', compact('bookings'));
     })->name('room-equipment');
@@ -1500,9 +1830,14 @@ Route::middleware('auth')->group(function () {
                 'purpose' => 'required|string|max:500'
             ]);
             
+<<<<<<< HEAD
             // Save room booking to database
             $roomBookingModel = \App\Models\Booking::create([
                 'code' => 'BK-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+=======
+            $roomBooking = [
+                'id' => 'BK-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 'type' => 'room',
                 'name' => ucfirst($roomValidated['room']) . ' Room',
                 'date' => $roomValidated['date'],
@@ -1510,6 +1845,7 @@ Route::middleware('auth')->group(function () {
                 'end_time' => $roomValidated['end_time'],
                 'status' => 'pending',
                 'purpose' => $roomValidated['purpose']
+<<<<<<< HEAD
             ]);
             
             $roomBooking = [
@@ -1521,6 +1857,8 @@ Route::middleware('auth')->group(function () {
                 'end_time' => $roomBookingModel->end_time,
                 'status' => $roomBookingModel->status,
                 'purpose' => $roomBookingModel->purpose
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             ];
             
             $bookings[] = $roomBooking;
@@ -1546,14 +1884,20 @@ Route::middleware('auth')->group(function () {
                 if (!empty($equipment)) {
                     $quantity = $quantities[$index] ?? 1;
                     
+<<<<<<< HEAD
                     // Save equipment booking to database
                     $equipmentBookingModel = \App\Models\Booking::create([
                         'code' => 'EQ-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+=======
+                    $equipmentBooking = [
+                        'id' => 'EQ-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         'type' => 'equipment',
                         'name' => ucfirst($equipment) . ($quantity > 1 ? ' (x' . $quantity . ')' : ''),
                         'date' => $equipmentValidated['date'],
                         'start_time' => $equipmentValidated['start_time'],
                         'end_time' => $equipmentValidated['end_time'],
+<<<<<<< HEAD
                         'quantity' => $quantity,
                         'status' => 'pending',
                         'purpose' => $equipmentValidated['purpose']
@@ -1569,6 +1913,10 @@ Route::middleware('auth')->group(function () {
                         'quantity' => $equipmentBookingModel->quantity,
                         'status' => $equipmentBookingModel->status,
                         'purpose' => $equipmentBookingModel->purpose
+=======
+                        'status' => 'pending',
+                        'purpose' => $equipmentValidated['purpose']
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     ];
                     
                     $bookings[] = $equipmentBooking;
@@ -1588,7 +1936,29 @@ Route::middleware('auth')->group(function () {
             ], 422);
         }
         
+<<<<<<< HEAD
         // Bookings are now saved to database, no need for session storage
+=======
+        // Persist into session calendar store so calendar renders reliably after redirect
+        $existing = session('calendar_bookings', []);
+        $merged = array_merge($existing, $bookings);
+        session(['calendar_bookings' => $merged]);
+
+        // Queue approval requests for each booking
+        $existingRequests = session('approval_requests', []);
+        $userName = optional(auth()->user())->name ?? 'User';
+        foreach ($bookings as $b) {
+            $existingRequests[] = [
+                'id' => $b['id'],
+                'type' => 'event',
+                'title' => ($b['name'] ?? 'Booking') . (isset($b['purpose']) ? (': ' . $b['purpose']) : ''),
+                'requested_by' => $userName,
+                'date' => $b['date'] ?? now()->toDateString(),
+                'status' => 'pending',
+            ];
+        }
+        session(['approval_requests' => $existingRequests]);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -1599,6 +1969,7 @@ Route::middleware('auth')->group(function () {
         }
         
         return redirect()->route('scheduling.calendar')->with([
+<<<<<<< HEAD
             'success' => implode(' ', $successMessages)
         ]);
     })->name('booking.combined');
@@ -1611,6 +1982,31 @@ Route::middleware('auth')->group(function () {
         }
 
         $booking->update(['status' => 'approved']);
+=======
+            'success' => implode(' ', $successMessages),
+            'new_bookings' => $bookings
+        ]);
+    })->name('booking.combined');
+
+    // Approve/Reject endpoints update both approval requests and calendar bookings
+    Route::post('/approval/{id}/approve', function (\Illuminate\Http\Request $request, $id) {
+        $requests = session('approval_requests', []);
+        foreach ($requests as &$req) {
+            if ($req['id'] === $id) {
+                $req['status'] = 'approved';
+                break;
+            }
+        }
+        session(['approval_requests' => $requests]);
+
+        $bookings = session('calendar_bookings', []);
+        foreach ($bookings as &$bk) {
+            if (($bk['id'] ?? null) === $id) {
+                $bk['status'] = 'approved';
+            }
+        }
+        session(['calendar_bookings' => $bookings]);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -1622,12 +2018,31 @@ Route::middleware('auth')->group(function () {
     })->name('approval.approve');
 
     Route::post('/approval/{id}/reject', function (\Illuminate\Http\Request $request, $id) {
+<<<<<<< HEAD
         $booking = \App\Models\Booking::where('code', $id)->first();
         if (!$booking) {
             return response()->json(['success' => false, 'message' => 'Booking not found'], 404);
         }
 
         $booking->update(['status' => 'rejected']);
+=======
+        $requests = session('approval_requests', []);
+        foreach ($requests as &$req) {
+            if ($req['id'] === $id) {
+                $req['status'] = 'rejected';
+                break;
+            }
+        }
+        session(['approval_requests' => $requests]);
+
+        $bookings = session('calendar_bookings', []);
+        foreach ($bookings as &$bk) {
+            if (($bk['id'] ?? null) === $id) {
+                $bk['status'] = 'rejected';
+            }
+        }
+        session(['calendar_bookings' => $bookings]);
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -1810,6 +2225,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/', function (\Illuminate\Http\Request $request) {
             $validated = $request->validate([
                 'permission_type' => 'required|in:user,group,department',
+<<<<<<< HEAD
                 'user' => 'nullable|integer',
                 'group' => 'nullable|integer',
                 'role' => 'required|in:admin,editor,viewer,custom',
@@ -1820,11 +2236,26 @@ Route::middleware('auth')->group(function () {
             ]);
 
             $id = \Illuminate\Support\Facades\DB::table('permissions')->insertGetId([
+=======
+                'user' => 'required_if:permission_type,user|nullable|exists:users,id',
+                'group' => 'required_if:permission_type,group,department|nullable|exists:groups,id',
+                'role' => 'required|in:admin,editor,viewer,custom',
+                'document_type' => 'required|in:all,financial,hr,legal,other',
+                'permissions' => 'required_if:role,custom|array',
+                'permissions.*' => 'string|in:view,edit,delete,share,download,print',
+                'notes' => 'nullable|string|max:500'
+            ]);
+            
+            // In a real application, you would save this to the database
+            $permission = [
+                'id' => 'PERM-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 'type' => $validated['permission_type'],
                 'user_id' => $validated['user'] ?? null,
                 'group_id' => $validated['group'] ?? null,
                 'role' => $validated['role'],
                 'document_type' => $validated['document_type'],
+<<<<<<< HEAD
                 'permissions' => json_encode($validated['permissions'] ?? ($validated['role'] === 'custom' ? [] : defaultPermissionsForRole($validated['role']))),
                 'notes' => $validated['notes'] ?? null,
                 'status' => 'active',
@@ -1837,6 +2268,18 @@ Route::middleware('auth')->group(function () {
                 'success' => true,
                 'message' => 'Permission created successfully',
                 'permission' => $row,
+=======
+                'permissions' => $validated['permissions'] ?? [],
+                'notes' => $validated['notes'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Permission created successfully',
+                'permission' => $permission
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             ]);
         })->name('permissions.store');
         
@@ -1844,22 +2287,38 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', function (\Illuminate\Http\Request $request, $id) {
             $validated = $request->validate([
                 'permission_type' => 'required|in:user,group,department',
+<<<<<<< HEAD
                 'user' => 'nullable|integer',
                 'group' => 'nullable|integer',
                 'role' => 'required|in:admin,editor,viewer,custom',
                 'document_type' => 'required|in:all,financial,hr,legal,other',
                 'permissions' => 'nullable|array',
+=======
+                'user' => 'required_if:permission_type,user|nullable|exists:users,id',
+                'group' => 'required_if:permission_type,group,department|nullable|exists:groups,id',
+                'role' => 'required|in:admin,editor,viewer,custom',
+                'document_type' => 'required|in:all,financial,hr,legal,other',
+                'permissions' => 'required_if:role,custom|array',
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 'permissions.*' => 'string|in:view,edit,delete,share,download,print',
                 'notes' => 'nullable|string|max:500',
                 'status' => 'sometimes|in:active,inactive'
             ]);
+<<<<<<< HEAD
 
             \Illuminate\Support\Facades\DB::table('permissions')->where('id', $id)->update([
+=======
+            
+            // In a real application, you would update the permission in the database
+            $permission = [
+                'id' => $id,
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 'type' => $validated['permission_type'],
                 'user_id' => $validated['user'] ?? null,
                 'group_id' => $validated['group'] ?? null,
                 'role' => $validated['role'],
                 'document_type' => $validated['document_type'],
+<<<<<<< HEAD
                 'permissions' => json_encode($validated['permissions'] ?? ($validated['role'] === 'custom' ? [] : defaultPermissionsForRole($validated['role']))),
                 'notes' => $validated['notes'] ?? null,
                 'status' => $validated['status'] ?? 'active',
@@ -1870,6 +2329,18 @@ Route::middleware('auth')->group(function () {
                 'success' => true,
                 'message' => 'Permission updated successfully',
                 'permission' => $row
+=======
+                'permissions' => $validated['permissions'] ?? [],
+                'notes' => $validated['notes'] ?? null,
+                'status' => $validated['status'] ?? 'active',
+                'updated_at' => now()
+            ];
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Permission updated successfully',
+                'permission' => $permission
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             ]);
         })->name('permissions.update');
         
@@ -1886,6 +2357,7 @@ Route::middleware('auth')->group(function () {
         
         // Get permission details
         Route::get('/{id}', function ($id) {
+<<<<<<< HEAD
             $row = \Illuminate\Support\Facades\DB::table('permissions')->where('id', $id)->first();
             if (!$row) {
                 return response()->json(['success' => false, 'message' => 'Permission not found'], 404);
@@ -1895,6 +2367,27 @@ Route::middleware('auth')->group(function () {
             return response()->json([
                 'success' => true,
                 'permission' => $row
+=======
+            // In a real application, you would fetch the permission from the database
+            $permission = [
+                'id' => $id,
+                'type' => 'user',
+                'user_id' => 1,
+                'user_name' => 'John Doe',
+                'user_email' => 'john.doe@example.com',
+                'role' => 'admin',
+                'document_type' => 'all',
+                'permissions' => ['view', 'edit', 'delete', 'share', 'download', 'print'],
+                'status' => 'active',
+                'notes' => 'Full access to all documents',
+                'created_at' => now()->subDays(10)->format('Y-m-d H:i:s'),
+                'updated_at' => now()->format('Y-m-d H:i:s')
+            ];
+            
+            return response()->json([
+                'success' => true,
+                'permission' => $permission
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             ]);
         })->name('permissions.show');
     });

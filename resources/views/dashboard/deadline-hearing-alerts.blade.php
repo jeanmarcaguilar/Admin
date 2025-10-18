@@ -227,6 +227,7 @@ $user = auth()->user();
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- User Menu Dropdown (moved outside main content) -->
     <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
         <div class="py-4 px-6 border-b border-gray-100 text-center">
@@ -244,6 +245,8 @@ $user = auth()->user();
         </ul>
     </div>
 
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <div class="flex w-full min-h-screen pt-16">
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
 
@@ -388,6 +391,7 @@ $user = auth()->user();
 
                     <!-- Search and Filter -->
                     <section class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100">
+<<<<<<< HEAD
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div class="relative flex-1 max-w-md">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -421,6 +425,37 @@ $user = auth()->user();
                             </button>
                         </div>
                     </div>
+=======
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                            <div class="relative flex-1 max-w-md">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] text-sm" placeholder="Search alerts...">
+                            </div>
+                            <div class="flex space-x-3">
+                                <select id="filterStatus" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
+                                    <option value="">All Status</option>
+                                    <option value="today">Today</option>
+                                    <option value="upcoming">Upcoming</option>
+                                    <option value="overdue">Overdue</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                                <select id="filterType" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
+                                    <option value="">All Types</option>
+                                    <option value="court_hearing">Court Hearing</option>
+                                    <option value="filing_deadline">Filing Deadline</option>
+                                    <option value="compliance_deadline">Compliance Deadline</option>
+                                    <option value="contract">Contract</option>
+                                    <option value="meeting">Meeting</option>
+                                </select>
+                                <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                                    <i class="fas fa-filter text-gray-600 mr-2"></i>
+                                    <span>Filter</span>
+                                </button>
+                            </div>
+                        </div>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     </section>
 
                     <!-- Alerts Table -->
@@ -491,6 +526,7 @@ $user = auth()->user();
                 </div>
             </div>
 
+<<<<<<< HEAD
             
 
         </main>
@@ -733,6 +769,264 @@ $user = auth()->user();
         </div>
     </div>
 
+=======
+            <!-- User Menu Dropdown -->
+            <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
+                <div class="py-4 px-6 border-b border-gray-100 text-center">
+                    <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                        <i class="fas fa-user-circle text-3xl"></i>
+                    </div>
+                    <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                    <p class="text-xs text-gray-400">Administrator</p>
+                </div>
+                <ul class="text-sm text-gray-700">
+                    <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                    <li><button id="openAccountSettingsBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
+                    <li><button id="openPrivacySecurityBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
+                    <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+                </ul>
+            </div>
+
+            <!-- Profile Modal -->
+            <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
+                        <button id="closeProfileBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <div class="flex flex-col items-center mb-4">
+                            <div class="bg-[#28644c] rounded-full w-20 h-20 flex items-center justify-center mb-3">
+                                <i class="fas fa-user text-white text-3xl"></i>
+                            </div>
+                            <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
+                            <p class="text-xs text-gray-500 leading-4">Administrator</p>
+                        </div>
+                        <form class="space-y-4">
+                            <div>
+                                <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+                                <input id="emailProfile" type="email" readonly value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="phone" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
+                                <input id="phone" type="text" readonly value="+1234567890" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
+                                <input id="department" type="text" readonly value="Administrative" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
+                                <input id="location" type="text" readonly value="Manila, Philippines" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div>
+                                <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
+                                <input id="joined" type="text" readonly value="{{ $user->created_at->format('F d, Y') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                            </div>
+                            <div class="flex justify-end pt-2">
+                                <button id="closeProfileBtn2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Settings Modal -->
+            <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="account-settings-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings</h3>
+                        <button id="closeAccountSettingsBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <div>
+                                <label for="username" class="block mb-1 font-semibold">Username</label>
+                                <input id="username" name="username" type="text" value="{{ $user->name }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                            </div>
+                            <div>
+                                <label for="emailAccount" class="block mb-1 font-semibold">Email</label>
+                                <input id="emailAccount" name="email" type="email" value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                            </div>
+                            <div>
+                                <label for="language" class="block mb-1 font-semibold">Language</label>
+                                <select id="language" name="language" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                                    <option selected>English</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="timezone" class="block mb-1 font-semibold">Time Zone</label>
+                                <select id="timezone" name="timezone" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                                    <option selected>Philippine Time (GMT+8)</option>
+                                </select>
+                            </div>
+                            <fieldset class="space-y-1">
+                                <legend class="font-semibold text-xs mb-1">Notifications</legend>
+                                <div class="flex items-center space-x-2">
+                                    <input id="email-notifications" name="email_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                                    <label for="email-notifications" class="text-xs">Email notifications</label>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <input id="browser-notifications" name="browser_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                                    <label for="browser-notifications" class="text-xs">Browser notifications</label>
+                                </div>
+                            </fieldset>
+                            <div class="flex justify-end space-x-3 pt-2">
+                                <button type="button" id="cancelAccountSettingsBtn" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                                <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Privacy & Security Modal -->
+            <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="privacy-security-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy & Security</h3>
+                        <button id="closePrivacySecurityBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+                            <fieldset>
+                                <legend class="font-semibold mb-2 select-none">Change Password</legend>
+                                <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
+                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="current-password" name="current_password" type="password"/>
+                                <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
+                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="new-password" name="new_password" type="password"/>
+                                <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
+                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="confirm-password" name="confirm_password" type="password"/>
+                            </fieldset>
+                            <fieldset>
+                                <legend class="font-semibold mb-1 select-none">Two-Factor Authentication</legend>
+                                <p class="text-[10px] mb-1 select-none">Enhance your account security</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[10px] text-[#2f855A] font-semibold select-none">Status: Enabled</span>
+                                    <button class="text-[10px] bg-gray-200 text-gray-700 rounded-lg px-3 py-1.5 font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" type="button">Configure</button>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend class="font-semibold mb-1 select-none">Session Management</legend>
+                                <div class="bg-gray-100 rounded px-3 py-2 text-[10px] text-gray-700 select-none">
+                                    <div class="font-semibold">Current Session</div>
+                                    <div class="text-[9px] text-gray-500">Manila, Philippines • Chrome</div>
+                                    <div class="inline-block mt-1 bg-green-100 text-green-700 text-[9px] font-semibold rounded px-2 py-0.5 select-none">Active</div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend class="font-semibold mb-1 select-none">Privacy Settings</legend>
+                                <label class="flex items-center space-x-2 text-[10px] select-none">
+                                    <input checked class="w-3 h-3" type="checkbox" name="show_profile" />
+                                    <span>Show my profile to all employees</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-[10px] select-none mt-1">
+                                    <input checked class="w-3 h-3" type="checkbox" name="log_activity" />
+                                    <span>Log my account activity</span>
+                                </label>
+                            </fieldset>
+                            <div class="flex justify-end space-x-3 pt-2">
+                                <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" type="button">Cancel</button>
+                                <button class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sign Out Modal -->
+            <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="sign-out-modal-title">
+                <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4 text-center" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="sign-out-modal-title" class="font-semibold text-sm text-gray-900 select-none">Sign Out</h3>
+                        <button id="cancelSignOutBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-6">Are you sure you want to sign out of your account?</p>
+                        <div class="flex justify-center space-x-4">
+                            <button id="cancelSignOutBtn2" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Alert Modal -->
+            <div id="addAlertModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-alert-modal-title">
+                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                        <h3 id="add-alert-modal-title" class="font-semibold text-sm text-gray-900 select-none">Add New Alert</h3>
+                        <button id="closeAddAlertModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    </div>
+                    <div class="px-8 pt-6 pb-8">
+                        <form id="addAlertForm" class="space-y-4 text-xs text-gray-700">
+                            <div>
+                                <label for="alertTitle" class="block mb-1 font-semibold">Title *</label>
+                                <input type="text" id="alertTitle" name="alertTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                            </div>
+                            <div>
+                                <label for="alertType" class="block mb-1 font-semibold">Type *</label>
+                                <select id="alertType" name="alertType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                    <option value="">Select a type</option>
+                                    <option value="court_hearing">Court Hearing</option>
+                                    <option value="filing_deadline">Filing Deadline</option>
+                                    <option value="compliance_deadline">Compliance Deadline</option>
+                                    <option value="contract">Contract</option>
+                                    <option value="meeting">Meeting</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="dueDate" class="block mb-1 font-semibold">Due Date *</label>
+                                <input type="date" id="dueDate" name="dueDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                            </div>
+                            <div>
+                                <label for="priority" class="block mb-1 font-semibold">Priority *</label>
+                                <select id="priority" name="priority" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                                    <option value="low">Low</option>
+                                    <option value="medium" selected>Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="description" class="block mb-1 font-semibold">Description</label>
+                                <textarea id="description" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]"></textarea>
+                            </div>
+                            <div>
+                                <label for="relatedTo" class="block mb-1 font-semibold">Related To (Optional)</label>
+                                <input type="text" id="relatedTo" name="relatedTo" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" placeholder="Case #, Contract #, etc.">
+                            </div>
+                            <div class="flex justify-end space-x-3 pt-2">
+                                <button type="button" id="cancelAddAlert" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                                <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Alert</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const sidebar = document.getElementById("sidebar");

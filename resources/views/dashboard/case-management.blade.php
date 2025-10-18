@@ -164,12 +164,26 @@ $user = auth()->user();
             transition: opacity 0.3s ease-in-out;
         }
 
+<<<<<<< HEAD
         /* Dropdown Menu (no animation) */
         .dropdown-menu {
             transition: none !important;
             max-height: none;
             opacity: 1;
             overflow: visible;
+=======
+        /* Dropdown Menu */
+        .dropdown-menu {
+            transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        .dropdown-menu:not(.hidden) {
+            max-height: 500px;
+            opacity: 1;
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         }
     </style>
 </head>
@@ -184,11 +198,19 @@ $user = auth()->user();
                 <h1 class="text-2xl font-bold tracking-tight">Case Management</h1>
             </div>
             <div class="flex items-center space-x-1">
+<<<<<<< HEAD
                 <button class="relative p-2 focus:outline-none" id="notificationBtn" aria-expanded="false">
                     <i class="fa-solid fa-bell text-xl"></i>
                     <span class="absolute top-1 right-1 bg-red-500 text-xs text-white rounded-full px-1">3</span>
                 </button>
                 <div class="flex items-center space-x-2 cursor-pointer px-3 py-2" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
+=======
+                <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn" aria-expanded="false">
+                    <i class="fa-solid fa-bell text-xl"></i>
+                    <span class="absolute top-1 right-1 bg-red-500 text-xs text-white rounded-full px-1">3</span>
+                </button>
+                <div class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     <i class="fa-solid fa-user text-[18px] bg-white text-[#28644c] px-2.5 py-2 rounded-full"></i>
                     <span class="text-white font-medium">{{ $user->name }}</span>
                     <i class="fa-solid fa-chevron-down text-sm"></i>
@@ -270,7 +292,11 @@ $user = auth()->user();
         <!-- Sidebar -->
         <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
             <div class="department-header px-2 py-4 mx-2 border-b border-white/50">
+<<<<<<< HEAD
                 <h1 class="text-xl font-bold">Administrative Department</h1>
+=======
+                <h1 class="text-xl font-bold">Legal Department</h1>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
             </div>
             <div class="px-3 py-10 flex-1">
                 <ul class="space-y-6">
@@ -286,7 +312,11 @@ $user = auth()->user();
                                 <i class="bx bx-calendar-check"></i>
                                 <span>Facilities Reservations</span>
                             </div>
+<<<<<<< HEAD
                             <i class="bx bx-chevron-down text-2xl"></i>
+=======
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
                             <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
@@ -301,7 +331,11 @@ $user = auth()->user();
                                 <i class="bx bx-file"></i>
                                 <span>Document Management</span>
                             </div>
+<<<<<<< HEAD
                             <i class="bx bx-chevron-down text-2xl"></i>
+=======
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
                             <li><a href="{{ route('document.upload.indexing') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-upload mr-2"></i>Document Upload & Indexing</a></li>
@@ -316,7 +350,11 @@ $user = auth()->user();
                                 <i class="bx bx-file"></i>
                                 <span>Legal Management</span>
                             </div>
+<<<<<<< HEAD
                             <i class="bx bx-chevron-down text-2xl"></i>
+=======
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </div>
                         <ul class="dropdown-menu bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
                             <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
@@ -331,7 +369,11 @@ $user = auth()->user();
                                 <i class="bx bx-group"></i>
                                 <span>Visitor Management</span>
                             </div>
+<<<<<<< HEAD
                             <i class="bx bx-chevron-down text-2xl"></i>
+=======
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
                             <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
@@ -379,7 +421,11 @@ $user = auth()->user();
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         <!-- Active Cases -->
+<<<<<<< HEAD
                         <div class="dashboard-card p-6 lg:col-span-2">
+=======
+                        <div class="dashboard-card p-6">
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Active Cases</p>
@@ -389,13 +435,17 @@ $user = auth()->user();
                                     <i class="fas fa-gavel text-xl"></i>
                                 </div>
                             </div>
+<<<<<<< HEAD
                             @php $totalCases = is_countable($cases ?? []) ? count($cases ?? []) : 0; @endphp
+=======
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                             <div class="mt-4 flex items-center text-sm">
                                 <span class="text-green-600 font-medium flex items-center">
                                     <i class="fas fa-arrow-up mr-1"></i> 12%
                                 </span>
                                 <span class="text-gray-500 ml-2">vs last month</span>
                             </div>
+<<<<<<< HEAD
                             <div class="mt-4">
                                 <div class="w-full bg-gray-200 rounded-full h-2">
                                     @php
@@ -410,6 +460,12 @@ $user = auth()->user();
 
                         <!-- Upcoming Hearings -->
                         <div class="dashboard-card p-6 lg:col-span-2">
+=======
+                        </div>
+
+                        <!-- Upcoming Hearings -->
+                        <div class="dashboard-card p-6">
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                             <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Upcoming Hearings</p>
@@ -427,6 +483,7 @@ $user = auth()->user();
                                     <p class="text-sm text-gray-600">No upcoming hearings</p>
                                 @endif
                             </div>
+<<<<<<< HEAD
                             <div class="mt-4">
                                 @php $upc = (int) ($stats['upcoming_hearings'] ?? 0); @endphp
                                 <div class="w-full bg-gray-200 rounded-full h-2">
@@ -438,6 +495,47 @@ $user = auth()->user();
                         </div>
 
                         
+=======
+                        </div>
+
+                        <!-- Pending Tasks -->
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Pending Tasks</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['pending_tasks'] ?? 0 }}</h3>
+                                </div>
+                                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                    <i class="fas fa-tasks text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: {{ $stats['pending_progress'] ?? 0 }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">{{ $stats['pending_tasks'] ?? 0 }} pending</p>
+                            </div>
+                        </div>
+
+                        <!-- Success Rate -->
+                        <div class="dashboard-card p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Success Rate</p>
+                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['success_rate'] ?? 0 }}%</h3>
+                                </div>
+                                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                                    <i class="fas fa-chart-line text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-purple-500 h-2 rounded-full" style="width: {{ $stats['success_progress'] ?? 0 }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Based on {{ is_countable($cases ?? []) ? count($cases ?? []) : 0 }} cases</p>
+                            </div>
+                        </div>
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     </div>
 
                     <!-- Search and Filter -->
@@ -1739,15 +1837,23 @@ $user = auth()->user();
                     try {
                         const resp = await fetch('{{ route('case.delete') }}', {
                             method: 'POST',
+<<<<<<< HEAD
                             headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+=======
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                             body: new URLSearchParams({ number: num })
                         });
                         const data = await resp.json();
                         if (!data.success) throw new Error('Failed to delete');
+<<<<<<< HEAD
                         // Remove row without reloading
                         const row = casesTbody ? Array.from(casesTbody.querySelectorAll('tr')).find(tr => (tr.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent || '').trim() === num) : null;
                         if (row) row.remove();
                         closeDelModal();
+=======
+                        window.location.reload();
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                     } catch(err){ alert(err.message || 'Error deleting case'); }
                 };
                 return;
@@ -1757,6 +1863,7 @@ $user = auth()->user();
         if (editCaseForm) {
             editCaseForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+<<<<<<< HEAD
                 // Collect and map fields expected by backend
                 const num = (ecNumber?.value || '').trim();
                 const caseName = (ecName?.value || '').trim();
@@ -1814,6 +1921,18 @@ $user = auth()->user();
                     }
 
                     closeEditModal();
+=======
+                const formData = new FormData(editCaseForm);
+                try {
+                    const resp = await fetch('{{ route('case.update') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                        body: formData
+                    });
+                    const data = await resp.json();
+                    if (!data.success) throw new Error('Failed to update');
+                    window.location.reload();
+>>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
                 } catch(err){ alert(err.message || 'Error updating case'); }
             });
         }
