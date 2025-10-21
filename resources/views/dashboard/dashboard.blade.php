@@ -401,7 +401,7 @@ $user = auth()->user();
   </div>
 
   <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
-    <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+    <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4" role="document">
       <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
         <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
         <button id="closeProfileBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
@@ -416,29 +416,42 @@ $user = auth()->user();
           <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
           <p class="text-xs text-gray-500 leading-4">Administrator</p>
         </div>
-        <form class="space-y-4">
-          <div>
-            <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
-            <input id="emailProfile" type="email" readonly value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+        <form class="space-y-4" action="{{ route('profile.update') }}" method="POST">
+          @csrf
+          @method('PATCH')
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="nameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Full Name</label>
+              <input id="nameProfile" name="name" type="text" value="{{ old('name', $user->name) }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="usernameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Username</label>
+              <input id="usernameProfile" name="username" type="text" value="{{ old('username', $user->username) }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+              <input id="emailProfile" name="email" type="email" value="{{ old('email', $user->email) }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="phoneProfile" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
+              <input id="phoneProfile" name="phone" type="text" value="{{ old('phone', $user->phone) }}" placeholder="+63 9xx xxx xxxx" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
+              <input id="department" type="text" value="Administrative" readonly class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+            </div>
+            <div>
+              <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
+              <input id="location" type="text" value="Manila, Philippines" readonly class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+            </div>
+            <div>
+              <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
+              <input id="joined" type="text" value="{{ $user->created_at->format('F d, Y') }}" readonly class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+            </div>
           </div>
-          <div>
-            <label for="phone" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
-            <input id="phone" type="text" readonly value="+1234567890" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-          </div>
-          <div>
-            <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
-            <input id="department" type="text" readonly value="Administrative" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-          </div>
-          <div>
-            <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
-            <input id="location" type="text" readonly value="Manila, Philippines" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-          </div>
-          <div>
-            <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
-            <input id="joined" type="text" readonly value="{{ $user->created_at->format('F d, Y') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-          </div>
-          <div class="flex justify-end pt-2">
-            <button id="closeProfileBtn2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
+          <div class="flex justify-end space-x-3 pt-2">
+            <button id="closeProfileBtn2" type="button" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+            <button type="submit" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Save Changes</button>
           </div>
         </form>
       </div>
@@ -506,17 +519,28 @@ $user = auth()->user();
         </button>
       </div>
       <div class="px-8 pt-6 pb-8">
-          @csrf
-          @method('PATCH')
-          <fieldset>
-            <legend class="font-semibold mb-2 select-none">Change Password</legend>
-            <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
-            <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="current-password" name="current_password" type="password"/>
-            <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
-            <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="new-password" name="new_password" type="password"/>
-            <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
-            <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="confirm-password" name="confirm_password" type="password"/>
-          </fieldset>
+          <form id="changePasswordForm" action="{{ route('account.password.change.request') }}" method="POST" class="space-y-3">
+            @csrf
+            <fieldset>
+              <legend class="font-semibold mb-2 select-none">Change Password</legend>
+              <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
+              <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="current-password" name="current_password" type="password"/>
+              <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
+              <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="new-password" name="new_password" type="password"/>
+              <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
+              <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="confirm-password" name="new_password_confirmation" type="password"/>
+            </fieldset>
+            <div id="verifySection" class="hidden">
+              <label class="block mt-2 mb-1 font-normal select-none" for="pw-verify-code">Enter Verification Code</label>
+              <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="pw-verify-code" name="code" type="text" maxlength="6"/>
+              <button id="verifyPasswordBtn" type="button" data-verify-action="{{ route('account.password.change.verify') }}" class="mt-3 w-full bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Verify Code & Update</button>
+            </div>
+            <div class="text-xs" id="pwChangeMsg"></div>
+            <div class="flex justify-end space-x-3 pt-2">
+              <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" type="button">Cancel</button>
+              <button id="submitPasswordBtn" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Send Code</button>
+            </div>
+          </form>
           <fieldset>
             <legend class="font-semibold mb-1 select-none">Two-Factor Authentication</legend>
             <p class="text-[10px] mb-1 select-none">Enhance your account security</p>
@@ -544,11 +568,6 @@ $user = auth()->user();
               <span>Log my account activity</span>
             </label>
           </fieldset>
-          <div class="flex justify-end space-x-3 pt-2">
-            <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" type="button">Cancel</button>
-            <button class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Save Changes</button>
-          </div>
-        </form>
       </div>
     </div>
   </div>
@@ -753,6 +772,78 @@ $user = auth()->user();
       cancelPrivacySecurityBtn.addEventListener("click", () => {
         privacySecurityModal.classList.remove("active");
       });
+
+      // Change Password two-step flow
+      const changePasswordForm = document.getElementById('changePasswordForm');
+      const verifySection = document.getElementById('verifySection');
+      const pwChangeMsg = document.getElementById('pwChangeMsg');
+      const verifyPasswordBtn = document.getElementById('verifyPasswordBtn');
+      const submitPasswordBtn = document.getElementById('submitPasswordBtn');
+      const csrfToken = changePasswordForm?.querySelector('input[name="_token"]')?.value;
+
+      function setPwMsg(text, ok = true) {
+        pwChangeMsg.textContent = text;
+        pwChangeMsg.className = `text-xs mt-1 ${ok ? 'text-green-700' : 'text-red-600'}`;
+      }
+
+      if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          setPwMsg('Sending verification code...', true);
+          submitPasswordBtn.disabled = true;
+          const fd = new FormData(changePasswordForm);
+          try {
+            const res = await fetch(changePasswordForm.action, {
+              method: 'POST',
+              headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+              body: fd,
+            });
+            const data = await res.json();
+            if (res.ok && data.ok) {
+              setPwMsg('Code sent. Check your email and enter the 6-digit code below.', true);
+              verifySection.classList.remove('hidden');
+              changePasswordForm.querySelectorAll('input[type="password"]').forEach(i => i.disabled = true);
+              document.getElementById('pw-verify-code').focus();
+            } else {
+              setPwMsg((data && (data.message || data.error)) || 'Failed to send code.', false);
+              submitPasswordBtn.disabled = false;
+            }
+          } catch (err) {
+            setPwMsg('Network error while sending code.', false);
+            submitPasswordBtn.disabled = false;
+          }
+        });
+
+        if (verifyPasswordBtn) {
+          verifyPasswordBtn.addEventListener('click', async () => {
+            const code = (document.getElementById('pw-verify-code').value || '').trim();
+            if (code.length !== 6) {
+              setPwMsg('Please enter the 6-digit verification code.', false);
+              return;
+            }
+            setPwMsg('Verifying code...', true);
+            verifyPasswordBtn.disabled = true;
+            try {
+              const res = await fetch(verifyPasswordBtn.dataset.verifyAction, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ code })
+              });
+              const data = await res.json();
+              if (res.ok && data.ok) {
+                setPwMsg('Password changed successfully.', true);
+                setTimeout(() => { privacySecurityModal.classList.remove('active'); }, 800);
+              } else {
+                setPwMsg((data && data.message) || 'Invalid or expired code.', false);
+                verifyPasswordBtn.disabled = false;
+              }
+            } catch (err) {
+              setPwMsg('Network error while verifying code.', false);
+              verifyPasswordBtn.disabled = false;
+            }
+          });
+        }
+      }
 
       cancelSignOutBtn.addEventListener("click", () => {
         signOutModal.classList.remove("active");

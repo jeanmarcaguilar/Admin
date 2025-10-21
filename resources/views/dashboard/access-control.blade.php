@@ -16,6 +16,36 @@ $user = auth()->user();
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     <style>
+        /* Modal Styles */
+        .modal {
+            display: none; /* Start hidden */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .modal > div {
+            background: white;
+            border-radius: 0.5rem;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -202,7 +232,7 @@ $user = auth()->user();
                     <i class="fa-solid fa-bell text-xl"></i>
                     <span class="absolute top-1 right-1 bg-red-500 text-xs text-white rounded-full px-1">3</span>
                 </button>
-                <div class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
+                <div onclick="toggleUserMenu(event)" class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
                     <i class="fa-solid fa-user text-[18px] bg-white text-[#28644c] px-2.5 py-2 rounded-full"></i>
                     <span class="text-white font-medium">{{ $user->name }}</span>
                     <i class="fa-solid fa-chevron-down text-sm"></i>
@@ -210,6 +240,331 @@ $user = auth()->user();
             </div>
         </div>
     </nav>
+    <script>
+    // Show modal function
+    function showModal(modalId) {
+        console.log('showModal called with ID:', modalId);
+        const modal = document.getElementById(modalId);
+        
+        if (!modal) {
+            console.error(`Modal with ID ${modalId} not found`);
+            console.log('Available modals:');
+            document.querySelectorAll('[id$="Modal"]').forEach(m => {
+                console.log(`- ${m.id}`, m);
+            });
+            return;
+        }
+        
+        console.log('Modal element found:', modal);
+        
+        // Show the modal
+        modal.style.display = 'flex';
+        
+        // Force reflow to ensure display change takes effect
+        void modal.offsetWidth;
+        
+        // Add active class for opacity transition
+        modal.classList.add('active');
+        
+        // Prevent body scrolling when modal is open
+        document.body.style.overflow = 'hidden';
+        
+        console.log('Modal should now be visible');
+    }
+
+    // Close modal function
+    function closeModal(modalId) {
+        console.log('Closing modal:', modalId);
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            // Remove active class for opacity transition
+            modal.classList.remove('active');
+            // Wait for transition to complete before hiding
+            setTimeout(() => {
+                modal.style.display = 'none';
+                // Re-enable body scrolling
+                document.body.style.overflow = 'auto';
+            }, 300);
+        } else {
+            console.error(`Modal with ID ${modalId} not found`);
+        }
+    }
+
+    // Debug function to log element info
+    function debugElement(el) {
+        if (!el) return 'Element not found';
+        return {
+            tag: el.tagName,
+            id: el.id,
+            class: el.className,
+            text: el.textContent.trim(),
+            html: el.outerHTML
+        };
+    }
+
+    // Initialize event listeners when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM fully loaded, initializing event listeners');
+        
+        // Debug: Log all permission buttons
+        const viewBtns = document.querySelectorAll('.view-permission-btn, [onclick*="showPermissionDetails"]');
+        const editBtns = document.querySelectorAll('.edit-permission-btn, [onclick*="openEditPermissionModal"]');
+        const deleteBtns = document.querySelectorAll('.delete-permission-btn, [onclick*="showDeleteConfirmation"]');
+        
+        console.log('Found view buttons:', viewBtns.length);
+        console.log('Found edit buttons:', editBtns.length);
+        console.log('Found delete buttons:', deleteBtns.length);
+        
+        if (viewBtns.length > 0) {
+            console.log('First view button:', debugElement(viewBtns[0]));
+        }
+        
+        // Add direct click handlers for debugging
+        document.querySelectorAll('.view-permission-btn, [onclick*="showPermissionDetails"]').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                console.log('Direct click on view button:', debugElement(btn));
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let permission;
+                if (btn.hasAttribute('data-permission')) {
+                    try {
+                        permission = JSON.parse(btn.getAttribute('data-permission'));
+                    } catch (error) {
+                        console.error('Error parsing permission data:', error);
+                        return;
+                    }
+                } else if (btn.onclick) {
+                    console.log('Button has onclick handler:', btn.getAttribute('onclick'));
+                }
+                
+                if (permission) {
+                    console.log('Showing permission details (direct):', permission);
+                    showPermissionDetails(permission);
+                }
+            });
+        });
+        
+        // Handle View button clicks with event delegation
+        document.addEventListener('click', function(e) {
+            // Handle View button
+            const viewBtn = e.target.closest('.view-permission-btn, [onclick*="showPermissionDetails"]');
+            if (viewBtn) {
+                console.log('View button clicked (delegation):', debugElement(viewBtn));
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let permission;
+                if (viewBtn.hasAttribute('data-permission')) {
+                    try {
+                        permission = JSON.parse(viewBtn.getAttribute('data-permission'));
+                    } catch (error) {
+                        console.error('Error parsing permission data:', error);
+                        return;
+                    }
+                } else if (viewBtn.onclick) {
+                    // Handle old onclick handler
+                    const onclickText = viewBtn.getAttribute('onclick');
+                    const match = onclickText.match(/showPermissionDetails\((.+?)\)/);
+                    if (match && match[1]) {
+                        try {
+                            permission = JSON.parse(match[1]);
+                        } catch (e) {
+                            console.error('Error parsing permission from onclick:', e);
+                            return;
+                        }
+                    }
+                }
+                
+                if (permission) {
+                    console.log('Showing permission details:', permission);
+                    showPermissionDetails(permission);
+                }
+                return;
+            }
+            
+            // Handle Edit button
+            const editBtn = e.target.closest('.edit-permission-btn, [onclick^="openEditPermissionModal"]');
+            if (editBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let permissionId;
+                if (editBtn.hasAttribute('data-id')) {
+                    permissionId = editBtn.getAttribute('data-id');
+                } else if (editBtn.onclick) {
+                    // Handle old onclick handler
+                    const onclickText = editBtn.getAttribute('onclick');
+                    const match = onclickText.match(/openEditPermissionModal\(['"](\d+)['"]\)/);
+                    if (match && match[1]) {
+                        permissionId = match[1];
+                    }
+                }
+                
+                if (permissionId) {
+                    console.log('Editing permission ID:', permissionId);
+                    openEditPermissionModal(permissionId);
+                }
+                return;
+            }
+            
+            // Handle Delete button
+            const deleteBtn = e.target.closest('.delete-permission-btn, [onclick^="showDeleteConfirmation"]');
+            if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                let permissionId;
+                if (deleteBtn.hasAttribute('data-id')) {
+                    permissionId = deleteBtn.getAttribute('data-id');
+                } else if (deleteBtn.onclick) {
+                    // Handle old onclick handler
+                    const onclickText = deleteBtn.getAttribute('onclick');
+                    const match = onclickText.match(/showDeleteConfirmation\(['"](\d+)['"]\)/);
+                    if (match && match[1]) {
+                        permissionId = match[1];
+                    }
+                }
+                
+                if (permissionId) {
+                    console.log('Deleting permission ID:', permissionId);
+                    showDeleteConfirmation(permissionId);
+                }
+                return;
+            }
+            
+            // Close modals when clicking outside
+            if (e.target.classList.contains('modal')) {
+                closeModal(e.target.id);
+            }
+        });
+        
+        // Close modals when clicking the X button
+        document.querySelectorAll('[onclick^="closeModal"]').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const match = this.getAttribute('onclick').match(/closeModal\(['"]([^'"]+)['"]\)/);
+                if (match && match[1]) {
+                    closeModal(match[1]);
+                }
+            });
+        });
+        // Handle new permission button click
+        const newPermissionBtn = document.getElementById('newPermissionBtn');
+        if (newPermissionBtn) {
+            newPermissionBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showModal('newPermissionModal');
+            });
+        }
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            const modals = ['newPermissionModal', 'viewPermissionModal', 'editPermissionModal'];
+            modals.forEach(modalId => {
+                const modal = document.getElementById(modalId);
+                if (modal && modal.style.display === 'flex') {
+                    if (e.target === modal) {
+                        closeModal(modalId);
+                    }
+                }
+            });
+        });
+    });
+
+    if (typeof window.toggleSidebarDropdown !== 'function') {
+        window.toggleSidebarDropdown = function(el){
+          try{
+            var list = document.querySelectorAll('.has-dropdown > div');
+            for (var i=0;i<list.length;i++){
+              var t=list[i];
+              if (t!==el){
+                var m=t.nextElementSibling; var c=t.querySelector('.bx-chevron-down');
+                if(m && !m.classList.contains('hidden')) m.classList.add('hidden');
+                if(c) c.classList.remove('rotate-180');
+              }
+            }
+            if(el){
+              var menu=el.nextElementSibling; var chev=el.querySelector('.bx-chevron-down');
+              if(menu) menu.classList.toggle('hidden');
+              if(chev) chev.classList.toggle('rotate-180');
+            }
+          }catch(e){}
+        };
+      }
+      if (typeof window.toggleUserMenu !== 'function') {
+        window.toggleUserMenu = function(ev){
+          try{
+            if(ev && ev.stopPropagation) ev.stopPropagation();
+            var btn=document.getElementById('userMenuBtn');
+            var menu=document.getElementById('userMenuDropdown');
+            var notifBtn=document.getElementById('notificationBtn');
+            var notif=document.getElementById('notificationDropdown');
+            if(menu){ menu.classList.toggle('hidden'); }
+            if(btn){ var ex=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', (!ex).toString()); }
+            if(notif){ notif.classList.add('hidden'); }
+          }catch(e){}
+        };
+      }
+      // Modal fallback open/close to ensure reliability even if later scripts fail
+      if (typeof window.openProfileModal !== 'function') {
+        window.openProfileModal = function(){
+          var m=document.getElementById('profileModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closeProfileModal !== 'function') {
+        window.closeProfileModal = function(){
+          var m=document.getElementById('profileModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+      if (typeof window.openAccountSettingsModal !== 'function') {
+        window.openAccountSettingsModal = function(){
+          var m=document.getElementById('accountSettingsModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closeAccountSettingsModal !== 'function') {
+        window.closeAccountSettingsModal = function(){
+          var m=document.getElementById('accountSettingsModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+      if (typeof window.openPrivacySecurityModal !== 'function') {
+        window.openPrivacySecurityModal = function(){
+          var m=document.getElementById('privacySecurityModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closePrivacySecurityModal !== 'function') {
+        window.closePrivacySecurityModal = function(){
+          var m=document.getElementById('privacySecurityModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+      if (typeof window.openSignOutModal !== 'function') {
+        window.openSignOutModal = function(){
+          var m=document.getElementById('signOutModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closeSignOutModal !== 'function') {
+        window.closeSignOutModal = function(){
+          var m=document.getElementById('signOutModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+    </script>
 
     <!-- Notification Dropdown -->
     <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
@@ -278,7 +633,7 @@ $user = auth()->user();
                         </a>
                     </li>
                     <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div onclick="toggleSidebarDropdown(this)" class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-calendar-check"></i>
                                 <span>Facilities Reservations</span>
@@ -293,7 +648,7 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div onclick="toggleSidebarDropdown(this)" class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Document Management</span>
@@ -308,7 +663,7 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div onclick="toggleSidebarDropdown(this)" class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Legal Management</span>
@@ -323,7 +678,7 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div onclick="toggleSidebarDropdown(this)" class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-group"></i>
                                 <span>Visitor Management</span>
@@ -371,26 +726,13 @@ $user = auth()->user();
                     </div>
                     <p class="text-gray-600 text-sm">Manage document access permissions for users and groups.</p>
 
-                    <!-- Search and Filter Section -->
+                    <!-- Search Section -->
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-                        <div class="relative flex-1 max-w-md">
+                        <div class="relative flex-1 max-w-2xl">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class='bx bx-search text-gray-400'></i>
                             </div>
-                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent" placeholder="Search permissions...">
-                        </div>
-                        <div class="flex space-x-3">
-                            <select id="filterRole" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent">
-                                <option value="">All Roles</option>
-                                <option value="admin">Admin</option>
-                                <option value="editor">Editor</option>
-                                <option value="viewer">Viewer</option>
-                            </select>
-                            <select id="filterStatus" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
+                            <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent" placeholder="Search permissions by name, role, or type...">
                         </div>
                     </div>
 
@@ -457,9 +799,9 @@ $user = auth()->user();
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button onclick="showPermissionDetails({{ json_encode($permission) }})" class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
-                                                    <button onclick="openEditPermissionModal({{ $permission['id'] }})" class="text-green-600 hover:text-green-900 mr-3 bg-transparent border-none p-0 cursor-pointer">Edit</button>
-                                                    <button onclick="confirmDeletePermission({{ $permission['id'] }})" class="text-red-600 hover:text-red-900 bg-transparent border-none p-0 cursor-pointer">Delete</button>
+                                                    <button data-permission='@json($permission)' class="view-permission-btn text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
+                                                    <button data-id="{{ $permission['id'] }}" class="edit-permission-btn text-green-600 hover:text-green-900 mr-3 bg-transparent border-none p-0 cursor-pointer">Edit</button>
+                                                    <button data-id="{{ $permission['id'] }}" class="delete-permission-btn text-red-600 hover:text-red-900 bg-transparent border-none p-0 cursor-pointer">Delete</button>
                                                 </td>
                                             </tr>
                                         @empty
@@ -471,34 +813,6 @@ $user = auth()->user();
                                         @endforelse
                                     </tbody>
                                 </table>
-                            </div>
-                            <!-- Pagination -->
-                            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                    <div>
-                                        <p class="text-sm text-gray-700">
-                                            Showing <span class="font-medium">1</span> to <span class="font-medium">3</span> of <span class="font-medium">3</span> results
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span class="sr-only">Previous</span>
-                                                <i class='bx bx-chevron-left'></i>
-                                            </a>
-                                            <a href="#" aria-current="page" class="z-10 bg-indigo-50 border-indigo-500 text-indigo-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                1
-                                            </a>
-                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                2
-                                            </a>
-                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span class="sr-only">Next</span>
-                                                <i class='bx bx-chevron-right'></i>
-                                            </a>
-                                        </nav>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </section>
@@ -523,16 +837,17 @@ $user = auth()->user();
     </div>
 
     <!-- New Permission Modal -->
-    <div id="newPermissionModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="new-permission-modal-title">
-        <div class="bg-white rounded-lg w-full max-w-2xl">
+    <div id="newPermissionModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b px-6 py-4">
-                <h3 id="new-permission-modal-title" class="text-xl font-semibold text-gray-900">Add New Permission</h3>
-                <button onclick="closeModal('newPermissionModal')" class="text-gray-400 hover:text-gray-500 focus:outline-none">
-                    <i class='fas fa-times text-2xl'></i>
+                <h3 class="text-xl font-semibold text-gray-900">Add New Permission</h3>
+                <button type="button" onclick="closeModal('newPermissionModal')" class="text-gray-400 hover:text-gray-500">
+                    <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
             <form id="newPermissionForm" class="p-6 space-y-6" action="{{ route('permissions.store') }}" method="POST">
                 @csrf
+                <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="permissionType" class="block text-sm font-medium text-gray-700 mb-1">Permission Type</label>
@@ -579,9 +894,9 @@ $user = auth()->user();
                             <option value="other">Other</option>
                         </select>
                     </div>
-                </div>
+                    </div>
 
-                <div id="customPermissions" class="hidden border-t pt-4 mt-4">
+                    <div id="customPermissions" class="hidden border-t pt-4 mt-4">
                     <h4 class="text-sm font-medium text-gray-700 mb-3">Custom Permissions</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="flex items-center">
@@ -616,8 +931,8 @@ $user = auth()->user();
                     <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#2f855a] focus:border-[#2f855a] sm:text-sm"></textarea>
                 </div>
 
-                <div class="flex justify-end space-x-3 pt-4 border-t">
-                    <button type="button" onclick="closeModal('newPermissionModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855a]">
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                    <button type="button" onclick="closeModal('newPermissionModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Cancel
                     </button>
                     <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#2f855a] hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855a]">
@@ -743,6 +1058,23 @@ $user = auth()->user();
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                     <i class="fas fa-exclamation text-red-600 text-xl"></i>
                 </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Delete Permission</h3>
+                <p class="text-sm text-gray-500 mb-6">Are you sure you want to delete this permission? This action cannot be undone.</p>
+                <div class="flex justify-center space-x-4">
+                    <button type="button" onclick="closeModal('deletePermissionModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmDeleteBtn" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-lg w-full max-w-md">
+            <div class="p-6 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <i class="fas fa-exclamation text-red-600 text-xl"></i>
+                </div>
                 <h3 id="delete-permission-modal-title" class="text-lg font-medium text-gray-900 mb-2">Delete Permission</h3>
                 <p class="text-sm text-gray-500 mb-6">Are you sure you want to delete this permission? This action cannot be undone.</p>
                 <div class="flex justify-center space-x-4">
@@ -767,10 +1099,10 @@ $user = auth()->user();
             <p class="text-xs text-gray-400">Administrator</p>
         </div>
         <ul class="text-sm text-gray-700">
-            <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-            <li><button id="openAccountSettingsBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
-            <li><button id="openPrivacySecurityBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
-            <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+            <li><button id="openProfileBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openProfileModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+            <li><button id="openAccountSettingsBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openAccountSettingsModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
+            <li><button id="openPrivacySecurityBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openPrivacySecurityModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
+            <li><button id="openSignOutBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openSignOutModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
         </ul>
     </div>
 
@@ -779,7 +1111,7 @@ $user = auth()->user();
         <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
                 <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
-                <button id="closeProfileBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                <button id="closeProfileBtn" onclick="closeProfileModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
@@ -813,7 +1145,7 @@ $user = auth()->user();
                         <input id="joined" type="text" readonly value="{{ $user->created_at->format('F d, Y') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
                     </div>
                     <div class="flex justify-end pt-2">
-                        <button id="closeProfileBtn2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
+                        <button id="closeProfileBtn2" onclick="closeProfileModal()" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
                     </div>
                 </form>
             </div>
@@ -825,7 +1157,7 @@ $user = auth()->user();
         <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
                 <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings</h3>
-                <button id="closeAccountSettingsBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                <button id="closeAccountSettingsBtn" onclick="closeAccountSettingsModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
@@ -878,7 +1210,7 @@ $user = auth()->user();
         <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
                 <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy & Security</h3>
-                <button id="closePrivacySecurityBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                <button id="closePrivacySecurityBtn" onclick="closePrivacySecurityModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
@@ -923,7 +1255,7 @@ $user = auth()->user();
                         </label>
                     </fieldset>
                     <div class="flex justify-end space-x-3 pt-2">
-                        <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" type="button">Cancel</button>
+                        <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" onclick="closePrivacySecurityModal()" type="button">Cancel</button>
                         <button class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Save Changes</button>
                     </div>
                 </form>
@@ -936,7 +1268,7 @@ $user = auth()->user();
         <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4 text-center" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
                 <h3 id="sign-out-modal-title" class="font-semibold text-sm text-gray-900 select-none">Sign Out</h3>
-                <button id="cancelSignOutBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                <button id="cancelSignOutBtn" onclick="closeSignOutModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
                     <i class="fas fa-times text-xs"></i>
                 </button>
             </div>
@@ -946,7 +1278,7 @@ $user = auth()->user();
                 </div>
                 <p class="text-xs text-gray-600 mb-6">Are you sure you want to sign out of your account?</p>
                 <div class="flex justify-center space-x-4">
-                    <button id="cancelSignOutBtn2" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                    <button id="cancelSignOutBtn2" onclick="closeSignOutModal()" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Sign Out</button>
@@ -978,11 +1310,36 @@ $user = auth()->user();
     @endif
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+    const dropdownToggles = document.querySelectorAll('.has-dropdown > div');
+    function closeAllDropdowns(except) {
+        dropdownToggles.forEach((t) => {
+            if (t === except) return;
+            const menu = t.nextElementSibling;
+            const chev = t.querySelector('.bx-chevron-down');
+            if (menu && !menu.classList.contains('hidden')) menu.classList.add('hidden');
+            if (chev) chev.classList.remove('rotate-180');
+        });
+    }
+    window.toggleSidebarDropdown = function(el) {
+        const menu = el ? el.nextElementSibling : null;
+        const chev = el ? el.querySelector('.bx-chevron-down') : null;
+        closeAllDropdowns(el || null);
+        if (menu) menu.classList.toggle('hidden');
+        if (chev) chev.classList.toggle('rotate-180');
+    };
+    dropdownToggles.forEach((toggle) => {
+        toggle.addEventListener('click', () => {
+            const menu = toggle.nextElementSibling;
+            const chev = toggle.querySelector('.bx-chevron-down');
+            closeAllDropdowns(toggle);
+            if (menu) menu.classList.toggle('hidden');
+            if (chev) chev.classList.toggle('rotate-180');
+        });
+    });
             const sidebar = document.getElementById("sidebar");
             const mainContent = document.getElementById("main-content");
             const toggleBtn = document.getElementById("toggle-btn");
             const overlay = document.getElementById("overlay");
-            const dropdownToggles = document.querySelectorAll(".has-dropdown > div");
             const notificationBtn = document.getElementById("notificationBtn");
             const notificationDropdown = document.getElementById("notificationDropdown");
             const userMenuBtn = document.getElementById("userMenuBtn");
@@ -1145,46 +1502,46 @@ $user = auth()->user();
             // Notification dropdown
             if (notificationBtn) notificationBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                notificationDropdown.classList.toggle("hidden");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                newPermissionModal.classList.remove("active");
-                editPermissionModal.classList.remove("active");
-                deletePermissionModal.classList.remove("active");
+                if (notificationDropdown) notificationDropdown.classList.toggle("hidden");
+                if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+                if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+                if (profileModal) profileModal.classList.remove("active");
+                if (accountSettingsModal) accountSettingsModal.classList.remove("active");
+                if (privacySecurityModal) privacySecurityModal.classList.remove("active");
+                if (signOutModal) signOutModal.classList.remove("active");
+                if (newPermissionModal) newPermissionModal.classList.remove("active");
+                if (editPermissionModal) editPermissionModal.classList.remove("active");
+                if (deletePermissionModal) deletePermissionModal.classList.remove("active");
             });
 
             // User menu dropdown
             if (userMenuBtn) userMenuBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                userMenuDropdown.classList.toggle("hidden");
+                if (userMenuDropdown) userMenuDropdown.classList.toggle("hidden");
                 const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
-                userMenuBtn.setAttribute("aria-expanded", !expanded);
-                notificationDropdown.classList.add("hidden");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                newPermissionModal.classList.remove("active");
-                editPermissionModal.classList.remove("active");
-                deletePermissionModal.classList.remove("active");
+                userMenuBtn.setAttribute("aria-expanded", (!expanded).toString());
+                if (notificationDropdown) notificationDropdown.classList.add("hidden");
+                if (profileModal) profileModal.classList.remove("active");
+                if (accountSettingsModal) accountSettingsModal.classList.remove("active");
+                if (privacySecurityModal) privacySecurityModal.classList.remove("active");
+                if (signOutModal) signOutModal.classList.remove("active");
+                if (newPermissionModal) newPermissionModal.classList.remove("active");
+                if (editPermissionModal) editPermissionModal.classList.remove("active");
+                if (deletePermissionModal) deletePermissionModal.classList.remove("active");
             });
 
             if (openSignOutBtn) openSignOutBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
-                signOutModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                newPermissionModal.classList.remove("active");
-                editPermissionModal.classList.remove("active");
-                deletePermissionModal.classList.remove("active");
+                if (signOutModal) signOutModal.classList.add("active");
+                if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+                if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+                if (profileModal) profileModal.classList.remove("active");
+                if (accountSettingsModal) accountSettingsModal.classList.remove("active");
+                if (privacySecurityModal) privacySecurityModal.classList.remove("active");
+                if (notificationDropdown) notificationDropdown.classList.add("hidden");
+                if (newPermissionModal) newPermissionModal.classList.remove("active");
+                if (editPermissionModal) editPermissionModal.classList.remove("active");
+                if (deletePermissionModal) deletePermissionModal.classList.remove("active");
             });
 
             // Profile modal
@@ -1202,110 +1559,129 @@ $user = auth()->user();
                 deletePermissionModal.classList.remove("active");
             });
 
-    if (closeProfileBtn) closeProfileBtn.addEventListener("click", () => {
-        profileModal.classList.remove("active");
-    });
-    if (closeProfileBtn2) closeProfileBtn2.addEventListener("click", () => {
-        profileModal.classList.remove("active");
-    });
+            if (closeProfileBtn) closeProfileBtn.addEventListener("click", () => {
+                profileModal.classList.remove("active");
+            });
+            if (closeProfileBtn2) closeProfileBtn2.addEventListener("click", () => {
+                profileModal.classList.remove("active");
+            });
 
-    // Account settings modal
-    if (openAccountSettingsBtn) openAccountSettingsBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        accountSettingsModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        profileModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        notificationDropdown.classList.add("hidden");
-        signOutModal.classList.remove("active");
-        newPermissionModal.classList.remove("active");
-        editPermissionModal.classList.remove("active");
-        deletePermissionModal.classList.remove("active");
-    });
+            // Account settings modal
+            if (openAccountSettingsBtn) openAccountSettingsBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                accountSettingsModal.classList.add("active");
+                userMenuDropdown.classList.add("hidden");
+                userMenuBtn.setAttribute("aria-expanded", "false");
+                profileModal.classList.remove("active");
+                privacySecurityModal.classList.remove("active");
+                notificationDropdown.classList.add("hidden");
+                signOutModal.classList.remove("active");
+                newPermissionModal.classList.remove("active");
+                editPermissionModal.classList.remove("active");
+                deletePermissionModal.classList.remove("active");
+            });
 
-    if (closeAccountSettingsBtn) closeAccountSettingsBtn.addEventListener("click", () => {
-        accountSettingsModal.classList.remove("active");
-    });
-    if (cancelAccountSettingsBtn) cancelAccountSettingsBtn.addEventListener("click", () => {
-        accountSettingsModal.classList.remove("active");
-    });
+            if (closeAccountSettingsBtn) closeAccountSettingsBtn.addEventListener("click", () => {
+                accountSettingsModal.classList.remove("active");
+            });
+            if (cancelAccountSettingsBtn) cancelAccountSettingsBtn.addEventListener("click", () => {
+                accountSettingsModal.classList.remove("active");
+            });
 
-    // Privacy & Security modal
-    if (openPrivacySecurityBtn) openPrivacySecurityBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        privacySecurityModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        notificationDropdown.classList.add("hidden");
-        signOutModal.classList.remove("active");
-        newPermissionModal.classList.remove("active");
-        editPermissionModal.classList.remove("active");
-        deletePermissionModal.classList.remove("active");
-    });
+            // Privacy & Security modal
+            if (openPrivacySecurityBtn) openPrivacySecurityBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                privacySecurityModal.classList.add("active");
+                userMenuDropdown.classList.add("hidden");
+                userMenuBtn.setAttribute("aria-expanded", "false");
+                profileModal.classList.remove("active");
+                accountSettingsModal.classList.remove("active");
+                notificationDropdown.classList.add("hidden");
+                signOutModal.classList.remove("active");
+                newPermissionModal.classList.remove("active");
+                editPermissionModal.classList.remove("active");
+                deletePermissionModal.classList.remove("active");
+            });
 
-    if (closePrivacySecurityBtn) closePrivacySecurityBtn.addEventListener("click", () => {
-        privacySecurityModal.classList.remove("active");
-    });
-    if (cancelPrivacySecurityBtn) cancelPrivacySecurityBtn.addEventListener("click", () => {
-        privacySecurityModal.classList.remove("active");
-    });
+            if (closePrivacySecurityBtn) closePrivacySecurityBtn.addEventListener("click", () => {
+                privacySecurityModal.classList.remove("active");
+            });
+            if (cancelPrivacySecurityBtn) cancelPrivacySecurityBtn.addEventListener("click", () => {
+                privacySecurityModal.classList.remove("active");
+            });
 
-    // Sign out modal
-    if (cancelSignOutBtn) cancelSignOutBtn.addEventListener("click", () => {
-        signOutModal.classList.remove("active");
-    });
-    if (cancelSignOutBtn2) cancelSignOutBtn2.addEventListener("click", () => {
-        signOutModal.classList.remove("active");
-    });
+            // Sign out modal
+            if (cancelSignOutBtn) cancelSignOutBtn.addEventListener("click", () => {
+                signOutModal.classList.remove("active");
+            });
+            if (cancelSignOutBtn2) cancelSignOutBtn2.addEventListener("click", () => {
+                signOutModal.classList.remove("active");
+            });
 
-    // Close modals and dropdowns on outside click
-    document.addEventListener("click", (e) => {
-        if (!notificationDropdown.contains(e.target) && !notificationBtn.contains(e.target)) {
-            notificationDropdown.classList.add("hidden");
-        }
-        if (!userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
-            userMenuDropdown.classList.add("hidden");
-            userMenuBtn.setAttribute("aria-expanded", "false");
-        }
-        if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
-            profileModal.classList.remove("active");
-        }
-        if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
-            accountSettingsModal.classList.remove("active");
-        }
-        if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
-            privacySecurityModal.classList.remove("active");
-        }
-        if (!signOutModal.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-            signOutModal.classList.remove("active");
-        }
-        if (!newPermissionModal.contains(e.target) && !newPermissionBtn.contains(e.target)) {
-            newPermissionModal.classList.remove("active");
-        }
-        if (!editPermissionModal.contains(e.target)) {
-            editPermissionModal.classList.remove("active");
-        }
-        if (!deletePermissionModal.contains(e.target)) {
-            deletePermissionModal.classList.remove("active");
-        }
-    });
+            // Close modals and dropdowns on outside click
+            document.addEventListener("click", (e) => {
+                if (notificationDropdown && notificationBtn && !notificationDropdown.contains(e.target) && !notificationBtn.contains(e.target)) {
+                    notificationDropdown.classList.add("hidden");
+                }
+                if (userMenuDropdown && userMenuBtn && !userMenuDropdown.contains(e.target) && !userMenuBtn.contains(e.target)) {
+                    userMenuDropdown.classList.add("hidden");
+                    userMenuBtn.setAttribute("aria-expanded", "false");
+                }
+                if (profileModal && openProfileBtn && !profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
+                    profileModal.classList.remove("active");
+                }
+                if (accountSettingsModal && openAccountSettingsBtn && !accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
+                    accountSettingsModal.classList.remove("active");
+                }
+                if (privacySecurityModal && openPrivacySecurityBtn && !privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
+                    privacySecurityModal.classList.remove("active");
+                }
+                if (signOutModal && !signOutModal.contains(e.target) && (!userMenuDropdown || !userMenuDropdown.contains(e.target))) {
+                    signOutModal.classList.remove("active");
+                }
+                if (newPermissionModal && newPermissionBtn && !newPermissionModal.contains(e.target) && !newPermissionBtn.contains(e.target)) {
+                    newPermissionModal.classList.remove("active");
+                }
+                if (editPermissionModal && !editPermissionModal.contains(e.target)) {
+                    editPermissionModal.classList.remove("active");
+                }
+                if (deletePermissionModal && !deletePermissionModal.contains(e.target)) {
+                    deletePermissionModal.classList.remove("active");
+                }
+            });
 
-    // New Permission Modal
-    if (newPermissionBtn) newPermissionBtn.addEventListener("click", () => {
-        newPermissionModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        notificationDropdown.classList.add("hidden");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        signOutModal.classList.remove("active");
-        editPermissionModal.classList.remove("active");
-        deletePermissionModal.classList.remove("active");
-        // Reset form
+            // New Permission Modal
+            const newPermissionBtn = document.getElementById('newPermissionBtn');
+            const newPermissionModal = document.getElementById('newPermissionModal');
+            
+            if (newPermissionBtn && newPermissionModal) {
+                newPermissionBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    console.log('New Permission button clicked');
+                    
+                    // Show the modal
+                    newPermissionModal.style.display = 'flex';
+                    // Force reflow to ensure display change takes effect
+                    void newPermissionModal.offsetWidth;
+                    // Add active class for opacity transition
+                    newPermissionModal.classList.add('active');
+                    
+                    // Prevent body scrolling when modal is open
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Close other dropdowns
+                    if (userMenuDropdown) userMenuDropdown.classList.add('hidden');
+                    if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+                    if (notificationDropdown) notificationDropdown.classList.add('hidden');
+                    if (notificationBtn) notificationBtn.setAttribute('aria-expanded', 'false');
+                });
+            } else {
+                console.error('New Permission button or modal not found');
+                if (!newPermissionBtn) console.error('Button with ID newPermissionBtn not found');
+                if (!newPermissionModal) console.error('Modal with ID newPermissionModal not found');
+            }
         document.getElementById("newPermissionForm").reset();
         permissionType.value = "user";
         userField.classList.remove("hidden");
@@ -1385,87 +1761,117 @@ $user = auth()->user();
     filterRole.addEventListener("change", filterPermissions);
     filterStatus.addEventListener("change", filterPermissions);
 
+    // Helper functions for modals
+    function showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'flex';
+            // Force reflow to ensure display change takes effect
+            void modal.offsetWidth;
+            // Add active class for opacity transition
+            modal.classList.add('active');
+            // Prevent body scrolling when modal is open
+            document.body.style.overflow = 'hidden';
+        } else {
+            console.error(`Modal with ID ${modalId} not found`);
+        }
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            // Remove active class for opacity transition
+            modal.classList.remove('active');
+            // Wait for transition to complete before hiding
+            setTimeout(() => {
+                modal.style.display = 'none';
+                // Re-enable body scrolling
+                document.body.style.overflow = 'auto';
+            }, 300);
+        }
+    }
+
     // View Permission Details
     window.showPermissionDetails = function(permission) {
+        console.log('[DEBUG] showPermissionDetails called with:', permission);
+        
+        // Ensure permission is an object
+        if (typeof permission === 'string') {
+            try {
+                permission = JSON.parse(permission);
+            } catch (e) {
+                console.error('Failed to parse permission data:', e);
+                return;
+            }
+        }
+        
         const modal = document.getElementById("viewPermissionModal");
         const content = document.getElementById("permissionDetailsContent");
+        
+        if (!modal) {
+            console.error('View modal not found');
+            return;
+        }
+        
+        if (!content) {
+            console.error('Permission details content element not found');
+            return;
+        }
+        
+        // Format permissions array if it's not already an array
+        const permissions = Array.isArray(permission.permissions) ? 
+            permission.permissions : 
+            (typeof permission.permissions === 'string' ? permission.permissions.split(',') : []);
+            
         content.innerHTML = `
             <div class="space-y-4">
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700">Name</h4>
-                    <p class="text-sm text-gray-500">${permission.name}</p>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700">Email</h4>
-                    <p class="text-sm text-gray-500">${permission.email}</p>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700">Type</h4>
-                    <p class="text-sm text-gray-500">${permission.type}</p>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700">Role</h4>
-                    <p class="text-sm text-gray-500">${permission.role}</p>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700">Document Type</h4>
-                    <p class="text-sm text-gray-500">${permission.document_type}</p>
-                </div>
-                <div>
-                    <h4 class="text-sm font-medium text-gray-700">Permissions</h4>
-                    <div class="flex flex-wrap gap-2">
-                        ${permission.permissions.map(perm => `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">${perm}</span>`).join("")}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700">Permission Type</h4>
+                        <p class="text-sm text-gray-500">${permission.type || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700">Role</h4>
+                        <p class="text-sm text-gray-500">${permission.role || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700">Document Type</h4>
+                        <p class="text-sm text-gray-500">${permission.document_type || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-700">Status</h4>
+                        <p class="text-sm text-gray-500">${permission.status || 'N/A'}</p>
                     </div>
                 </div>
                 <div>
-                    <h4 class="text-sm font-medium text-gray-700">Status</h4>
-                    <p class="text-sm text-gray-500">${permission.status}</p>
+                    <h4 class="text-sm font-medium text-gray-700 mb-2">Permissions</h4>
+                    <div class="flex flex-wrap gap-2">
+                        ${permissions.length > 0 ? 
+                            permissions.map(perm => 
+                                `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                    ${perm.trim()}
+                                </span>`
+                            ).join('') : 
+                            '<span class="text-sm text-gray-500">No permissions assigned</span>'
+                        }
+                    </div>
                 </div>
+                ${permission.notes ? `
                 <div>
-                    <h4 class="text-sm font-medium text-gray-700">Last Updated</h4>
-                    <p class="text-sm text-gray-500">${permission.last_updated}</p>
-                </div>
+                    <h4 class="text-sm font-medium text-gray-700">Notes</h4>
+                    <p class="text-sm text-gray-500 whitespace-pre-line">${permission.notes}</p>
+                </div>` : ''}
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button type="button" onclick="closeModal('viewPermissionModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Close
+                </button>
             </div>
         `;
-        modal.classList.remove("hidden");
-        modal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        notificationDropdown.classList.add("hidden");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        signOutModal.classList.remove("active");
-        newPermissionModal.classList.remove("active");
-        editPermissionModal.classList.remove("active");
-        deletePermissionModal.classList.remove("active");
+        
+        // Show the modal
+        showModal('viewPermissionModal');
     };
-
-    // Edit Permission Modal
-    window.openEditPermissionModal = function(id) {
-        editPermissionModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        notificationDropdown.classList.add("hidden");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        signOutModal.classList.remove("active");
-        newPermissionModal.classList.remove("active");
-        deletePermissionModal.classList.remove("active");
-
-        // Mock data fetch
-        const permission = {
-            id: id,
-            type: id === 1 ? "user" : id === 2 ? "group" : "user",
-            user: id === 1 ? "1" : id === 3 ? "2" : "",
-            group: id === 2 ? "1" : "",
-            role: id === 1 ? "admin" : id === 2 ? "editor" : "viewer",
-            document_type: id === 1 ? "all" : id === 2 ? "financial" : "hr",
-            permissions: id === 1 ? ["view", "edit", "delete", "share"] : id === 2 ? ["view", "edit"] : ["view"],
-            notes: "Sample notes for permission " + id
-        };
-
         document.getElementById("editPermissionId").value = permission.id;
         editPermissionType.value = permission.type;
         document.getElementById("editUser").value = permission.user;
@@ -1537,8 +1943,94 @@ $user = auth()->user();
         });
     });
 
+    // Show delete confirmation modal
+    window.showDeleteConfirmation = function(permissionId) {
+        console.log('showDeleteConfirmation called with ID:', permissionId);
+        const modal = document.getElementById('deletePermissionModal');
+        const confirmBtn = document.getElementById('confirmDeleteBtn');
+        
+        if (!modal || !confirmBtn) {
+            console.error('Delete modal or confirm button not found');
+            return;
+        }
+        
+        // Remove any existing click handlers to prevent duplicates
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        
+        // Add new click handler
+        newConfirmBtn.addEventListener('click', function handleConfirm() {
+            console.log('Delete confirmed for permission ID:', permissionId);
+            
+            fetch(`/permissions/${permissionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Delete response:', data);
+                if (data.success) {
+                    closeModal('deletePermissionModal');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: data.message || 'Permission deleted successfully',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    throw new Error(data.message || 'Failed to delete permission');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting permission:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'An error occurred while deleting the permission.'
+                });
+            });
+        });
+        
+        // Show the modal
+        showModal('deletePermissionModal');
+    };
+
     // Function to open edit modal with permission data
     window.openEditPermissionModal = function(permissionId) {
+        console.log('openEditPermissionModal called with ID:', permissionId);
+        const modal = document.getElementById('editPermissionModal');
+        const form = document.getElementById('editPermissionForm');
+        
+        if (!modal || !form) {
+            console.error('Edit modal or form not found');
+            return;
+        }
+        
+        // Show loading state
+        const content = modal.querySelector('.modal-content') || modal;
+        const originalContent = content.innerHTML;
+        content.innerHTML = `
+            <div class="flex items-center justify-center p-8">
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#2f855a]"></div>
+                <span class="ml-3 text-gray-700">Loading...</span>
+            </div>
+        `;
+        
+        // Show the modal before fetching data
+        showModal('editPermissionModal');
+        
         // Fetch the permission details
         fetch(`/permissions/${permissionId}`, {
             headers: {
@@ -1546,11 +2038,16 @@ $user = auth()->user();
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Permission data loaded:', data);
             if (data.success) {
                 const permission = data.permission;
-                const form = document.getElementById('editPermissionForm');
                 
                 // Set the form action with the permission ID
                 form.action = `/permissions/${permissionId}`;
@@ -1659,7 +2156,253 @@ $user = auth()->user();
     document.getElementById('editPermissionType').addEventListener('change', (e) => {
         togglePermissionFields(e.target.value, 'edit');
     });
-});
+
+    // Debug: Log when the script loads
+    console.log('Access control script loaded');
+    
+    // Modal and Form Handling
+    const newPermissionBtn = document.getElementById('newPermissionBtn');
+    const newPermissionModal = document.getElementById('newPermissionModal');
+    const newPermissionForm = document.getElementById('newPermissionForm');
+    const permissionType = document.getElementById('permissionType');
+    const userField = document.getElementById('userField');
+    const groupField = document.getElementById('groupField');
+    const roleSelect = document.getElementById('role');
+    const customPermissions = document.getElementById('customPermissions');
+    const searchInput = document.getElementById('searchInput');
+    const permissionRows = document.querySelectorAll('tbody tr[data-permission-id]');
+    
+    // Debug: Log element status
+    console.log('New Permission Button:', newPermissionBtn);
+    console.log('New Permission Modal:', newPermissionModal);
+    
+    // Debug: Check if elements exist
+    if (!newPermissionBtn) console.error('New Permission button not found!');
+    if (!newPermissionModal) console.error('New Permission modal not found!');
+    if (!newPermissionForm) console.warn('New Permission form not found!');
+    
+    // Debug: Add a test button for development
+    const testButton = document.createElement('button');
+    testButton.textContent = 'Test Button';
+    testButton.className = 'bg-blue-500 text-white px-4 py-2 rounded';
+    testButton.onclick = function() {
+        console.log('Test button clicked!');
+        if (newPermissionModal) {
+            console.log('Showing modal via test button');
+            newPermissionModal.style.display = 'flex';
+            newPermissionModal.classList.add('active');
+        }
+    };
+    document.body.appendChild(testButton);
+
+    // Toggle user/group fields based on permission type
+    function togglePermissionFields(type) {
+        if (type === 'user') {
+            userField.classList.remove('hidden');
+            groupField.classList.add('hidden');
+        } else if (type === 'group') {
+            userField.classList.add('hidden');
+            groupField.classList.remove('hidden');
+        } else {
+            userField.classList.add('hidden');
+            groupField.classList.add('hidden');
+        }
+    }
+
+    // Toggle custom permissions based on role selection
+    function toggleCustomPermissions(role) {
+        if (role === 'custom') {
+            customPermissions.classList.remove('hidden');
+        } else {
+            customPermissions.classList.add('hidden');
+        }
+    }
+
+    // Show modal when New Permission button is clicked
+    function handleNewPermissionClick(e) {
+        console.log('New Permission button clicked', e);
+        e.preventDefault();
+        e.stopPropagation();
+        
+        console.log('Modal element before showing:', newPermissionModal);
+        
+        if (newPermissionModal) {
+            console.log('Showing modal');
+            // Make sure the modal is visible
+            newPermissionModal.style.display = 'flex';
+            newPermissionModal.classList.add('active');
+            // Force a reflow to ensure the display change takes effect
+            void newPermissionModal.offsetWidth;
+            // Add a class to make it visible
+            newPermissionModal.style.opacity = '1';
+            
+            // Prevent scrolling on the body
+            document.body.style.overflow = 'hidden';
+            
+            // Log the current state
+            console.log('Modal classes:', newPermissionModal.className);
+            console.log('Modal display:', window.getComputedStyle(newPermissionModal).display);
+            console.log('Modal visibility:', window.getComputedStyle(newPermissionModal).visibility);
+        } else {
+            console.error('Modal element not found!');
+        }
+    }
+
+    // Add click event listener to the button
+    if (newPermissionBtn) {
+        console.log('Adding click event to button');
+        // Remove any existing event listeners to avoid duplicates
+        const newBtn = newPermissionBtn.cloneNode(true);
+        newPermissionBtn.parentNode.replaceChild(newBtn, newPermissionBtn);
+        // Add the new event listener
+        newBtn.addEventListener('click', handleNewPermissionClick);
+        
+        // Also try with jQuery if it's available
+        if (typeof $ !== 'undefined') {
+            console.log('jQuery is available, adding click handler');
+            $(newBtn).on('click', handleNewPermissionClick);
+        }
+    } else {
+        console.error('New Permission button not found!');
+    }
+
+    // Close modal when clicking outside or on close button
+    function closeModal(modalId) {
+        console.log('Closing modal:', modalId);
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // Re-enable scrolling
+        }
+    }
+
+    // Event delegation for modal close buttons and overlay
+    document.addEventListener('click', function(e) {
+        console.log('Document click event:', e.target);
+        
+        // Check if clicking on modal overlay (outside the modal content)
+        if (e.target.classList.contains('modal')) {
+            console.log('Clicked on modal overlay');
+            closeModal(e.target.id);
+            return;
+        }
+        
+        // Check if clicking on a close button or its children
+        let closeButton = e.target.closest('[onclick^="closeModal"], .close-modal');
+        if (!closeButton && e.target.matches('[onclick^="closeModal"], .close-modal')) {
+            closeButton = e.target;
+        }
+        
+        if (closeButton) {
+            console.log('Clicked on close button or element:', closeButton);
+            e.preventDefault();
+            e.stopPropagation();
+            
+            let modalId = 'newPermissionModal';
+            if (closeButton.hasAttribute('data-modal-id')) {
+                modalId = closeButton.getAttribute('data-modal-id');
+            } else if (closeButton.onclick && typeof closeButton.onclick === 'function') {
+                // Try to extract modal ID from onclick handler
+                const onclickText = closeButton.onclick.toString();
+                const match = onclickText.match(/closeModal\s*\(['"]([^'"]+)['"]\)/);
+                if (match && match[1]) {
+                    modalId = match[1];
+                }
+            }
+            
+            console.log('Closing modal with ID:', modalId);
+            closeModal(modalId);
+            return;
+        }
+    }, true); // Use capture phase to ensure we catch the event
+    
+    // Also close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && newPermissionModal && !newPermissionModal.classList.contains('hidden')) {
+            closeModal('newPermissionModal');
+        }
+    });
+
+    // Handle permission type change
+    if (permissionType) {
+        permissionType.addEventListener('change', (e) => {
+            togglePermissionFields(e.target.value);
+        });
+    }
+
+    // Handle role selection change
+    if (roleSelect) {
+        roleSelect.addEventListener('change', (e) => {
+            toggleCustomPermissions(e.target.value);
+        });
+    }
+
+    // Form submission
+    if (newPermissionForm) {
+        newPermissionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(newPermissionForm);
+            const url = newPermissionForm.getAttribute('action');
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show success message
+                    alert('Permission created successfully!');
+                    // Close modal and refresh the page to show new permission
+                    closeModal('newPermissionModal');
+                    window.location.reload();
+                } else {
+                    // Show error message
+                    alert(data.message || 'Failed to create permission. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while creating the permission.');
+            }
+        });
+    }
+
+    // Initialize form fields
+    togglePermissionFields(permissionType ? permissionType.value : 'user');
+    toggleCustomPermissions(roleSelect ? roleSelect.value : 'admin');
+
+    // Search functionality
+    function applySearch() {
+        const searchTerm = searchInput.value.toLowerCase();
+
+        permissionRows.forEach(row => {
+            const role = row.querySelector('td:nth-child(2) span').textContent.toLowerCase();
+            const permissionName = row.querySelector('td:nth-child(1) .text-gray-900').textContent.toLowerCase();
+            const documentType = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            
+            const matchesSearch = permissionName.includes(searchTerm) || 
+                                documentType.includes(searchTerm) ||
+                                role.includes(searchTerm);
+            
+            row.style.display = matchesSearch ? '' : 'none';
+        });
+    }
+    
+    // Add event listener for search input
+    if (searchInput) {
+        searchInput.addEventListener('input', applySearch);
+        // Initialize search
+        applySearch();
+    }
 </script>
 </body>
 </html>

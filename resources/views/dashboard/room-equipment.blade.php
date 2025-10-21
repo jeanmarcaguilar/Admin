@@ -2,7 +2,6 @@
 // Get the authenticated user
 $user = auth()->user();
 @endphp
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,13 +74,13 @@ $user = auth()->user();
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 60;
+      z-index: 1000;
       align-items: center;
       justify-content: center;
     }
 
     .modal.active {
-      display: flex;
+      display: flex !important;
     }
 
     .modal > div:hover {
@@ -177,212 +176,6 @@ $user = auth()->user();
         </button>
         <h1 class="text-2xl font-bold tracking-tight">Room & Equipment Booking</h1>
       </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('combinedBookingForm');
-      const modeRadios = Array.from(document.querySelectorAll('input[name="booking_mode"]'));
-      const roomSection = document.getElementById('roomSection');
-      const equipmentSection = document.getElementById('equipmentSection');
-      const roomSelect = document.getElementById('roomSelect');
-      const equipmentContainer = document.getElementById('equipmentContainer');
-      const dateInput = document.getElementById('bookingDate');
-      const startInput = document.getElementById('startTime');
-      const endInput = document.getElementById('endTime');
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('main-content');
-      const toggleBtn = document.getElementById('toggle-btn');
-      const overlay = document.getElementById('overlay');
-      const dropdownToggles = document.querySelectorAll('.has-dropdown > div');
-      const notificationBtn = document.getElementById('notificationBtn');
-      const notificationDropdown = document.getElementById('notificationDropdown');
-      const userMenuBtn = document.getElementById('userMenuBtn');
-      const userMenuDropdown = document.getElementById('userMenuDropdown');
-
-      function hasEquipmentSelected() {
-        const selects = Array.from(equipmentContainer.querySelectorAll('select[name="equipment[]"]'));
-        return selects.some(s => (s.value || '').trim() !== '');
-      }
-
-      function setVisibility(mode) {
-        // Always keep date/time/purpose visible and required; backend expects them
-        dateInput.required = true;
-        startInput.required = true;
-        endInput.required = true;
-
-        if (mode === 'room') {
-          roomSection.classList.remove('hidden');
-          equipmentSection.classList.add('hidden');
-          roomSelect.required = true;
-        } else if (mode === 'equipment') {
-          roomSection.classList.add('hidden');
-          equipmentSection.classList.remove('hidden');
-          roomSelect.required = false;
-        } else { // both
-          roomSection.classList.remove('hidden');
-          equipmentSection.classList.remove('hidden');
-          roomSelect.required = false; // allow either to be provided; we'll validate before submit
-        }
-      }
-
-      function currentMode() {
-        const checked = modeRadios.find(r => r.checked);
-        return checked ? checked.value : 'both';
-      }
-
-      modeRadios.forEach(r => r.addEventListener('change', () => setVisibility(currentMode())));
-      setVisibility(currentMode());
-
-      form.addEventListener('submit', (e) => {
-        const mode = currentMode();
-        // Front-end validation aligned with backend combined route
-        if (mode === 'room') {
-          if (!roomSelect.value) {
-            e.preventDefault();
-            alert('Please select a room.');
-            roomSelect.focus();
-            return;
-          }
-        } else if (mode === 'equipment') {
-          if (!hasEquipmentSelected()) {
-            e.preventDefault();
-            alert('Please select at least one equipment item.');
-            const firstSelect = equipmentContainer.querySelector('select[name="equipment[]"]');
-            firstSelect && firstSelect.focus();
-            return;
-          }
-        } else { // both
-          if (!roomSelect.value && !hasEquipmentSelected()) {
-            e.preventDefault();
-            alert('Please select a room or at least one equipment item.');
-            return;
-          }
-        }
-      });
-
-      // Sidebar initial state (responsive)
-      if (window.innerWidth >= 768) {
-        sidebar.classList.remove('-ml-72');
-        mainContent.classList.add('md:ml-72', 'sidebar-open');
-        mainContent.classList.remove('sidebar-closed');
-      } else {
-        sidebar.classList.add('-ml-72');
-        mainContent.classList.remove('md:ml-72', 'sidebar-open');
-        mainContent.classList.add('sidebar-closed');
-      }
-
-      function closeAllDropdowns() {
-        dropdownToggles.forEach((toggle) => {
-          const dropdown = toggle.nextElementSibling;
-          const chevron = toggle.querySelector('.bx-chevron-down');
-          if (dropdown && !dropdown.classList.contains('hidden')) {
-            dropdown.classList.add('hidden');
-          }
-          if (chevron) chevron.classList.remove('rotate-180');
-        });
-      }
-
-      function toggleSidebar() {
-        if (window.innerWidth >= 768) {
-          sidebar.classList.toggle('md:-ml-72');
-          mainContent.classList.toggle('md:ml-72');
-          mainContent.classList.toggle('sidebar-open');
-          mainContent.classList.toggle('sidebar-closed');
-        } else {
-          sidebar.classList.toggle('-ml-72');
-          overlay.classList.toggle('hidden');
-          document.body.style.overflow = sidebar.classList.contains('-ml-72') ? '' : 'hidden';
-          mainContent.classList.toggle('sidebar-open', !sidebar.classList.contains('-ml-72'));
-          mainContent.classList.toggle('sidebar-closed', sidebar.classList.contains('-ml-72'));
-        }
-      }
-
-      // Dropdown toggles for sidebar submodules
-      dropdownToggles.forEach((toggle) => {
-        toggle.addEventListener('click', () => {
-          const dropdown = toggle.nextElementSibling;
-          const chevron = toggle.querySelector('.bx-chevron-down');
-          // Close other dropdowns
-          dropdownToggles.forEach((other) => {
-            if (other !== toggle) {
-              const otherMenu = other.nextElementSibling;
-              const otherChevron = other.querySelector('.bx-chevron-down');
-              if (otherMenu) otherMenu.classList.add('hidden');
-              if (otherChevron) otherChevron.classList.remove('rotate-180');
-            }
-          });
-          // Toggle current
-          if (dropdown) dropdown.classList.toggle('hidden');
-          if (chevron) chevron.classList.toggle('rotate-180');
-        });
-      });
-
-      // Topbar buttons
-      if (toggleBtn) toggleBtn.addEventListener('click', toggleSidebar);
-      if (overlay) overlay.addEventListener('click', () => {
-        sidebar.classList.add('-ml-72');
-        overlay.classList.add('hidden');
-        document.body.style.overflow = '';
-        mainContent.classList.remove('sidebar-open');
-        mainContent.classList.add('sidebar-closed');
-      });
-
-      if (notificationBtn && notificationDropdown) {
-        notificationBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          notificationDropdown.classList.toggle('hidden');
-          if (userMenuDropdown) userMenuDropdown.classList.add('hidden');
-          if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
-        });
-      }
-
-      if (userMenuBtn && userMenuDropdown) {
-        userMenuBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          userMenuDropdown.classList.toggle('hidden');
-          const expanded = userMenuBtn.getAttribute('aria-expanded') === 'true';
-          userMenuBtn.setAttribute('aria-expanded', (!expanded).toString());
-          if (notificationDropdown) notificationDropdown.classList.add('hidden');
-        });
-      }
-
-      // Close dropdowns when clicking outside
-      window.addEventListener('click', (e) => {
-        if (notificationDropdown && !notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-          notificationDropdown.classList.add('hidden');
-        }
-        if (userMenuDropdown && !userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-          userMenuDropdown.classList.add('hidden');
-          userMenuBtn.setAttribute('aria-expanded', 'false');
-        }
-        // Close sidebar dropdown menus when clicking outside of them
-        const clickedInsideDropdown = Array.from(dropdownToggles).some(t => t.contains(e.target) || (t.nextElementSibling && t.nextElementSibling.contains(e.target)));
-        if (!clickedInsideDropdown) {
-          closeAllDropdowns();
-        }
-      });
-
-      // Handle resize for sidebar responsiveness
-      window.addEventListener('resize', () => {
-        if (window.innerWidth >= 768) {
-          sidebar.classList.remove('-ml-72');
-          overlay.classList.add('hidden');
-          document.body.style.overflow = '';
-          if (!mainContent.classList.contains('md:ml-72')) {
-            mainContent.classList.add('md:ml-72', 'sidebar-open');
-            mainContent.classList.remove('sidebar-closed');
-          }
-        } else {
-          sidebar.classList.add('-ml-72');
-          mainContent.classList.remove('md:ml-72', 'sidebar-open');
-          mainContent.classList.add('sidebar-closed');
-          overlay.classList.add('hidden');
-          document.body.style.overflow = '';
-        }
-        closeAllDropdowns();
-      });
-    });
-  </script>
       <div class="flex items-center space-x-1">
         <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn">
           <i class="fa-solid fa-bell text-xl"></i>
@@ -396,6 +189,39 @@ $user = auth()->user();
       </div>
     </div>
   </nav>
+
+  <!-- User Menu Dropdown -->
+  <div id="userMenuDropdown" onclick="event.stopPropagation();" class="hidden fixed right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index: 60;" role="menu" aria-labelledby="userMenuBtn">
+    <div class="py-4 px-6 border-b border-gray-100 text-center">
+      <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+        <i class="fas fa-user-circle text-3xl"></i>
+      </div>
+      <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+      <p class="text-xs text-gray-400">Administrator</p>
+    </div>
+    <ul class="text-sm text-gray-700">
+      <li>
+        <button id="openProfileBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openProfileModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1">
+          <i class="fas fa-user-circle mr-2"></i> My Profile
+        </button>
+      </li>
+      <li>
+        <button id="openAccountSettingsBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openAccountSettingsModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1">
+          <i class="fas fa-cog mr-2"></i> Account Settings
+        </button>
+      </li>
+      <li>
+        <button id="openPrivacySecurityBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openPrivacySecurityModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1">
+          <i class="fas fa-shield-alt mr-2"></i> Privacy & Security
+        </button>
+      </li>
+      <li>
+        <button id="openSignOutBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openSignOutModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1">
+          <i class="fas fa-sign-out-alt mr-2"></i> Sign Out
+        </button>
+      </li>
+    </ul>
+  </div>
 
   <!-- Notification Dropdown -->
   <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
@@ -697,29 +523,12 @@ $user = auth()->user();
     </div>
   </div>
 
-  <!-- User Menu Dropdown -->
-  <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
-    <div class="py-4 px-6 border-b border-gray-100 text-center">
-      <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
-        <i class="fas fa-user-circle text-3xl"></i>
-      </div>
-      <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
-      <p class="text-xs text-gray-400">Administrator</p>
-    </div>
-    <ul class="text-sm text-gray-700">
-      <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-      <li><button id="openAccountSettingsBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
-      <li><button id="openPrivacySecurityBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
-      <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
-    </ul>
-  </div>
-
-  <!-- Modals -->
+  <!-- Profile Modal -->
   <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
     <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
       <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
         <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
-        <button id="closeProfileBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+        <button id="closeProfileBtn" onclick="closeProfileModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
           <i class="fas fa-times text-xs"></i>
         </button>
       </div>
@@ -753,18 +562,19 @@ $user = auth()->user();
             <input id="joined" type="text" readonly value="{{ $user->created_at->format('F d, Y') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
           </div>
           <div class="flex justify-end pt-2">
-            <button id="closeProfileBtn2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
+            <button id="closeProfileBtn2" onclick="closeProfileModal()" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
           </div>
         </form>
       </div>
     </div>
   </div>
 
+  <!-- Account Settings Modal -->
   <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="account-settings-modal-title">
     <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
       <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
         <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings</h3>
-        <button id="closeAccountSettingsBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+        <button id="closeAccountSettingsBtn" onclick="closeAccountSettingsModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
           <i class="fas fa-times text-xs"></i>
         </button>
       </div>
@@ -804,7 +614,7 @@ $user = auth()->user();
             </div>
           </fieldset>
           <div class="flex justify-end space-x-3 pt-2">
-            <button type="button" id="cancelAccountSettingsBtn" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+            <button type="button" id="cancelAccountSettingsBtn" onclick="closeAccountSettingsModal()" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
             <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Changes</button>
           </div>
         </form>
@@ -812,11 +622,12 @@ $user = auth()->user();
     </div>
   </div>
 
+  <!-- Privacy & Security Modal -->
   <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="privacy-security-modal-title">
     <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
       <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
         <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy & Security</h3>
-        <button id="closePrivacySecurityBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+        <button id="closePrivacySecurityBtn" onclick="closePrivacySecurityModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
           <i class="fas fa-times text-xs"></i>
         </button>
       </div>
@@ -861,7 +672,7 @@ $user = auth()->user();
             </label>
           </fieldset>
           <div class="flex justify-end space-x-3 pt-2">
-            <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" type="button">Cancel</button>
+            <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" onclick="closePrivacySecurityModal()" type="button">Cancel</button>
             <button class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Save Changes</button>
           </div>
         </form>
@@ -869,11 +680,12 @@ $user = auth()->user();
     </div>
   </div>
 
+  <!-- Sign Out Modal -->
   <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="sign-out-modal-title">
     <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4 text-center" role="document">
       <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
         <h3 id="sign-out-modal-title" class="font-semibold text-sm text-gray-900 select-none">Sign Out</h3>
-        <button id="cancelSignOutBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+        <button id="cancelSignOutBtn" onclick="closeSignOutModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
           <i class="fas fa-times text-xs"></i>
         </button>
       </div>
@@ -883,7 +695,7 @@ $user = auth()->user();
         </div>
         <p class="text-xs text-gray-600 mb-6">Are you sure you want to sign out of your account?</p>
         <div class="flex justify-center space-x-4">
-          <button id="cancelSignOutBtn2" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+          <button id="cancelSignOutBtn2" onclick="closeSignOutModal()" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
           <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Sign Out</button>
@@ -907,502 +719,598 @@ $user = auth()->user();
   @endif
 
   <script>
- document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById("sidebar");
-  const mainContent = document.getElementById("main-content");
-  const toggleBtn = document.getElementById("toggle-btn");
-  const overlay = document.getElementById("overlay");
-  const dropdownToggles = document.querySelectorAll(".has-dropdown > div");
-  const notificationBtn = document.getElementById("notificationBtn");
-  const notificationDropdown = document.getElementById("notificationDropdown");
-  const userMenuBtn = document.getElementById("userMenuBtn");
-  const userMenuDropdown = document.getElementById("userMenuDropdown");
-  const profileModal = document.getElementById("profileModal");
-  const openProfileBtn = document.getElementById("openProfileBtn");
-  const closeProfileBtn = document.getElementById("closeProfileBtn");
-  const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
-  const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
-  const accountSettingsModal = document.getElementById("accountSettingsModal");
-  const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
-  const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
-  const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
-  const privacySecurityModal = document.getElementById("privacySecurityModal");
-  const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
-  const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
-  const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
-  const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
-  const signOutModal = document.getElementById("signOutModal");
-  const openSignOutBtn = document.getElementById("openSignOutBtn");
-  const viewBookingModal = document.getElementById("viewBookingModal");
-  const cancelBookingModal = document.getElementById("cancelBookingModal");
+    document.addEventListener("DOMContentLoaded", () => {
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.getElementById("main-content");
+      const toggleBtn = document.getElementById("toggle-btn");
+      const overlay = document.getElementById("overlay");
+      const notificationBtn = document.getElementById("notificationBtn");
+      const notificationDropdown = document.getElementById("notificationDropdown");
+      const userMenuBtn = document.getElementById("userMenuBtn");
+      const userMenuDropdown = document.getElementById("userMenuDropdown");
+      const profileModal = document.getElementById("profileModal");
+      const openProfileBtn = document.getElementById("openProfileBtn");
+      const closeProfileBtn = document.getElementById("closeProfileBtn");
+      const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
+      const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
+      const accountSettingsModal = document.getElementById("accountSettingsModal");
+      const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
+      const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
+      const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
+      const privacySecurityModal = document.getElementById("privacySecurityModal");
+      const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
+      const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
+      const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
+      const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
+      const signOutModal = document.getElementById("signOutModal");
+      const openSignOutBtn = document.getElementById("openSignOutBtn");
+      const viewBookingModal = document.getElementById("viewBookingModal");
+      const cancelBookingModal = document.getElementById("cancelBookingModal");
 
-  // Initialize sidebar state based on screen size
-  if (window.innerWidth >= 768) {
-    sidebar.classList.remove("-ml-72");
-    mainContent.classList.add("md:ml-72", "sidebar-open");
-  } else {
-    sidebar.classList.add("-ml-72");
-    mainContent.classList.remove("md:ml-72", "sidebar-open");
-    mainContent.classList.add("sidebar-closed");
-  }
-
-  function toggleSidebar() {
-    if (window.innerWidth >= 768) {
-      sidebar.classList.toggle("md:-ml-72");
-      mainContent.classList.toggle("md:ml-72");
-      mainContent.classList.toggle("sidebar-open");
-      mainContent.classList.toggle("sidebar-closed");
-    } else {
-      sidebar.classList.toggle("-ml-72");
-      overlay.classList.toggle("hidden");
-      document.body.style.overflow = sidebar.classList.contains("-ml-72") ? "" : "hidden";
-      mainContent.classList.toggle("sidebar-open", !sidebar.classList.contains("-ml-72"));
-      mainContent.classList.toggle("sidebar-closed", sidebar.classList.contains("-ml-72"));
-    }
-  }
-
-  function closeAllDropdowns() {
-    dropdownToggles.forEach((toggle) => {
-      const dropdown = toggle.nextElementSibling;
-      const chevron = toggle.querySelector(".bx-chevron-down");
-      if (!dropdown.classList.contains("hidden")) {
-        dropdown.classList.add("hidden");
-        chevron.classList.remove("rotate-180");
-      }
-    });
-  }
-
-  dropdownToggles.forEach((toggle) => {
-    toggle.addEventListener("click", () => {
-      const dropdown = toggle.nextElementSibling;
-      const chevron = toggle.querySelector(".bx-chevron-down");
-      dropdownToggles.forEach((otherToggle) => {
-        if (otherToggle !== toggle) {
-          otherToggle.nextElementSibling.classList.add("hidden");
-          otherToggle.querySelector(".bx-chevron-down").classList.remove("rotate-180");
-        }
-      });
-      dropdown.classList.toggle("hidden");
-      chevron.classList.toggle("rotate-180");
-    });
-  });
-
-  overlay.addEventListener("click", () => {
-    sidebar.classList.add("-ml-72");
-    overlay.classList.add("hidden");
-    document.body.style.overflow = "";
-    mainContent.classList.remove("sidebar-open");
-    mainContent.classList.add("sidebar-closed");
-  });
-
-  toggleBtn.addEventListener("click", toggleSidebar);
-
-  notificationBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    notificationDropdown.classList.toggle("hidden");
-    userMenuDropdown.classList.add("hidden");
-    userMenuBtn.setAttribute("aria-expanded", "false");
-    profileModal.classList.remove("active");
-    accountSettingsModal.classList.remove("active");
-    privacySecurityModal.classList.remove("active");
-    signOutModal.classList.remove("active");
-    viewBookingModal.classList.add("hidden");
-    cancelBookingModal.classList.add("hidden");
-  });
-
-  userMenuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    userMenuDropdown.classList.toggle("hidden");
-    const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
-    userMenuBtn.setAttribute("aria-expanded", !expanded);
-    notificationDropdown.classList.add("hidden");
-    profileModal.classList.remove("active");
-    accountSettingsModal.classList.remove("active");
-    privacySecurityModal.classList.remove("active");
-    signOutModal.classList.remove("active");
-    viewBookingModal.classList.add("hidden");
-    cancelBookingModal.classList.add("hidden");
-  });
-
-  openSignOutBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    signOutModal.classList.add("active");
-    userMenuDropdown.classList.add("hidden");
-    userMenuBtn.setAttribute("aria-expanded", "false");
-    profileModal.classList.remove("active");
-    accountSettingsModal.classList.remove("active");
-    privacySecurityModal.classList.remove("active");
-    notificationDropdown.classList.add("hidden");
-    viewBookingModal.classList.add("hidden");
-    cancelBookingModal.classList.add("hidden");
-  });
-
-  openProfileBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    profileModal.classList.add("active");
-    userMenuDropdown.classList.add("hidden");
-    userMenuBtn.setAttribute("aria-expanded", "false");
-    accountSettingsModal.classList.remove("active");
-    privacySecurityModal.classList.remove("active");
-    notificationDropdown.classList.add("hidden");
-    signOutModal.classList.remove("active");
-    viewBookingModal.classList.add("hidden");
-    cancelBookingModal.classList.add("hidden");
-  });
-
-  closeProfileBtn.addEventListener("click", () => {
-    profileModal.classList.remove("active");
-  });
-  closeProfileBtn2.addEventListener("click", () => {
-    profileModal.classList.remove("active");
-  });
-
-  openAccountSettingsBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    accountSettingsModal.classList.add("active");
-    userMenuDropdown.classList.add("hidden");
-    userMenuBtn.setAttribute("aria-expanded", "false");
-    profileModal.classList.remove("active");
-    privacySecurityModal.classList.remove("active");
-    notificationDropdown.classList.add("hidden");
-    signOutModal.classList.remove("active");
-    viewBookingModal.classList.add("hidden");
-    cancelBookingModal.classList.add("hidden");
-  });
-
-  closeAccountSettingsBtn.addEventListener("click", () => {
-    accountSettingsModal.classList.remove("active");
-  });
-  cancelAccountSettingsBtn.addEventListener("click", () => {
-    accountSettingsModal.classList.remove("active");
-  });
-
-  openPrivacySecurityBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    privacySecurityModal.classList.add("active");
-    userMenuDropdown.classList.add("hidden");
-    userMenuBtn.setAttribute("aria-expanded", "false");
-    profileModal.classList.remove("active");
-    accountSettingsModal.classList.remove("active");
-    notificationDropdown.classList.add("hidden");
-    signOutModal.classList.remove("active");
-    viewBookingModal.classList.add("hidden");
-    cancelBookingModal.classList.add("hidden");
-  });
-
-  closePrivacySecurityBtn.addEventListener("click", () => {
-    privacySecurityModal.classList.remove("active");
-  });
-  cancelPrivacySecurityBtn.addEventListener("click", () => {
-    privacySecurityModal.classList.remove("active");
-  });
-
-  cancelSignOutBtn.addEventListener("click", () => {
-    signOutModal.classList.remove("active");
-  });
-  cancelSignOutBtn2.addEventListener("click", () => {
-    signOutModal.classList.remove("active");
-  });
-
-  window.addEventListener("click", (e) => {
-    if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-      notificationDropdown.classList.add("hidden");
-    }
-    if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-      userMenuDropdown.classList.add("hidden");
-      userMenuBtn.setAttribute("aria-expanded", "false");
-    }
-    if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
-      profileModal.classList.remove("active");
-    }
-    if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
-      accountSettingsModal.classList.remove("active");
-    }
-    if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
-      privacySecurityModal.classList.remove("active");
-    }
-    if (!signOutModal.contains(e.target)) {
-      signOutModal.classList.remove("active");
-    }
-    if (!viewBookingModal.contains(e.target)) {
-      viewBookingModal.classList.add("hidden");
-    }
-    if (!cancelBookingModal.contains(e.target)) {
-      cancelBookingModal.classList.add("hidden");
-    }
-  });
-
-  profileModal.querySelector("div").addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-  accountSettingsModal.querySelector("div").addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-  privacySecurityModal.querySelector("div").addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-  signOutModal.querySelector("div").addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-  viewBookingModal.querySelector("div").addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-  cancelBookingModal.querySelector("div").addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-
-  window.addEventListener("resize", () => {
-    if (window.innerWidth >= 768) {
-      sidebar.classList.remove("-ml-72");
-      overlay.classList.add("hidden");
-      document.body.style.overflow = "";
-      if (!mainContent.classList.contains("md:ml-72")) {
+      // Initialize sidebar state based on screen size
+      if (window.innerWidth >= 768) {
+        sidebar.classList.remove("-ml-72");
         mainContent.classList.add("md:ml-72", "sidebar-open");
-        mainContent.classList.remove("sidebar-closed");
+      } else {
+        sidebar.classList.add("-ml-72");
+        mainContent.classList.remove("md:ml-72", "sidebar-open");
+        mainContent.classList.add("sidebar-closed");
       }
-    } else {
-      sidebar.classList.add("-ml-72");
-      mainContent.classList.remove("md:ml-72", "sidebar-open");
-      mainContent.classList.add("sidebar-closed");
-      overlay.classList.add("hidden");
-      document.body.style.overflow = "";
-    }
-    closeAllDropdowns();
-  });
 
-  // Set minimum return date to be same as booking date
-  document.getElementById('bookingDate')?.addEventListener('change', function() {
-    const returnDate = document.getElementById('returnDate');
-    if (returnDate) {
-      returnDate.min = this.value;
-      if (returnDate.value && returnDate.value < this.value) {
-        returnDate.value = this.value;
+      // Sidebar toggle function
+      function toggleSidebar() {
+        if (window.innerWidth >= 768) {
+          sidebar.classList.toggle("md:-ml-72");
+          mainContent.classList.toggle("md:ml-72");
+          mainContent.classList.toggle("sidebar-open");
+          mainContent.classList.toggle("sidebar-closed");
+        } else {
+          sidebar.classList.toggle("-ml-72");
+          overlay.classList.toggle("hidden");
+          document.body.style.overflow = sidebar.classList.contains("-ml-72") ? "" : "hidden";
+          mainContent.classList.toggle("sidebar-open", !sidebar.classList.contains("-ml-72"));
+          mainContent.classList.toggle("sidebar-closed", sidebar.classList.contains("-ml-72"));
+        }
       }
-    }
-  });
 
-  // Function to add equipment field
-  window.addEquipment = function() {
-    const container = document.getElementById('equipmentContainer');
-    const equipmentDiv = document.createElement('div');
-    equipmentDiv.className = 'flex items-end space-x-2 mb-2';
-    equipmentDiv.innerHTML = `
-      <div class="flex-1">
-        <select name="equipment[]" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-          <option value="">-- Select equipment --</option>
-          <option value="projector">Projector</option>
-          <option value="laptop">Laptop</option>
-          <option value="camera">Camera</option>
-          <option value="audio">Audio System</option>
-          <option value="whiteboard">Whiteboard</option>
-        </select>
-      </div>
-      <div class="w-24">
-        <input type="number" name="quantity[]" min="1" max="10" value="1" placeholder="Qty" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-      </div>
-      <button type="button" onclick="removeEquipment(this)" class="text-red-500 hover:text-red-700">
-        <i class="bx bx-trash"></i>
-      </button>
-    `;
-    container.appendChild(equipmentDiv);
-  };
+      // Close all dropdowns
+      function closeAllDropdowns() {
+        document.querySelectorAll(".has-dropdown > .dropdown-menu").forEach((menu) => {
+          menu.classList.add("hidden");
+          const toggle = menu.previousElementSibling;
+          const chevron = toggle.querySelector(".bx-chevron-down");
+          if (chevron) chevron.classList.remove("rotate-180");
+        });
+      }
 
-  // Function to remove equipment field
-  window.removeEquipment = function(button) {
-    button.parentElement.remove();
-  };
+      // Sidebar dropdown toggle handler
+      function initializeDropdowns() {
+        const dropdownToggles = document.querySelectorAll(".has-dropdown > div");
+        dropdownToggles.forEach((toggle) => {
+          // Remove existing event listeners to prevent duplicates
+          const newToggle = toggle.cloneNode(true);
+          toggle.parentNode.replaceChild(newToggle, toggle);
+          
+          newToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const dropdown = newToggle.nextElementSibling;
+            const chevron = newToggle.querySelector(".bx-chevron-down");
+            const isOpen = !dropdown.classList.contains("hidden");
 
-  // Function to show error message
-  function showErrorMessage(message) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: message,
-      timer: 3000,
-      showConfirmButton: false
-    });
-  }
+            // Close all other dropdowns
+            closeAllDropdowns();
 
-  // Function to show success message
-  function showSuccessMessage(message) {
-    Swal.fire({
-      icon: 'success',
-      title: 'Success',
-      text: message,
-      timer: 3000,
-      showConfirmButton: false
-    });
-  }
+            // Toggle the clicked dropdown
+            if (!isOpen) {
+              dropdown.classList.remove("hidden");
+              if (chevron) chevron.classList.add("rotate-180");
+            }
+          });
+        });
+      }
 
-  // Function to close modal
-  window.closeModal = function(modalId) {
-    document.getElementById(modalId).classList.add('hidden');
-  };
+      // Initialize dropdowns on page load
+      initializeDropdowns();
 
-  // Function to show booking details
-  window.showBookingDetails = function(booking) {
-    const modal = document.getElementById('viewBookingModal');
-    const content = document.getElementById('bookingDetailsContent');
-    let details = `
-      <div class="space-y-4">
-        <div>
-          <h4 class="font-semibold text-gray-700">Booking ID</h4>
-          <p class="text-sm text-gray-600">#${booking.id}</p>
-        </div>
-        <div>
-          <h4 class="font-semibold text-gray-700">Type</h4>
-          <p class="text-sm text-gray-600">${booking?.type ? booking.type.charAt(0).toUpperCase() + booking.type.slice(1) : 'N/A'}</p>
-        </div>
-        <div>
-          <h4 class="font-semibold text-gray-700">${booking.type === 'room' ? 'Room' : 'Equipment'}</h4>
-          <p class="text-sm text-gray-600">${booking.name || (booking.type === 'room' ? booking.room : booking.equipment)}</p>
-        </div>
-    `;
-
-    if (booking.quantity && booking.type === 'equipment') {
-      details += `
-        <div>
-          <h4 class="font-semibold text-gray-700">Quantity</h4>
-          <p class="text-sm text-gray-600">${booking.quantity}</p>
-        </div>
-      `;
-    }
-
-    details += `
-        <div>
-          <h4 class="font-semibold text-gray-700">Date</h4>
-          <p class="text-sm text-gray-600">${new Date(booking.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-        </div>
-    `;
-
-    if (booking.return_date && booking.return_date !== booking.date) {
-      details += `
-        <div>
-          <h4 class="font-semibold text-gray-700">Return Date</h4>
-          <p class="text-sm text-gray-600">${new Date(booking.return_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-        </div>
-      `;
-    }
-
-    if (booking.start_time && booking.end_time) {
-      details += `
-        <div>
-          <h4 class="font-semibold text-gray-700">Time</h4>
-          <p class="text-sm text-gray-600">${new Date('2000-01-01T' + booking.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${new Date('2000-01-01T' + booking.end_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
-        </div>
-      `;
-    }
-
-    details += `
-        <div>
-          <h4 class="font-semibold text-gray-700">Status</h4>
-          <p class="text-sm text-gray-600">${booking?.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'N/A'}</p>
-        </div>
-        <div>
-          <h4 class="font-semibold text-gray-700">Purpose</h4>
-          <p class="text-sm text-gray-600">${booking.purpose || 'Not specified'}</p>
-        </div>
-      </div>
-    `;
-
-    content.innerHTML = details;
-    modal.classList.remove('hidden');
-  };
-
-  // Function to show cancel confirmation
-  window.showCancelConfirmation = function(bookingId) {
-    const modal = document.getElementById('cancelBookingModal');
-    const confirmBtn = document.getElementById('confirmCancelBtn');
-
-    confirmBtn.onclick = async () => {
+      // Auto-expand the correct dropdown and highlight active submodule based on current URL
       try {
-        const response = await fetch(`/booking/cancel/${bookingId}`, {
-          method: 'POST',
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]').value,
-            'Content-Type': 'application/json'
+        const currentPath = window.location.pathname.replace(/\/$/, '');
+        const links = document.querySelectorAll("#sidebar .dropdown-menu a");
+        links.forEach((link) => {
+          let linkPath;
+          try {
+            linkPath = new URL(link.href).pathname;
+          } catch (_) {
+            linkPath = link.getAttribute("href") || "";
+          }
+          if (linkPath) linkPath = linkPath.replace(/\/$/, "");
+          const isMatch =
+            currentPath === linkPath ||
+            currentPath.endsWith(linkPath) ||
+            linkPath.endsWith(currentPath);
+          if (isMatch) {
+            const menu = link.closest(".dropdown-menu");
+            if (menu) {
+              menu.classList.remove("hidden");
+              const toggle = menu.previousElementSibling;
+              if (toggle) {
+                const chevron = toggle.querySelector(".bx-chevron-down");
+                if (chevron) chevron.classList.add("rotate-180");
+              }
+              link.classList.add("bg-white/30");
+            }
           }
         });
-
-        if (response.ok) {
-          const row = document.querySelector(`tr[data-booking-id="${bookingId}"]`);
-          if (row) {
-            const statusCell = row.querySelector('.status-cell span');
-            statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
-            statusCell.textContent = 'Cancelled';
-            row.querySelector('td:last-child').innerHTML = `
-              <button onclick="showBookingDetails(${JSON.stringify(row.dataset.booking)})" class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
-            `;
-          }
-          closeModal('cancelBookingModal');
-          showSuccessMessage('Booking cancelled successfully');
-        } else {
-          showErrorMessage('Failed to cancel booking');
-        }
-      } catch (error) {
-        showErrorMessage('Error cancelling booking');
+      } catch (err) {
+        console.warn("Error processing active menu item:", err);
       }
-    };
 
-    modal.classList.remove('hidden');
-  };
+      // Event listeners for sidebar and overlay
+      toggleBtn.addEventListener("click", toggleSidebar);
+      overlay.addEventListener("click", () => {
+        sidebar.classList.add("-ml-72");
+        overlay.classList.add("hidden");
+        document.body.style.overflow = "";
+        mainContent.classList.remove("sidebar-open");
+        mainContent.classList.add("sidebar-closed");
+        closeAllDropdowns();
+      });
 
-  // Function to add a new booking to the table
-  window.addBookingToTable = function(booking) {
-    const bookingsTable = document.querySelector('table.min-w-full tbody');
-    if (!bookingsTable) {
-      console.error('Bookings table not found');
-      return;
-    }
+      // Close dropdowns when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".has-dropdown")) {
+          closeAllDropdowns();
+        }
+        if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+          notificationDropdown.classList.add("hidden");
+        }
+        if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+          userMenuDropdown.classList.add("hidden");
+          userMenuBtn.setAttribute("aria-expanded", "false");
+        }
+      });
 
-    // Debug: Log the incoming booking object
-    console.log('Raw booking data:', booking);
+      // Close dropdowns with Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeAllDropdowns();
+          if (profileModal.classList.contains("active")) {
+            closeProfileModal();
+          }
+          if (accountSettingsModal.classList.contains("active")) {
+            closeAccountSettingsModal();
+          }
+          if (privacySecurityModal.classList.contains("active")) {
+            closePrivacySecurityModal();
+          }
+          if (signOutModal.classList.contains("active")) {
+            closeSignOutModal();
+          }
+        }
+      });
 
-    // Ensure booking data is properly structured with fallback values
-    const bookingData = {
-      id: booking.id || 'temp_' + Date.now(),
-      type: booking.room ? 'room' : 'equipment',
-      status: (booking.status || 'pending').toLowerCase(),
-      date: booking.date || booking.booking_date || new Date().toISOString().split('T')[0],
-      return_date: booking.return_date || null,
-      start_time: booking.start_time || null,
-      end_time: booking.end_time || null,
-      room: booking.room || null,
-      equipment: booking.equipment || (booking.equipment_data && booking.equipment_data[0]?.name) || null,
-      quantity: booking.quantity || (booking.equipment_data && booking.equipment_data[0]?.quantity) || 1,
-      equipment_data: Array.isArray(booking.equipment_data) ? booking.equipment_data : 
-                     (booking.equipment ? [{ name: booking.equipment, quantity: booking.quantity || 1 }] : []),
-      purpose: booking.purpose || 'Not specified'
-    };
-    
-    // Debug: Log the processed booking data
-    console.log('Processed booking data:', JSON.parse(JSON.stringify(bookingData)));
+      // Modal open/close functions
+      window.openProfileModal = function () {
+        profileModal.classList.add("active");
+        profileModal.classList.remove("hidden");
+        profileModal.style.display = "flex";
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+      };
 
-    const row = document.createElement('tr');
-    row.className = 'activity-item hover:bg-gray-50 transition-colors';
-    row.setAttribute('data-booking-id', bookingData.id);
+      window.closeProfileModal = function () {
+        profileModal.classList.remove("active");
+        profileModal.classList.add("hidden");
+        profileModal.style.display = "none";
+      };
 
-    // Status classes
-    const statusClasses = {
-      'confirmed': 'bg-green-100 text-green-800',
-      'pending': 'bg-yellow-100 text-yellow-800',
-      'cancelled': 'bg-red-100 text-red-800',
-      'completed': 'bg-blue-100 text-blue-800',
-      'approved': 'bg-green-100 text-green-800',
-      'rejected': 'bg-red-100 text-red-800',
-      'in-progress': 'bg-blue-100 text-blue-800'
-    };
-    const statusClass = statusClasses[bookingData.status.toLowerCase()] || 'bg-gray-100 text-gray-800';
+      window.openAccountSettingsModal = function () {
+        accountSettingsModal.classList.add("active");
+        accountSettingsModal.classList.remove("hidden");
+        accountSettingsModal.style.display = "flex";
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+      };
 
-    // Format date and time
-    const formatDate = (dateString) => {
-      try {
-        if (!dateString) return 'N/A';
-        const options = { month: 'short', day: 'numeric', year: 'numeric' };
-        return new Date(dateString).toLocaleDateString('en-US', options);
-      } catch (e) {
-        console.error('Error formatting date:', e);
-        return 'Invalid date';
+      window.closeAccountSettingsModal = function () {
+        accountSettingsModal.classList.remove("active");
+        accountSettingsModal.classList.add("hidden");
+        accountSettingsModal.style.display = "none";
+      };
+
+      window.openPrivacySecurityModal = function () {
+        privacySecurityModal.classList.add("active");
+        privacySecurityModal.classList.remove("hidden");
+        privacySecurityModal.style.display = "flex";
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+      };
+
+      window.closePrivacySecurityModal = function () {
+        privacySecurityModal.classList.remove("active");
+        privacySecurityModal.classList.add("hidden");
+        privacySecurityModal.style.display = "none";
+      };
+
+      window.openSignOutModal = function () {
+        signOutModal.classList.add("active");
+        signOutModal.classList.remove("hidden");
+        signOutModal.style.display = "flex";
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+      };
+
+      window.closeSignOutModal = function () {
+        signOutModal.classList.remove("active");
+        signOutModal.classList.add("hidden");
+        signOutModal.style.display = "none";
+      };
+
+      // Modal event listeners
+      openProfileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openProfileModal();
+        notificationDropdown.classList.add("hidden");
+        accountSettingsModal.classList.remove("active");
+        privacySecurityModal.classList.remove("active");
+        signOutModal.classList.remove("active");
+        viewBookingModal.classList.add("hidden");
+        cancelBookingModal.classList.add("hidden");
+      });
+
+      closeProfileBtn.addEventListener("click", closeProfileModal);
+      closeProfileBtn2.addEventListener("click", closeProfileModal);
+
+      openAccountSettingsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openAccountSettingsModal();
+        notificationDropdown.classList.add("hidden");
+        profileModal.classList.remove("active");
+        privacySecurityModal.classList.remove("active");
+        signOutModal.classList.remove("active");
+        viewBookingModal.classList.add("hidden");
+        cancelBookingModal.classList.add("hidden");
+      });
+
+      closeAccountSettingsBtn.addEventListener("click", closeAccountSettingsModal);
+      cancelAccountSettingsBtn.addEventListener("click", closeAccountSettingsModal);
+
+      openPrivacySecurityBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openPrivacySecurityModal();
+        notificationDropdown.classList.add("hidden");
+        profileModal.classList.remove("active");
+        accountSettingsModal.classList.remove("active");
+        signOutModal.classList.remove("active");
+        viewBookingModal.classList.add("hidden");
+        cancelBookingModal.classList.add("hidden");
+      });
+
+      closePrivacySecurityBtn.addEventListener("click", closePrivacySecurityModal);
+      cancelPrivacySecurityBtn.addEventListener("click", closePrivacySecurityModal);
+
+      openSignOutBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openSignOutModal();
+        notificationDropdown.classList.add("hidden");
+        profileModal.classList.remove("active");
+        accountSettingsModal.classList.remove("active");
+        privacySecurityModal.classList.remove("active");
+        viewBookingModal.classList.add("hidden");
+        cancelBookingModal.classList.add("hidden");
+      });
+
+      cancelSignOutBtn.addEventListener("click", closeSignOutModal);
+      cancelSignOutBtn2.addEventListener("click", closeSignOutModal);
+
+      notificationBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        notificationDropdown.classList.toggle("hidden");
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+        profileModal.classList.remove("active");
+        accountSettingsModal.classList.remove("active");
+        privacySecurityModal.classList.remove("active");
+        signOutModal.classList.remove("active");
+        viewBookingModal.classList.add("hidden");
+        cancelBookingModal.classList.add("hidden");
+      });
+
+      userMenuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        userMenuDropdown.classList.toggle("hidden");
+        const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
+        userMenuBtn.setAttribute("aria-expanded", !expanded);
+        notificationDropdown.classList.add("hidden");
+        profileModal.classList.remove("active");
+        accountSettingsModal.classList.remove("active");
+        privacySecurityModal.classList.remove("active");
+        signOutModal.classList.remove("active");
+        viewBookingModal.classList.add("hidden");
+        cancelBookingModal.classList.add("hidden");
+      });
+
+      // Close modals and dropdowns when clicking outside
+      window.addEventListener("click", (e) => {
+        if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+          notificationDropdown.classList.add("hidden");
+        }
+        if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+          userMenuDropdown.classList.add("hidden");
+          userMenuBtn.setAttribute("aria-expanded", "false");
+        }
+        if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
+          closeProfileModal();
+        }
+        if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
+          closeAccountSettingsModal();
+        }
+        if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
+          closePrivacySecurityModal();
+        }
+        if (!signOutModal.contains(e.target)) {
+          closeSignOutModal();
+        }
+        if (!viewBookingModal.contains(e.target)) {
+          viewBookingModal.classList.add("hidden");
+        }
+        if (!cancelBookingModal.contains(e.target)) {
+          cancelBookingModal.classList.add("hidden");
+        }
+      });
+
+      // Stop propagation for modal content
+      profileModal.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
+      accountSettingsModal.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
+      privacySecurityModal.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
+      signOutModal.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
+      viewBookingModal.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
+      cancelBookingModal.querySelector("div").addEventListener("click", (e) => e.stopPropagation());
+
+      // Handle resize for sidebar responsiveness
+      window.addEventListener("resize", () => {
+        if (window.innerWidth >= 768) {
+          sidebar.classList.remove("-ml-72");
+          overlay.classList.add("hidden");
+          document.body.style.overflow = "";
+          if (!mainContent.classList.contains("md:ml-72")) {
+            mainContent.classList.add("md:ml-72", "sidebar-open");
+            mainContent.classList.remove("sidebar-closed");
+          }
+        } else {
+          sidebar.classList.add("-ml-72");
+          mainContent.classList.remove("md:ml-72", "sidebar-open");
+          mainContent.classList.add("sidebar-closed");
+          overlay.classList.add("hidden");
+          document.body.style.overflow = "";
+        }
+        closeAllDropdowns();
+      });
+
+      // Set minimum return date to be same as booking date
+      document.getElementById('bookingDate')?.addEventListener('change', function() {
+        const returnDate = document.getElementById('returnDate');
+        if (returnDate) {
+          returnDate.min = this.value;
+          if (returnDate.value && returnDate.value < this.value) {
+            returnDate.value = this.value;
+          }
+        }
+      });
+
+      // Function to add equipment field
+      window.addEquipment = function() {
+        const container = document.getElementById('equipmentContainer');
+        const equipmentDiv = document.createElement('div');
+        equipmentDiv.className = 'flex items-end space-x-2 mb-2';
+        equipmentDiv.innerHTML = `
+          <div class="flex-1">
+            <select name="equipment[]" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
+              <option value="">-- Select equipment --</option>
+              <option value="projector">Projector</option>
+              <option value="laptop">Laptop</option>
+              <option value="camera">Camera</option>
+              <option value="audio">Audio System</option>
+              <option value="whiteboard">Whiteboard</option>
+            </select>
+          </div>
+          <div class="w-24">
+            <input type="number" name="quantity[]" min="1" max="10" value="1" placeholder="Qty" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
+          </div>
+          <button type="button" onclick="removeEquipment(this)" class="text-red-500 hover:text-red-700">
+            <i class="bx bx-trash"></i>
+          </button>
+        `;
+        container.appendChild(equipmentDiv);
+      };
+
+      // Function to remove equipment field
+      window.removeEquipment = function(button) {
+        button.parentElement.remove();
+      };
+
+      // Function to show error message
+      function showErrorMessage(message) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: message,
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
+
+      // Function to show success message
+      function showSuccessMessage(message) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: message,
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
+
+      // Function to close modal
+      window.closeModal = function(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+      };
+
+      // Function to show booking details
+      window.showBookingDetails = function(booking) {
+        const modal = document.getElementById('viewBookingModal');
+        const content = document.getElementById('bookingDetailsContent');
+        let details = `
+          <div class="space-y-4">
+            <div>
+              <h4 class="font-semibold text-gray-700">Booking ID</h4>
+              <p class="text-sm text-gray-600">#${booking.id}</p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-700">Type</h4>
+              <p class="text-sm text-gray-600">${booking?.type ? booking.type.charAt(0).toUpperCase() + booking.type.slice(1) : 'N/A'}</p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-700">${booking.type === 'room' ? 'Room' : 'Equipment'}</h4>
+              <p class="text-sm text-gray-600">${booking.name || (booking.type === 'room' ? booking.room : booking.equipment)}</p>
+            </div>
+        `;
+
+        if (booking.quantity && booking.type === 'equipment') {
+          details += `
+            <div>
+              <h4 class="font-semibold text-gray-700">Quantity</h4>
+              <p class="text-sm text-gray-600">${booking.quantity}</p>
+            </div>
+          `;
+        }
+
+        details += `
+            <div>
+              <h4 class="font-semibold text-gray-700">Date</h4>
+              <p class="text-sm text-gray-600">${new Date(booking.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            </div>
+        `;
+
+        if (booking.return_date && booking.return_date !== booking.date) {
+          details += `
+            <div>
+              <h4 class="font-semibold text-gray-700">Return Date</h4>
+              <p class="text-sm text-gray-600">${new Date(booking.return_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            </div>
+          `;
+        }
+
+        if (booking.start_time && booking.end_time) {
+          details += `
+            <div>
+              <h4 class="font-semibold text-gray-700">Time</h4>
+              <p class="text-sm text-gray-600">${new Date('2000-01-01T' + booking.start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${new Date('2000-01-01T' + booking.end_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
+          `;
+        }
+
+        details += `
+            <div>
+              <h4 class="font-semibold text-gray-700">Status</h4>
+              <p class="text-sm text-gray-600">${booking?.status ? booking.status.charAt(0).toUpperCase() + booking.status.slice(1) : 'N/A'}</p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-700">Purpose</h4>
+              <p class="text-sm text-gray-600">${booking.purpose || 'Not specified'}</p>
+            </div>
+          </div>
+        `;
+
+        content.innerHTML = details;
+        modal.classList.remove('hidden');
+      };
+
+      // Function to show cancel confirmation
+      window.showCancelConfirmation = function(bookingId) {
+        const modal = document.getElementById('cancelBookingModal');
+        const confirmBtn = document.getElementById('confirmCancelBtn');
+
+        confirmBtn.onclick = async () => {
+          try {
+            const response = await fetch(`/booking/cancel/${bookingId}`, {
+              method: 'POST',
+              headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]').value,
+                'Content-Type': 'application/json'
+              }
+            });
+
+            if (response.ok) {
+              const row = document.querySelector(`tr[data-booking-id="${bookingId}"]`);
+              if (row) {
+                const statusCell = row.querySelector('.status-cell span');
+                statusCell.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+                statusCell.textContent = 'Cancelled';
+                row.querySelector('td:last-child').innerHTML = `
+                  <button onclick="showBookingDetails(${JSON.stringify(row.dataset.booking)})" class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
+                `;
+              }
+              closeModal('cancelBookingModal');
+              showSuccessMessage('Booking cancelled successfully');
+            } else {
+              showErrorMessage('Failed to cancel booking');
+            }
+          } catch (error) {
+            showErrorMessage('Error cancelling booking');
+          }
+        };
+
+        modal.classList.remove('hidden');
+      };
+
+      // Function to add a new booking to the table
+      window.addBookingToTable = function(booking) {
+        const bookingsTable = document.querySelector('table.min-w-full tbody');
+        if (!bookingsTable) {
+          console.error('Bookings table not found');
+          return;
+        }
+
+        const bookingData = {
+          id: booking.id || 'temp_' + Date.now(),
+          type: booking.room ? 'room' : 'equipment',
+          status: (booking.status || 'pending').toLowerCase(),
+          date: booking.date || booking.booking_date || new Date().toISOString().split('T')[0],
+          return_date: booking.return_date || null,
+          start_time: booking.start_time || null,
+          end_time: booking.end_time || null,
+          room: booking.room || null,
+          equipment: booking.equipment || (booking.equipment_data && booking.equipment_data[0]?.name) || null,
+          quantity: booking.quantity || (booking.equipment_data && booking.equipment_data[0]?.quantity) || 1,
+          equipment_data: Array.isArray(booking.equipment_data) ? booking.equipment_data : 
+                        (booking.equipment ? [{ name: booking.equipment, quantity: booking.quantity || 1 }] : []),
+          purpose: booking.purpose || 'Not specified'
+        };
+
+        const row = document.createElement('tr');
+        row.className = 'activity-item hover:bg-gray-50 transition-colors';
+        row.setAttribute('data-booking-id', bookingData.id);
+
+        const statusClasses = {
+          'confirmed': 'bg-green-100 text-green-800',
+          'pending': 'bg-yellow-100 text-yellow-800',
+          'cancelled': 'bg-red-100 text-red-800',
+          'completed': 'bg-blue-100 text-blue-800',
+          'approved': 'bg-green-100 text-green-800',
+          'rejected': 'bg-red-100 text-red-800',
+          'in-progress': 'bg-blue-100 text-blue-800'
+        };
+        const statusClass = statusClasses[bookingData.status.toLowerCase()] || 'bg-gray-100 text-gray-800';
+
+        const formatDate = (dateString) => {
+          try {
+            if (!dateString) return 'N/A';
+            const options = { month: 'short', day: 'numeric', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+          } catch (e) {
+            console.error('Error formatting date:', e);
+            return 'Invalid date';
       }
     };
 
@@ -1628,15 +1536,12 @@ $user = auth()->user();
         
         if (response.ok) {
           showSuccessMessage('Booking created successfully');
-<<<<<<< HEAD
           
           // Reset form
-=======
           // Add the booking to the table immediately with the response data
           if (responseData.booking || responseData) {
             addBookingToTable(responseData.booking || responseData);
           }
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
           this.reset();
           
           // Reset equipment container
@@ -1647,14 +1552,11 @@ $user = auth()->user();
               equipmentContainer.removeChild(equipmentContainer.lastChild);
             }
           }
-<<<<<<< HEAD
           
           // Redirect to calendar page to see the new booking
           setTimeout(() => {
             window.location.href = '{{ route("scheduling.calendar") }}';
           }, 1500);
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         } else {
           // Handle validation errors
           if (responseData.errors) {

@@ -6,6 +6,10 @@ use App\Http\Controllers\Auth\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TwoFactorCodeMail;
 use App\Models\Visitor;
 
 // Test route to check authentication
@@ -148,6 +152,48 @@ Route::middleware('auth')->group(function () {
             };
         }
     }
+    // Test route for debugging
+    Route::get('/test-case-stats', function () {
+        $cases = \App\Models\CaseFile::orderByDesc('created_at')->get()->map(function ($c) {
+            return [
+                'number' => $c->number ?? '',
+                'filed' => $c->created_at?->toDateString(),
+                'name' => $c->name ?? '',
+                'type_label' => $c->type_label ?? '',
+                'type_badge' => $c->type_badge ?? ($c->type_label ?? ''),
+                'client' => $c->client ?? '',
+                'client_org' => $c->client_org ?? '',
+                'client_initials' => $c->client_initials ?? '--',
+                'status' => $c->status ?? '',
+                'hearing_date' => $c->hearing_date ?? null,
+                'hearing_time' => $c->hearing_time ?? null,
+            ];
+        })->toArray();
+        
+        $total = count($cases);
+        $activeCount = collect($cases)->filter(function ($c) {
+            $s = strtolower($c['status'] ?? '');
+            return in_array($s, ['active','in progress', 'urgent']);
+        })->count();
+        
+        $upcomingCount = collect($cases)->filter(function ($c) {
+            if (empty($c['hearing_date'])) return false;
+            try { 
+                $d = \Carbon\Carbon::parse($c['hearing_date']); 
+                return $d->gte(\Carbon\Carbon::today());
+            } catch (\Exception $e) { 
+                return false; 
+            }
+        })->count();
+        
+        return response()->json([
+            'total_cases' => $total,
+            'active_cases' => $activeCount,
+            'upcoming_hearings' => $upcomingCount,
+            'cases' => $cases
+        ]);
+    });
+
     // Case Management
     Route::get('/case-management', function () {
         $cases = \App\Models\CaseFile::orderByDesc('created_at')->get()->map(function ($c) {
@@ -168,19 +214,26 @@ Route::middleware('auth')->group(function () {
         $total = count($cases);
         $activeCount = collect($cases)->filter(function ($c) {
             $s = strtolower($c['status'] ?? '');
-            return in_array($s, ['active','in progress']);
+            return in_array($s, ['active','in progress', 'urgent']);
         })->count();
         $pendingTasks = collect($cases)->filter(function ($c) {
-            return strtolower($c['status'] ?? '') === 'pending';
+            $s = strtolower($c['status'] ?? '');
+            return in_array($s, ['pending']);
         })->count();
         $closedCount = collect($cases)->filter(function ($c) {
-            return strtolower($c['status'] ?? '') === 'closed';
+            $s = strtolower($c['status'] ?? '');
+            return in_array($s, ['closed', 'completed']);
         })->count();
         $today = \Carbon\Carbon::today();
         $upcoming = collect($cases)->filter(function ($c) use ($today) {
             if (empty($c['hearing_date'])) return false;
-            try { $d = \Carbon\Carbon::parse($c['hearing_date']); } catch (\Exception $e) { return false; }
-            return $d->gte($today);
+            try { 
+                $d = \Carbon\Carbon::parse($c['hearing_date']); 
+                // Show hearings from today onwards (including future years)
+                return $d->gte($today);
+            } catch (\Exception $e) { 
+                return false; 
+            }
         })->map(function ($c) {
             $d = $c['hearing_date'] ? \Carbon\Carbon::parse($c['hearing_date']) : null;
             return [
@@ -206,12 +259,24 @@ Route::middleware('auth')->group(function () {
 
         $successRate = $total > 0 ? round(($closedCount / $total) * 100) : 0;
         $pendingProgress = $total > 0 ? round(($pendingTasks / $total) * 100) : 0;
+        $activeProgress = $total > 0 ? round(($activeCount / $total) * 100) : 0;
+        
+        // Calculate urgent cases
+        $urgentCount = collect($cases)->filter(function ($c) {
+            $s = strtolower($c['status'] ?? '');
+            return $s === 'urgent';
+        })->count();
+        
         $stats = [
             'active_cases' => $activeCount,
             'upcoming_hearings' => $upcomingCount,
             'pending_tasks' => $pendingTasks,
+            'closed_cases' => $closedCount,
+            'urgent_cases' => $urgentCount,
+            'total_cases' => $total,
             'success_rate' => $successRate,
             'pending_progress' => $pendingProgress,
+            'active_progress' => $activeProgress,
             'success_progress' => $successRate,
             'next_hearing' => $nextHearing,
         ];
@@ -229,16 +294,52 @@ Route::middleware('auth')->group(function () {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'type' => 'nullable|string|max:100',
-            'status' => 'nullable|string|max:100',
-            'dueDate' => 'nullable|date',
-            'responsible' => 'nullable|string|max:150',
-            'priority' => 'nullable|string|in:Low,Medium,High',
+            'status' => 'nullable|string|in:active,pending,overdue,completed',
+            'due_date' => 'required|date',
+            'responsible_person' => 'nullable|string|max:150',
+            'priority' => 'nullable|string|in:low,medium,high,critical',
             'description' => 'nullable|string',
         ]);
+
+        // Normalize certain fields to lowercase for consistency
+        $normalized = $validated;
+        if (isset($normalized['type'])) $normalized['type'] = strtolower($normalized['type']);
+        if (isset($normalized['status'])) $normalized['status'] = strtolower($normalized['status']); else $normalized['status'] = 'pending';
+        if (isset($normalized['priority'])) $normalized['priority'] = strtolower($normalized['priority']); else $normalized['priority'] = 'medium';
+
         $id = 'CMP-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        // Generate sequential compliance code like CPL-2023-045 (per-year counter stored in session)
+        $year = date('Y');
+        $key = 'compliance_seq_'.$year;
+        $seq = (int) session($key, 0) + 1;
+        session([$key => $seq]);
+        $code = 'CPL-' . $year . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT);
+
+        // Persist to database so it survives refresh
+        try {
+            $record = \App\Models\ComplianceTracking::create([
+                'code' => $code,
+                'title' => $normalized['title'],
+                'type' => $normalized['type'] ?? null,
+                'status' => $normalized['status'] ?? 'pending',
+                'due_date' => $normalized['due_date'],
+                'description' => $normalized['description'] ?? null,
+                'responsible_person' => $normalized['responsible_person'] ?? null,
+                'priority' => $normalized['priority'] ?? 'medium',
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Compliance create failed: '.$e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to save compliance.'], 500);
+        }
+
         return response()->json([
             'success' => true,
-            'compliance' => array_merge(['id' => $id], $validated),
+            'compliance' => array_merge($normalized, [
+                // Use code as id for frontend simplicity
+                'id' => $code,
+                'code' => $code,
+                'created_at' => $record->created_at?->toIso8601String() ?? now()->toIso8601String(),
+            ]),
         ]);
     })->name('compliance.create');
 
@@ -248,13 +349,31 @@ Route::middleware('auth')->group(function () {
             'id' => 'required|string',
             'title' => 'required|string|max:255',
             'type' => 'nullable|string|max:100',
-            'status' => 'nullable|string|max:100',
-            'dueDate' => 'nullable|date',
-            'responsible' => 'nullable|string|max:150',
-            'priority' => 'nullable|string|in:Low,Medium,High',
+            'status' => 'nullable|string|in:active,pending,overdue,completed',
+            'due_date' => 'nullable|date',
+            'responsible_person' => 'nullable|string|max:150',
+            'priority' => 'nullable|string|in:low,medium,high,critical',
             'description' => 'nullable|string',
         ]);
-        return response()->json(['success' => true]);
+        // Normalize
+        $data = $validated;
+        foreach (['type','status','priority'] as $k) { if (isset($data[$k])) $data[$k] = strtolower($data[$k]); }
+        // Update by code (id is code)
+        try {
+            $updated = \App\Models\ComplianceTracking::where('code', $validated['id'])->update(array_filter([
+                'title' => $data['title'] ?? null,
+                'type' => $data['type'] ?? null,
+                'status' => $data['status'] ?? null,
+                'due_date' => $data['due_date'] ?? null,
+                'description' => $data['description'] ?? null,
+                'responsible_person' => $data['responsible_person'] ?? null,
+                'priority' => $data['priority'] ?? null,
+            ], fn($v) => !is_null($v)));
+        } catch (\Throwable $e) {
+            \Log::error('Compliance update failed: '.$e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to update compliance.'], 500);
+        }
+        return response()->json(['success' => $updated > 0]);
     })->name('compliance.update');
 
     // Compliance: delete (AJAX)
@@ -262,7 +381,13 @@ Route::middleware('auth')->group(function () {
         $validated = $request->validate([
             'id' => 'required|string',
         ]);
-        return response()->json(['success' => true]);
+        try {
+            $deleted = \App\Models\ComplianceTracking::where('code', $validated['id'])->delete();
+        } catch (\Throwable $e) {
+            \Log::error('Compliance delete failed: '.$e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to delete compliance.'], 500);
+        }
+        return response()->json(['success' => $deleted > 0]);
     })->name('compliance.delete');
     
     // Contract Management
@@ -319,6 +444,54 @@ Route::middleware('auth')->group(function () {
         $deleted = \DB::table('contracts')->where('code', $validated['code'])->delete();
         return response()->json(['success' => $deleted > 0]);
     })->name('contracts.delete');
+
+    // Contracts: create
+    Route::post('/contracts/create', function (\Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'type' => 'required|string|in:nda,service,employment',
+            'status' => 'required|string|in:active,pending,expired',
+        ]);
+
+        // Generate sequential contract code per year using session counter (similar to compliance)
+        $year = date('Y');
+        $key = 'contract_seq_' . $year;
+        $seq = (int) session($key, 0) + 1;
+        session([$key => $seq]);
+        $code = 'CTR-' . $year . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+
+        $nowDate = now()->toDateString();
+        $nowTs = now();
+
+        try {
+            \DB::table('contracts')->insert([
+                'code' => $code,
+                'title' => $validated['title'],
+                'company' => $validated['company'] ?? null,
+                'type' => $validated['type'],
+                'status' => $validated['status'],
+                'created_on' => $nowDate,
+                'created_at' => $nowTs,
+                'updated_at' => $nowTs,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Contract create failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to create contract.'], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'contract' => [
+                'code' => $code,
+                'title' => $validated['title'],
+                'company' => $validated['company'] ?? null,
+                'type' => $validated['type'],
+                'status' => $validated['status'],
+                'created_on' => $nowDate,
+            ],
+        ]);
+    })->name('contracts.create');
 
     // Deadline & Hearing Alerts (connected to database-backed cases and hearings)
     Route::get('/deadline-hearing-alerts', function () {
@@ -391,6 +564,70 @@ Route::middleware('auth')->group(function () {
 
         return view('dashboard.deadline-hearing-alerts', compact('hearings', 'counts'));
     })->name('deadline.hearing.alerts');
+
+    // Hearings/Alerts: create (AJAX)
+    Route::post('/hearings/create', function (\Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'type' => 'required|string|max:100',
+            'due_date' => 'required|date',
+            'priority' => 'nullable|string|in:low,medium,high',
+            'description' => 'nullable|string',
+            'related_to' => 'nullable|string|max:150',
+        ]);
+
+        $priority = strtolower($validated['priority'] ?? 'normal');
+        if (!in_array($priority, ['low','medium','high'])) { $priority = 'normal'; }
+
+        try {
+            $now = now();
+            \DB::table('hearings')->insert([
+                'case_number' => $validated['related_to'] ?? null,
+                'title' => $validated['title'],
+                'type' => $validated['type'],
+                'hearing_date' => $validated['due_date'],
+                'hearing_time' => null,
+                'priority' => ucfirst($priority),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+            // Build response object compatible with the view
+            $h = (object) [
+                'case_number' => $validated['related_to'] ?? null,
+                'title' => $validated['title'],
+                'type' => $validated['type'],
+                'hearing_date' => $validated['due_date'],
+                'hearing_time' => null,
+                'priority' => ucfirst($priority),
+            ];
+        } catch (\Throwable $e) {
+            \Log::error('Hearing create failed: '.$e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to create alert.'], 500);
+        }
+
+        $dateObj = null;
+        try { $dateObj = $h->hearing_date ? \Carbon\Carbon::parse($h->hearing_date) : null; } catch (\Exception $e) {}
+        $today = \Carbon\Carbon::today();
+        $status = 'upcoming';
+        if ($dateObj) {
+            if ($dateObj->isSameDay($today)) $status = 'today';
+            elseif ($dateObj->lessThan($today)) $status = 'overdue';
+            else $status = 'upcoming';
+        }
+
+        return response()->json([
+            'success' => true,
+            'hearing' => [
+                'number' => $h->case_number ?? '',
+                'title' => $h->title ?? 'Hearing',
+                'type' => $h->type ?? 'Hearing',
+                'date' => $dateObj ? $dateObj->format('M d, Y') : '-',
+                'time' => $h->hearing_time ?? '',
+                'priority' => ucfirst($priority === 'medium' ? 'Normal' : $priority),
+                'status' => $status,
+            ],
+        ]);
+    })->name('hearings.create');
 
     // Visitors Registration (DB-backed)
     Route::get('/visitors-registration', function () {
@@ -523,6 +760,53 @@ Route::middleware('auth')->group(function () {
             'allVisitors' => $visitors,
         ]);
     })->name('checkinout.tracking');
+
+    // Account: initiate password change (Step 1)
+    Route::post('/account/change-password-request', function (Request $request) {
+        $user = $request->user();
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $cacheKey = 'pw_change_user_' . $user->id;
+        Cache::put($cacheKey, [
+            'new_hash' => Hash::make($validated['new_password']),
+            'code' => $code,
+            'issued_at' => now()->toDateTimeString(),
+        ], now()->addMinutes(10));
+
+        try {
+            Mail::to($user->email)->send(new TwoFactorCodeMail($user->name ?? $user->email, $code));
+        } catch (\Throwable $e) {
+            try {
+                Mail::mailer('log')->to($user->email)->send(new TwoFactorCodeMail($user->name ?? $user->email, $code));
+            } catch (\Throwable $e2) {}
+        }
+
+        return response()->json(['ok' => true, 'message' => 'Verification code sent to your email.']);
+    })->name('account.password.change.request');
+
+    // Account: verify password change (Step 2)
+    Route::post('/account/change-password-verify', function (Request $request) {
+        $user = $request->user();
+        $validated = $request->validate([
+            'code' => ['required', 'string', 'size:6'],
+        ]);
+
+        $cacheKey = 'pw_change_user_' . $user->id;
+        $pending = Cache::get($cacheKey);
+        if (!$pending || ($pending['code'] ?? null) !== $validated['code']) {
+            return response()->json(['ok' => false, 'message' => 'Invalid or expired verification code.'], 422);
+        }
+
+        $user->password = $pending['new_hash'];
+        $user->save();
+        Cache::forget($cacheKey);
+
+        return response()->json(['ok' => true, 'message' => 'Password changed successfully.']);
+    })->name('account.password.change.verify');
 
     // Create a new visitor (DB-backed)
     Route::post('/visitor/create', function (\Illuminate\Http\Request $request) {

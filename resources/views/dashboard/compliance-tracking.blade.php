@@ -111,6 +111,9 @@ $user = auth()->user();
             margin: 0 auto;
             transition: max-width 0.3s ease-in-out;
         }
+        .hidden {
+    display: none;
+}
 
         #sidebar.md\\:ml-0 ~ #main-content .dashboard-container {
             max-width: 1152px;
@@ -181,6 +184,94 @@ $user = auth()->user();
             </div>
         </div>
     </nav>
+    <script>
+      if (typeof window.toggleSidebarDropdown !== 'function') {
+        window.toggleSidebarDropdown = function(el){
+          try{
+            var headers = document.querySelectorAll('.has-dropdown > div');
+            for (var i=0;i<headers.length;i++){
+              var h = headers[i];
+              if (h !== el){
+                var m = h.nextElementSibling;
+                var c = h.querySelector('.bx-chevron-down');
+                if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
+                if (c) c.classList.remove('rotate-180');
+                h.setAttribute('aria-expanded','false');
+              }
+            }
+            if (el){
+              var menu = el.nextElementSibling;
+              var chev = el.querySelector('.bx-chevron-down');
+              if (menu) menu.classList.toggle('hidden');
+              if (chev) chev.classList.toggle('rotate-180');
+              var isOpen = menu && !menu.classList.contains('hidden');
+              el.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            }
+          }catch(e){}
+        };
+      }
+    </script>
+
+    <script>
+      if (typeof window.toggleUserMenu !== 'function') {
+        window.toggleUserMenu = function(ev){
+          try{
+            if(ev && ev.stopPropagation) ev.stopPropagation();
+            var btn=document.getElementById('userMenuBtn');
+            var menu=document.getElementById('userMenuDropdown');
+            var notif=document.getElementById('notificationDropdown');
+            if(menu){ menu.classList.toggle('hidden'); }
+            if(btn){ var ex=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', (!ex).toString()); }
+            if(notif){ notif.classList.add('hidden'); }
+          }catch(e){}
+        };
+      }
+      if (typeof window.toggleNotification !== 'function') {
+        window.toggleNotification = function(ev){
+          try{
+            if(ev && ev.stopPropagation) ev.stopPropagation();
+            var nb=document.getElementById('notificationBtn');
+            var nd=document.getElementById('notificationDropdown');
+            var ud=document.getElementById('userMenuDropdown');
+            if(nd){ nd.classList.toggle('hidden'); }
+            if(nb){ var ex=nb.getAttribute('aria-expanded')==='true'; nb.setAttribute('aria-expanded',(!ex).toString()); }
+            if(ud){ ud.classList.add('hidden'); }
+            var ub=document.getElementById('userMenuBtn'); if(ub){ ub.setAttribute('aria-expanded','false'); }
+          }catch(e){}
+        };
+      }
+      if (!window.__complianceMenusBound) {
+        window.__complianceMenusBound = true;
+        document.addEventListener('click', function(e){
+          var ud=document.getElementById('userMenuDropdown');
+          var ub=document.getElementById('userMenuBtn');
+          var nd=document.getElementById('notificationDropdown');
+          var nb=document.getElementById('notificationBtn');
+          var clickInsideUser = (ub && (ub.contains(e.target) || (ud && ud.contains(e.target))));
+          var clickInsideNotif = (nb && (nb.contains(e.target) || (nd && nd.contains(e.target))));
+          if(!clickInsideUser && !clickInsideNotif){
+            if(ud){ ud.classList.add('hidden'); }
+            if(nd){ nd.classList.add('hidden'); }
+            if(ub){ ub.setAttribute('aria-expanded','false'); }
+            if(nb){ nb.setAttribute('aria-expanded','false'); }
+          }
+        });
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){
+          var ud=document.getElementById('userMenuDropdown');
+          var nd=document.getElementById('notificationDropdown');
+          var ub=document.getElementById('userMenuBtn');
+          var nb=document.getElementById('notificationBtn');
+          if(ud){ ud.classList.add('hidden'); }
+          if(nd){ nd.classList.add('hidden'); }
+          if(ub){ ub.setAttribute('aria-expanded','false'); }
+          if(nb){ nb.setAttribute('aria-expanded','false'); }
+        }});
+        var nb=document.getElementById('notificationBtn');
+        if(nb){ nb.addEventListener('click', function(e){ if(window.toggleNotification) window.toggleNotification(e); }); }
+        var ub=document.getElementById('userMenuBtn');
+        if(ub){ ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); }); }
+      }
+    </script>
 
     <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
         <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
@@ -234,7 +325,7 @@ $user = auth()->user();
                         </a>
                     </li>
                     <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-calendar-check"></i>
                                 <span>Facilities Reservations</span>
@@ -249,7 +340,7 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Document Management</span>
@@ -264,7 +355,7 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li class="has-dropdown active">
-                        <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Legal Management</span>
@@ -279,7 +370,7 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-group"></i>
                                 <span>Visitor Management</span>
@@ -310,7 +401,41 @@ $user = auth()->user();
                 </div>
             </div>
         </aside>
-
+        <script>
+          // Sidebar toggle for mobile and focus management
+          (function(){
+            if (window.__complianceSidebarBound) return; window.__complianceSidebarBound = true;
+            try{
+              var toggleBtn = document.getElementById('toggle-btn');
+              var sidebar = document.getElementById('sidebar');
+              var overlay = document.getElementById('overlay');
+              var main = document.getElementById('main-content');
+              function openSidebar(){
+                if(sidebar){ sidebar.classList.remove('-ml-72'); sidebar.classList.add('ml-0'); }
+                if(overlay){ overlay.classList.remove('hidden'); }
+                document.body.style.overflow='hidden';
+              }
+              function closeSidebar(){
+                if(sidebar){ sidebar.classList.add('-ml-72'); sidebar.classList.remove('ml-0'); }
+                if(overlay){ overlay.classList.add('hidden'); }
+                document.body.style.overflow='';
+              }
+              if(toggleBtn){ toggleBtn.addEventListener('click', function(){
+                var isClosed = sidebar && sidebar.classList.contains('-ml-72');
+                if(isClosed){ openSidebar(); } else { closeSidebar(); }
+              }); }
+              if(overlay){ overlay.addEventListener('click', function(){ closeSidebar(); }); }
+              document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeSidebar(); }});
+              // Ensure proper state on resize: sidebar always visible on md+ due to md:ml-0
+              window.addEventListener('resize', function(){
+                if(window.innerWidth>=768){
+                  if(overlay){ overlay.classList.add('hidden'); }
+                  document.body.style.overflow='';
+                }
+              });
+            }catch(e){}
+          })();
+        </script>
         <main id="main-content" class="flex-1 p-6 w-full mt-16">
             <div class="dashboard-container">
                 <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md border border-gray-100 p-8 space-y-6">
@@ -321,7 +446,7 @@ $user = auth()->user();
                             <p class="text-gray-600 text-sm">Monitor and manage all compliance requirements and deadlines</p>
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <button id="addComplianceBtn" class="px-4 py-2 bg-[#2f855A] text-white rounded-lg hover:bg-[#28644c] transition-colors duration-200 flex items-center text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                            <button id="addComplianceBtn" type="button" onclick="if(window.__openAddCompliance){window.__openAddCompliance(event);}" class="px-4 py-2 bg-[#2f855A] text-white rounded-lg hover:bg-[#28644c] transition-colors duration-200 flex items-center text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
                                 <i class="fas fa-plus mr-2"></i> Add New Compliance
                             </button>
                         </div>
@@ -506,59 +631,8 @@ $user = auth()->user();
                     </section>
                 </div>
             </div>
-
-            <!-- Add Compliance Modal -->
-            <div id="addComplianceModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-compliance-modal-title">
-                <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                        <h3 id="add-compliance-modal-title" class="text-lg font-medium text-gray-900">Add New Compliance</h3>
-                        <button id="closeAddComplianceModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-sm"></i>
-                        </button>
-                    </div>
-                    <div class="p-6">
-                        <form id="addComplianceForm" class="space-y-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="col-span-2">
-                                    <label for="complianceTitle" class="block text-sm font-medium text-gray-700 mb-1">Compliance Title *</label>
-                                    <input type="text" id="complianceTitle" name="complianceTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                                </div>
-                                <div>
-                                    <label for="complianceType" class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
-                                    <select id="complianceType" name="complianceType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                                        <option value="">Select a type</option>
-                                        <option value="legal">Legal</option>
-                                        <option value="financial">Financial</option>
-                                        <option value="hr">HR</option>
-                                        <option value="safety">Safety</option>
-                                        <option value="environmental">Environmental</option>
-                                        <option value="other">Other</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="dueDate" class="block text-sm font-medium text-gray-700 mb-1">Due Date *</label>
-                                    <input type="date" id="dueDate" name="dueDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                                </div>
-                                <div class="col-span-2">
-                                    <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                    <textarea id="description" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]"></textarea>
-                                </div>
-                            </div>
-                            <div class="flex justify-end space-x-3">
-                                <button type="button" id="cancelAddCompliance" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">
-                                    Cancel
-                                </button>
-                                <button type="submit" class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#2f855A] hover:bg-[#28644c] focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">
-                                    Save Compliance
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
             <!-- User Menu Dropdown -->
-            <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
+            <div id="userMenuDropdown" onclick="event.stopPropagation();" class="hidden fixed right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index: 60;" role="menu" aria-labelledby="userMenuBtn">
                 <div class="py-4 px-6 border-b border-gray-100 text-center">
                     <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
                         <i class="fas fa-user-circle text-3xl"></i>
@@ -573,6 +647,155 @@ $user = auth()->user();
                     <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
                 </ul>
             </div>
+
+            <script>
+              // Profile modal controls (aligned with case-management behavior)
+              if (typeof window.openProfileModal !== 'function') {
+                window.openProfileModal = function(){
+                  try{
+                    var m=document.getElementById('profileModal');
+                    if(!m) return;
+                    m.classList.remove('hidden');
+                    m.style.display='flex';
+                    document.body.style.overflow='hidden';
+                    // close user menu
+                    var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+                    var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+                  }catch(e){}
+                };
+              }
+              if (typeof window.closeProfileModal !== 'function') {
+                window.closeProfileModal = function(){
+                  try{
+                    var m=document.getElementById('profileModal');
+                    if(!m) return;
+                    m.classList.add('hidden');
+                    m.style.display='none';
+                    document.body.style.overflow='auto';
+                  }catch(e){}
+                };
+              }
+              // Bind buttons
+              document.addEventListener('DOMContentLoaded', function(){
+                var op=document.getElementById('openProfileBtn');
+                if(op){ op.addEventListener('click', function(e){ e.stopPropagation(); if(window.openProfileModal) window.openProfileModal(); }); }
+                var cp=document.getElementById('closeProfileBtn');
+                if(cp){ cp.addEventListener('click', function(){ if(window.closeProfileModal) window.closeProfileModal(); }); }
+                var cp2=document.getElementById('closeProfileBtn2');
+                if(cp2){ cp2.addEventListener('click', function(){ if(window.closeProfileModal) window.closeProfileModal(); }); }
+                // Close on Escape
+                document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ if(window.closeProfileModal) window.closeProfileModal(); }});
+                // Close when clicking on backdrop
+                document.addEventListener('click', function(e){
+                  var modal=document.getElementById('profileModal');
+                  if(modal && e.target===modal){ if(window.closeProfileModal) window.closeProfileModal(); }
+                });
+              });
+            </script>
+
+            <script>
+              // Account Settings modal
+              if (typeof window.openAccountSettingsModal !== 'function') {
+                window.openAccountSettingsModal = function(){
+                  try{
+                    var m=document.getElementById('accountSettingsModal'); if(!m) return;
+                    m.classList.remove('hidden'); m.style.display='flex'; document.body.style.overflow='hidden';
+                    var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+                    var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+                  }catch(e){}
+                };
+              }
+              if (typeof window.closeAccountSettingsModal !== 'function') {
+                window.closeAccountSettingsModal = function(){
+                  try{
+                    var m=document.getElementById('accountSettingsModal'); if(!m) return;
+                    m.classList.add('hidden'); m.style.display='none'; document.body.style.overflow='auto';
+                  }catch(e){}
+                };
+              }
+
+              // Privacy & Security modal
+              if (typeof window.openPrivacySecurityModal !== 'function') {
+                window.openPrivacySecurityModal = function(){
+                  try{
+                    var m=document.getElementById('privacySecurityModal'); if(!m) return;
+                    m.classList.remove('hidden'); m.style.display='flex'; document.body.style.overflow='hidden';
+                    var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+                    var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+                  }catch(e){}
+                };
+              }
+              if (typeof window.closePrivacySecurityModal !== 'function') {
+                window.closePrivacySecurityModal = function(){
+                  try{
+                    var m=document.getElementById('privacySecurityModal'); if(!m) return;
+                    m.classList.add('hidden'); m.style.display='none'; document.body.style.overflow='auto';
+                  }catch(e){}
+                };
+              }
+
+              // Sign Out modal
+              if (typeof window.openSignOutModal !== 'function') {
+                window.openSignOutModal = function(){
+                  try{
+                    var m=document.getElementById('signOutModal'); if(!m) return;
+                    m.classList.remove('hidden'); m.style.display='flex'; document.body.style.overflow='hidden';
+                    var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+                    var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+                  }catch(e){}
+                };
+              }
+              if (typeof window.closeSignOutModal !== 'function') {
+                window.closeSignOutModal = function(){
+                  try{
+                    var m=document.getElementById('signOutModal'); if(!m) return;
+                    m.classList.add('hidden'); m.style.display='none'; document.body.style.overflow='auto';
+                  }catch(e){}
+                };
+              }
+
+              // Bind openers from user menu
+              document.addEventListener('DOMContentLoaded', function(){
+                var oas=document.getElementById('openAccountSettingsBtn');
+                if(oas){ oas.addEventListener('click', function(e){ e.stopPropagation(); if(window.openAccountSettingsModal) window.openAccountSettingsModal(); }); }
+                var ops=document.getElementById('openPrivacySecurityBtn');
+                if(ops){ ops.addEventListener('click', function(e){ e.stopPropagation(); if(window.openPrivacySecurityModal) window.openPrivacySecurityModal(); }); }
+                var oso=document.getElementById('openSignOutBtn');
+                if(oso){ oso.addEventListener('click', function(e){ e.stopPropagation(); if(window.openSignOutModal) window.openSignOutModal(); }); }
+
+                // Account Settings close buttons
+                var cas=document.getElementById('closeAccountSettingsBtn');
+                if(cas){ cas.addEventListener('click', function(){ if(window.closeAccountSettingsModal) window.closeAccountSettingsModal(); }); }
+                var xas=document.getElementById('cancelAccountSettingsBtn');
+                if(xas){ xas.addEventListener('click', function(){ if(window.closeAccountSettingsModal) window.closeAccountSettingsModal(); }); }
+
+                // Privacy & Security close buttons
+                var cps=document.getElementById('closePrivacySecurityBtn');
+                if(cps){ cps.addEventListener('click', function(){ if(window.closePrivacySecurityModal) window.closePrivacySecurityModal(); }); }
+                var xps=document.getElementById('cancelPrivacySecurityBtn');
+                if(xps){ xps.addEventListener('click', function(){ if(window.closePrivacySecurityModal) window.closePrivacySecurityModal(); }); }
+
+                // Sign Out close buttons
+                var cso=document.getElementById('cancelSignOutBtn');
+                if(cso){ cso.addEventListener('click', function(){ if(window.closeSignOutModal) window.closeSignOutModal(); }); }
+                var cso2=document.getElementById('cancelSignOutBtn2');
+                if(cso2){ cso2.addEventListener('click', function(){ if(window.closeSignOutModal) window.closeSignOutModal(); }); }
+
+                // Escape closes any of the three modals
+                document.addEventListener('keydown', function(e){ if(e.key==='Escape'){
+                  if(window.closeAccountSettingsModal) window.closeAccountSettingsModal();
+                  if(window.closePrivacySecurityModal) window.closePrivacySecurityModal();
+                  if(window.closeSignOutModal) window.closeSignOutModal();
+                }});
+
+                // Backdrop click closes modals
+                document.addEventListener('click', function(e){
+                  var as=document.getElementById('accountSettingsModal'); if(as && e.target===as){ if(window.closeAccountSettingsModal) window.closeAccountSettingsModal(); }
+                  var ps=document.getElementById('privacySecurityModal'); if(ps && e.target===ps){ if(window.closePrivacySecurityModal) window.closePrivacySecurityModal(); }
+                  var so=document.getElementById('signOutModal'); if(so && e.target===so){ if(window.closeSignOutModal) window.closeSignOutModal(); }
+                });
+              });
+            </script>
 
             <!-- Profile, Account, Privacy, and Sign Out modals moved below to be outside main content for full-page overlay -->
         </main>
@@ -1116,408 +1339,434 @@ $user = auth()->user();
         </main>
     </div>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const sidebar = document.getElementById("sidebar");
-            const mainContent = document.getElementById("main-content");
-            const toggleBtn = document.getElementById("toggle-btn");
-            const overlay = document.getElementById("overlay");
-            const dropdownToggles = document.querySelectorAll(".has-dropdown > div");
-            const notificationBtn = document.getElementById("notificationBtn");
-            const notificationDropdown = document.getElementById("notificationDropdown");
-            const userMenuBtn = document.getElementById("userMenuBtn");
-            const userMenuDropdown = document.getElementById("userMenuDropdown");
-            const profileModal = document.getElementById("profileModal");
-            const openProfileBtn = document.getElementById("openProfileBtn");
-            const closeProfileBtn = document.getElementById("closeProfileBtn");
-            const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
-            const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
-            const accountSettingsModal = document.getElementById("accountSettingsModal");
-            const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
-            const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
-            const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
-            const privacySecurityModal = document.getElementById("privacySecurityModal");
-            const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
-            const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
-            const signOutModal = document.getElementById("signOutModal");
-            const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
-            const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
-            const openSignOutBtn = document.getElementById("openSignOutBtn");
-            const addComplianceBtn = document.getElementById("addComplianceBtn");
-            const addComplianceModal = document.getElementById("addComplianceModal");
-            const closeAddComplianceModal = document.getElementById("closeAddComplianceModal");
-            const cancelAddCompliance = document.getElementById("cancelAddCompliance");
-            const addComplianceForm = document.getElementById("addComplianceForm");
-            const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
+document.addEventListener("DOMContentLoaded", () => {
+    // Element references
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("main-content");
+    const toggleBtn = document.getElementById("toggle-btn");
+    const overlay = document.getElementById("overlay");
+    const notificationBtn = document.getElementById("notificationBtn");
+    const notificationDropdown = document.getElementById("notificationDropdown");
+    const userMenuBtn = document.getElementById("userMenuBtn");
+    const userMenuDropdown = document.getElementById("userMenuDropdown");
+    const profileModal = document.getElementById("profileModal");
+    const openProfileBtn = document.getElementById("openProfileBtn");
+    const closeProfileBtn = document.getElementById("closeProfileBtn");
+    const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
+    const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
+    const accountSettingsModal = document.getElementById("accountSettingsModal");
+    const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
+    const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
+    const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
+    const privacySecurityModal = document.getElementById("privacySecurityModal");
+    const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
+    const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
+    const signOutModal = document.getElementById("signOutModal");
+    const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
+    const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
+    const openSignOutBtn = document.getElementById("openSignOutBtn");
+    const addComplianceBtn = document.getElementById("addComplianceBtn");
+    const addComplianceModal = document.getElementById("addComplianceModal");
+    const closeAddComplianceModal = document.getElementById("closeAddComplianceModal");
+    const cancelAddCompliance = document.getElementById("cancelAddCompliance");
+    const addComplianceForm = document.getElementById("addComplianceForm");
+    const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
 
-            // Initialize sidebar state based on screen size
-            if (window.innerWidth >= 768) {
-                sidebar.classList.remove("-ml-72");
-                mainContent.classList.add("md:ml-72", "sidebar-open");
-            } else {
-                sidebar.classList.add("-ml-72");
-                mainContent.classList.remove("md:ml-72", "sidebar-open");
-                mainContent.classList.add("sidebar-closed");
+    // Initialize sidebar state
+    if (window.innerWidth >= 768) {
+        sidebar.classList.remove("-ml-72");
+        mainContent.classList.add("md:ml-72", "sidebar-open");
+    } else {
+        sidebar.classList.add("-ml-72");
+        mainContent.classList.remove("md:ml-72", "sidebar-open");
+        mainContent.classList.add("sidebar-closed");
+    }
+
+    // Toggle sidebar
+    function toggleSidebar() {
+        if (window.innerWidth >= 768) {
+            sidebar.classList.toggle("md:-ml-72");
+            mainContent.classList.toggle("md:ml-72");
+            mainContent.classList.toggle("sidebar-open");
+            mainContent.classList.toggle("sidebar-closed");
+        } else {
+            sidebar.classList.toggle("-ml-72");
+            overlay.classList.toggle("hidden");
+            document.body.style.overflow = sidebar.classList.contains("-ml-72") ? "" : "hidden";
+            mainContent.classList.toggle("sidebar-open", !sidebar.classList.contains("-ml-72"));
+            mainContent.classList.toggle("sidebar-closed", sidebar.classList.contains("-ml-72"));
+        }
+    }
+
+    // Dropdown functionality
+    function bindDropdownListeners() {
+        const dropdownToggles = document.querySelectorAll('.has-dropdown > div');
+        dropdownToggles.forEach((toggle) => {
+            // Skip if already bound
+            if (toggle.__dropdownBound) return;
+            toggle.__dropdownBound = true;
+
+            // Set accessibility attributes
+            const menu = toggle.nextElementSibling;
+            const isOpen = menu && !menu.classList.contains('hidden');
+            toggle.setAttribute('role', 'button');
+            toggle.setAttribute('tabindex', '0');
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+
+            // Enhance menu accessibility
+            if (menu) {
+                menu.setAttribute('role', 'menu');
+                menu.querySelectorAll('a').forEach(link => link.setAttribute('role', 'menuitem'));
             }
 
-            function toggleSidebar() {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.toggle("md:-ml-72");
-                    mainContent.classList.toggle("md:ml-72");
-                    mainContent.classList.toggle("sidebar-open");
-                    mainContent.classList.toggle("sidebar-closed");
-                } else {
-                    sidebar.classList.toggle("-ml-72");
-                    overlay.classList.toggle("hidden");
-                    document.body.style.overflow = sidebar.classList.contains("-ml-72") ? "" : "hidden";
-                    mainContent.classList.toggle("sidebar-open", !sidebar.classList.contains("-ml-72"));
-                    mainContent.classList.toggle("sidebar-closed", sidebar.classList.contains("-ml-72"));
+            // Click handler (avoid double-toggle if inline onclick exists)
+            if (!toggle.getAttribute('onclick')) {
+                toggle.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    window.toggleSidebarDropdown(toggle);
+                });
+            }
+
+            // Keyboard handler
+            toggle.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    window.toggleSidebarDropdown(toggle);
                 }
-            }
-
-            function closeAllDropdowns() {
-                dropdownToggles.forEach((toggle) => {
-                    const dropdown = toggle.nextElementSibling;
-                    const chevron = toggle.querySelector(".bx-chevron-down");
-                    if (!dropdown.classList.contains("hidden")) {
-                        dropdown.classList.add("hidden");
-                        chevron.classList.remove("rotate-180");
-                    }
-                });
-            }
-
-            dropdownToggles.forEach((toggle) => {
-                toggle.addEventListener("click", () => {
-                    const dropdown = toggle.nextElementSibling;
-                    const chevron = toggle.querySelector(".bx-chevron-down");
-                    dropdownToggles.forEach((otherToggle) => {
-                        if (otherToggle !== toggle) {
-                            otherToggle.nextElementSibling.classList.add("hidden");
-                            otherToggle.querySelector(".bx-chevron-down").classList.remove("rotate-180");
-                        }
-                    });
-                    dropdown.classList.toggle("hidden");
-                    chevron.classList.toggle("rotate-180");
-                });
             });
+        });
+    }
 
-            overlay.addEventListener("click", () => {
-                sidebar.classList.add("-ml-72");
-                overlay.classList.add("hidden");
-                document.body.style.overflow = "";
-                mainContent.classList.remove("sidebar-open");
-                mainContent.classList.add("sidebar-closed");
-            });
+    // User menu functionality
+    function bindUserMenuListeners() {
+        // If the early navbar script already bound handlers, avoid double-binding
+        if (window.__complianceMenusBound) return;
+        if (!userMenuBtn || userMenuBtn.__userMenuBound) return;
+        userMenuBtn.__userMenuBound = true;
 
-            toggleBtn.addEventListener("click", toggleSidebar);
+        // Set accessibility attributes
+        userMenuBtn.setAttribute('role', 'button');
+        userMenuBtn.setAttribute('tabindex', '0');
+        userMenuBtn.setAttribute('aria-expanded', userMenuDropdown && !userMenuDropdown.classList.contains('hidden') ? 'true' : 'false');
 
-            notificationBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                notificationDropdown.classList.toggle("hidden");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                addComplianceModal.classList.remove("active");
-            });
+        // Enhance dropdown accessibility
+        if (userMenuDropdown) {
+            userMenuDropdown.setAttribute('role', 'menu');
+            userMenuDropdown.querySelectorAll('a').forEach(link => link.setAttribute('role', 'menuitem'));
+        }
 
-            userMenuBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
+        // Click handler
+        userMenuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (userMenuDropdown) {
                 userMenuDropdown.classList.toggle("hidden");
-                const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
-                userMenuBtn.setAttribute("aria-expanded", !expanded);
+                userMenuBtn.setAttribute('aria-expanded', userMenuDropdown.classList.contains('hidden') ? 'false' : 'true');
                 notificationDropdown.classList.add("hidden");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                addComplianceModal.classList.remove("active");
-            });
+                closeAllModals();
+                closeAllSidebarDropdowns(); // Close sidebar dropdowns when opening user menu
+            }
+        });
 
-            openSignOutBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                signOutModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                addComplianceModal.classList.remove("active");
-            });
+        // Keyboard handler
+        userMenuBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (userMenuDropdown) {
+                    userMenuDropdown.classList.toggle("hidden");
+                    userMenuBtn.setAttribute('aria-expanded', userMenuDropdown.classList.contains('hidden') ? 'false' : 'true');
+                    notificationDropdown.classList.add("hidden");
+                    closeAllModals();
+                    closeAllSidebarDropdowns();
+                }
+            }
+        });
+    }
 
-            openProfileBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                profileModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addComplianceModal.classList.remove("active");
-            });
+    function closeAllSidebarDropdowns(except = null) {
+        const dropdownToggles = document.querySelectorAll('.has-dropdown > div');
+        dropdownToggles.forEach((toggle) => {
+            if (toggle === except) return;
+            const menu = toggle.nextElementSibling;
+            const chev = toggle.querySelector('.bx-chevron-down');
+            if (menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+            if (chev) chev.classList.remove('rotate-180');
+        });
+    }
 
-            closeProfileBtn.addEventListener("click", () => {
-                profileModal.classList.remove("active");
-            });
-            closeProfileBtn2.addEventListener("click", () => {
-                profileModal.classList.remove("active");
-            });
+    // Global function for inline onclick handlers
+    window.toggleSidebarDropdown = function(el) {
+        if (!el) return;
+        const menu = el.nextElementSibling;
+        const chev = el.querySelector('.bx-chevron-down');
+        closeAllSidebarDropdowns(el);
+        if (menu) {
+            menu.classList.toggle('hidden');
+            el.setAttribute('aria-expanded', menu.classList.contains('hidden') ? 'false' : 'true');
+        }
+        if (chev) chev.classList.toggle('rotate-180');
+        // Close user menu and notification dropdown when sidebar dropdown is toggled
+        if (userMenuDropdown) userMenuDropdown.classList.add('hidden');
+        if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+        if (notificationDropdown) notificationDropdown.classList.add('hidden');
+    };
 
-            openAccountSettingsBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                accountSettingsModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addComplianceModal.classList.remove("active");
-            });
+    // Close dropdowns and user menu on outside click or Escape key
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest('.has-dropdown')) closeAllSidebarDropdowns();
+        if (!e.target.closest('#userMenuDropdown') && !e.target.closest('#userMenuBtn')) {
+            if (userMenuDropdown && !userMenuDropdown.classList.contains('hidden')) {
+                userMenuDropdown.classList.add('hidden');
+                if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+            }
+        }
+        if (!e.target.closest('#notificationDropdown') && !e.target.closest('#notificationBtn')) {
+            if (notificationDropdown && !notificationDropdown.classList.contains('hidden')) {
+                notificationDropdown.classList.add('hidden');
+            }
+        }
+    });
 
-            closeAccountSettingsBtn.addEventListener("click", () => {
-                accountSettingsModal.classList.remove("active");
-            });
-            cancelAccountSettingsBtn.addEventListener("click", () => {
-                accountSettingsModal.classList.remove("active");
-            });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllSidebarDropdowns();
+            if (userMenuDropdown && !userMenuDropdown.classList.contains('hidden')) {
+                userMenuDropdown.classList.add('hidden');
+                if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+            }
+            if (notificationDropdown && !notificationDropdown.classList.contains('hidden')) {
+                notificationDropdown.classList.add('hidden');
+            }
+            if (addComplianceModal && !addComplianceModal.classList.contains('hidden')) {
+                addComplianceModal.classList.add('hidden');
+                addComplianceModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+    });
 
-            openPrivacySecurityBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                privacySecurityModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addComplianceModal.classList.remove("active");
+    // Auto-expand sidebar dropdown based on URL
+    function autoExpandDropdowns() {
+        try {
+            const currentPath = window.location.pathname.replace(/\/$/, '');
+            const links = document.querySelectorAll('#sidebar .dropdown-menu a');
+            links.forEach((link) => {
+                let linkPath;
+                try {
+                    linkPath = new URL(link.href, window.location.origin).pathname;
+                } catch (_) {
+                    linkPath = link.getAttribute('href') || '';
+                }
+                if (linkPath) linkPath = linkPath.replace(/\/$/, '');
+                const isMatch = linkPath && (
+                    currentPath === linkPath ||
+                    currentPath.endsWith(linkPath) ||
+                    linkPath.endsWith(currentPath)
+                );
+                if (isMatch) {
+                    const menu = link.closest('.dropdown-menu');
+                    if (menu) {
+                        menu.classList.remove('hidden');
+                        const toggle = menu.previousElementSibling;
+                        if (toggle) {
+                            toggle.setAttribute('aria-expanded', 'true');
+                            const chev = toggle.querySelector('.bx-chevron-down');
+                            if (chev) chev.classList.add('rotate-180');
+                        }
+                    }
+                    link.classList.add('bg-white/30');
+                }
             });
+        } catch (err) {
+            console.error('Error in auto-expand dropdowns:', err);
+        }
+    }
 
-            closePrivacySecurityBtn.addEventListener("click", () => {
-                privacySecurityModal.classList.remove("active");
-            });
-            cancelPrivacySecurityBtn.addEventListener("click", () => {
-                privacySecurityModal.classList.remove("active");
-            });
+    // Sidebar and modal event listeners
+    if (overlay) {
+        overlay.addEventListener("click", () => {
+            sidebar.classList.add("-ml-72");
+            overlay.classList.add("hidden");
+            document.body.style.overflow = "";
+            mainContent.classList.remove("sidebar-open");
+            mainContent.classList.add("sidebar-closed");
+            closeAllSidebarDropdowns();
+            if (userMenuDropdown) userMenuDropdown.classList.add('hidden');
+            if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+            if (notificationDropdown) notificationDropdown.classList.add('hidden');
+        });
+    }
 
-            cancelSignOutBtn.addEventListener("click", () => {
-                signOutModal.classList.remove("active");
-            });
-            cancelSignOutBtn2.addEventListener("click", () => {
-                signOutModal.classList.remove("active");
-            });
+    if (toggleBtn) toggleBtn.addEventListener("click", toggleSidebar);
 
-            addComplianceBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
+    if (notificationBtn) {
+        notificationBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle("hidden");
+            if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+            if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+            closeAllModals();
+            closeAllSidebarDropdowns();
+        });
+    }
+
+    // Function to close all modals
+    function closeAllModals(except = null) {
+        const modals = [profileModal, accountSettingsModal, privacySecurityModal, signOutModal, addComplianceModal];
+        modals.forEach((modal) => {
+            if (modal && modal !== except && !modal.classList.contains('hidden')) {
+                modal.classList.add("hidden");
+                modal.classList.remove("active");
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
+    // Modal event listeners
+    if (openProfileBtn) {
+        openProfileBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            profileModal.classList.remove("hidden");
+            profileModal.classList.add("active");
+            if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+            if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+            closeAllModals(profileModal);
+            closeAllSidebarDropdowns();
+        });
+    }
+
+    if (closeProfileBtn) closeProfileBtn.addEventListener("click", () => closeModal(profileModal));
+    if (closeProfileBtn2) closeProfileBtn2.addEventListener("click", () => closeModal(profileModal));
+
+    if (openAccountSettingsBtn) {
+        openAccountSettingsBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            accountSettingsModal.classList.remove("hidden");
+            accountSettingsModal.classList.add("active");
+            if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+            if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+            closeAllModals(accountSettingsModal);
+            closeAllSidebarDropdowns();
+        });
+    }
+
+    if (closeAccountSettingsBtn) closeAccountSettingsBtn.addEventListener("click", () => closeModal(accountSettingsModal));
+    if (cancelAccountSettingsBtn) cancelAccountSettingsBtn.addEventListener("click", () => closeModal(accountSettingsModal));
+
+    if (openPrivacySecurityBtn) {
+        openPrivacySecurityBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            privacySecurityModal.classList.remove("hidden");
+            privacySecurityModal.classList.add("active");
+            if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+            if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+            closeAllModals(privacySecurityModal);
+            closeAllSidebarDropdowns();
+        });
+    }
+
+    if (closePrivacySecurityBtn) closePrivacySecurityBtn.addEventListener("click", () => closeModal(privacySecurityModal));
+    if (cancelPrivacySecurityBtn) cancelPrivacySecurityBtn.addEventListener("click", () => closeModal(privacySecurityModal));
+
+    if (openSignOutBtn) {
+        openSignOutBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            signOutModal.classList.remove("hidden");
+            signOutModal.classList.add("active");
+            if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+            if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+            closeAllModals(signOutModal);
+            closeAllSidebarDropdowns();
+        });
+    }
+
+    if (cancelSignOutBtn) cancelSignOutBtn.addEventListener("click", () => closeModal(signOutModal));
+    if (cancelSignOutBtn2) cancelSignOutBtn2.addEventListener("click", () => closeModal(signOutModal));
+
+    // Add New Compliance Modal
+    if (addComplianceBtn) {
+        addComplianceBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (addComplianceModal) {
+                addComplianceModal.classList.remove("hidden");
                 addComplianceModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-            });
+                document.body.style.overflow = 'hidden';
+                if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+                if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+                if (notificationDropdown) notificationDropdown.classList.add("hidden");
+                closeAllModals(addComplianceModal);
+                closeAllSidebarDropdowns();
+                const firstInput = addComplianceModal.querySelector('input');
+                if (firstInput) firstInput.focus();
+            }
+        });
+    }
 
-            closeAddComplianceModal.addEventListener("click", () => {
-                addComplianceModal.classList.remove("active");
-            });
-            cancelAddCompliance.addEventListener("click", () => {
-                addComplianceModal.classList.remove("active");
-            });
-            // Handle View/Edit/Delete buttons
-            const viewBtns = document.querySelectorAll('.viewComplianceBtn');
-            const editBtns = document.querySelectorAll('.editComplianceBtn');
-            const deleteBtns = document.querySelectorAll('.deleteComplianceBtn');
-            const viewComplianceModal = document.getElementById('viewComplianceModal');
-            const editComplianceModal = document.getElementById('editComplianceModal');
-            const deleteComplianceModal = document.getElementById('deleteComplianceModal');
-            const closeViewComplianceModal = document.getElementById('closeViewComplianceModal');
-            const closeViewComplianceModal2 = document.getElementById('closeViewComplianceModal2');
-            const closeEditComplianceModal = document.getElementById('closeEditComplianceModal');
-            const cancelEditCompliance = document.getElementById('cancelEditCompliance');
-            const closeDeleteComplianceModal = document.getElementById('closeDeleteComplianceModal');
-            const cancelDeleteCompliance = document.getElementById('cancelDeleteCompliance');
-            const confirmDeleteCompliance = document.getElementById('confirmDeleteCompliance');
+    if (closeAddComplianceModal) {
+        closeAddComplianceModal.addEventListener("click", () => closeModal(addComplianceModal));
+    }
+    if (cancelAddCompliance) {
+        cancelAddCompliance.addEventListener("click", () => closeModal(addComplianceModal));
+    }
 
-            function openViewModal(data) {
-                document.getElementById('viewComplianceCode').textContent = data.code;
-                document.getElementById('viewComplianceTitle').textContent = data.title;
-                document.getElementById('viewComplianceType').textContent = data.type;
-                document.getElementById('viewComplianceStatus').textContent = data.status;
-                document.getElementById('viewComplianceDueDate').textContent = data.dueDate;
-                document.getElementById('viewComplianceResponsible').textContent = data.responsible || 'Not assigned';
-                document.getElementById('viewCompliancePriority').textContent = data.priority || 'Medium';
-                document.getElementById('viewComplianceDescription').textContent = data.description || 'No description';
-                viewComplianceModal.classList.remove('hidden');
-                viewComplianceModal.classList.add('active');
+    // Helper function to close a modal
+    function closeModal(modal) {
+        if (modal) {
+            modal.classList.add("hidden");
+            modal.classList.remove("active");
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Add Compliance Form Submission
+    if (addComplianceForm) {
+        addComplianceForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            const title = document.getElementById('complianceTitle').value.trim();
+            const type = document.getElementById('complianceType').value;
+            const dueDate = document.getElementById('dueDate').value;
+
+            if (!title || !type || !dueDate) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Validation Error',
+                    text: 'Please fill in all required fields (Title, Type, Due Date).',
+                    confirmButtonColor: '#2f855a'
+                });
+                submitButton.disabled = false;
+                return;
             }
 
-            function openEditModal(data) {
-                document.getElementById('editComplianceId').value = data.id;
-                document.getElementById('editComplianceTitle').value = data.title;
-                document.getElementById('editComplianceType').value = data.type;
-                document.getElementById('editComplianceStatus').value = data.status;
-                document.getElementById('editComplianceDueDate').value = data.dueDate;
-                document.getElementById('editComplianceResponsible').value = data.responsible || '';
-                document.getElementById('editCompliancePriority').value = data.priority || 'medium';
-                document.getElementById('editComplianceDescription').value = data.description || '';
-                editComplianceModal.classList.remove('hidden');
-                editComplianceModal.classList.add('active');
-            }
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
 
-            function openDeleteModal(data) {
-                document.getElementById('deleteComplianceTitle').textContent = data.title;
-                deleteComplianceModal.classList.remove('hidden');
-                deleteComplianceModal.classList.add('active');
-            }
-
-            viewBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const d = e.currentTarget.dataset;
-                openViewModal({ 
-                    code: d.code, 
-                    title: d.title, 
-                    type: d.type, 
-                    status: d.status, 
-                    dueDate: d.dueDate,
-                    responsible: d.responsible,
-                    priority: d.priority,
-                    description: d.description
-                });
-            }));
-
-            editBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const d = e.currentTarget.dataset;
-                openEditModal({ 
-                    id: d.id, 
-                    title: d.title, 
-                    type: d.type, 
-                    status: d.status, 
-                    dueDate: d.dueDate,
-                    responsible: d.responsible,
-                    priority: d.priority,
-                    description: d.description
-                });
-            }));
-
-            deleteBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const d = e.currentTarget.dataset;
-                openDeleteModal({ id: d.id, title: d.title });
-            }));
-
-            // Close buttons for modals
-            closeViewComplianceModal.addEventListener('click', () => { viewComplianceModal.classList.remove('active'); viewComplianceModal.classList.add('hidden'); });
-            closeViewComplianceModal2.addEventListener('click', () => { viewComplianceModal.classList.remove('active'); viewComplianceModal.classList.add('hidden'); });
-            viewComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
-
-            closeEditComplianceModal.addEventListener('click', () => { editComplianceModal.classList.remove('active'); editComplianceModal.classList.add('hidden'); });
-            cancelEditCompliance.addEventListener('click', () => { editComplianceModal.classList.remove('active'); editComplianceModal.classList.add('hidden'); });
-            editComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
-
-            closeDeleteComplianceModal.addEventListener('click', () => { deleteComplianceModal.classList.remove('active'); deleteComplianceModal.classList.add('hidden'); });
-            cancelDeleteCompliance.addEventListener('click', () => { deleteComplianceModal.classList.remove('active'); deleteComplianceModal.classList.add('hidden'); });
-            deleteComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
-
-            // Submit handlers
-            document.getElementById('editComplianceForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const data = Object.fromEntries(formData.entries());
-                data.id = document.getElementById('editComplianceId').value;
-
-                const resp = await fetch('{{ route('compliance.update') }}', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams(data)
-                });
-                const result = await resp.json();
-                if (result.success) {
-                    // Close modal first
-                    editComplianceModal.classList.remove('active');
-                    editComplianceModal.classList.add('hidden');
-                    
-                    // Reload data from server
-                    await loadComplianceData();
-                    
-                    Swal.fire({ 
-                        icon: 'success', 
-                        title: 'Updated', 
-                        text: 'Compliance updated successfully.', 
-                        confirmButtonColor: '#2f855a' 
-                    });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Failed', text: 'Update failed.', confirmButtonColor: '#2f855a' });
-                }
-            });
-
-            confirmDeleteCompliance.addEventListener('click', async () => {
-                const id = document.getElementById('deleteComplianceTitle').closest('.modal').querySelector('[data-id]')?.dataset?.id;
-                if (!id) return;
-
-                const resp = await fetch('{{ route('compliance.delete') }}', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ id })
-                });
-                const result = await resp.json();
-                if (result.success) {
-                    // Close modal first
-                    deleteComplianceModal.classList.remove('active');
-                    deleteComplianceModal.classList.add('hidden');
-                    
-                    // Reload data from server
-                    await loadComplianceData();
-                    
-                    Swal.fire({ 
-                        icon: 'success', 
-                        title: 'Deleted', 
-                        text: 'Compliance deleted successfully.', 
-                        confirmButtonColor: '#2f855a' 
-                    });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Failed', text: 'Delete failed.', confirmButtonColor: '#2f855a' });
-                }
-            });
-
-            addComplianceForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const data = Object.fromEntries(formData.entries());
-
-                console.log('Submitting compliance data:', data);
-
+            try {
                 const resp = await fetch('{{ route('compliance.create') }}', {
                     method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
                     body: new URLSearchParams(data)
                 });
-                
-                console.log('Response status:', resp.status);
+
                 const result = await resp.json();
-                console.log('Response data:', result);
-                
-                if (result.success) {
-                    // Store in localStorage as backup
+                if (result.success && result.compliance) {
                     storeComplianceInBackup(result.compliance);
-                    
-                    // Close modal and reset form first
-                    addComplianceModal.classList.remove("active");
                     addComplianceModal.classList.add("hidden");
+                    addComplianceModal.classList.remove("active");
+                    document.body.style.overflow = '';
                     addComplianceForm.reset();
-                    
-                    // Reload data from server to get fresh data
-                    await loadComplianceData();
-                    
+                    addComplianceToTable(result.compliance);
+                    updateStats();
+
                     Swal.fire({
                         icon: 'success',
                         title: 'Compliance Added',
@@ -1525,254 +1774,460 @@ $user = auth()->user();
                         confirmButtonColor: '#2f855a'
                     });
                 } else {
-                    console.error('Failed to create compliance:', result);
-                    Swal.fire({ 
-                        icon: 'error', 
-                        title: 'Failed', 
-                        text: result.message || 'Failed to add compliance.', 
-                        confirmButtonColor: '#2f855a' 
-                    });
+                    throw new Error(result.message || 'Failed to add compliance.');
                 }
-            });
-
-            // Function to store data in localStorage as backup (for offline scenarios)
-            function storeComplianceInBackup(compliance) {
-                const existingData = JSON.parse(localStorage.getItem('compliance_backup') || '[]');
-                existingData.push(compliance);
-                localStorage.setItem('compliance_backup', JSON.stringify(existingData));
-            }
-
-
-            // Function to attach event listeners to all table buttons
-            function attachEventListenersToTable() {
-                // Remove existing listeners and add new ones
-                const viewBtns = document.querySelectorAll('.viewComplianceBtn');
-                const editBtns = document.querySelectorAll('.editComplianceBtn');
-                const deleteBtns = document.querySelectorAll('.deleteComplianceBtn');
-
-                viewBtns.forEach(btn => {
-                    // Remove any existing listeners
-                    btn.replaceWith(btn.cloneNode(true));
-                });
-
-                editBtns.forEach(btn => {
-                    btn.replaceWith(btn.cloneNode(true));
-                });
-
-                deleteBtns.forEach(btn => {
-                    btn.replaceWith(btn.cloneNode(true));
-                });
-
-                // Re-query and attach listeners
-                const newViewBtns = document.querySelectorAll('.viewComplianceBtn');
-                const newEditBtns = document.querySelectorAll('.editComplianceBtn');
-                const newDeleteBtns = document.querySelectorAll('.deleteComplianceBtn');
-
-                newViewBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const d = e.currentTarget.dataset;
-                    openViewModal({ 
-                        code: d.code, 
-                        title: d.title, 
-                        type: d.type, 
-                        status: d.status, 
-                        dueDate: d.dueDate,
-                        responsible: d.responsible,
-                        priority: d.priority,
-                        description: d.description
-                    });
-                }));
-
-                newEditBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const d = e.currentTarget.dataset;
-                    openEditModal({ 
-                        id: d.id, 
-                        title: d.title, 
-                        type: d.type, 
-                        status: d.status, 
-                        dueDate: d.dueDate,
-                        responsible: d.responsible,
-                        priority: d.priority,
-                        description: d.description
-                    });
-                }));
-
-                newDeleteBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const d = e.currentTarget.dataset;
-                    openDeleteModal({ id: d.id, title: d.title });
-                }));
-            }
-
-            // Function to load data from server
-            async function loadComplianceData() {
-                try {
-                    const resp = await fetch('{{ route('document.compliance.tracking') }}', {
-                        method: 'GET',
-                        headers: { 'Accept': 'text/html' }
-                    });
-                    
-                    if (resp.ok) {
-                        const html = await resp.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-                        const newTableBody = doc.querySelector('tbody');
-                        
-                        if (newTableBody) {
-                            const currentTableBody = document.querySelector('tbody');
-                            currentTableBody.innerHTML = newTableBody.innerHTML;
-                            
-                            // Re-attach event listeners to all buttons
-                            attachEventListenersToTable();
-                            
-                            // Update stats
-                            updateStatsFromServer(doc);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error loading compliance data:', error);
-                    // Fallback to localStorage if server fails
-                    loadBackupData();
-                }
-            }
-
-            // Function to update stats from server response
-            function updateStatsFromServer(doc) {
-                const statsCards = doc.querySelectorAll('.dashboard-card');
-                const currentStatsCards = document.querySelectorAll('.dashboard-card');
-                
-                if (statsCards.length === currentStatsCards.length) {
-                    statsCards.forEach((card, index) => {
-                        const statValue = card.querySelector('.font-extrabold');
-                        if (statValue && currentStatsCards[index]) {
-                            const currentStatValue = currentStatsCards[index].querySelector('.font-extrabold');
-                            if (currentStatValue) {
-                                currentStatValue.textContent = statValue.textContent;
-                            }
-                        }
-                    });
-                }
-            }
-
-            // Function to load backup data from localStorage (fallback only)
-            function loadBackupData() {
-                const backupData = JSON.parse(localStorage.getItem('compliance_backup') || '[]');
-                console.log('Loading backup data:', backupData);
-                
-                if (backupData.length > 0) {
-                    const tbody = document.querySelector('tbody');
-                    const emptyRow = tbody.querySelector('tr td[colspan="6"]');
-                    if (emptyRow) {
-                        emptyRow.closest('tr').remove();
-                    }
-                    
-                    backupData.forEach(compliance => {
-                        addComplianceToTable(compliance);
-                    });
-                }
-            }
-
-            // Initialize data loading when page loads
-            document.addEventListener('DOMContentLoaded', function() {
-                // First attach event listeners to existing elements
-                attachEventListenersToTable();
-                
-                // Then load fresh data from server
-                loadComplianceData();
-            addComplianceForm.addEventListener("submit", (e) => {
-                e.preventDefault();
-                addComplianceModal.classList.remove("active");
+            } catch (error) {
+                console.error('Error adding compliance:', error);
                 Swal.fire({
-                    icon: 'success',
-                    title: 'Compliance Added',
-                    text: 'The compliance has been added successfully.',
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'An error occurred while adding the compliance.',
                     confirmButtonColor: '#2f855a'
                 });
-            });
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+    }
 
-            window.addEventListener("click", (e) => {
-                if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                    notificationDropdown.classList.add("hidden");
-                }
-                if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                    userMenuDropdown.classList.add("hidden");
-                    userMenuBtn.setAttribute("aria-expanded", "false");
-                }
-                if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
-                    profileModal.classList.remove("active");
-                }
-                if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
-                    accountSettingsModal.classList.remove("active");
-                }
-                if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
-                    privacySecurityModal.classList.remove("active");
-                }
-                if (!signOutModal.contains(e.target)) {
-                    signOutModal.classList.remove("active");
-                }
-                if (!addComplianceModal.contains(e.target) && !addComplianceBtn.contains(e.target)) {
-                    addComplianceModal.classList.remove("active");
-                }
-            });
+    // Function to add compliance to table dynamically
+    function addComplianceToTable(compliance) {
+        const tbody = document.querySelector('tbody');
+        const emptyRow = tbody.querySelector('tr td[colspan="6"]');
+        if (emptyRow) emptyRow.closest('tr').remove();
 
-            profileModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            accountSettingsModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            privacySecurityModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            signOutModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            addComplianceModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
+        const today = new Date();
+        const dueDate = new Date(compliance.due_date);
+        const daysUntilDue = Math.round((dueDate - today) / (1000 * 60 * 60 * 24));
+        const daysText = daysUntilDue > 0 ? `in ${daysUntilDue} days` : (daysUntilDue === 0 ? 'today' : `${Math.abs(daysUntilDue)} days overdue`);
 
-            window.addEventListener("resize", () => {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove("-ml-72");
-                    overlay.classList.add("hidden");
-                    document.body.style.overflow = "";
-                    if (!mainContent.classList.contains("md:ml-72")) {
-                        mainContent.classList.add("md:ml-72", "sidebar-open");
-                        mainContent.classList.remove("sidebar-closed");
-                    }
+        const statusClasses = {
+            active: 'bg-green-100 text-green-800',
+            pending: 'bg-yellow-100 text-yellow-800',
+            overdue: 'bg-red-100 text-red-800',
+            completed: 'bg-blue-100 text-blue-800'
+        }[compliance.status] || 'bg-gray-100 text-gray-800';
+
+        const tr = document.createElement('tr');
+        tr.className = 'table-row';
+        tr.dataset.id = compliance.id;
+        tr.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${compliance.code || 'CPL-' + compliance.id}</div>
+                <div class="text-xs text-gray-500">Created: ${new Date(compliance.created_at).toISOString().split('T')[0]}</div>
+            </td>
+            <td class="px-6 py-4">
+                <div class="text-sm font-medium text-gray-900">${compliance.title}</div>
+                <div class="text-xs text-gray-500">${compliance.description ? compliance.description.substring(0, 50) + (compliance.description.length > 50 ? '...' : '') : 'No description'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">${compliance.type.charAt(0).toUpperCase() + compliance.type.slice(1)}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${compliance.due_date.split('T')[0]}</div>
+                <div class="text-xs text-gray-500">${daysText}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses}">${compliance.status.charAt(0).toUpperCase() + compliance.status.slice(1)}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <a href="#" class="viewComplianceBtn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View" 
+                   data-id="${compliance.id}" data-code="${compliance.code || 'CPL-' + compliance.id}" 
+                   data-title="${compliance.title}" data-type="${compliance.type.charAt(0).toUpperCase() + compliance.type.slice(1)}" 
+                   data-status="${compliance.status.charAt(0).toUpperCase() + compliance.status.slice(1)}" 
+                   data-due-date="${compliance.due_date.split('T')[0]}" 
+                   data-description="${compliance.description || ''}" 
+                   data-responsible="${compliance.responsible_person || ''}" 
+                   data-priority="${compliance.priority || 'Medium'}"><i class="fas fa-eye"></i></a>
+                <a href="#" class="editComplianceBtn text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit" 
+                   data-id="${compliance.id}" data-title="${compliance.title}" 
+                   data-type="${compliance.type}" data-status="${compliance.status}" 
+                   data-due-date="${compliance.due_date.split('T')[0]}" 
+                   data-description="${compliance.description || ''}" 
+                   data-responsible="${compliance.responsible_person || ''}" 
+                   data-priority="${compliance.priority || 'Medium'}"><i class="fas fa-edit"></i></a>
+                <a href="#" class="deleteComplianceBtn text-red-600 hover:text-red-900" data-tooltip="Delete" 
+                   data-id="${compliance.id}" data-title="${compliance.title}"><i class="fas fa-trash"></i></a>
+            </td>
+        `;
+        tbody.insertBefore(tr, tbody.firstChild);
+        attachEventListenersToTable();
+    }
+
+    // Function to update stats
+    function updateStats() {
+        const tbody = document.querySelector('tbody');
+        const rows = tbody.querySelectorAll('tr.table-row');
+        let activeCount = 0;
+        let pendingCount = 0;
+
+        rows.forEach(row => {
+            const status = row.querySelector('td:nth-child(5) span').textContent.toLowerCase();
+            if (status === 'active' || status === 'on track') activeCount++;
+            if (status === 'pending') pendingCount++;
+        });
+
+        const activeStat = document.querySelector('.dashboard-card:nth-child(1) .font-extrabold');
+        const pendingStat = document.querySelector('.dashboard-card:nth-child(2) .font-extrabold');
+        if (activeStat) activeStat.textContent = activeCount;
+        if (pendingStat) pendingStat.textContent = pendingCount;
+    }
+
+    // Store compliance in localStorage as backup
+    function storeComplianceInBackup(compliance) {
+        const existingData = JSON.parse(localStorage.getItem('compliance_backup') || '[]');
+        existingData.push(compliance);
+        localStorage.setItem('compliance_backup', JSON.stringify(existingData));
+    }
+
+    // Handle View/Edit/Delete buttons
+    const viewComplianceModal = document.getElementById('viewComplianceModal');
+    const editComplianceModal = document.getElementById('editComplianceModal');
+    const deleteComplianceModal = document.getElementById('deleteComplianceModal');
+    const closeViewComplianceModal = document.getElementById('closeViewComplianceModal');
+    const closeViewComplianceModal2 = document.getElementById('closeViewComplianceModal2');
+    const closeEditComplianceModal = document.getElementById('closeEditComplianceModal');
+    const cancelEditCompliance = document.getElementById('cancelEditCompliance');
+    const closeDeleteComplianceModal = document.getElementById('closeDeleteComplianceModal');
+    const cancelDeleteCompliance = document.getElementById('cancelDeleteCompliance');
+    const confirmDeleteCompliance = document.getElementById('confirmDeleteCompliance');
+
+    function openViewModal(data) {
+        document.getElementById('viewComplianceCode').textContent = data.code;
+        document.getElementById('viewComplianceTitle').textContent = data.title;
+        document.getElementById('viewComplianceType').textContent = data.type;
+        document.getElementById('viewComplianceStatus').textContent = data.status;
+        document.getElementById('viewComplianceDueDate').textContent = data.dueDate;
+        document.getElementById('viewComplianceResponsible').textContent = data.responsible || 'Not assigned';
+        document.getElementById('viewCompliancePriority').textContent = data.priority || 'Medium';
+        document.getElementById('viewComplianceDescription').textContent = data.description || 'No description';
+        viewComplianceModal.classList.remove('hidden');
+        viewComplianceModal.classList.add('active');
+    }
+
+    function openEditModal(data) {
+        document.getElementById('editComplianceId').value = data.id;
+        document.getElementById('editComplianceTitle').value = data.title;
+        document.getElementById('editComplianceType').value = data.type.toLowerCase();
+        document.getElementById('editComplianceStatus').value = data.status.toLowerCase();
+        document.getElementById('editComplianceDueDate').value = data.dueDate;
+        document.getElementById('editComplianceResponsible').value = data.responsible || '';
+        document.getElementById('editCompliancePriority').value = data.priority.toLowerCase() || 'medium';
+        document.getElementById('editComplianceDescription').value = data.description || '';
+        editComplianceModal.classList.remove('hidden');
+        editComplianceModal.classList.add('active');
+    }
+
+    function openDeleteModal(data) {
+        document.getElementById('deleteComplianceTitle').textContent = data.title;
+        deleteComplianceModal.classList.remove('hidden');
+        deleteComplianceModal.classList.add('active');
+    }
+
+    function attachEventListenersToTable() {
+        const viewBtns = document.querySelectorAll('.viewComplianceBtn');
+        const editBtns = document.querySelectorAll('.editComplianceBtn');
+        const deleteBtns = document.querySelectorAll('.deleteComplianceBtn');
+
+        viewBtns.forEach(btn => {
+            btn.replaceWith(btn.cloneNode(true));
+        });
+        editBtns.forEach(btn => {
+            btn.replaceWith(btn.cloneNode(true));
+        });
+        deleteBtns.forEach(btn => {
+            btn.replaceWith(btn.cloneNode(true));
+        });
+
+        const newViewBtns = document.querySelectorAll('.viewComplianceBtn');
+        const newEditBtns = document.querySelectorAll('.editComplianceBtn');
+        const newDeleteBtns = document.querySelectorAll('.deleteComplianceBtn');
+
+        newViewBtns.forEach(btn => btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const d = e.currentTarget.dataset;
+            openViewModal({
+                code: d.code,
+                title: d.title,
+                type: d.type,
+                status: d.status,
+                dueDate: d.dueDate,
+                responsible: d.responsible,
+                priority: d.priority,
+                description: d.description
+            });
+        }));
+
+        newEditBtns.forEach(btn => btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const d = e.currentTarget.dataset;
+            openEditModal({
+                id: d.id,
+                title: d.title,
+                type: d.type,
+                status: d.status,
+                dueDate: d.dueDate,
+                responsible: d.responsible,
+                priority: d.priority,
+                description: d.description
+            });
+        }));
+
+        newDeleteBtns.forEach(btn => btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const d = e.currentTarget.dataset;
+            openDeleteModal({ id: d.id, title: d.title });
+        }));
+    }
+
+    // Modal close handlers
+    if (closeViewComplianceModal) closeViewComplianceModal.addEventListener('click', () => closeModal(viewComplianceModal));
+    if (closeViewComplianceModal2) closeViewComplianceModal2.addEventListener('click', () => closeModal(viewComplianceModal));
+    if (viewComplianceModal) viewComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+
+    if (closeEditComplianceModal) closeEditComplianceModal.addEventListener('click', () => closeModal(editComplianceModal));
+    if (cancelEditCompliance) cancelEditCompliance.addEventListener('click', () => closeModal(editComplianceModal));
+    if (editComplianceModal) editComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+
+    if (closeDeleteComplianceModal) closeDeleteComplianceModal.addEventListener('click', () => closeModal(deleteComplianceModal));
+    if (cancelDeleteCompliance) cancelDeleteCompliance.addEventListener('click', () => closeModal(deleteComplianceModal));
+    if (deleteComplianceModal) deleteComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+
+    // Edit and Delete form submissions
+    if (document.getElementById('editComplianceForm')) {
+        document.getElementById('editComplianceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.id = document.getElementById('editComplianceId').value;
+
+            try {
+                const resp = await fetch('{{ route('compliance.update') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams(data)
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    closeModal(editComplianceModal);
+                    await loadComplianceData();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated',
+                        text: 'Compliance updated successfully.',
+                        confirmButtonColor: '#2f855a'
+                    });
                 } else {
-                    sidebar.classList.add("-ml-72");
-                    mainContent.classList.remove("md:ml-72", "sidebar-open");
-                    mainContent.classList.add("sidebar-closed");
-                    overlay.classList.add("hidden");
-                    document.body.style.overflow = "";
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: result.message || 'Update failed.',
+                        confirmButtonColor: '#2f855a'
+                    });
                 }
-                closeAllDropdowns();
-            });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while updating the compliance.',
+                    confirmButtonColor: '#2f855a'
+                });
+            }
+        });
+    }
 
-            tooltipTriggers.forEach(trigger => {
-                trigger.addEventListener('mouseenter', e => {
-                    const tooltip = document.createElement('div');
-                    tooltip.className = 'absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg';
-                    tooltip.textContent = e.target.dataset.tooltip;
-                    document.body.appendChild(tooltip);
-                    const rect = e.target.getBoundingClientRect();
-                    tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
-                    tooltip.style.left = `${rect.left + window.scrollX}px`;
-                    e.target._tooltip = tooltip;
+    if (confirmDeleteCompliance) {
+        confirmDeleteCompliance.addEventListener('click', async () => {
+            const id = document.getElementById('deleteComplianceTitle').closest('.modal').querySelector('[data-id]')?.dataset?.id;
+            if (!id) return;
+
+            try {
+                const resp = await fetch('{{ route('compliance.delete') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams({ id })
                 });
-                trigger.addEventListener('mouseleave', e => {
-                    if (e.target._tooltip) {
-                        e.target._tooltip.remove();
-                        delete e.target._tooltip;
-                    }
+                const result = await resp.json();
+                if (result.success) {
+                    closeModal(deleteComplianceModal);
+                    await loadComplianceData();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted',
+                        text: 'Compliance deleted successfully.',
+                        confirmButtonColor: '#2f855a'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: result.message || 'Delete failed.',
+                        confirmButtonColor: '#2f855a'
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while deleting the compliance.',
+                    confirmButtonColor: '#2f855a'
                 });
+            }
+        });
+    }
+
+    // Load compliance data
+    async function loadComplianceData() {
+        try {
+            const resp = await fetch('{{ route('document.compliance.tracking') }}', {
+                method: 'GET',
+                headers: { 'Accept': 'text/html' }
+            });
+            if (resp.ok) {
+                const html = await resp.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newTableBody = doc.querySelector('tbody');
+                if (newTableBody) {
+                    const currentTableBody = document.querySelector('tbody');
+                    currentTableBody.innerHTML = newTableBody.innerHTML;
+                    attachEventListenersToTable();
+                    updateStatsFromServer(doc);
+                }
+            }
+        } catch (error) {
+            console.error('Error loading compliance data:', error);
+            loadBackupData();
+        }
+    }
+
+    function updateStatsFromServer(doc) {
+        const statsCards = doc.querySelectorAll('.dashboard-card');
+        const currentStatsCards = document.querySelectorAll('.dashboard-card');
+        if (statsCards.length === currentStatsCards.length) {
+            statsCards.forEach((card, index) => {
+                const statValue = card.querySelector('.font-extrabold');
+                if (statValue && currentStatsCards[index]) {
+                    const currentStatValue = currentStatsCards[index].querySelector('.font-extrabold');
+                    if (currentStatValue) currentStatValue.textContent = statValue.textContent;
+                }
+            });
+        }
+    }
+
+    function loadBackupData() {
+        const backupData = JSON.parse(localStorage.getItem('compliance_backup') || '[]');
+        if (backupData.length > 0) {
+            const tbody = document.querySelector('tbody');
+            const emptyRow = tbody.querySelector('tr td[colspan="6"]');
+            if (emptyRow) emptyRow.closest('tr').remove();
+            backupData.forEach(compliance => addComplianceToTable(compliance));
+        }
+    }
+
+    // Initialize compliance tracking
+    function initComplianceTracking() {
+        bindDropdownListeners();
+        bindUserMenuListeners();
+        autoExpandDropdowns();
+        attachEventListenersToTable();
+        loadComplianceData();
+
+        // Close modals and dropdowns on outside click
+        window.addEventListener("click", (e) => {
+            if (!e.target.closest('#notificationDropdown') && !e.target.closest('#notificationBtn')) {
+                if (notificationDropdown) notificationDropdown.classList.add("hidden");
+            }
+            if (!e.target.closest('#userMenuDropdown') && !e.target.closest('#userMenuBtn')) {
+                if (userMenuDropdown) userMenuDropdown.classList.add("hidden");
+                if (userMenuBtn) userMenuBtn.setAttribute("aria-expanded", "false");
+            }
+            if (!e.target.closest('#profileModal') && !e.target.closest('#openProfileBtn')) {
+                closeModal(profileModal);
+            }
+            if (!e.target.closest('#accountSettingsModal') && !e.target.closest('#openAccountSettingsBtn')) {
+                closeModal(accountSettingsModal);
+            }
+            if (!e.target.closest('#privacySecurityModal') && !e.target.closest('#openPrivacySecurityBtn')) {
+                closeModal(privacySecurityModal);
+            }
+            if (!e.target.closest('#signOutModal') && !e.target.closest('#openSignOutBtn')) {
+                closeModal(signOutModal);
+            }
+            if (!e.target.closest('#addComplianceModal') && !e.target.closest('#addComplianceBtn')) {
+                closeModal(addComplianceModal);
+            }
+        });
+
+        // Stop propagation for modal content
+        [profileModal, accountSettingsModal, privacySecurityModal, signOutModal, addComplianceModal].forEach(modal => {
+            if (modal) {
+                const content = modal.querySelector("div");
+                if (content) content.addEventListener("click", (e) => e.stopPropagation());
+            }
+        });
+
+        // Resize handler
+        window.addEventListener("resize", () => {
+            if (window.innerWidth >= 768) {
+                sidebar.classList.remove("-ml-72");
+                overlay.classList.add("hidden");
+                document.body.style.overflow = "";
+                mainContent.classList.add("md:ml-72", "sidebar-open");
+                mainContent.classList.remove("sidebar-closed");
+            } else {
+                sidebar.classList.add("-ml-72");
+                mainContent.classList.remove("md:ml-72", "sidebar-open");
+                mainContent.classList.add("sidebar-closed");
+                overlay.classList.add("hidden");
+                document.body.style.overflow = "";
+            }
+            closeAllSidebarDropdowns();
+            if (userMenuDropdown) userMenuDropdown.classList.add('hidden');
+            if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+            if (notificationDropdown) notificationDropdown.classList.add('hidden');
+        });
+
+        // Tooltip handlers
+        tooltipTriggers.forEach(trigger => {
+            trigger.addEventListener('mouseenter', e => {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg';
+                tooltip.textContent = e.target.dataset.tooltip;
+                document.body.appendChild(tooltip);
+                const rect = e.target.getBoundingClientRect();
+                tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
+                tooltip.style.left = `${rect.left + window.scrollX}px`;
+                e.target._tooltip = tooltip;
+            });
+            trigger.addEventListener('mouseleave', e => {
+                if (e.target._tooltip) {
+                    e.target._tooltip.remove();
+                    delete e.target._tooltip;
+                }
             });
         });
-    </script>
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initComplianceTracking);
+    } else {
+        initComplianceTracking();
+    }
+});
+</script>
 </body>
 </html>

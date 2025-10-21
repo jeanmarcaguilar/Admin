@@ -177,6 +177,323 @@ $user = auth()->user();
             </div>
         </div>
     </nav>
+    <script>
+      if (typeof window.toggleUserMenu !== 'function') {
+        window.toggleUserMenu = function(ev){
+          try{
+            if(ev && ev.stopPropagation) ev.stopPropagation();
+            var btn=document.getElementById('userMenuBtn');
+            var menu=document.getElementById('userMenuDropdown');
+            var notif=document.getElementById('notificationDropdown');
+            if(menu){ menu.classList.toggle('hidden'); }
+            if(btn){ var ex=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', (!ex).toString()); }
+            if(notif){ notif.classList.add('hidden'); }
+          }catch(e){}
+        };
+      }
+      if (typeof window.toggleNotification !== 'function') {
+        window.toggleNotification = function(ev){
+          try{
+            if(ev && ev.stopPropagation) ev.stopPropagation();
+            var nb=document.getElementById('notificationBtn');
+            var nd=document.getElementById('notificationDropdown');
+            var ud=document.getElementById('userMenuDropdown');
+            if(nd){ nd.classList.toggle('hidden'); }
+            if(nb){ var ex=nb.getAttribute('aria-expanded')==='true'; nb.setAttribute('aria-expanded',(!ex).toString()); }
+            if(ud){ ud.classList.add('hidden'); }
+            var ub=document.getElementById('userMenuBtn'); if(ub){ ub.setAttribute('aria-expanded','false'); }
+          }catch(e){}
+        };
+      }
+      if (!window.__contractMenusBound) {
+        window.__contractMenusBound = true;
+        document.addEventListener('click', function(e){
+          var ud=document.getElementById('userMenuDropdown');
+          var ub=document.getElementById('userMenuBtn');
+          var nd=document.getElementById('notificationDropdown');
+          var nb=document.getElementById('notificationBtn');
+          var clickInsideUser = (ub && (ub.contains(e.target) || (ud && ud.contains(e.target))));
+          var clickInsideNotif = (nb && (nb.contains(e.target) || (nd && nd.contains(e.target))));
+          if(!clickInsideUser && !clickInsideNotif){
+            if(ud){ ud.classList.add('hidden'); }
+            if(nd){ nd.classList.add('hidden'); }
+            if(ub){ ub.setAttribute('aria-expanded','false'); }
+            if(nb){ nb.setAttribute('aria-expanded','false'); }
+          }
+        });
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){
+          var ud=document.getElementById('userMenuDropdown');
+          var nd=document.getElementById('notificationDropdown');
+          var ub=document.getElementById('userMenuBtn');
+          var nb=document.getElementById('notificationBtn');
+          if(ud){ ud.classList.add('hidden'); }
+          if(nd){ nd.classList.add('hidden'); }
+          if(ub){ ub.setAttribute('aria-expanded','false'); }
+          if(nb){ nb.setAttribute('aria-expanded','false'); }
+        }});
+        var nb=document.getElementById('notificationBtn');
+        if(nb){ nb.addEventListener('click', function(e){ if(window.toggleNotification) window.toggleNotification(e); }); }
+        var ub=document.getElementById('userMenuBtn');
+        if(ub){ ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); }); }
+      }
+    </script>
+    <script>
+      if (typeof window.openProfileModal !== 'function') {
+        window.openProfileModal = function(){
+          var m=document.getElementById('profileModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closeProfileModal !== 'function') {
+        window.closeProfileModal = function(){
+          var m=document.getElementById('profileModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+      if (typeof window.openAccountSettingsModal !== 'function') {
+        window.openAccountSettingsModal = function(){
+          var m=document.getElementById('accountSettingsModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closeAccountSettingsModal !== 'function') {
+        window.closeAccountSettingsModal = function(){
+          var m=document.getElementById('accountSettingsModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+      if (typeof window.openPrivacySecurityModal !== 'function') {
+        window.openPrivacySecurityModal = function(){
+          var m=document.getElementById('privacySecurityModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closePrivacySecurityModal !== 'function') {
+        window.closePrivacySecurityModal = function(){
+          var m=document.getElementById('privacySecurityModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+      if (typeof window.openSignOutModal !== 'function') {
+        window.openSignOutModal = function(){
+          var m=document.getElementById('signOutModal'); if(!m) return;
+          m.classList.add('active'); m.classList.remove('hidden'); m.style.display='flex';
+          var d=document.getElementById('userMenuDropdown'); if(d) d.classList.add('hidden');
+          var b=document.getElementById('userMenuBtn'); if(b) b.setAttribute('aria-expanded','false');
+        };
+      }
+      if (typeof window.closeSignOutModal !== 'function') {
+        window.closeSignOutModal = function(){
+          var m=document.getElementById('signOutModal'); if(!m) return;
+          m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
+        };
+      }
+    </script>
+
+    <!-- User Menu Dropdown (moved outside main content to avoid clipping) -->
+    <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
+        <div class="py-4 px-6 border-b border-gray-100 text-center">
+            <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                <i class="fas fa-user-circle text-3xl"></i>
+            </div>
+            <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+            <p class="text-xs text-gray-400">Administrator</p>
+        </div>
+        <ul class="text-sm text-gray-700">
+            <li><button id="openProfileBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openProfileModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+            <li><button id="openAccountSettingsBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openAccountSettingsModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
+            <li><button id="openPrivacySecurityBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openPrivacySecurityModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
+            <li><button id="openSignOutBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openSignOutModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+        </ul>
+    </div>
+
+    <!-- Profile Modal (moved) -->
+    <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
+                <button id="closeProfileBtn" onclick="closeProfileModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8">
+                <div class="flex flex-col items-center mb-4">
+                    <div class="bg-[#28644c] rounded-full w-20 h-20 flex items-center justify-center mb-3">
+                        <i class="fas fa-user text-white text-3xl"></i>
+                    </div>
+                    <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
+                    <p class="text-xs text-gray-500 leading-4">Administrator</p>
+                </div>
+                <form class="space-y-4">
+                    <div>
+                        <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+                        <input id="emailProfile" type="email" readonly value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
+                        <input id="phone" type="text" readonly value="+1234567890" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                    </div>
+                    <div>
+                        <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
+                        <input id="department" type="text" readonly value="Administrative" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                    </div>
+                    <div>
+                        <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
+                        <input id="location" type="text" readonly value="Manila, Philippines" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                    </div>
+                    <div>
+                        <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
+                        <input id="joined" type="text" readonly value="{{ $user->created_at->format('F d, Y') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
+                    </div>
+                    <div class="flex justify-end pt-2">
+                        <button id="closeProfileBtn2" onclick="closeProfileModal()" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Settings Modal (moved) -->
+    <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="account-settings-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings</h3>
+                <button id="closeAccountSettingsBtn" onclick="closeAccountSettingsModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8">
+                <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div>
+                        <label for="username" class="block mb-1 font-semibold">Username</label>
+                        <input id="username" name="username" type="text" value="{{ $user->name }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                    </div>
+                    <div>
+                        <label for="emailAccount" class="block mb-1 font-semibold">Email</label>
+                        <input id="emailAccount" name="email" type="email" value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                    </div>
+                    <div>
+                        <label for="language" class="block mb-1 font-semibold">Language</label>
+                        <select id="language" name="language" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                            <option selected>English</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="timezone" class="block mb-1 font-semibold">Time Zone</label>
+                        <select id="timezone" name="timezone" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                            <option selected>Philippine Time (GMT+8)</option>
+                        </select>
+                    </div>
+                    <fieldset class="space-y-1">
+                        <legend class="font-semibold text-xs mb-1">Notifications</legend>
+                        <div class="flex items-center space-x-2">
+                            <input id="email-notifications" name="email_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                            <label for="email-notifications" class="text-xs">Email notifications</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input id="browser-notifications" name="browser_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                            <label for="browser-notifications" class="text-xs">Browser notifications</label>
+                        </div>
+                    </fieldset>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" id="cancelAccountSettingsBtn" onclick="closeAccountSettingsModal()" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                        <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy & Security Modal (moved) -->
+    <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="privacy-security-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy & Security</h3>
+                <button id="closePrivacySecurityBtn" onclick="closePrivacySecurityModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8">
+                <form action="{{ route('profile.update') }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <fieldset>
+                        <legend class="font-semibold mb-2 select-none">Change Password</legend>
+                        <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
+                        <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="current-password" name="current_password" type="password"/>
+                        <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
+                        <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="new-password" name="new_password" type="password"/>
+                        <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
+                        <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="confirm-password" name="confirm_password" type="password"/>
+                    </fieldset>
+                    <fieldset>
+                        <legend class="font-semibold mb-1 select-none">Two-Factor Authentication</legend>
+                        <p class="text-[10px] mb-1 select-none">Enhance your account security</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] text-[#2f855A] font-semibold select-none">Status: Enabled</span>
+                            <button class="text-[10px] bg-gray-200 text-gray-700 rounded-lg px-3 py-1.5 font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" type="button">Configure</button>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend class="font-semibold mb-1 select-none">Session Management</legend>
+                        <div class="bg-gray-100 rounded px-3 py-2 text-[10px] text-gray-700 select-none">
+                            <div class="font-semibold">Current Session</div>
+                            <div class="text-[9px] text-gray-500">Manila, Philippines • Chrome</div>
+                            <div class="inline-block mt-1 bg-green-100 text-green-700 text-[9px] font-semibold rounded px-2 py-0.5 select-none">Active</div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend class="font-semibold mb-1 select-none">Privacy Settings</legend>
+                        <label class="flex items-center space-x-2 text-[10px] select-none">
+                            <input checked class="w-3 h-3" type="checkbox" name="show_profile" />
+                            <span>Show my profile to all employees</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-[10px] select-none mt-1">
+                            <input checked class="w-3 h-3" type="checkbox" name="log_activity" />
+                            <span>Log my account activity</span>
+                        </label>
+                    </fieldset>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" onclick="closePrivacySecurityModal()" type="button">Cancel</button>
+                        <button class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Out Modal (moved) -->
+    <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="sign-out-modal-title">
+        <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4 text-center" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="sign-out-modal-title" class="font-semibold text-sm text-gray-900 select-none">Sign Out</h3>
+                <button id="cancelSignOutBtn" onclick="closeSignOutModal()" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8">
+                <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
+                </div>
+                <p class="text-xs text-gray-600 mb-6">Are you sure you want to sign out of your account?</p>
+                <div class="flex justify-center space-x-4">
+                    <button id="cancelSignOutBtn2" onclick="closeSignOutModal()" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Sign Out</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
         <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
@@ -478,334 +795,139 @@ $user = auth()->user();
                 </div>
             </div>
 
-            <!-- User Menu Dropdown -->
-            <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
-                <div class="py-4 px-6 border-b border-gray-100 text-center">
-                    <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
-                        <i class="fas fa-user-circle text-3xl"></i>
-                    </div>
-                    <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
-                    <p class="text-xs text-gray-400">Administrator</p>
-                </div>
-                <ul class="text-sm text-gray-700">
-                    <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-                    <li><button id="openAccountSettingsBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
-                    <li><button id="openPrivacySecurityBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
-                    <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
-                </ul>
-            </div>
-
-            <!-- Profile Modal -->
-            <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
-                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
-                        <button id="closeProfileBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8">
-                        <div class="flex flex-col items-center mb-4">
-                            <div class="bg-[#28644c] rounded-full w-20 h-20 flex items-center justify-center mb-3">
-                                <i class="fas fa-user text-white text-3xl"></i>
-                            </div>
-                            <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
-                            <p class="text-xs text-gray-500 leading-4">Administrator</p>
-                        </div>
-                        <form class="space-y-4">
-                            <div>
-                                <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
-                                <input id="emailProfile" type="email" readonly value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-                            </div>
-                            <div>
-                                <label for="phone" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
-                                <input id="phone" type="text" readonly value="+1234567890" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-                            </div>
-                            <div>
-                                <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
-                                <input id="department" type="text" readonly value="Administrative" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-                            </div>
-                            <div>
-                                <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
-                                <input id="location" type="text" readonly value="Manila, Philippines" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-                            </div>
-                            <div>
-                                <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
-                                <input id="joined" type="text" readonly value="{{ $user->created_at->format('F d, Y') }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-white cursor-default" />
-                            </div>
-                            <div class="flex justify-end pt-2">
-                                <button id="closeProfileBtn2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Account Settings Modal -->
-            <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="account-settings-modal-title">
-                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings</h3>
-                        <button id="closeAccountSettingsBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8">
-                        <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <div>
-                                <label for="username" class="block mb-1 font-semibold">Username</label>
-                                <input id="username" name="username" type="text" value="{{ $user->name }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
-                            </div>
-                            <div>
-                                <label for="emailAccount" class="block mb-1 font-semibold">Email</label>
-                                <input id="emailAccount" name="email" type="email" value="{{ $user->email }}" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
-                            </div>
-                            <div>
-                                <label for="language" class="block mb-1 font-semibold">Language</label>
-                                <select id="language" name="language" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
-                                    <option selected>English</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="timezone" class="block mb-1 font-semibold">Time Zone</label>
-                                <select id="timezone" name="timezone" class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
-                                    <option selected>Philippine Time (GMT+8)</option>
-                                </select>
-                            </div>
-                            <fieldset class="space-y-1">
-                                <legend class="font-semibold text-xs mb-1">Notifications</legend>
-                                <div class="flex items-center space-x-2">
-                                    <input id="email-notifications" name="email_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
-                                    <label for="email-notifications" class="text-xs">Email notifications</label>
-                                </div>
-                                <div class="flex items-center space-x-2">
-                                    <input id="browser-notifications" name="browser_notifications" type="checkbox" checked class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
-                                    <label for="browser-notifications" class="text-xs">Browser notifications</label>
-                                </div>
-                            </fieldset>
-                            <div class="flex justify-end space-x-3 pt-2">
-                                <button type="button" id="cancelAccountSettingsBtn" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-                                <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Privacy & Security Modal -->
-            <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="privacy-security-modal-title">
-                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy & Security</h3>
-                        <button id="closePrivacySecurityBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8">
-                        <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <fieldset>
-                                <legend class="font-semibold mb-2 select-none">Change Password</legend>
-                                <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
-                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="current-password" name="current_password" type="password"/>
-                                <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
-                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="new-password" name="new_password" type="password"/>
-                                <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
-                                <input class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" id="confirm-password" name="confirm_password" type="password"/>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="font-semibold mb-1 select-none">Two-Factor Authentication</legend>
-                                <p class="text-[10px] mb-1 select-none">Enhance your account security</p>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[10px] text-[#2f855A] font-semibold select-none">Status: Enabled</span>
-                                    <button class="text-[10px] bg-gray-200 text-gray-700 rounded-lg px-3 py-1.5 font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" type="button">Configure</button>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="font-semibold mb-1 select-none">Session Management</legend>
-                                <div class="bg-gray-100 rounded px-3 py-2 text-[10px] text-gray-700 select-none">
-                                    <div class="font-semibold">Current Session</div>
-                                    <div class="text-[9px] text-gray-500">Manila, Philippines • Chrome</div>
-                                    <div class="inline-block mt-1 bg-green-100 text-green-700 text-[9px] font-semibold rounded px-2 py-0.5 select-none">Active</div>
-                                </div>
-                            </fieldset>
-                            <fieldset>
-                                <legend class="font-semibold mb-1 select-none">Privacy Settings</legend>
-                                <label class="flex items-center space-x-2 text-[10px] select-none">
-                                    <input checked class="w-3 h-3" type="checkbox" name="show_profile" />
-                                    <span>Show my profile to all employees</span>
-                                </label>
-                                <label class="flex items-center space-x-2 text-[10px] select-none mt-1">
-                                    <input checked class="w-3 h-3" type="checkbox" name="log_activity" />
-                                    <span>Log my account activity</span>
-                                </label>
-                            </fieldset>
-                            <div class="flex justify-end space-x-3 pt-2">
-                                <button class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200" id="cancelPrivacySecurityBtn" type="button">Cancel</button>
-                                <button class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200" type="submit">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sign Out Modal -->
-            <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="sign-out-modal-title">
-                <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4 text-center" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="sign-out-modal-title" class="font-semibold text-sm text-gray-900 select-none">Sign Out</h3>
-                        <button id="cancelSignOutBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8">
-                        <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                            <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
-                        </div>
-                        <p class="text-xs text-gray-600 mb-6">Are you sure you want to sign out of your account?</p>
-                        <div class="flex justify-center space-x-4">
-                            <button id="cancelSignOutBtn2" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Sign Out</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add Contract Modal -->
-            <div id="addContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-contract-modal-title">
-                <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="add-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Add New Contract</h3>
-                        <button id="closeAddContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8">
-                        <form id="addContractForm" class="space-y-4 text-xs text-gray-700">
-                            <div>
-                                <label for="contractTitle" class="block mb-1 font-semibold">Contract Title *</label>
-                                <input type="text" id="contractTitle" name="contractTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                            </div>
-                            <div>
-                                <label for="contractType" class="block mb-1 font-semibold">Contract Type *</label>
-                                <select id="contractType" name="contractType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                                    <option value="">Select a type</option>
-                                    <option value="nda">NDA</option>
-                                    <option value="service">Service Agreement</option>
-                                    <option value="employment">Employment Contract</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="startDate" class="block mb-1 font-semibold">Start Date *</label>
-                                <input type="date" id="startDate" name="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                            </div>
-                            <div>
-                                <label for="description" class="block mb-1 font-semibold">Description</label>
-                                <textarea id="description" name="description" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]"></textarea>
-                            </div>
-                            <div class="flex justify-end space-x-3 pt-2">
-                                <button type="button" id="cancelAddContract" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-                                <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Contract</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- View Contract Modal -->
-            <div id="viewContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-contract-modal-title">
-                <div class="bg-white rounded-lg shadow-lg w-[380px] max-w-full mx-4" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="view-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Contract Details</h3>
-                        <button id="closeViewContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8 text-xs text-gray-700 space-y-2">
-                        <div><span class="font-semibold">Contract ID:</span> <span id="viewContractId"></span></div>
-                        <div><span class="font-semibold">Title:</span> <span id="viewContractTitle"></span></div>
-                        <div><span class="font-semibold">Company:</span> <span id="viewContractCompany"></span></div>
-                        <div><span class="font-semibold">Type:</span> <span id="viewContractType"></span></div>
-                        <div><span class="font-semibold">Status:</span> <span id="viewContractStatus"></span></div>
-                        <div><span class="font-semibold">Created:</span> <span id="viewContractCreated"></span></div>
-                        <div class="pt-4 text-right">
-                            <button id="closeViewContractModal2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Edit Contract Modal -->
-            <div id="editContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="edit-contract-modal-title">
-                <div class="bg-white rounded-lg shadow-lg w-[380px] max-w-full mx-4" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="edit-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Edit Contract</h3>
-                        <button id="closeEditContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8">
-                        <form id="editContractForm" class="space-y-3 text-xs text-gray-700">
-                            <input type="hidden" id="editContractId">
-                            <div>
-                                <label for="editContractTitle" class="block mb-1 font-semibold">Title</label>
-                                <input type="text" id="editContractTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                            </div>
-                            <div>
-                                <label for="editContractCompany" class="block mb-1 font-semibold">Company</label>
-                                <input type="text" id="editContractCompany" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                            </div>
-                            <div>
-                                <label for="editContractType" class="block mb-1 font-semibold">Type</label>
-                                <select id="editContractType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                                    <option value="nda">NDA</option>
-                                    <option value="service">Service Agreement</option>
-                                    <option value="employment">Employment Contract</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="editContractStatus" class="block mb-1 font-semibold">Status</label>
-                                <select id="editContractStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                                    <option value="active">Active</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="expired">Expired</option>
-                                </select>
-                            </div>
-                            <div class="flex justify-end space-x-3 pt-2">
-                                <button type="button" id="cancelEditContract" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-                                <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Delete Contract Modal -->
-            <div id="deleteContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="delete-contract-modal-title">
-                <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4" role="document">
-                    <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                        <h3 id="delete-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Delete Contract</h3>
-                        <button id="closeDeleteContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                            <i class="fas fa-times text-xs"></i>
-                        </button>
-                    </div>
-                    <div class="px-8 pt-6 pb-8 text-center">
-                        <p class="text-xs text-gray-700 mb-4">Are you sure you want to delete <span class="font-semibold" id="deleteContractTitle"></span> (<span id="deleteContractId"></span>)?</p>
-                        <div class="flex justify-center space-x-3">
-                            <button type="button" id="cancelDeleteContract" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-                            <button type="button" id="confirmDeleteContract" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
+    </div>
+
+    <!-- Contract Modals (moved outside main content for proper overlay coverage) -->
+    <!-- View Contract Modal -->
+    <div id="viewContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-contract-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[380px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="view-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Contract Details</h3>
+                <button id="closeViewContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8 text-xs text-gray-700 space-y-2">
+                <div><span class="font-semibold">Contract ID:</span> <span id="viewContractId"></span></div>
+                <div><span class="font-semibold">Title:</span> <span id="viewContractTitle"></span></div>
+                <div><span class="font-semibold">Company:</span> <span id="viewContractCompany"></span></div>
+                <div><span class="font-semibold">Type:</span> <span id="viewContractType"></span></div>
+                <div><span class="font-semibold">Status:</span> <span id="viewContractStatus"></span></div>
+                <div><span class="font-semibold">Created:</span> <span id="viewContractCreated"></span></div>
+                <div class="pt-4 text-right">
+                    <button id="closeViewContractModal2" type="button" class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Contract Modal -->
+    <div id="editContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="edit-contract-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[380px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="edit-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Edit Contract</h3>
+                <button id="closeEditContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8">
+                <form id="editContractForm" class="space-y-3 text-xs text-gray-700">
+                    <input type="hidden" id="editContractId">
+                    <div>
+                        <label for="editContractTitle" class="block mb-1 font-semibold">Title</label>
+                        <input type="text" id="editContractTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                    </div>
+                    <div>
+                        <label for="editContractCompany" class="block mb-1 font-semibold">Company</label>
+                        <input type="text" id="editContractCompany" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                    </div>
+                    <div>
+                        <label for="editContractType" class="block mb-1 font-semibold">Type</label>
+                        <select id="editContractType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                            <option value="nda">NDA</option>
+                            <option value="service">Service Agreement</option>
+                            <option value="employment">Employment Contract</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="editContractStatus" class="block mb-1 font-semibold">Status</label>
+                        <select id="editContractStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" id="cancelEditContract" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                        <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Contract Modal -->
+    <div id="addContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-contract-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[380px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="add-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Add New Contract</h3>
+                <button id="closeAddContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8">
+                <form id="addContractForm" class="space-y-3 text-xs text-gray-700">
+                    <div>
+                        <label for="addContractTitle" class="block mb-1 font-semibold">Title</label>
+                        <input type="text" id="addContractTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                    </div>
+                    <div>
+                        <label for="addContractCompany" class="block mb-1 font-semibold">Company</label>
+                        <input type="text" id="addContractCompany" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                    </div>
+                    <div>
+                        <label for="addContractType" class="block mb-1 font-semibold">Type</label>
+                        <select id="addContractType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                            <option value="nda">NDA</option>
+                            <option value="service">Service Agreement</option>
+                            <option value="employment">Employment Contract</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="addContractStatus" class="block mb-1 font-semibold">Status</label>
+                        <select id="addContractStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button type="button" id="cancelAddContract" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                        <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Add Contract</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Contract Modal -->
+    <div id="deleteContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="delete-contract-modal-title">
+        <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="delete-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Delete Contract</h3>
+                <button id="closeDeleteContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8 text-center">
+                <p class="text-xs text-gray-700 mb-4">Are you sure you want to delete <span class="font-semibold" id="deleteContractTitle"></span> (<span id="deleteContractId"></span>)?</p>
+                <div class="flex justify-center space-x-3">
+                    <button type="button" id="cancelDeleteContract" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                    <button type="button" id="confirmDeleteContract" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -831,9 +953,10 @@ $user = auth()->user();
             const privacySecurityModal = document.getElementById("privacySecurityModal");
             const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
             const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
-            const signOutModal = document.getElementById("signOutModal");
-            const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
-            const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
+            const signOutModal = document.getElementById('signOutModal');
+            const cancelSignOutBtn = document.getElementById('cancelSignOutBtn');
+            const cancelSignOutBtn2 = document.getElementById('cancelSignOutBtn2');
+            const openSignOutBtn = document.getElementById('openSignOutBtn');
             const addContractBtn = document.getElementById('addContractBtn');
             const addContractModal = document.getElementById('addContractModal');
             const closeAddContractModal = document.getElementById('closeAddContractModal');
@@ -848,6 +971,7 @@ $user = auth()->user();
             const closeDeleteContractModal = document.getElementById('closeDeleteContractModal');
             const cancelDeleteContract = document.getElementById('cancelDeleteContract');
             const confirmDeleteContract = document.getElementById('confirmDeleteContract');
+            let __currentEditOriginalStatus = null;
 
             // Initialize sidebar state based on screen size
             if (window.innerWidth >= 768) {
@@ -885,205 +1009,211 @@ $user = auth()->user();
                 });
             }
 
+            // Handle sidebar dropdown toggles - Main implementation
             dropdownToggles.forEach((toggle) => {
-                toggle.addEventListener("click", () => {
+                toggle.addEventListener("click", (e) => {
+                    e.stopPropagation();
                     const dropdown = toggle.nextElementSibling;
                     const chevron = toggle.querySelector(".bx-chevron-down");
+                    
+                    // Close all other dropdowns
                     dropdownToggles.forEach((otherToggle) => {
                         if (otherToggle !== toggle) {
-                            otherToggle.nextElementSibling.classList.add("hidden");
-                            otherToggle.querySelector(".bx-chevron-down").classList.remove("rotate-180");
+                            const otherDropdown = otherToggle.nextElementSibling;
+                            const otherChevron = otherToggle.querySelector(".bx-chevron-down");
+                            if (otherDropdown) otherDropdown.classList.add("hidden");
+                            if (otherChevron) otherChevron.classList.remove("rotate-180");
                         }
                     });
-                    dropdown.classList.toggle("hidden");
-                    chevron.classList.toggle("rotate-180");
+                    
+                    // Toggle current dropdown
+                    if (dropdown) dropdown.classList.toggle("hidden");
+                    if (chevron) chevron.classList.toggle("rotate-180");
                 });
             });
 
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(e){
+                if (!e.target.closest('.has-dropdown')) {
+                    closeAllDropdowns();
+                }
+            });
+
+            // Close dropdowns on escape key
+            document.addEventListener('keydown', function(e){ 
+                if(e.key==='Escape') closeAllDropdowns(); 
+            });
+
+            // Auto-expand the correct dropdown and highlight active submodule based on current URL
+            try {
+                var currentPath = window.location.pathname.replace(/\/$/, '');
+                var links = document.querySelectorAll('#sidebar .dropdown-menu a');
+                links.forEach(function(link){
+                    var linkPath;
+                    try { linkPath = new URL(link.href).pathname; } catch (_) { linkPath = link.getAttribute('href') || ''; }
+                    if (linkPath) linkPath = linkPath.replace(/\/$/, '');
+                    var isMatch = false;
+                    if (linkPath) {
+                        isMatch = (currentPath === linkPath) ||
+                                  (currentPath.endsWith(linkPath)) ||
+                                  (linkPath.endsWith(currentPath));
+                    }
+                    if (isMatch) {
+                        var menu = link.closest('.dropdown-menu');
+                        if (menu) {
+                            menu.classList.remove('hidden');
+                            var toggle = menu.previousElementSibling;
+                            if (toggle) {
+                                var chev = toggle.querySelector('.bx-chevron-down');
+                                if (chev) chev.classList.add('rotate-180');
+                            }
+                        }
+                        link.classList.add('bg-white/30');
+                    }
+                });
+            } catch (err) { /* no-op */ }
+
+            // Sidebar toggle functionality
             overlay.addEventListener("click", () => {
                 sidebar.classList.add("-ml-72");
                 overlay.classList.add("hidden");
                 document.body.style.overflow = "";
                 mainContent.classList.remove("sidebar-open");
                 mainContent.classList.add("sidebar-closed");
+                closeAllDropdowns();
             });
 
             toggleBtn.addEventListener("click", toggleSidebar);
 
-            notificationBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                notificationDropdown.classList.toggle("hidden");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                viewContractModal.classList.remove("active");
-                editContractModal.classList.remove("active");
-                deleteContractModal.classList.remove("active");
-                addContractModal.classList.remove("active");
-            });
+            // Note: User menu and notification dropdown event listeners are handled by global functions above
 
-            openSignOutBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                signOutModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                addContractModal.classList.remove("active");
-            });
-
-            userMenuBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                userMenuDropdown.classList.toggle("hidden");
-                const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
-                userMenuBtn.setAttribute("aria-expanded", !expanded);
-                notificationDropdown.classList.add("hidden");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                addContractModal.classList.remove("active");
-            });
-
-            openProfileBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                profileModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addContractModal.classList.remove("active");
-            });
-
-            closeProfileBtn.addEventListener("click", () => {
-                profileModal.classList.remove("active");
-            });
-            closeProfileBtn2.addEventListener("click", () => {
-                profileModal.classList.remove("active");
-            });
-
-            openAccountSettingsBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                accountSettingsModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addContractModal.classList.remove("active");
-            });
-
-            closeAccountSettingsBtn.addEventListener("click", () => {
-                accountSettingsModal.classList.remove("active");
-            });
-            cancelAccountSettingsBtn.addEventListener("click", () => {
-                accountSettingsModal.classList.remove("active");
-            });
-
-            openPrivacySecurityBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                privacySecurityModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addContractModal.classList.remove("active");
-            });
-
-            closePrivacySecurityBtn.addEventListener("click", () => {
-                privacySecurityModal.classList.remove("active");
-            });
-            cancelPrivacySecurityBtn.addEventListener("click", () => {
-                privacySecurityModal.classList.remove("active");
-            });
-
-            cancelSignOutBtn.addEventListener("click", () => {
-                signOutModal.classList.remove("active");
-            });
-            cancelSignOutBtn2.addEventListener("click", () => {
-                signOutModal.classList.remove("active");
-            });
-
-            function toggleAddContractModal() {
-                addContractModal.classList.toggle("hidden");
-                addContractModal.classList.toggle("active");
-                document.body.classList.toggle("overflow-hidden");
-                notificationDropdown.classList.add("hidden");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-
-                viewContractModal.classList.remove("active");
-                editContractModal.classList.remove("active");
-                deleteContractModal.classList.remove("active");
-            }
-
-            addContractBtn.addEventListener('click', toggleAddContractModal);
-            closeAddContractModal.addEventListener('click', toggleAddContractModal);
-            cancelAddContract.addEventListener('click', toggleAddContractModal);
-
-            window.addEventListener("click", (e) => {
-                if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                    notificationDropdown.classList.add("hidden");
-                }
-                if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+            // Profile modal handlers
+            if (openProfileBtn) {
+                openProfileBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    profileModal.classList.add("active");
                     userMenuDropdown.classList.add("hidden");
                     userMenuBtn.setAttribute("aria-expanded", "false");
-                }
-                if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
-                    profileModal.classList.remove("active");
-                }
-                if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
                     accountSettingsModal.classList.remove("active");
-                }
-                if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
                     privacySecurityModal.classList.remove("active");
-                }
-                if (!signOutModal.contains(e.target)) {
+                    notificationDropdown.classList.add("hidden");
                     signOutModal.classList.remove("active");
-                }
-                if (!viewContractModal.contains(e.target)) {
+                    addContractModal.classList.remove("active");
+                });
+            }
+
+            if (closeProfileBtn) {
+                closeProfileBtn.addEventListener("click", () => {
+                    profileModal.classList.remove("active");
+                });
+            }
+            if (closeProfileBtn2) {
+                closeProfileBtn2.addEventListener("click", () => {
+                    profileModal.classList.remove("active");
+                });
+            }
+
+            // Account settings modal handlers
+            if (openAccountSettingsBtn) {
+                openAccountSettingsBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    accountSettingsModal.classList.add("active");
+                    userMenuDropdown.classList.add("hidden");
+                    userMenuBtn.setAttribute("aria-expanded", "false");
+                    profileModal.classList.remove("active");
+                    privacySecurityModal.classList.remove("active");
+                    notificationDropdown.classList.add("hidden");
+                    signOutModal.classList.remove("active");
+                    addContractModal.classList.remove("active");
+                });
+            }
+
+            if (closeAccountSettingsBtn) {
+                closeAccountSettingsBtn.addEventListener("click", () => {
+                    accountSettingsModal.classList.remove("active");
+                });
+            }
+            if (cancelAccountSettingsBtn) {
+                cancelAccountSettingsBtn.addEventListener("click", () => {
+                    accountSettingsModal.classList.remove("active");
+                });
+            }
+
+            // Privacy & Security modal handlers
+            if (openPrivacySecurityBtn) {
+                openPrivacySecurityBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    privacySecurityModal.classList.add("active");
+                    userMenuDropdown.classList.add("hidden");
+                    userMenuBtn.setAttribute("aria-expanded", "false");
+                    profileModal.classList.remove("active");
+                    accountSettingsModal.classList.remove("active");
+                    notificationDropdown.classList.add("hidden");
+                    signOutModal.classList.remove("active");
+                    addContractModal.classList.remove("active");
+                });
+            }
+
+            if (closePrivacySecurityBtn) {
+                closePrivacySecurityBtn.addEventListener("click", () => {
+                    privacySecurityModal.classList.remove("active");
+                });
+            }
+            if (cancelPrivacySecurityBtn) {
+                cancelPrivacySecurityBtn.addEventListener("click", () => {
+                    privacySecurityModal.classList.remove("active");
+                });
+            }
+
+            // Sign out modal handlers
+            if (openSignOutBtn) {
+                openSignOutBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    signOutModal.classList.add("active");
+                    userMenuDropdown.classList.add("hidden");
+                    userMenuBtn.setAttribute("aria-expanded", "false");
+                    profileModal.classList.remove("active");
+                    accountSettingsModal.classList.remove("active");
+                    privacySecurityModal.classList.remove("active");
+                    notificationDropdown.classList.add("hidden");
+                    addContractModal.classList.remove("active");
+                });
+            }
+
+            if (cancelSignOutBtn) {
+                cancelSignOutBtn.addEventListener("click", () => {
+                    signOutModal.classList.remove("active");
+                });
+            }
+            if (cancelSignOutBtn2) {
+                cancelSignOutBtn2.addEventListener("click", () => {
+                    signOutModal.classList.remove("active");
+                });
+            }
+
+            // Contract modals functionality
+            function toggleAddContractModal() {
+                if (addContractModal) {
+                    addContractModal.classList.toggle("hidden");
+                    addContractModal.classList.toggle("active");
+                    document.body.classList.toggle("overflow-hidden");
+                    notificationDropdown.classList.add("hidden");
+                    userMenuDropdown.classList.add("hidden");
+                    userMenuBtn.setAttribute("aria-expanded", "false");
+                    profileModal.classList.remove("active");
+                    accountSettingsModal.classList.remove("active");
+                    privacySecurityModal.classList.remove("active");
+                    signOutModal.classList.remove("active");
                     viewContractModal.classList.remove("active");
-                }
-                if (!editContractModal.contains(e.target)) {
                     editContractModal.classList.remove("active");
-                }
-                if (!deleteContractModal.contains(e.target)) {
                     deleteContractModal.classList.remove("active");
                 }
-                if (!addContractModal.contains(e.target) && !addContractBtn.contains(e.target)) {
-                    addContractModal.classList.remove("active");
-                }
-            });
+            }
 
-            profileModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            accountSettingsModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            privacySecurityModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            signOutModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            addContractModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
+            if (addContractBtn) addContractBtn.addEventListener('click', toggleAddContractModal);
+            if (closeAddContractModal) closeAddContractModal.addEventListener('click', toggleAddContractModal);
+            if (cancelAddContract) cancelAddContract.addEventListener('click', toggleAddContractModal);
+
             // Handle View/Edit/Delete buttons
             const viewBtns = document.querySelectorAll('.viewContractBtn');
             const editBtns = document.querySelectorAll('.editContractBtn');
@@ -1105,7 +1235,9 @@ $user = auth()->user();
                 document.getElementById('editContractTitle').value = data.title;
                 document.getElementById('editContractCompany').value = data.company;
                 document.getElementById('editContractType').value = (data.type || '').toLowerCase();
-                document.getElementById('editContractStatus').value = (data.status || '').toLowerCase().includes('pending') ? 'pending' : (data.status || '').toLowerCase();
+                const normalized = (data.status || '').toLowerCase();
+                document.getElementById('editContractStatus').value = normalized.includes('pending') ? 'pending' : normalized;
+                __currentEditOriginalStatus = normalized.includes('pending') ? 'pending' : normalized;
                 editContractModal.classList.remove('hidden');
                 editContractModal.classList.add('active');
             }
@@ -1139,95 +1271,300 @@ $user = auth()->user();
             }));
 
             // Close buttons for modals
-            closeViewContractModal.addEventListener('click', () => { viewContractModal.classList.remove('active'); viewContractModal.classList.add('hidden'); });
-            closeViewContractModal2.addEventListener('click', () => { viewContractModal.classList.remove('active'); viewContractModal.classList.add('hidden'); });
-            viewContractModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+            if (closeViewContractModal) {
+                closeViewContractModal.addEventListener('click', () => { 
+                    viewContractModal.classList.remove('active'); 
+                    viewContractModal.classList.add('hidden'); 
+                });
+            }
+            if (closeViewContractModal2) {
+                closeViewContractModal2.addEventListener('click', () => { 
+                    viewContractModal.classList.remove('active'); 
+                    viewContractModal.classList.add('hidden'); 
+                });
+            }
+            if (viewContractModal) {
+                viewContractModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+            }
 
-            closeEditContractModal.addEventListener('click', () => { editContractModal.classList.remove('active'); editContractModal.classList.add('hidden'); });
-            cancelEditContract.addEventListener('click', () => { editContractModal.classList.remove('active'); editContractModal.classList.add('hidden'); });
-            editContractModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+            if (closeEditContractModal) {
+                closeEditContractModal.addEventListener('click', () => { 
+                    editContractModal.classList.remove('active'); 
+                    editContractModal.classList.add('hidden'); 
+                });
+            }
+            if (cancelEditContract) {
+                cancelEditContract.addEventListener('click', () => { 
+                    editContractModal.classList.remove('active'); 
+                    editContractModal.classList.add('hidden'); 
+                });
+            }
+            if (editContractModal) {
+                editContractModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+            }
 
-            closeDeleteContractModal.addEventListener('click', () => { deleteContractModal.classList.remove('active'); deleteContractModal.classList.add('hidden'); });
-            cancelDeleteContract.addEventListener('click', () => { deleteContractModal.classList.remove('active'); deleteContractModal.classList.add('hidden'); });
-            deleteContractModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+            if (closeDeleteContractModal) {
+                closeDeleteContractModal.addEventListener('click', () => { 
+                    deleteContractModal.classList.remove('active'); 
+                    deleteContractModal.classList.add('hidden'); 
+                });
+            }
+            if (cancelDeleteContract) {
+                cancelDeleteContract.addEventListener('click', () => { 
+                    deleteContractModal.classList.remove('active'); 
+                    deleteContractModal.classList.add('hidden'); 
+                });
+            }
+            if (deleteContractModal) {
+                deleteContractModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
+            }
 
             // Submit handlers (wired to backend)
-            document.getElementById('editContractForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const code = document.getElementById('editContractId').value;
-                const title = document.getElementById('editContractTitle').value.trim();
-                const company = document.getElementById('editContractCompany').value.trim();
-                const type = document.getElementById('editContractType').value;
-                const status = document.getElementById('editContractStatus').value;
+            const editContractForm = document.getElementById('editContractForm');
+            if (editContractForm) {
+                editContractForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const code = document.getElementById('editContractId').value;
+                    const title = document.getElementById('editContractTitle').value.trim();
+                    const company = document.getElementById('editContractCompany').value.trim();
+                    const type = document.getElementById('editContractType').value;
+                    const status = document.getElementById('editContractStatus').value;
 
-                const resp = await fetch('{{ route('contracts.update') }}', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ code, title, company, type, status })
-                });
-                const data = await resp.json();
-                if (data.success) {
-                    // Update row in-place
-                    const row = Array.from(document.querySelectorAll('tbody tr')).find(tr => (tr.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent || '') === code);
-                    if (row) {
-                        // Title and company
-                        const titleCell = row.querySelector('td:nth-child(2)');
-                        if (titleCell) {
-                            const titleEl = titleCell.querySelector('.text-sm.font-medium');
-                            const compEl = titleCell.querySelector('.text-xs');
-                            if (titleEl) titleEl.textContent = title;
-                            if (compEl) compEl.textContent = company;
+                    const resp = await fetch('{{ route('contracts.update') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ code, title, company, type, status })
+                    });
+                    const data = await resp.json();
+                    if (data.success) {
+                        // Update row in-place
+                        const row = Array.from(document.querySelectorAll('tbody tr')).find(tr => (tr.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent || '') === code);
+                        if (row) {
+                            // Title and company
+                            const titleCell = row.querySelector('td:nth-child(2)');
+                            if (titleCell) {
+                                const titleEl = titleCell.querySelector('.text-sm.font-medium');
+                                const compEl = titleCell.querySelector('.text-xs');
+                                if (titleEl) titleEl.textContent = title;
+                                if (compEl) compEl.textContent = company;
+                            }
+                            // Type badge
+                            const typeBadge = row.querySelector('td:nth-child(3) span');
+                            if (typeBadge) {
+                                const label = type === 'nda' ? 'NDA' : (type === 'service' ? 'Service' : 'Employment');
+                                typeBadge.textContent = label;
+                            }
+                            // Status badge
+                            const statusBadge = row.querySelector('td:nth-child(4) span');
+                            if (statusBadge) {
+                                const statusLabelNew = status.charAt(0).toUpperCase() + status.slice(1);
+                                const statusCls = status === 'active' ? 'bg-green-100 text-green-800' : (status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-700');
+                                statusBadge.textContent = statusLabelNew;
+                                statusBadge.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + statusCls;
+                            }
+                            // Update action buttons datasets
+                            const viewBtn = row.querySelector('td:nth-child(5) .viewContractBtn');
+                            const editBtn = row.querySelector('td:nth-child(5) .editContractBtn');
+                            if (viewBtn) {
+                                const badgeLabel = type === 'nda' ? 'NDA' : (type === 'service' ? 'Service' : 'Employment');
+                                viewBtn.dataset.title = title;
+                                viewBtn.dataset.company = company;
+                                viewBtn.dataset.type = badgeLabel;
+                                viewBtn.dataset.status = status.charAt(0).toUpperCase() + status.slice(1);
+                            }
+                            if (editBtn) {
+                                editBtn.dataset.title = title;
+                                editBtn.dataset.company = company;
+                                editBtn.dataset.type = type;
+                                editBtn.dataset.status = status;
+                            }
+                            // Update stats if status changed
+                            try {
+                                const totalEl = document.getElementById('totalContractsText');
+                                const activeCountEl = document.getElementById('activeCountEl');
+                                const activeCountText = document.getElementById('activeCountText');
+                                const pendingCountEl = document.getElementById('pendingCountEl');
+                                const pendingCountText = document.getElementById('pendingCountText');
+                                let total = parseInt(totalEl?.textContent || '0', 10);
+                                let active = parseInt(activeCountEl?.textContent || '0', 10);
+                                let pending = parseInt(pendingCountEl?.textContent || '0', 10);
+                                const prev = (__currentEditOriginalStatus || '').toLowerCase();
+                                const next = (status || '').toLowerCase();
+                                if (prev !== next) {
+                                    if (prev === 'active') active = Math.max(0, active - 1);
+                                    if (prev === 'pending') pending = Math.max(0, pending - 1);
+                                    if (next === 'active') active += 1;
+                                    if (next === 'pending') pending += 1;
+                                }
+                                if (activeCountEl) activeCountEl.textContent = active;
+                                if (activeCountText) activeCountText.textContent = active;
+                                if (pendingCountEl) pendingCountEl.textContent = pending;
+                                if (pendingCountText) pendingCountText.textContent = pending;
+                                const activePct = total > 0 ? Math.round((active / total) * 100) : 0;
+                                const pendingPct = total > 0 ? Math.round((pending / total) * 100) : 0;
+                                const activeBar = document.getElementById('activeBar');
+                                const pendingBar = document.getElementById('pendingBar');
+                                const activePctEl = document.getElementById('activePctEl');
+                                const pendingPctEl = document.getElementById('pendingPctEl');
+                                const activeTotalEl = document.getElementById('activeTotalEl');
+                                const pendingTotalEl = document.getElementById('pendingTotalEl');
+                                if (activeBar) activeBar.style.width = activePct + '%';
+                                if (pendingBar) pendingBar.style.width = pendingPct + '%';
+                                if (activePctEl) activePctEl.textContent = activePct + '%';
+                                if (pendingPctEl) pendingPctEl.textContent = pendingPct + '%';
+                                if (activeTotalEl) activeTotalEl.textContent = total;
+                                if (pendingTotalEl) pendingTotalEl.textContent = total;
+                            } catch (e) { /* no-op */ }
+                            __currentEditOriginalStatus = null;
                         }
-                        // Type badge
-                        const typeBadge = row.querySelector('td:nth-child(3) span');
-                        if (typeBadge) {
-                            const label = type === 'nda' ? 'NDA' : (type === 'service' ? 'Service' : 'Employment');
-                            typeBadge.textContent = label;
-                        }
-                        // Status badge
-                        const statusBadge = row.querySelector('td:nth-child(4) span');
-                        if (statusBadge) {
-                            statusBadge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-                        }
+                        editContractModal.classList.remove('active');
+                        editContractModal.classList.add('hidden');
+                        Swal.fire({ icon: 'success', title: 'Saved', text: 'Contract updated.', confirmButtonColor: '#2f855a' });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Failed', text: 'Update failed.', confirmButtonColor: '#2f855a' });
                     }
-                    editContractModal.classList.remove('active');
-                    editContractModal.classList.add('hidden');
-                    Swal.fire({ icon: 'success', title: 'Saved', text: 'Contract updated.', confirmButtonColor: '#2f855a' });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Failed', text: 'Update failed.', confirmButtonColor: '#2f855a' });
-                }
-            });
-
-            confirmDeleteContract.addEventListener('click', async () => {
-                const code = document.getElementById('deleteContractId').textContent;
-                const resp = await fetch('{{ route('contracts.delete') }}', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({ code })
                 });
-                const data = await resp.json();
-                if (data.success) {
-                    const row = Array.from(document.querySelectorAll('tbody tr')).find(tr => (tr.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent || '') === code);
-                    if (row) row.remove();
-                    deleteContractModal.classList.remove('active');
-                    deleteContractModal.classList.add('hidden');
-                    Swal.fire({ icon: 'success', title: 'Deleted', text: 'Contract deleted.', confirmButtonColor: '#2f855a' });
-                } else {
-                    Swal.fire({ icon: 'error', title: 'Failed', text: 'Delete failed.', confirmButtonColor: '#2f855a' });
-                }
-            });
+            }
 
-            addContractForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                toggleAddContractModal();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Contract Added',
-                    text: 'The contract has been added successfully.',
-                    confirmButtonColor: '#2f855a',
+            if (confirmDeleteContract) {
+                confirmDeleteContract.addEventListener('click', async () => {
+                    const code = document.getElementById('deleteContractId').textContent;
+                    const resp = await fetch('{{ route('contracts.delete') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ code })
+                    });
+                    const data = await resp.json();
+                    if (data.success) {
+                        const row = Array.from(document.querySelectorAll('tbody tr')).find(tr => (tr.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent || '') === code);
+                        if (row) row.remove();
+                        deleteContractModal.classList.remove('active');
+                        deleteContractModal.classList.add('hidden');
+                        Swal.fire({ icon: 'success', title: 'Deleted', text: 'Contract deleted.', confirmButtonColor: '#2f855a' });
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Failed', text: 'Delete failed.', confirmButtonColor: '#2f855a' });
+                    }
                 });
-            });
+            }
 
+            const addContractForm = document.getElementById('addContractForm');
+            if (addContractForm) {
+                addContractForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const title = (document.getElementById('addContractTitle')?.value || '').trim();
+                    const company = (document.getElementById('addContractCompany')?.value || '').trim();
+                    const type = document.getElementById('addContractType')?.value || 'nda';
+                    const status = document.getElementById('addContractStatus')?.value || 'pending';
+
+                    try {
+                        const resp = await fetch('{{ route('contracts.create') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: new URLSearchParams({ title, company, type, status })
+                        });
+                        const data = await resp.json();
+                        if (!data || !data.success) throw new Error((data && data.message) || 'Create failed');
+
+                        // Update stats
+                        const totalEl = document.getElementById('totalContractsText');
+                        const activeCountEl = document.getElementById('activeCountEl');
+                        const activeCountText = document.getElementById('activeCountText');
+                        const pendingCountEl = document.getElementById('pendingCountEl');
+                        const pendingCountText = document.getElementById('pendingCountText');
+                        let total = parseInt(totalEl?.textContent || '0', 10) + 1;
+                        let active = parseInt(activeCountEl?.textContent || '0', 10);
+                        let pending = parseInt(pendingCountEl?.textContent || '0', 10);
+                        if (status === 'active') active += 1; else if (status === 'pending') pending += 1;
+                        if (totalEl) totalEl.textContent = total;
+                        if (activeCountEl) activeCountEl.textContent = active;
+                        if (activeCountText) activeCountText.textContent = active;
+                        if (pendingCountEl) pendingCountEl.textContent = pending;
+                        if (pendingCountText) pendingCountText.textContent = pending;
+                        // Update bars and pct labels
+                        const activePct = total > 0 ? Math.round((active / total) * 100) : 0;
+                        const pendingPct = total > 0 ? Math.round((pending / total) * 100) : 0;
+                        const activeBar = document.getElementById('activeBar');
+                        const pendingBar = document.getElementById('pendingBar');
+                        const activePctEl = document.getElementById('activePctEl');
+                        const pendingPctEl = document.getElementById('pendingPctEl');
+                        const activeTotalEl = document.getElementById('activeTotalEl');
+                        const pendingTotalEl = document.getElementById('pendingTotalEl');
+                        if (activeBar) activeBar.style.width = activePct + '%';
+                        if (pendingBar) pendingBar.style.width = pendingPct + '%';
+                        if (activePctEl) activePctEl.textContent = activePct + '%';
+                        if (pendingPctEl) pendingPctEl.textContent = pendingPct + '%';
+                        if (activeTotalEl) activeTotalEl.textContent = total;
+                        if (pendingTotalEl) pendingTotalEl.textContent = total;
+
+                        // Append new row to table top
+                        const c = data.contract || {};
+                        const badge = c.type === 'nda' ? 'NDA' : (c.type === 'service' ? 'Service' : 'Employment');
+                        const statusLabel = (c.status || '').charAt(0).toUpperCase() + (c.status || '').slice(1);
+                        const statusClasses = c.status === 'active' ? 'bg-green-100 text-green-800' : (c.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-700');
+                        const tbody = document.querySelector('table tbody');
+                        if (tbody) {
+                            const tr = document.createElement('tr');
+                            tr.className = 'table-row';
+                            tr.setAttribute('data-code', c.code);
+                            tr.innerHTML = `
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">${c.code}</div>
+                                    <div class="text-xs text-gray-500">Created: ${c.created_on || '—'}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-gray-900">${c.title || ''}</div>
+                                    <div class="text-xs text-gray-500">${c.company || '—'}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">${badge}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses}">${statusLabel}</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a href="#" class="viewContractBtn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View" data-id="${c.code}" data-title="${c.title || ''}" data-company="${c.company || ''}" data-type="${badge}" data-status="${statusLabel}" data-created="${c.created_on || ''}">View</a>
+                                    <a href="#" class="editContractBtn text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit" data-id="${c.code}" data-title="${c.title || ''}" data-company="${c.company || ''}" data-type="${c.type || ''}" data-status="${c.status || ''}" data-created="${c.created_on || ''}">Edit</a>
+                                    <a href="#" class="deleteContractBtn text-red-600 hover:text-red-900" data-tooltip="Delete" data-id="${c.code}" data-title="${c.title || ''}">Delete</a>
+                                </td>`;
+                            // Insert at top (after potential empty row removed)
+                            const emptyRow = tbody.querySelector('tr td[colspan]');
+                            if (emptyRow) emptyRow.parentElement?.remove();
+                            tbody.insertBefore(tr, tbody.firstChild);
+
+                            // Rebind action buttons for the new row
+                            tr.querySelectorAll('.viewContractBtn').forEach(btn => btn.addEventListener('click', (e) => {
+                                e.preventDefault(); e.stopPropagation();
+                                const d = e.currentTarget.dataset;
+                                openViewModal({ id: d.id, title: d.title, company: d.company, type: d.type, status: d.status, created: d.created });
+                            }));
+                            tr.querySelectorAll('.editContractBtn').forEach(btn => btn.addEventListener('click', (e) => {
+                                e.preventDefault(); e.stopPropagation();
+                                const d = e.currentTarget.dataset;
+                                openEditModal({ id: d.id, title: d.title, company: d.company, type: d.type, status: d.status, created: d.created });
+                            }));
+                            tr.querySelectorAll('.deleteContractBtn').forEach(btn => btn.addEventListener('click', (e) => {
+                                e.preventDefault(); e.stopPropagation();
+                                const d = e.currentTarget.dataset;
+                                openDeleteModal({ id: d.id, title: d.title });
+                            }));
+                        }
+
+                        // Reset and close modal
+                        addContractForm.reset();
+                        toggleAddContractModal();
+                        Swal.fire({ icon: 'success', title: 'Contract Added', text: 'The contract has been added successfully.', confirmButtonColor: '#2f855a' });
+                    } catch (err) {
+                        Swal.fire({ icon: 'error', title: 'Failed', text: err?.message || 'Failed to add contract.', confirmButtonColor: '#2f855a' });
+                    }
+                });
+            }
+
+            // Handle window resize
             window.addEventListener("resize", () => {
                 if (window.innerWidth >= 768) {
                     sidebar.classList.remove("-ml-72");
@@ -1247,6 +1584,7 @@ $user = auth()->user();
                 closeAllDropdowns();
             });
 
+            // Tooltip functionality
             const tooltipTriggers = document.querySelectorAll("[data-tooltip]");
             tooltipTriggers.forEach(trigger => {
                 trigger.addEventListener("mouseenter", (e) => {

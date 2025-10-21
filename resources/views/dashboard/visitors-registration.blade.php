@@ -639,40 +639,18 @@ $user = auth()->user();
                             <button id="addVisitorBtn" class="inline-flex items-center bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
                                 <i class="fas fa-user-plus mr-2"></i> Register Visitor
                             </button>
-                            <button class="inline-flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm font-semibold hover:bg-gray-50">
-                                <i class="fas fa-qrcode mr-2 text-gray-600"></i> Scan ID
-                            </button>
                         </div>
                     </div>
 
 
-                    <!-- Filters -->
+                    <!-- Search -->
                     <section class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="relative flex-1 max-w-md">
+                            <div class="relative flex-1 max-w-3xl">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fas fa-search text-gray-400"></i>
                                 </div>
                                 <input type="text" id="searchVisitors" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] text-sm" placeholder="Search visitors, companies, hosts...">
-                            </div>
-                            <div class="flex flex-wrap gap-3">
-                                <select id="statusFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
-                                    <option value="">All Status</option>
-                                    <option value="checked_in">Checked In</option>
-                                    <option value="scheduled">Scheduled</option>
-                                    <option value="checked_out">Checked Out</option>
-                                </select>
-                                <select id="purposeFilter" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
-                                    <option value="">All Purposes</option>
-                                    <option value="meeting">Meeting</option>
-                                    <option value="delivery">Delivery</option>
-                                    <option value="interview">Interview</option>
-                                    <option value="maintenance">Maintenance</option>
-                                </select>
-                                <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm font-semibold">
-                                    <i class="fas fa-filter text-gray-600 mr-2"></i>
-                                    <span>Filter</span>
-                                </button>
                             </div>
                         </div>
                     </section>
@@ -735,7 +713,7 @@ $user = auth()->user();
                                     <button class="text-sm text-gray-600 px-3 py-1.5 rounded hover:bg-gray-50">Scheduled</button>
                                     <button class="text-sm text-gray-600 px-3 py-1.5 rounded hover:bg-gray-50">All</button>
                                 </div>
-                                <div class="text-xs text-gray-500">0 results</div>
+                                <div id="resultsCount" class="text-xs text-gray-500">0 results</div>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
@@ -749,7 +727,7 @@ $user = auth()->user();
                                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tbody id="visitorsTbody" class="bg-white divide-y divide-gray-200">
                                         @forelse(($visitors ?? []) as $v)
                                             <tr class="table-row">
                                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -765,7 +743,18 @@ $user = auth()->user();
                                                     <div class="text-xs text-gray-500">{{ $v['host_department'] ?? '' }}</div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm text-gray-900">{{ $v['check_in_time'] ?? '' }}</div>
+                                                    @php
+                                                        $__rawTime = $v['check_in_time'] ?? '';
+                                                        $__fmtTime = $__rawTime;
+                                                        if ($__rawTime) {
+                                                            try { $__fmtTime = \Carbon\Carbon::createFromFormat('H:i', $__rawTime)->format('g:i A'); }
+                                                            catch (\Exception $e) {
+                                                                try { $__fmtTime = \Carbon\Carbon::createFromFormat('H:i:s', $__rawTime)->format('g:i A'); }
+                                                                catch (\Exception $e2) { /* leave as-is */ }
+                                                            }
+                                                        }
+                                                    @endphp
+                                                    <div class="text-sm text-gray-900">{{ $__fmtTime }}</div>
                                                     <div class="text-xs text-gray-500">{{ $v['check_in_date'] ?? '' }}</div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -898,7 +887,6 @@ $user = auth()->user();
             </div>
         </div>
     </div>
-=======
             <!-- View Visitor Modal -->
             <div id="viewVisitorModal" class="modal hidden" aria-modal="true" role="dialog">
               <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4">
@@ -1300,565 +1288,660 @@ $user = auth()->user();
             </div>
         </main>
     </div>
-
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const sidebar = document.getElementById("sidebar");
-            const mainContent = document.getElementById("main-content");
-            const toggleBtn = document.getElementById("toggle-btn");
-            const overlay = document.getElementById("overlay");
-            const dropdownToggles = document.querySelectorAll(".has-dropdown > div");
-            const notificationBtn = document.getElementById("notificationBtn");
-            const notificationDropdown = document.getElementById("notificationDropdown");
-            const userMenuBtn = document.getElementById("userMenuBtn");
-            const userMenuDropdown = document.getElementById("userMenuDropdown");
-<<<<<<< HEAD
-            const openSignOutBtn = document.getElementById("openSignOutBtn");
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-            const profileModal = document.getElementById("profileModal");
-            const openProfileBtn = document.getElementById("openProfileBtn");
-            const closeProfileBtn = document.getElementById("closeProfileBtn");
-            const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
-            const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
-            const accountSettingsModal = document.getElementById("accountSettingsModal");
-            const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
-            const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
-            const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
-            const privacySecurityModal = document.getElementById("privacySecurityModal");
-            const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
-            const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
-<<<<<<< HEAD
-            const checkInModal = document.getElementById("checkInModal");
-            const closeCheckIn = document.getElementById("closeCheckIn");
-            const cancelCheckIn = document.getElementById("cancelCheckIn");
-            const confirmCheckIn = document.getElementById("confirmCheckIn");
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-            const signOutModal = document.getElementById("signOutModal");
-            const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
-            const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
-            const addVisitorBtn = document.getElementById("addVisitorBtn");
-            const addVisitorModal = document.getElementById("addVisitorModal");
-            const closeAddVisitorModal = document.getElementById("closeAddVisitorModal");
-            const cancelAddVisitor = document.getElementById("cancelAddVisitor");
-            const addVisitorForm = document.getElementById("addVisitorForm");
-            const csrf = '{{ csrf_token() }}';
+document.addEventListener("DOMContentLoaded", () => {
+    // Sidebar and overlay elements
+    const sidebar = document.getElementById("sidebar");
+    const mainContent = document.getElementById("main-content");
+    const toggleBtn = document.getElementById("toggle-btn");
+    const overlay = document.getElementById("overlay");
 
-            // Initialize sidebar state based on screen size
-            if (window.innerWidth >= 768) {
-                sidebar.classList.remove("-ml-72");
-                mainContent.classList.add("md:ml-72", "sidebar-open");
-            } else {
-                sidebar.classList.add("-ml-72");
-                mainContent.classList.remove("md:ml-72", "sidebar-open");
-                mainContent.classList.add("sidebar-closed");
-            }
+    // Dropdown elements
+    const dropdownToggles = document.querySelectorAll(".has-dropdown > div");
 
-            function toggleSidebar() {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.toggle("md:-ml-72");
-                    mainContent.classList.toggle("md:ml-72");
-                    mainContent.classList.toggle("sidebar-open");
-                    mainContent.classList.toggle("sidebar-closed");
-                } else {
-                    sidebar.classList.toggle("-ml-72");
-                    overlay.classList.toggle("hidden");
-                    document.body.style.overflow = sidebar.classList.contains("-ml-72") ? "" : "hidden";
-                    mainContent.classList.toggle("sidebar-open", !sidebar.classList.contains("-ml-72"));
-                    mainContent.classList.toggle("sidebar-closed", sidebar.classList.contains("-ml-72"));
-                }
-            }
+    // Notification and user menu elements
+    const notificationBtn = document.getElementById("notificationBtn");
+    const notificationDropdown = document.getElementById("notificationDropdown");
+    const userMenuBtn = document.getElementById("userMenuBtn");
+    const userMenuDropdown = document.getElementById("userMenuDropdown");
 
-            function closeAllDropdowns() {
-                dropdownToggles.forEach((toggle) => {
-                    const dropdown = toggle.nextElementSibling;
-                    const chevron = toggle.querySelector(".bx-chevron-down");
-                    if (!dropdown.classList.contains("hidden")) {
-                        dropdown.classList.add("hidden");
-                        chevron.classList.remove("rotate-180");
-                    }
-                });
-<<<<<<< HEAD
-            openSignOutBtn?.addEventListener("click", (e) => {
-                e.stopPropagation();
-                signOutModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                notificationDropdown.classList.add("hidden");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                addVisitorModal.classList.remove("active");
-            });
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-            }
+    // Modal elements
+    const profileModal = document.getElementById("profileModal");
+    const openProfileBtn = document.getElementById("openProfileBtn");
+    const closeProfileBtn = document.getElementById("closeProfileBtn");
+    const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
+    const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
+    const accountSettingsModal = document.getElementById("accountSettingsModal");
+    const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
+    const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
+    const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
+    const privacySecurityModal = document.getElementById("privacySecurityModal");
+    const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
+    const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
+    const signOutModal = document.getElementById("signOutModal");
+    const openSignOutBtn = document.getElementById("openSignOutBtn");
+    const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
+    const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
+    const addVisitorBtn = document.getElementById("addVisitorBtn");
+    const addVisitorModal = document.getElementById("addVisitorModal");
+    const closeAddVisitorModal = document.getElementById("closeAddVisitorModal");
+    const cancelAddVisitor = document.getElementById("cancelAddVisitor");
+    const checkInModal = document.getElementById("checkInModal");
+    const closeCheckIn = document.getElementById("closeCheckIn");
+    const cancelCheckIn = document.getElementById("cancelCheckIn");
+    const confirmCheckIn = document.getElementById("confirmCheckIn");
+    const viewVisitorModal = document.getElementById("viewVisitorModal");
+    const editVisitorModal = document.getElementById("editVisitorModal");
+    const deleteVisitorModal = document.getElementById("deleteVisitorModal");
+    const addVisitorForm = document.getElementById("addVisitorForm");
+    const csrf = '{{ csrf_token() }}';
+    const searchVisitors = document.getElementById('searchVisitors');
+    const resultsCount = document.getElementById('resultsCount');
 
-            dropdownToggles.forEach((toggle) => {
-                toggle.addEventListener("click", () => {
-                    const dropdown = toggle.nextElementSibling;
-                    const chevron = toggle.querySelector(".bx-chevron-down");
-                    dropdownToggles.forEach((otherToggle) => {
-                        if (otherToggle !== toggle) {
-                            otherToggle.nextElementSibling.classList.add("hidden");
-                            otherToggle.querySelector(".bx-chevron-down").classList.remove("rotate-180");
-                        }
-                    });
-                    dropdown.classList.toggle("hidden");
-                    chevron.classList.toggle("rotate-180");
-                });
-            });
+    // Initialize sidebar state based on screen size
+    if (window.innerWidth >= 768) {
+        sidebar.classList.remove("-ml-72");
+        mainContent.classList.add("md:ml-72", "sidebar-open");
+        mainContent.classList.remove("sidebar-closed");
+    } else {
+        sidebar.classList.add("-ml-72");
+        mainContent.classList.remove("md:ml-72", "sidebar-open");
+        mainContent.classList.add("sidebar-closed");
+    }
 
-            overlay.addEventListener("click", () => {
-                sidebar.classList.add("-ml-72");
-                overlay.classList.add("hidden");
-                document.body.style.overflow = "";
-                mainContent.classList.remove("sidebar-open");
-                mainContent.classList.add("sidebar-closed");
-            });
+    // Toggle sidebar
+    function toggleSidebar() {
+        if (window.innerWidth >= 768) {
+            sidebar.classList.toggle("md:-ml-72");
+            mainContent.classList.toggle("md:ml-72");
+            mainContent.classList.toggle("sidebar-open");
+            mainContent.classList.toggle("sidebar-closed");
+        } else {
+            sidebar.classList.toggle("-ml-72");
+            overlay.classList.toggle("hidden");
+            document.body.style.overflow = sidebar.classList.contains("-ml-72") ? "" : "hidden";
+            mainContent.classList.toggle("sidebar-open", !sidebar.classList.contains("-ml-72"));
+            mainContent.classList.toggle("sidebar-closed", sidebar.classList.contains("-ml-72"));
+        }
+    }
 
-            toggleBtn.addEventListener("click", toggleSidebar);
-
-            notificationBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                notificationDropdown.classList.toggle("hidden");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                addVisitorModal.classList.remove("active");
-            });
-
-            userMenuBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                userMenuDropdown.classList.toggle("hidden");
-                const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
-                userMenuBtn.setAttribute("aria-expanded", !expanded);
-                notificationDropdown.classList.add("hidden");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-                addVisitorModal.classList.remove("active");
-            });
-
-            openProfileBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                profileModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addVisitorModal.classList.remove("active");
-            });
-
-            closeProfileBtn.addEventListener("click", () => {
-                profileModal.classList.remove("active");
-            });
-            closeProfileBtn2.addEventListener("click", () => {
-                profileModal.classList.remove("active");
-            });
-
-            openAccountSettingsBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                accountSettingsModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addVisitorModal.classList.remove("active");
-            });
-
-            closeAccountSettingsBtn.addEventListener("click", () => {
-                accountSettingsModal.classList.remove("active");
-            });
-            cancelAccountSettingsBtn.addEventListener("click", () => {
-                accountSettingsModal.classList.remove("active");
-            });
-
-            openPrivacySecurityBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                privacySecurityModal.classList.add("active");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                notificationDropdown.classList.add("hidden");
-                signOutModal.classList.remove("active");
-                addVisitorModal.classList.remove("active");
-            });
-
-            closePrivacySecurityBtn.addEventListener("click", () => {
-                privacySecurityModal.classList.remove("active");
-            });
-            cancelPrivacySecurityBtn.addEventListener("click", () => {
-                privacySecurityModal.classList.remove("active");
-            });
-
-            cancelSignOutBtn.addEventListener("click", () => {
-                signOutModal.classList.remove("active");
-            });
-            cancelSignOutBtn2.addEventListener("click", () => {
-                signOutModal.classList.remove("active");
-            });
-
-            function toggleVisitorModal() {
-                addVisitorModal.classList.toggle("hidden");
-                addVisitorModal.classList.toggle("active");
-                document.body.classList.toggle("overflow-hidden");
-                notificationDropdown.classList.add("hidden");
-                userMenuDropdown.classList.add("hidden");
-                userMenuBtn.setAttribute("aria-expanded", "false");
-                profileModal.classList.remove("active");
-                accountSettingsModal.classList.remove("active");
-                privacySecurityModal.classList.remove("active");
-                signOutModal.classList.remove("active");
-<<<<<<< HEAD
-                checkInModal.classList.remove("active");
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-            }
-
-            addVisitorBtn.addEventListener("click", toggleVisitorModal);
-            closeAddVisitorModal.addEventListener("click", toggleVisitorModal);
-            cancelAddVisitor.addEventListener("click", toggleVisitorModal);
-
-            window.addEventListener("click", (e) => {
-                if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                    notificationDropdown.classList.add("hidden");
-                }
-                if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                    userMenuDropdown.classList.add("hidden");
-                    userMenuBtn.setAttribute("aria-expanded", "false");
-                }
-                if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
-                    profileModal.classList.remove("active");
-                }
-                if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
-                    accountSettingsModal.classList.remove("active");
-                }
-                if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
-                    privacySecurityModal.classList.remove("active");
-                }
-                if (!signOutModal.contains(e.target)) {
-                    signOutModal.classList.remove("active");
-                }
-                if (!addVisitorModal.contains(e.target) && !addVisitorBtn.contains(e.target)) {
-                    addVisitorModal.classList.remove("active");
-                }
-<<<<<<< HEAD
-                // Only close Check In modal when clicking outside and not on the trigger itself
-                if (!checkInModal.contains(e.target) && !e.target.closest('.visitorCheckInBtn')) {
-                    checkInModal.classList.remove("active");
-                }
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-            });
-
-            // Visitor modals logic
-            const viewVisitorModal = document.getElementById('viewVisitorModal');
-            const editVisitorModal = document.getElementById('editVisitorModal');
-            const deleteVisitorModal = document.getElementById('deleteVisitorModal');
-
-            function openModal(m){ m.classList.add('active'); m.classList.remove('hidden'); }
-            function closeModal(m){ m.classList.remove('active'); m.classList.add('hidden'); }
-
-<<<<<<< HEAD
-            // Check In modal actions
-            closeCheckIn?.addEventListener('click', ()=> closeModal(checkInModal));
-            cancelCheckIn?.addEventListener('click', ()=> closeModal(checkInModal));
-            confirmCheckIn?.addEventListener('click', async ()=>{
-                const id = document.getElementById('ciId').value;
-                const now = new Date();
-                const pad = (n)=> n.toString().padStart(2,'0');
-                const date = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
-                const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-                try {
-                    const res = await fetch(`{{ route('visitor.update') }}` ,{
-                        method: 'POST',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN': csrf, 'X-Requested-With':'XMLHttpRequest' },
-                        body: JSON.stringify({ id, status: 'checked_in', check_in_date: date, check_in_time: time })
-                    });
-                    if (!res.ok) throw new Error('Failed to check in visitor');
-                    closeModal(checkInModal);
-                    location.reload();
-                } catch(err){
-                    Swal.fire({ icon:'error', title:'Check-in failed', text: err.message || 'Please try again.', confirmButtonColor:'#2f855a' });
-                }
-            });
-
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-            // Close buttons
-            document.getElementById('closeViewVisitor')?.addEventListener('click', ()=>closeModal(viewVisitorModal));
-            document.getElementById('closeViewVisitor2')?.addEventListener('click', ()=>closeModal(viewVisitorModal));
-            document.getElementById('closeEditVisitor')?.addEventListener('click', ()=>closeModal(editVisitorModal));
-            document.getElementById('cancelEditVisitor')?.addEventListener('click', ()=>closeModal(editVisitorModal));
-            document.getElementById('closeDeleteVisitor')?.addEventListener('click', ()=>closeModal(deleteVisitorModal));
-            document.getElementById('cancelDeleteVisitor')?.addEventListener('click', ()=>closeModal(deleteVisitorModal));
-
-            // Stop propagation inside modal content
-<<<<<<< HEAD
-            [viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal].forEach(m => {
-=======
-            [viewVisitorModal, editVisitorModal, deleteVisitorModal].forEach(m => {
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-                m?.addEventListener('click', (e)=>{ if(e.target === m) closeModal(m); });
-                m?.querySelector('div')?.addEventListener('click', (e)=>e.stopPropagation());
-            });
-
-            async function fetchVisitor(id){
-                const url = `{{ route('visitor.get') }}` + `?id=${encodeURIComponent(id)}`;
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) return null;
-                const data = await res.json();
-                return data.visitor || null;
-            }
-
-            // Delegated clicks
-            document.addEventListener('click', async (e) => {
-                const vView = e.target.closest('.visitorViewBtn');
-                const vEdit = e.target.closest('.visitorEditBtn');
-                const vDel = e.target.closest('.visitorDeleteBtn');
-<<<<<<< HEAD
-                const vIn = e.target.closest('.visitorCheckInBtn');
-                if (!vView && !vEdit && !vDel && !vIn) return;
-                e.preventDefault();
-                const id = (vView||vEdit||vDel||vIn).dataset.id;
-=======
-                if (!vView && !vEdit && !vDel) return;
-                e.preventDefault();
-                const id = (vView||vEdit||vDel).dataset.id;
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-
-                if (vView) {
-                    const v = await fetchVisitor(id);
-                    if (!v) return;
-                    document.getElementById('vvId').textContent = v.id || '';
-                    document.getElementById('vvName').textContent = v.name || '—';
-                    document.getElementById('vvCompany').textContent = v.company || '—';
-                    document.getElementById('vvType').textContent = v.visitor_type || '—';
-                    document.getElementById('vvHost').textContent = v.host || '—';
-                    document.getElementById('vvDept').textContent = v.host_department || '—';
-                    document.getElementById('vvDate').textContent = v.check_in_date || '—';
-                    document.getElementById('vvTime').textContent = v.check_in_time || '—';
-                    document.getElementById('vvStatus').textContent = (v.status||'scheduled').replace('_',' ');
-                    openModal(viewVisitorModal);
-                    return;
-                }
-
-                if (vEdit) {
-                    const v = await fetchVisitor(id);
-                    if (!v) return;
-                    document.getElementById('evId').value = v.id || '';
-                    document.getElementById('evCompany').value = v.company || '';
-                    document.getElementById('evType').value = v.visitor_type || '';
-                    document.getElementById('evPurpose').value = v.purpose || '';
-                    document.getElementById('evDate').value = v.check_in_date || '';
-                    document.getElementById('evTime').value = v.check_in_time || '';
-                    document.getElementById('evStatus').value = v.status || 'scheduled';
-                    openModal(editVisitorModal);
-                    return;
-                }
-
-                if (vDel) {
-                    document.getElementById('dvId').value = id;
-                    document.getElementById('dvText').textContent = id;
-                    openModal(deleteVisitorModal);
-                    return;
-                }
-<<<<<<< HEAD
-
-                if (vIn) {
-                    // Prevent window click handler from firing right after opening modal
-                    e.stopPropagation();
-                    document.getElementById('ciId').value = id;
-                    document.getElementById('ciText').textContent = id;
-                    openModal(checkInModal);
-                    return;
-                }
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-            });
-
-            // Submit edit visitor
-            document.getElementById('editVisitorForm')?.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const payload = {
-                    id: document.getElementById('evId').value,
-                    company: document.getElementById('evCompany').value || null,
-                    visitor_type: document.getElementById('evType').value || null,
-                    purpose: document.getElementById('evPurpose').value || null,
-                    check_in_date: document.getElementById('evDate').value || null,
-                    check_in_time: document.getElementById('evTime').value || null,
-                    status: document.getElementById('evStatus').value || null,
-                };
-                const res = await fetch(`{{ route('visitor.update') }}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                if (res.ok) {
-                    closeModal(editVisitorModal);
-                    location.reload();
-                } else {
-                    alert('Failed to update visitor');
-                }
-            });
-
-            // Confirm delete
-            document.getElementById('confirmDeleteVisitor')?.addEventListener('click', async () => {
-                const id = document.getElementById('dvId').value;
-                const fd = new FormData();
-                fd.append('id', id);
-                const res = await fetch(`{{ route('visitor.delete') }}`, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
-                    body: fd,
-                });
-                if (res.ok) {
-                    closeModal(deleteVisitorModal);
-                    location.reload();
-                } else {
-                    alert('Failed to delete visitor');
-                }
-            });
-
-            profileModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            accountSettingsModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            privacySecurityModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            signOutModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-            addVisitorModal.querySelector("div").addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
-
-            addVisitorForm.addEventListener("submit", async function (e) {
-                e.preventDefault();
-                const formEl = e.target;
-                const payload = {
-                    firstName: formEl.firstName.value,
-                    lastName: formEl.lastName.value,
-                    email: formEl.email.value || null,
-                    phone: formEl.phone.value,
-                    company: formEl.company.value,
-                    visitorType: formEl.visitorType.value,
-<<<<<<< HEAD
-                    hostName: formEl.hostName.value,
-                    hostDepartment: formEl.hostDepartment.value || null,
-=======
-                    hostId: formEl.hostId.value,
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-                    purpose: formEl.purpose.value,
-                    checkInDate: formEl.checkInDate.value,
-                    checkInTime: formEl.checkInTime.value,
-                    notes: formEl.notes.value || null,
-                };
-                try {
-                    const res = await fetch(`{{ route('visitor.create') }}`, {
-                        method: 'POST',
-<<<<<<< HEAD
-                        credentials: 'same-origin',
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrf,
-<<<<<<< HEAD
-                            'X-Requested-With': 'XMLHttpRequest',
-=======
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-                        },
-                        body: JSON.stringify(payload)
-                    });
-                    if (!res.ok) {
-<<<<<<< HEAD
-                        let msg = 'Failed to register visitor';
-                        try {
-                            const err = await res.json();
-                            msg = err.message || (err.errors ? Object.values(err.errors).flat().join('\n') : msg);
-                        } catch (_) {
-                            const txt = await res.text().catch(()=> '');
-                            if (res.status === 419) msg = 'Session expired or CSRF mismatch. Please refresh and try again.';
-                            else if (txt) msg = txt.substring(0, 300);
-                        }
-                        throw new Error(msg);
-=======
-                        const err = await res.json().catch(()=>({}));
-                        throw new Error(err.message || 'Failed to register visitor');
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
-                    }
-                    toggleVisitorModal();
-                    location.reload();
-                } catch (err) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Registration failed',
-                        text: err.message || 'Please check the form and try again.',
-                        confirmButtonColor: '#2f855a',
-                    });
-                }
-            });
-
-            window.addEventListener("resize", () => {
-                if (window.innerWidth >= 768) {
-                    sidebar.classList.remove("-ml-72");
-                    overlay.classList.add("hidden");
-                    document.body.style.overflow = "";
-                    if (!mainContent.classList.contains("md:ml-72")) {
-                        mainContent.classList.add("md:ml-72", "sidebar-open");
-                        mainContent.classList.remove("sidebar-closed");
-                    }
-                } else {
-                    sidebar.classList.add("-ml-72");
-                    mainContent.classList.remove("md:ml-72", "sidebar-open");
-                    mainContent.classList.add("sidebar-closed");
-                    overlay.classList.add("hidden");
-                    document.body.style.overflow = "";
-                }
-                closeAllDropdowns();
-            });
-
-            const tooltipTriggers = document.querySelectorAll("[data-tooltip]");
-            tooltipTriggers.forEach(trigger => {
-                trigger.addEventListener("mouseenter", (e) => {
-                    const tooltip = document.createElement("div");
-                    tooltip.className = "absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg";
-                    tooltip.textContent = e.target.dataset.tooltip;
-                    document.body.appendChild(tooltip);
-
-                    const rect = e.target.getBoundingClientRect();
-                    tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
-                    tooltip.style.left = `${rect.left + window.scrollX}px`;
-
-                    e.target._tooltip = tooltip;
-                });
-
-                trigger.addEventListener("mouseleave", (e) => {
-                    if (e.target._tooltip) {
-                        e.target._tooltip.remove();
-                        delete e.target._tooltip;
-                    }
-                });
-            });
+    // Close all dropdowns
+    function closeAllDropdowns() {
+        dropdownToggles.forEach((toggle) => {
+            const dropdown = toggle.nextElementSibling;
+            const chevron = toggle.querySelector(".bx-chevron-down");
+            dropdown.classList.add("hidden");
+            chevron.classList.remove("rotate-180");
         });
+    }
+
+    // Toggle dropdown
+    dropdownToggles.forEach((toggle) => {
+        toggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const dropdown = toggle.nextElementSibling;
+            const chevron = toggle.querySelector(".bx-chevron-down");
+            const isOpen = !dropdown.classList.contains("hidden");
+
+            // Close all other dropdowns
+            closeAllDropdowns();
+
+            // Toggle the clicked dropdown
+            if (!isOpen) {
+                dropdown.classList.remove("hidden");
+                chevron.classList.add("rotate-180");
+            }
+        });
+    });
+
+    // Client-side search filtering for visitors table
+    function updateResultsCount() {
+        const tbody = document.getElementById('visitorsTbody');
+        if (!tbody || !resultsCount) return;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const visitorRows = rows.filter(r => !r.querySelector('td[colspan]'));
+        const visible = visitorRows.filter(r => !r.classList.contains('hidden')).length;
+        resultsCount.textContent = visible + (visible === 1 ? ' result' : ' results');
+    }
+
+    function applySearchFilter(query) {
+        const q = (query || '').toString().toLowerCase().trim();
+        const tbody = document.getElementById('visitorsTbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.forEach(tr => {
+            const emptyCell = tr.querySelector('td[colspan]');
+            if (emptyCell) { tr.classList.toggle('hidden', q.length > 0); return; }
+            const name = tr.querySelector('td:nth-child(1) .text-sm')?.textContent || '';
+            const id = tr.querySelector('td:nth-child(1) .text-xs')?.textContent || '';
+            const company = tr.querySelector('td:nth-child(2) .text-sm')?.textContent || '';
+            const type = tr.querySelector('td:nth-child(2) .text-xs')?.textContent || '';
+            const host = tr.querySelector('td:nth-child(3) .text-sm')?.textContent || '';
+            const dept = tr.querySelector('td:nth-child(3) .text-xs')?.textContent || '';
+            const hay = (name + ' ' + id + ' ' + company + ' ' + type + ' ' + host + ' ' + dept).toLowerCase();
+            const match = q === '' ? true : hay.includes(q);
+            tr.classList.toggle('hidden', !match);
+        });
+        updateResultsCount();
+    }
+
+    if (searchVisitors) {
+        searchVisitors.addEventListener('input', (e) => applySearchFilter(e.target.value));
+        // Initialize count on load
+        applySearchFilter('');
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener("click", (e) => {
+        if (!e.target.closest(".has-dropdown")) {
+            closeAllDropdowns();
+        }
+    });
+
+    // Sidebar toggle
+    toggleBtn.addEventListener("click", toggleSidebar);
+
+    // Close sidebar on overlay click
+    overlay.addEventListener("click", () => {
+        sidebar.classList.add("-ml-72");
+        overlay.classList.add("hidden");
+        document.body.style.overflow = "";
+        mainContent.classList.remove("sidebar-open");
+        mainContent.classList.add("sidebar-closed");
+        closeAllDropdowns();
+    });
+
+    // Notification dropdown
+    notificationBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        notificationDropdown.classList.toggle("hidden");
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+        closeAllModals();
+    });
+
+    // User menu dropdown
+    userMenuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        userMenuDropdown.classList.toggle("hidden");
+        const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
+        userMenuBtn.setAttribute("aria-expanded", !expanded);
+        notificationDropdown.classList.add("hidden");
+        closeAllModals();
+    });
+
+    // Modal handling
+    function clearAddVisitorValidation(form) {
+        if (!form) return;
+        const fields = [form.firstName, form.lastName, form.phone, form.company, form.visitorType, form.purpose, form.checkInDate, form.checkInTime, (form.hostId || form.hostName), form.email];
+        fields.forEach(el => {
+            if (!el) return;
+            el.classList.remove('border-red-500');
+            el.classList.add('border-gray-300');
+        });
+    }
+    function closeAllModals() {
+        profileModal.classList.remove("active");
+        accountSettingsModal.classList.remove("active");
+        privacySecurityModal.classList.remove("active");
+        signOutModal.classList.remove("active");
+        addVisitorModal.classList.remove("active");
+        checkInModal.classList.remove("active");
+        viewVisitorModal.classList.remove("active");
+        editVisitorModal.classList.remove("active");
+        deleteVisitorModal.classList.remove("active");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    // Profile modal
+    openProfileBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeAllModals();
+        profileModal.classList.add("active");
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+    });
+
+    closeProfileBtn.addEventListener("click", closeAllModals);
+    closeProfileBtn2.addEventListener("click", closeAllModals);
+
+    // Account settings modal
+    openAccountSettingsBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeAllModals();
+        accountSettingsModal.classList.add("active");
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+    });
+
+    closeAccountSettingsBtn.addEventListener("click", closeAllModals);
+    cancelAccountSettingsBtn.addEventListener("click", closeAllModals);
+
+    // Privacy & security modal
+    openPrivacySecurityBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeAllModals();
+        privacySecurityModal.classList.add("active");
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+    });
+
+    closePrivacySecurityBtn.addEventListener("click", closeAllModals);
+    cancelPrivacySecurityBtn.addEventListener("click", closeAllModals);
+
+    // Sign out modal
+    openSignOutBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeAllModals();
+        signOutModal.classList.add("active");
+        userMenuDropdown.classList.add("hidden");
+        userMenuBtn.setAttribute("aria-expanded", "false");
+    });
+
+    cancelSignOutBtn.addEventListener("click", closeAllModals);
+    cancelSignOutBtn2.addEventListener("click", closeAllModals);
+
+    // Add visitor modal
+    addVisitorBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeAllModals();
+        addVisitorModal.classList.add("active");
+        document.body.classList.add("overflow-hidden");
+        const form = addVisitorModal.querySelector('#addVisitorForm');
+        if (form) { form.reset(); clearAddVisitorValidation(form); }
+    });
+
+    closeAddVisitorModal.addEventListener("click", () => { const f = addVisitorModal.querySelector('#addVisitorForm'); if (f) { f.reset(); clearAddVisitorValidation(f); } closeAllModals(); });
+    cancelAddVisitor.addEventListener("click", () => { const f = addVisitorModal.querySelector('#addVisitorForm'); if (f) { f.reset(); clearAddVisitorValidation(f); } closeAllModals(); });
+
+    // Close modals and dropdowns on outside click
+    window.addEventListener("click", (e) => {
+        if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+            notificationDropdown.classList.add("hidden");
+        }
+        if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+            userMenuDropdown.classList.add("hidden");
+            userMenuBtn.setAttribute("aria-expanded", "false");
+        }
+        if (
+            !profileModal.contains(e.target) &&
+            !openProfileBtn.contains(e.target) &&
+            !accountSettingsModal.contains(e.target) &&
+            !openAccountSettingsBtn.contains(e.target) &&
+            !privacySecurityModal.contains(e.target) &&
+            !openPrivacySecurityBtn.contains(e.target) &&
+            !signOutModal.contains(e.target) &&
+            !openSignOutBtn.contains(e.target) &&
+            !addVisitorModal.contains(e.target) &&
+            !addVisitorBtn.contains(e.target) &&
+            !checkInModal.contains(e.target) &&
+            !e.target.closest(".visitorCheckInBtn") &&
+            !viewVisitorModal.contains(e.target) &&
+            !e.target.closest(".visitorViewBtn") &&
+            !editVisitorModal.contains(e.target) &&
+            !e.target.closest(".visitorEditBtn") &&
+            !deleteVisitorModal.contains(e.target) &&
+            !e.target.closest(".visitorDeleteBtn")
+        ) {
+            closeAllModals();
+            closeAllDropdowns();
+        }
+    });
+
+    // Stop propagation inside modals
+    [profileModal, accountSettingsModal, privacySecurityModal, signOutModal, addVisitorModal, checkInModal, viewVisitorModal, editVisitorModal, deleteVisitorModal].forEach((modal) => {
+        modal.querySelector("div")?.addEventListener("click", (e) => e.stopPropagation());
+    });
+
+    // Visitor modals logic
+    function openModal(modal) {
+        closeAllModals();
+        modal.classList.add("active");
+        modal.classList.remove("hidden");
+        document.body.classList.add("overflow-hidden");
+    }
+
+    function closeModal(modal) {
+        modal.classList.remove("active");
+        modal.classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    // Check In modal actions
+    closeCheckIn?.addEventListener("click", () => closeModal(checkInModal));
+    cancelCheckIn?.addEventListener("click", () => closeModal(checkInModal));
+    confirmCheckIn?.addEventListener("click", async () => {
+        const id = document.getElementById("ciId").value;
+        const now = new Date();
+        const pad = (n) => n.toString().padStart(2, "0");
+        const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+        const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        try {
+            const res = await fetch(`{{ route('visitor.update') }}`, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": csrf,
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify({ id, status: "checked_in", check_in_date: date, check_in_time: time }),
+            });
+            if (!res.ok) throw new Error("Failed to check in visitor");
+            closeModal(checkInModal);
+            location.reload();
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Check-in failed",
+                text: err.message || "Please try again.",
+                confirmButtonColor: "#2f855a",
+            });
+        }
+    });
+
+    // Close buttons for visitor modals
+    document.getElementById("closeViewVisitor")?.addEventListener("click", () => closeModal(viewVisitorModal));
+    document.getElementById("closeViewVisitor2")?.addEventListener("click", () => closeModal(viewVisitorModal));
+    document.getElementById("closeEditVisitor")?.addEventListener("click", () => closeModal(editVisitorModal));
+    document.getElementById("cancelEditVisitor")?.addEventListener("click", () => closeModal(editVisitorModal));
+    document.getElementById("closeDeleteVisitor")?.addEventListener("click", () => closeModal(deleteVisitorModal));
+    document.getElementById("cancelDeleteVisitor")?.addEventListener("click", () => closeModal(deleteVisitorModal));
+
+    // Fetch visitor data
+    async function fetchVisitor(id) {
+        const url = `{{ route('visitor.get') }}?id=${encodeURIComponent(id)}`;
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
+        if (!res.ok) return null;
+        const data = await res.json();
+        return data.visitor || null;
+    }
+
+    // Delegated clicks for visitor actions
+    document.addEventListener("click", async (e) => {
+        const vView = e.target.closest(".visitorViewBtn");
+        const vEdit = e.target.closest(".visitorEditBtn");
+        const vDel = e.target.closest(".visitorDeleteBtn");
+        const vIn = e.target.closest(".visitorCheckInBtn");
+
+        if (!vView && !vEdit && !vDel && !vIn) return;
+        e.preventDefault();
+        const id = (vView || vEdit || vDel || vIn)?.dataset.id;
+
+        if (vView) {
+            const v = await fetchVisitor(id);
+            if (!v) return;
+            document.getElementById("vvId").textContent = v.id || "";
+            document.getElementById("vvName").textContent = v.name || "—";
+            document.getElementById("vvCompany").textContent = v.company || "—";
+            document.getElementById("vvType").textContent = v.visitor_type || "—";
+            document.getElementById("vvHost").textContent = v.host || "—";
+            document.getElementById("vvDept").textContent = v.host_department || "—";
+            document.getElementById("vvDate").textContent = v.check_in_date || "—";
+            document.getElementById("vvTime").textContent = v.check_in_time || "—";
+            document.getElementById("vvStatus").textContent = (v.status || "scheduled").replace("_", " ");
+            openModal(viewVisitorModal);
+            return;
+        }
+
+        if (vEdit) {
+            const v = await fetchVisitor(id);
+            if (!v) return;
+            document.getElementById("evId").value = v.id || "";
+            document.getElementById("evCompany").value = v.company || "";
+            document.getElementById("evType").value = v.visitor_type || "";
+            document.getElementById("evPurpose").value = v.purpose || "";
+            document.getElementById("evDate").value = v.check_in_date || "";
+            document.getElementById("evTime").value = v.check_in_time || "";
+            document.getElementById("evStatus").value = v.status || "scheduled";
+            openModal(editVisitorModal);
+            return;
+        }
+
+        if (vDel) {
+            document.getElementById("dvId").value = id;
+            document.getElementById("dvText").textContent = id;
+            openModal(deleteVisitorModal);
+            return;
+        }
+
+        if (vIn) {
+            e.stopPropagation();
+            document.getElementById("ciId").value = id;
+            document.getElementById("ciText").textContent = id;
+            openModal(checkInModal);
+            return;
+        }
+    });
+
+    // Submit edit visitor
+    document.getElementById("editVisitorForm")?.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const payload = {
+            id: document.getElementById("evId").value,
+            company: document.getElementById("evCompany").value || null,
+            visitor_type: document.getElementById("evType").value || null,
+            purpose: document.getElementById("evPurpose").value || null,
+            check_in_date: document.getElementById("evDate").value || null,
+            check_in_time: document.getElementById("evTime").value || null,
+            status: document.getElementById("evStatus").value || null,
+        };
+        try {
+            const res = await fetch(`{{ route('visitor.update') }}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrf,
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+                closeModal(editVisitorModal);
+                location.reload();
+            } else {
+                throw new Error("Failed to update visitor");
+            }
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Update failed",
+                text: err.message || "Please try again.",
+                confirmButtonColor: "#2f855a",
+            });
+        }
+    });
+
+    // Confirm delete
+    document.getElementById("confirmDeleteVisitor")?.addEventListener("click", async () => {
+        const id = document.getElementById("dvId").value;
+        const fd = new FormData();
+        fd.append("id", id);
+        try {
+            const res = await fetch(`{{ route('visitor.delete') }}`, {
+                method: "POST",
+                headers: { "X-CSRF-TOKEN": csrf, "Accept": "application/json" },
+                body: fd,
+            });
+            if (res.ok) {
+                closeModal(deleteVisitorModal);
+                location.reload();
+            } else {
+                throw new Error("Failed to delete visitor");
+            }
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Deletion failed",
+                text: err.message || "Please try again.",
+                confirmButtonColor: "#2f855a",
+            });
+        }
+    });
+
+    // Add visitor form submission (delegate to support duplicate forms/modals)
+    document.addEventListener("submit", async (e) => {
+        const formEl = e.target;
+        if (!(formEl && formEl.id === "addVisitorForm")) return;
+        e.preventDefault();
+        // Basic client-side validation
+        const trim = (v) => (v ?? "").toString().trim();
+        const errors = [];
+        const firstName = trim(formEl.firstName?.value);
+        const lastName = trim(formEl.lastName?.value);
+        const phone = trim(formEl.phone?.value);
+        const company = trim(formEl.company?.value);
+        const visitorType = trim(formEl.visitorType?.value);
+        const hostId = trim(formEl.hostId?.value);
+        const hostName = trim(formEl.hostName?.value); // optional alt
+        const hostDepartment = trim(formEl.hostDepartment?.value);
+        const purpose = trim(formEl.purpose?.value);
+        const checkInDate = trim(formEl.checkInDate?.value);
+        const checkInTime = trim(formEl.checkInTime?.value);
+        const email = trim(formEl.email?.value);
+
+        // Requireds
+        if (!firstName) errors.push("First name is required.");
+        if (!lastName) errors.push("Last name is required.");
+        if (!phone) errors.push("Phone is required.");
+        if (!company) errors.push("Company is required.");
+        if (!visitorType) errors.push("Visitor type is required.");
+        if (!purpose) errors.push("Purpose is required.");
+        if (!checkInDate) errors.push("Check-in date is required.");
+        if (!checkInTime) errors.push("Check-in time is required.");
+        // Host requirement: allow either hostId or hostName
+        if (!hostId && !hostName) errors.push("Host is required.");
+
+        // Simple format checks
+        if (email && !/^\S+@\S+\.\S+$/.test(email)) errors.push("Email format is invalid.");
+        if (phone && phone.replace(/[^0-9+\-()\s]/g, "").length < 7) errors.push("Phone seems invalid.");
+
+        // Visual hinting
+        const mark = (el, bad) => { if (!el) return; el.classList.toggle("border-red-500", !!bad); el.classList.toggle("border-gray-300", !bad); };
+        mark(formEl.firstName, !firstName);
+        mark(formEl.lastName, !lastName);
+        mark(formEl.phone, !phone);
+        mark(formEl.company, !company);
+        mark(formEl.visitorType, !visitorType);
+        mark(formEl.purpose, !purpose);
+        mark(formEl.checkInDate, !checkInDate);
+        mark(formEl.checkInTime, !checkInTime);
+        mark(formEl.hostId || formEl.hostName, !hostId && !hostName);
+        mark(formEl.email, email && !/^\S+@\S+\.\S+$/.test(email));
+
+        if (errors.length > 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Please fix the following",
+                html: `<div style="text-align:left">${errors.map(e => `• ${e}`).join('<br>')}</div>`,
+                confirmButtonColor: "#2f855a",
+            });
+            const firstInvalid = [formEl.firstName, formEl.lastName, formEl.phone, formEl.company, formEl.visitorType, formEl.purpose, formEl.checkInDate, formEl.checkInTime, (formEl.hostId || formEl.hostName), formEl.email].find(el => el && el.classList.contains('border-red-500'));
+            if (firstInvalid) firstInvalid.focus();
+            return;
+        }
+
+        const payload = {
+            firstName,
+            lastName,
+            email: email || null,
+            phone,
+            company,
+            visitorType,
+            hostId: hostId || null,
+            hostName: hostName || "",
+            hostDepartment: hostDepartment || null,
+            purpose,
+            checkInDate,
+            checkInTime,
+            notes: trim(formEl.notes?.value) || null,
+            sendEmailNotification: !!formEl.sendEmailNotification?.checked,
+        };
+        try {
+            const res = await fetch(`{{ route('visitor.create') }}`, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "X-CSRF-TOKEN": csrf,
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                let msg = "Failed to register visitor";
+                try {
+                    const err = await res.json();
+                    msg = err.message || (err.errors ? Object.values(err.errors).flat().join("\n") : msg);
+                } catch (_) {
+                    const txt = await res.text().catch(() => "");
+                    if (res.status === 419) msg = "Session expired or CSRF mismatch. Please refresh and try again.";
+                    else if (txt) msg = txt.substring(0, 300);
+                }
+                throw new Error(msg);
+            }
+            // Success: clear form & validation and close modal
+            clearAddVisitorValidation(formEl);
+            formEl.reset();
+            closeAllModals();
+            // Optional: keep reload for now; if you want instant table update, I can add it.
+            location.reload();
+        } catch (err) {
+            Swal.fire({
+                icon: "error",
+                title: "Registration failed",
+                text: err.message || "Please check the form and try again.",
+                confirmButtonColor: "#2f855a",
+            });
+        }
+    });
+
+    // Window resize handling
+    window.addEventListener("resize", () => {
+        if (window.innerWidth >= 768) {
+            sidebar.classList.remove("-ml-72");
+            overlay.classList.add("hidden");
+            document.body.style.overflow = "";
+            if (!mainContent.classList.contains("md:ml-72")) {
+                mainContent.classList.add("md:ml-72", "sidebar-open");
+                mainContent.classList.remove("sidebar-closed");
+            }
+        } else {
+            sidebar.classList.add("-ml-72");
+            mainContent.classList.remove("md:ml-72", "sidebar-open");
+            mainContent.classList.add("sidebar-closed");
+            overlay.classList.add("hidden");
+            document.body.style.overflow = "";
+        }
+        closeAllDropdowns();
+    });
+
+    // Tooltip handling
+    const tooltipTriggers = document.querySelectorAll("[data-tooltip]");
+    tooltipTriggers.forEach((trigger) => {
+        trigger.addEventListener("mouseenter", (e) => {
+            const tooltip = document.createElement("div");
+            tooltip.className = "absolute z-50 px-2 py-1 text-xs text-white bg-gray-900 rounded shadow-lg";
+            tooltip.textContent = e.target.dataset.tooltip;
+            document.body.appendChild(tooltip);
+
+            const rect = e.target.getBoundingClientRect();
+            tooltip.style.top = `${rect.bottom + window.scrollY + 5}px`;
+            tooltip.style.left = `${rect.left + window.scrollX}px`;
+
+            e.target._tooltip = tooltip;
+        });
+
+        trigger.addEventListener("mouseleave", (e) => {
+            if (e.target._tooltip) {
+                e.target._tooltip.remove();
+                delete e.target._tooltip;
+            }
+        });
+    });
+}); 
     </script>
 </body>
 </html>

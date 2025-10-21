@@ -353,7 +353,7 @@ $user = auth()->user();
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Today's Deadlines</p>
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $counts['today'] ?? 0 }}</p>
+                                    <p id="countToday" class="font-extrabold text-2xl mt-1 text-gray-900">{{ $counts['today'] ?? 0 }}</p>
                                 </div>
                                 <div class="p-3 rounded-full bg-green-100 text-green-600">
                                     <i class="fas fa-calendar-day text-xl"></i>
@@ -364,7 +364,7 @@ $user = auth()->user();
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Upcoming Hearings</p>
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $counts['upcoming'] ?? 0 }}</p>
+                                    <p id="countUpcoming" class="font-extrabold text-2xl mt-1 text-gray-900">{{ $counts['upcoming'] ?? 0 }}</p>
                                 </div>
                                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                                     <i class="fas fa-gavel text-xl"></i>
@@ -375,7 +375,7 @@ $user = auth()->user();
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Overdue</p>
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $counts['overdue'] ?? 0 }}</p>
+                                    <p id="countOverdue" class="font-extrabold text-2xl mt-1 text-gray-900">{{ $counts['overdue'] ?? 0 }}</p>
                                 </div>
                                 <div class="p-3 rounded-full bg-red-100 text-red-600">
                                     <i class="fas fa-exclamation-triangle text-xl"></i>
@@ -1238,15 +1238,122 @@ $user = auth()->user();
                 e.stopPropagation();
             });
 
-            addAlertForm.addEventListener('submit', function(e) {
+            document.addEventListener('submit', async function(e) {
+                const form = e.target;
+                if (!(form && form.id === 'addAlertForm')) return;
                 e.preventDefault();
-                toggleAddAlertModal();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Alert Added',
-                    text: 'The alert has been added successfully.',
-                    confirmButtonColor: '#2f855a',
-                });
+                const title = (form.querySelector('#alertTitle')?.value || '').trim();
+                const type = form.querySelector('#alertType')?.value || '';
+                const due_date = form.querySelector('#dueDate')?.value || '';
+                const priority = form.querySelector('#priority')?.value || 'medium';
+                const description = form.querySelector('#description')?.value || '';
+                const related_to = (form.querySelector('#relatedTo')?.value || '').trim();
+                try {
+                    const resp = await fetch('{{ route('hearings.create') }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: new URLSearchParams({ title, type, due_date, priority, description, related_to })
+                    });
+                    const data = await resp.json();
+                    if (!data || !data.success) throw new Error((data && data.message) || 'Failed to create alert');
+                    const h = data.hearing || {};
+                    const status = (h.status || 'upcoming').toLowerCase();
+                    const statusCls = status === 'today' ? 'bg-yellow-100 text-yellow-800' : (status === 'overdue' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800');
+                    const prioKey = (h.priority || 'Normal').toString().toLowerCase();
+                    const prioCls = prioKey === 'high' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800';
+                    const tbody = document.querySelector('table tbody');
+                    if (tbody) {
+                        const tr = document.createElement('tr');
+                        tr.className = 'table-row';
+                        tr.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">${h.title || ''}</div>
+                                <div class="text-xs text-gray-500">Case ${h.number || ''}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">${h.type || 'Hearing'}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">${h.date || '-'}</div>
+                                ${h.time ? `<div class="text-xs text-gray-500">${h.time}</div>` : ''}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusCls}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${prioCls}">${h.priority || 'Normal'}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="#" class="text-[#2f855A] hover:text-[#1a4d38] mr-3" title="View"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" title="Edit"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="text-red-600 hover:text-red-900" title="Delete"><i class="fas fa-trash"></i></a>
+                            </td>`;
+                        const emptyRowCell = tbody.querySelector('tr td[colspan]');
+                        if (emptyRowCell) emptyRowCell.parentElement?.remove();
+                        tbody.insertBefore(tr, tbody.firstChild);
+                    }
+                    const cToday = document.getElementById('countToday');
+                    const cUpcoming = document.getElementById('countUpcoming');
+                    const cOverdue = document.getElementById('countOverdue');
+                    const t = parseInt(cToday?.textContent || '0', 10);
+                    const u = parseInt(cUpcoming?.textContent || '0', 10);
+                    const o = parseInt(cOverdue?.textContent || '0', 10);
+                    if (status === 'today') { if (cToday) cToday.textContent = String(t + 1); }
+                    else if (status === 'overdue') { if (cOverdue) cOverdue.textContent = String(o + 1); }
+                    else { if (cUpcoming) cUpcoming.textContent = String(u + 1); }
+                    form.reset();
+                    const parentModal = form.closest('.modal');
+                    if (parentModal) { parentModal.classList.add('hidden'); parentModal.classList.remove('active'); }
+                    Swal.fire({ icon: 'success', title: 'Alert Added', text: 'The alert has been added successfully.', confirmButtonColor: '#2f855a' });
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'Failed', text: err?.message || 'Failed to add alert.', confirmButtonColor: '#2f855a' });
+                }
+            });
+
+            window.addEventListener("click", (e) => {
+                if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                    notificationDropdown.classList.add("hidden");
+                }
+                if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                    userMenuDropdown.classList.add("hidden");
+                    userMenuBtn.setAttribute("aria-expanded", "false");
+                }
+                if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
+                    profileModal.classList.remove("active");
+                }
+                if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
+                    accountSettingsModal.classList.remove("active");
+                }
+                if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
+                    privacySecurityModal.classList.remove("active");
+                }
+                if (!signOutModal.contains(e.target)) {
+                    signOutModal.classList.remove("active");
+                }
+                if (!addAlertModal.contains(e.target) && !addAlertBtn.contains(e.target)) {
+                    addAlertModal.classList.remove("active");
+                }
+            });
+
+            profileModal.querySelector("div").addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+            accountSettingsModal.querySelector("div").addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+            privacySecurityModal.querySelector("div").addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+            signOutModal.querySelector("div").addEventListener("click", (e) => {
+                e.stopPropagation();
+            });
+            addAlertModal.querySelector("div").addEventListener("click", (e) => {
+                e.stopPropagation();
             });
 
             window.addEventListener("resize", () => {

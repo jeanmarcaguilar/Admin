@@ -318,14 +318,10 @@ $user = auth()->user();
                             <h1 class="text-2xl font-bold text-[#1a4d38]">Visitor History Records</h1>
                             <p class="text-gray-600">View and manage visitor history and records</p>
                         </div>
-                        <div class="mt-4 md:mt-0 flex space-x-3">
-                            <button class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-gray-50 transition-colors text-sm font-medium">
+                        <div class="mt-4 md:mt-0 flex">
+                            <button id="exportBtn" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-gray-50 transition-colors text-sm font-medium">
                                 <i class="fas fa-download"></i>
                                 <span>Export</span>
-                            </button>
-                            <button class="bg-[#28644c] hover:bg-[#1e4e3a] text-white px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors text-sm font-medium">
-                                <i class="fas fa-filter"></i>
-                                <span>Filter</span>
                             </button>
                         </div>
     </div>
@@ -382,33 +378,12 @@ $user = auth()->user();
                     </div>
                     <!-- Search and Filter -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-6">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="relative flex-1 max-w-md">
+                        <div class="flex flex-col md:flex-row md:items-center gap-4">
+                            <div class="relative flex-1 max-w-none w-full">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <i class="fas fa-search text-gray-400"></i>
                                 </div>
-                                <input type="text" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" placeholder="Search visitors...">
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
-                                    <option>All Status</option>
-                                    <option>Checked In</option>
-                                    <option>Checked Out</option>
-                                    <option>Scheduled</option>
-                                    <option>Overdue</option>
-                                </select>
-                                <select class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
-                                    <option>All Types</option>
-                                    <option>Client</option>
-                                    <option>Vendor</option>
-                                    <option>Contractor</option>
-                                    <option>Guest</option>
-                                </select>
-                                <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
-                                <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
-                                    <i class="fas fa-filter text-gray-600 mr-2"></i>
-                                    <span>Filter</span>
-                                </button>
+                                <input type="text" class="block w-full pl-10 pr-3 py-3 text-base border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" placeholder="Search visitors...">
                             </div>
                         </div>
                     </div>
@@ -679,172 +654,275 @@ $user = auth()->user();
     </form>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const elements = {
-                sidebar: document.getElementById('sidebar'),
-                mainContent: document.getElementById('main-content'),
-                toggleBtn: document.getElementById('toggle-btn'),
-                overlay: document.getElementById('overlay'),
-                dropdownToggles: document.querySelectorAll('.has-dropdown > div'),
-                notificationBtn: document.getElementById('notificationBtn'),
-                notificationDropdown: document.getElementById('notificationDropdown'),
-                userMenuBtn: document.getElementById('userMenuBtn'),
-                userMenuDropdown: document.getElementById('userMenuDropdown'),
-                openProfileBtn: document.getElementById('openProfileBtn'),
-                openAccountSettingsBtn: document.getElementById('openAccountSettingsBtn'),
-                openPrivacySecurityBtn: document.getElementById('openPrivacySecurityBtn'),
-                openSignOutBtn: document.getElementById('openSignOutBtn'),
-                profileModal: document.getElementById('profileModal'),
-                accountSettingsModal: document.getElementById('accountSettingsModal'),
-                privacySecurityModal: document.getElementById('privacySecurityModal'),
-                signOutModal: document.getElementById('signOutModal'),
-                closeProfileBtn: document.getElementById('closeProfileBtn'),
-                closeProfileBtn2: document.getElementById('closeProfileBtn2'),
-                closeAccountSettingsBtn: document.getElementById('closeAccountSettingsBtn'),
-                cancelAccountSettingsBtn: document.getElementById('cancelAccountSettingsBtn'),
-                closePrivacySecurityBtn: document.getElementById('closePrivacySecurityBtn'),
-                cancelPrivacySecurityBtn: document.getElementById('cancelPrivacySecurityBtn'),
-                cancelSignOutBtn: document.getElementById('cancelSignOutBtn'),
-                cancelSignOutBtn2: document.getElementById('cancelSignOutBtn2'),
-                signOutBtn: document.getElementById('signOutBtn')
-            };
+document.addEventListener('DOMContentLoaded', () => {
+    const elements = {
+        sidebar: document.getElementById('sidebar'),
+        mainContent: document.getElementById('main-content'),
+        toggleBtn: document.getElementById('toggle-btn'),
+        overlay: document.getElementById('overlay'),
+        dropdownToggles: document.querySelectorAll('.has-dropdown > div'),
+        notificationBtn: document.getElementById('notificationBtn'),
+        notificationDropdown: document.getElementById('notificationDropdown'),
+        userMenuBtn: document.getElementById('userMenuBtn'),
+        userMenuDropdown: document.getElementById('userMenuDropdown'),
+        openProfileBtn: document.getElementById('openProfileBtn'),
+        openAccountSettingsBtn: document.getElementById('openAccountSettingsBtn'),
+        openPrivacySecurityBtn: document.getElementById('openPrivacySecurityBtn'),
+        openSignOutBtn: document.getElementById('openSignOutBtn'),
+        profileModal: document.getElementById('profileModal'),
+        accountSettingsModal: document.getElementById('accountSettingsModal'),
+        privacySecurityModal: document.getElementById('privacySecurityModal'),
+        signOutModal: document.getElementById('signOutModal'),
+        closeProfileBtn: document.getElementById('closeProfileBtn'),
+        closeProfileBtn2: document.getElementById('closeProfileBtn2'),
+        closeAccountSettingsBtn: document.getElementById('closeAccountSettingsBtn'),
+        cancelAccountSettingsBtn: document.getElementById('cancelAccountSettingsBtn'),
+        closePrivacySecurityBtn: document.getElementById('closePrivacySecurityBtn'),
+        cancelPrivacySecurityBtn: document.getElementById('cancelPrivacySecurityBtn'),
+        cancelSignOutBtn: document.getElementById('cancelSignOutBtn'),
+        cancelSignOutBtn2: document.getElementById('cancelSignOutBtn2'),
+        signOutBtn: document.getElementById('signOutBtn')
+    };
 
-            // Initialize sidebar state
-            if (window.innerWidth >= 768) {
-                elements.sidebar.classList.remove('-ml-72');
-                elements.mainContent.classList.add('md:ml-72', 'sidebar-open');
-            } else {
-                elements.sidebar.classList.add('-ml-72');
-                elements.mainContent.classList.remove('md:ml-72', 'sidebar-open');
-                elements.mainContent.classList.add('sidebar-closed');
+    // Initialize sidebar state
+    const initializeSidebar = () => {
+        if (window.innerWidth >= 768) {
+            elements.sidebar.classList.remove('-ml-72');
+            elements.mainContent.classList.add('md:ml-72', 'sidebar-open');
+            elements.mainContent.classList.remove('sidebar-closed');
+        } else {
+            elements.sidebar.classList.add('-ml-72');
+            elements.mainContent.classList.remove('md:ml-72', 'sidebar-open');
+            elements.mainContent.classList.add('sidebar-closed');
+        }
+    };
+
+    initializeSidebar();
+
+    // Toggle sidebar
+    const toggleSidebar = () => {
+        if (window.innerWidth >= 768) {
+            elements.sidebar.classList.toggle('md:-ml-72');
+            elements.mainContent.classList.toggle('md:ml-72');
+            elements.mainContent.classList.toggle('sidebar-open');
+            elements.mainContent.classList.toggle('sidebar-closed');
+        } else {
+            elements.sidebar.classList.toggle('-ml-72');
+            elements.overlay.classList.toggle('hidden');
+            document.body.style.overflow = elements.sidebar.classList.contains('-ml-72') ? '' : 'hidden';
+            elements.mainContent.classList.toggle('sidebar-open', !elements.sidebar.classList.contains('-ml-72'));
+            elements.mainContent.classList.toggle('sidebar-closed', elements.sidebar.classList.contains('-ml-72'));
+        }
+    };
+
+    // Close all dropdowns
+    const closeAllDropdowns = (exclude = null) => {
+        elements.dropdownToggles.forEach(toggle => {
+            if (toggle !== exclude) {
+                const dropdown = toggle.nextElementSibling;
+                const chevron = toggle.querySelector('.bx-chevron-down');
+                const parent = toggle.parentElement;
+                dropdown.classList.add('hidden');
+                dropdown.classList.remove('active');
+                chevron.classList.remove('rotate-180');
+                dropdown.style.maxHeight = '0';
+                parent.classList.remove('active');
             }
-
-            // Toggle sidebar
-            const toggleSidebar = () => {
-                if (window.innerWidth >= 768) {
-                    elements.sidebar.classList.toggle('md:-ml-72');
-                    elements.mainContent.classList.toggle('md:ml-72');
-                    elements.mainContent.classList.toggle('sidebar-open');
-                    elements.mainContent.classList.toggle('sidebar-closed');
-                } else {
-                    elements.sidebar.classList.toggle('-ml-72');
-                    elements.overlay.classList.toggle('hidden');
-                    document.body.style.overflow = elements.sidebar.classList.contains('-ml-72') ? '' : 'hidden';
-                    elements.mainContent.classList.toggle('sidebar-open', !elements.sidebar.classList.contains('-ml-72'));
-                    elements.mainContent.classList.toggle('sidebar-closed', elements.sidebar.classList.contains('-ml-72'));
-                }
-            };
-
-            // Close all dropdowns
-            const closeAllDropdowns = () => {
-                elements.dropdownToggles.forEach(toggle => {
-                    const dropdown = toggle.nextElementSibling;
-                    const chevron = toggle.querySelector('.bx-chevron-down');
-                    if (!dropdown.classList.contains('hidden')) {
-                        dropdown.classList.add('hidden');
-                        dropdown.classList.remove('active');
-                        chevron.classList.remove('rotate-180');
-                        dropdown.style.maxHeight = '0';
-                    }
-                });
-            };
-
-            // Toggle dropdowns
-            elements.dropdownToggles.forEach(toggle => {
-                toggle.addEventListener('click', () => {
-                    const dropdown = toggle.nextElementSibling;
-                    const chevron = toggle.querySelector('.bx-chevron-down');
-                    const isHidden = dropdown.classList.contains('hidden');
-                    closeAllDropdowns();
-                    if (isHidden) {
-                        dropdown.classList.remove('hidden');
-                        dropdown.classList.add('active');
-                        chevron.classList.add('rotate-180');
-                        dropdown.style.maxHeight = `${dropdown.scrollHeight}px`;
-                    }
-                });
-            });
-
-            // Initialize active dropdowns
-            document.querySelectorAll('.has-dropdown.active .dropdown-menu').forEach(menu => {
-                menu.classList.remove('hidden');
-                menu.classList.add('active');
-                menu.style.maxHeight = `${menu.scrollHeight}px`;
-            });
-
-            // Event listeners
-            elements.overlay?.addEventListener('click', () => {
-                elements.sidebar.classList.add('-ml-72');
-                elements.overlay.classList.add('hidden');
-                document.body.style.overflow = '';
-                elements.mainContent.classList.remove('sidebar-open');
-                elements.mainContent.classList.add('sidebar-closed');
-            });
-
-            elements.toggleBtn?.addEventListener('click', toggleSidebar);
-            
-            elements.notificationBtn?.addEventListener('click', e => {
-                e.stopPropagation();
-                elements.notificationDropdown.classList.toggle('hidden');
-                elements.userMenuDropdown.classList.add('hidden');
-            });
-            
-            elements.userMenuBtn?.addEventListener('click', e => {
-                e.stopPropagation();
-                elements.userMenuDropdown.classList.toggle('hidden');
-                elements.notificationDropdown.classList.add('hidden');
-            });
-            // Modal helpers
-            const openModal = (m)=>{ if(!m) return; m.classList.add('active'); m.classList.remove('hidden'); };
-            const closeModal = (m)=>{ if(!m) return; m.classList.remove('active'); m.classList.add('hidden'); };
-
-            // Open modals
-            elements.openProfileBtn?.addEventListener('click', ()=>{ openModal(elements.profileModal); elements.userMenuDropdown.classList.add('hidden'); });
-            elements.openAccountSettingsBtn?.addEventListener('click', ()=>{ openModal(elements.accountSettingsModal); elements.userMenuDropdown.classList.add('hidden'); });
-            elements.openPrivacySecurityBtn?.addEventListener('click', ()=>{ openModal(elements.privacySecurityModal); elements.userMenuDropdown.classList.add('hidden'); });
-            elements.openSignOutBtn?.addEventListener('click', ()=>{ openModal(elements.signOutModal); elements.userMenuDropdown.classList.add('hidden'); });
-
-            // Close buttons
-            elements.closeProfileBtn?.addEventListener('click', ()=> closeModal(elements.profileModal));
-            elements.closeProfileBtn2?.addEventListener('click', ()=> closeModal(elements.profileModal));
-            elements.closeAccountSettingsBtn?.addEventListener('click', ()=> closeModal(elements.accountSettingsModal));
-            elements.cancelAccountSettingsBtn?.addEventListener('click', ()=> closeModal(elements.accountSettingsModal));
-            elements.closePrivacySecurityBtn?.addEventListener('click', ()=> closeModal(elements.privacySecurityModal));
-            elements.cancelPrivacySecurityBtn?.addEventListener('click', ()=> closeModal(elements.privacySecurityModal));
-            elements.cancelSignOutBtn?.addEventListener('click', ()=> closeModal(elements.signOutModal));
-            elements.cancelSignOutBtn2?.addEventListener('click', ()=> closeModal(elements.signOutModal));
-            // Close dropdowns on outside click
-            document.addEventListener('click', e => {
-                if (elements.notificationBtn && !elements.notificationBtn.contains(e.target) && elements.notificationDropdown && !elements.notificationDropdown.contains(e.target)) {
-                    elements.notificationDropdown.classList.add('hidden');
-                }
-                if (elements.userMenuBtn && !elements.userMenuBtn.contains(e.target) && elements.userMenuDropdown && !elements.userMenuDropdown.contains(e.target)) {
-                    elements.userMenuDropdown.classList.add('hidden');
-                }
-                if (elements.sidebar && !elements.sidebar.contains(e.target) && elements.toggleBtn && !elements.toggleBtn.contains(e.target) && window.innerWidth < 768) {
-                    toggleSidebar();
-                }
-            });
-
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                initializeSidebar();
-                if (window.innerWidth >= 768) {
-                    elements.overlay.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }
-                closeAllDropdowns();
-            });
-            // Close modals on outside click
-            [elements.profileModal, elements.accountSettingsModal, elements.privacySecurityModal, elements.signOutModal].forEach(m => {
-                m?.addEventListener('click', (e)=>{ if(e.target === m) closeModal(m); });
-                m?.querySelector('div')?.addEventListener('click', (e)=>e.stopPropagation());
-            // Sign out
-            elements.signOutBtn?.addEventListener('click', e => {
-                e.preventDefault();
-                document.getElementById('logout-form').submit();
-            });
         });
-    </script>
+    };
+
+    // Toggle dropdown
+    const toggleDropdown = (toggle) => {
+        const dropdown = toggle.nextElementSibling;
+        const chevron = toggle.querySelector('.bx-chevron-down');
+        const parent = toggle.parentElement;
+        const isHidden = dropdown.classList.contains('hidden');
+
+        if (isHidden) {
+            closeAllDropdowns(toggle);
+            dropdown.classList.remove('hidden');
+            dropdown.classList.add('active');
+            chevron.classList.add('rotate-180');
+            dropdown.style.maxHeight = `${dropdown.scrollHeight}px`;
+            parent.classList.add('active');
+        } else {
+            dropdown.classList.add('hidden');
+            dropdown.classList.remove('active');
+            chevron.classList.remove('rotate-180');
+            dropdown.style.maxHeight = '0';
+            parent.classList.remove('active');
+        }
+    };
+
+    // Initialize active dropdowns
+    document.querySelectorAll('.has-dropdown.active .dropdown-menu').forEach(menu => {
+        menu.classList.remove('hidden');
+        menu.classList.add('active');
+        menu.style.maxHeight = `${menu.scrollHeight}px`;
+        const chevron = menu.previousElementSibling.querySelector('.bx-chevron-down');
+        chevron.classList.add('rotate-180');
+    });
+
+    // Toggle dropdowns on click
+    elements.dropdownToggles.forEach(toggle => {
+        toggle.addEventListener('click', () => toggleDropdown(toggle));
+    });
+
+    // Event listeners
+    elements.overlay?.addEventListener('click', () => {
+        elements.sidebar.classList.add('-ml-72');
+        elements.overlay.classList.add('hidden');
+        document.body.style.overflow = '';
+        elements.mainContent.classList.remove('sidebar-open');
+        elements.mainContent.classList.add('sidebar-closed');
+        closeAllDropdowns();
+    });
+
+    elements.toggleBtn?.addEventListener('click', toggleSidebar);
+
+    elements.notificationBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        elements.notificationDropdown.classList.toggle('hidden');
+        elements.userMenuDropdown.classList.add('hidden');
+        closeAllDropdowns();
+    });
+
+    elements.userMenuBtn?.addEventListener('click', e => {
+        e.stopPropagation();
+        elements.userMenuDropdown.classList.toggle('hidden');
+        elements.notificationDropdown.classList.add('hidden');
+        closeAllDropdowns();
+    });
+
+    // Modal helpers
+    const openModal = (modal) => {
+        if (!modal) return;
+        modal.classList.add('active');
+        modal.classList.remove('hidden');
+        closeAllDropdowns();
+    };
+
+    const closeModal = (modal) => {
+        if (!modal) return;
+        modal.classList.remove('active');
+        modal.classList.add('hidden');
+    };
+
+    // Open modals
+    elements.openProfileBtn?.addEventListener('click', () => {
+        openModal(elements.profileModal);
+        elements.userMenuDropdown.classList.add('hidden');
+    });
+
+    elements.openAccountSettingsBtn?.addEventListener('click', () => {
+        openModal(elements.accountSettingsModal);
+        elements.userMenuDropdown.classList.add('hidden');
+    });
+
+    elements.openPrivacySecurityBtn?.addEventListener('click', () => {
+        openModal(elements.privacySecurityModal);
+        elements.userMenuDropdown.classList.add('hidden');
+    });
+
+    elements.openSignOutBtn?.addEventListener('click', () => {
+        openModal(elements.signOutModal);
+        elements.userMenuDropdown.classList.add('hidden');
+    });
+
+    // Close buttons
+    elements.closeProfileBtn?.addEventListener('click', () => closeModal(elements.profileModal));
+    elements.closeProfileBtn2?.addEventListener('click', () => closeModal(elements.profileModal));
+    elements.closeAccountSettingsBtn?.addEventListener('click', () => closeModal(elements.accountSettingsModal));
+    elements.cancelAccountSettingsBtn?.addEventListener('click', () => closeModal(elements.accountSettingsModal));
+    elements.closePrivacySecurityBtn?.addEventListener('click', () => closeModal(elements.privacySecurityModal));
+    elements.cancelPrivacySecurityBtn?.addEventListener('click', () => closeModal(elements.privacySecurityModal));
+    elements.cancelSignOutBtn?.addEventListener('click', () => closeModal(elements.signOutModal));
+    elements.cancelSignOutBtn2?.addEventListener('click', () => closeModal(elements.signOutModal));
+
+    // Sign out
+    elements.signOutBtn?.addEventListener('click', e => {
+        e.preventDefault();
+        document.getElementById('logout-form').submit();
+    });
+
+    // Close dropdowns and modals on outside click
+    document.addEventListener('click', (e) => {
+        const isClickInsideDropdown = Array.from(elements.dropdownToggles).some(toggle => 
+            toggle.contains(e.target) || toggle.nextElementSibling.contains(e.target)
+        );
+
+        if (!isClickInsideDropdown) {
+            closeAllDropdowns();
+        }
+
+        if (elements.notificationBtn && !elements.notificationBtn.contains(e.target) && 
+            elements.notificationDropdown && !elements.notificationDropdown.contains(e.target)) {
+            elements.notificationDropdown.classList.add('hidden');
+        }
+
+        if (elements.userMenuBtn && !elements.userMenuBtn.contains(e.target) && 
+            elements.userMenuDropdown && !elements.userMenuDropdown.contains(e.target)) {
+            elements.userMenuDropdown.classList.add('hidden');
+        }
+
+        if (elements.sidebar && !elements.sidebar.contains(e.target) && 
+            elements.toggleBtn && !elements.toggleBtn.contains(e.target) && 
+            window.innerWidth < 768) {
+            toggleSidebar();
+        }
+    });
+
+    // Close modals on outside click
+    [elements.profileModal, elements.accountSettingsModal, elements.privacySecurityModal, elements.signOutModal].forEach(m => {
+        m?.addEventListener('click', (e) => {
+            if (e.target === m) closeModal(m);
+        });
+        m?.querySelector('div')?.addEventListener('click', (e) => e.stopPropagation());
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        initializeSidebar();
+        if (window.innerWidth >= 768) {
+            elements.overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+        closeAllDropdowns();
+    });
+});
+
+// Export current table rows to CSV
+document.getElementById('exportBtn')?.addEventListener('click', function(){
+  try{
+    const table = document.querySelector('table');
+    if(!table){
+      Swal?.fire && Swal.fire({icon:'info',title:'No data',text:'No table data to export.'});
+      return;
+    }
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th=>th.textContent.trim());
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    const csv = [];
+    const esc = (v) => '"' + (v??'').toString().replace(/"/g,'""') + '"';
+    csv.push(headers.map(esc).join(','));
+    rows.forEach(tr=>{
+      const cols = Array.from(tr.querySelectorAll('td')).map(td=>td.innerText.replace(/\s+/g,' ').trim());
+      csv.push(cols.map(esc).join(','));
+    });
+    const blob = new Blob([csv.join('\n')], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const dateStr = new Date().toISOString().slice(0,10);
+    a.download = `visitor-history-${dateStr}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }catch(e){
+    console.error(e);
+    Swal?.fire && Swal.fire({icon:'error',title:'Export failed',text:'Unable to export CSV.'});
+  }
+});
+</script>
 </body>
 </html>

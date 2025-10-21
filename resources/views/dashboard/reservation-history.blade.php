@@ -349,50 +349,16 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
             </div>
             <div class="mt-4 md:mt-0 flex space-x-3">
               <div class="relative">
-                <input type="text" placeholder="Search reservations..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-transparent w-full md:w-64">
+                <input id="reservationSearch" type="text" placeholder="Search reservations..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-transparent w-full md:w-64" aria-label="Search reservations">
                 <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
               </div>
-              <button class="bg-[#2f855A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
+              <button id="exportReservationsBtn" class="bg-[#2f855A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
                 <i class="fas fa-download mr-1"></i> Export
               </button>
             </div>
           </div>
 
-          <div class="dashboard-card">
-            <div class="bg-gray-50 p-4 rounded-lg">
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                    <option value="">All Status</option>
-                    <option value="approved">Approved</option>
-                    <option value="pending">Pending</option>
-                    <option value="rejected">Rejected</option>
-                    <option value="completed">Completed</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-                  <input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Facility Type</label>
-                  <select class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                    <option value="">All Facilities</option>
-                    <option value="conference">Conference Room</option>
-                    <option value="meeting">Meeting Room</option>
-                    <option value="auditorium">Auditorium</option>
-                    <option value="equipment">Equipment</option>
-                  </select>
-                </div>
-                <div class="flex items-end">
-                  <button class="w-full bg-[#2f855A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#276749] transition-colors">
-                    Apply Filters
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
           <div class="dashboard-card">
             <div class="overflow-x-auto">
@@ -439,7 +405,9 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                         $dateStr = isset($reservation['date']) ? \Carbon\Carbon::parse($reservation['date'])->format('M d, Y') : 'N/A';
                         $start = $reservation['start_time'] ?? '';
                         $end = $reservation['end_time'] ?? '';
-                        $timeStr = $start && $end ? (\Carbon\Carbon::createFromFormat('H:i',$start)->format('g:i A') . ' - ' . \Carbon\Carbon::createFromFormat('H:i',$end)->format('g:i A')) : ($start ? \Carbon\Carbon::createFromFormat('H:i',$start)->format('g:i A') : '');
+                        $start12 = $start ? \Carbon\Carbon::parse($start)->format('g:i A') : '';
+                        $end12 = $end ? \Carbon\Carbon::parse($end)->format('g:i A') : '';
+                        $timeStr = $start12 && $end12 ? ($start12 . ' - ' . $end12) : ($start12 ?: '');
                       @endphp
                       <div class="text-sm text-gray-900">{{ $dateStr }}</div>
                       <div class="text-sm text-gray-500">{{ $timeStr ?: '—' }}</div>
@@ -464,13 +432,12 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                               data-title="{{ $title }}"
                               data-type="{{ $facilityType }}"
                               data-date="{{ $reservation['date'] ?? '' }}"
-                              data-start="{{ $reservation['start_time'] ?? '' }}"
-                              data-end="{{ $reservation['end_time'] ?? '' }}"
+                              data-start="{{ $start12 }}"
+                              data-end="{{ $end12 }}"
                               data-status="{{ strtolower($reservation['status'] ?? 'pending') }}"
                               data-requested-by="{{ $requestedBy }}">
                         View
                       </button>
-                      <a href="#" class="text-green-600 hover:text-green-900">Download</a>
                     </td>
                   </tr>
                   @empty
@@ -493,32 +460,12 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                   Next
                 </a>
               </div>
-              <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                <div>
-                  <p class="text-sm text-gray-700">
-                    Showing
-                    <span class="font-medium">1</span>
-                    to
-                    <span class="font-medium">10</span>
-                    of
-                    <span class="font-medium">24</span>
-                    results
-                  </p>
-                </div>
+              <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-end">
                 <div>
                   <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                     <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                       <span class="sr-only">Previous</span>
                       <i class="fas fa-chevron-left h-5 w-5"></i>
-                    </a>
-                    <a href="#" aria-current="page" class="z-10 bg-[#2f855A] border-[#2f855A] text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                      1
-                    </a>
-                    <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                      2
-                    </a>
-                    <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                      3
                     </a>
                     <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
                       <span class="sr-only">Next</span>
@@ -533,6 +480,53 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
       </div>
     </main>
 
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('reservationSearch');
+        const tableBody = document.querySelector('table.min-w-full tbody');
+        const showingFromEl = document.getElementById('showingFrom');
+        const showingToEl = document.getElementById('showingTo');
+        const showingTotalEl = document.getElementById('showingTotal');
+        if (!tableBody) return;
+
+        const allRows = Array.from(tableBody.querySelectorAll('tr'));
+
+        function normalize(text) {
+          return (text || '').toString().toLowerCase();
+        }
+
+        function rowMatches(row, term) {
+          if (!term) return true;
+          const txt = normalize(row.innerText);
+          return txt.includes(term);
+        }
+
+        function updateCounts() {
+          const visibleRows = allRows.filter(r => !r.classList.contains('hidden'));
+          const total = visibleRows.length; // reflect the table after filtering
+          const from = total > 0 ? 1 : 0;
+          const to = total;
+          if (showingFromEl) showingFromEl.textContent = from.toString();
+          if (showingToEl) showingToEl.textContent = to.toString();
+          if (showingTotalEl) showingTotalEl.textContent = total.toString();
+        }
+
+        function applyFilter(term) {
+          const t = normalize(term);
+          allRows.forEach((row) => {
+            const match = rowMatches(row, t);
+            row.classList.toggle('hidden', !match);
+          });
+          updateCounts();
+        }
+
+        // Init
+        updateCounts();
+        if (searchInput) {
+          searchInput.addEventListener('input', (e) => applyFilter(e.target.value));
+        }
+      });
+    </script>
     <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
       <div class="py-4 px-6 border-b border-gray-100 text-center">
         <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
@@ -805,6 +799,38 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
         const resStatus = document.getElementById("resStatus");
         const resRequestedBy = document.getElementById("resRequestedBy");
 
+        function to12h(t) {
+          if (!t) return "";
+          const s = String(t).trim();
+          // Already AM/PM like 2:00 PM or 02:00 pm
+          const ampmMatch = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([ap]m)$/i);
+          if (ampmMatch) {
+            const h = parseInt(ampmMatch[1], 10);
+            const m = ampmMatch[2];
+            const mer = ampmMatch[4].toUpperCase();
+            return `${h}:${m} ${mer}`;
+          }
+          // 24h with or without seconds, e.g., 14:00 or 14:00:00
+          const hMatch = s.match(/^(\d{1,2}):(\d{2})(?::\d{2})?$/);
+          if (hMatch) {
+            let h = parseInt(hMatch[1], 10);
+            const m = hMatch[2];
+            const mer = h >= 12 ? "PM" : "AM";
+            const hh = ((h + 11) % 12) + 1;
+            return `${hh}:${m} ${mer}`;
+          }
+          // Compact HHmm like 1400
+          const compact = s.match(/^(\d{2})(\d{2})$/);
+          if (compact) {
+            let h = parseInt(compact[1], 10);
+            const m = compact[2];
+            const mer = h >= 12 ? "PM" : "AM";
+            const hh = ((h + 11) % 12) + 1;
+            return `${hh}:${m} ${mer}`;
+          }
+          return s;
+        }
+
         // Initialize sidebar state based on screen size
         if (window.innerWidth >= 768) {
           sidebar.classList.remove("-ml-72");
@@ -856,6 +882,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
           });
         });
 
+
         overlay.addEventListener("click", () => {
           sidebar.classList.add("-ml-72");
           overlay.classList.add("hidden");
@@ -865,6 +892,37 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
         });
 
         toggleBtn.addEventListener("click", toggleSidebar);
+
+        const exportBtn = document.getElementById('exportReservationsBtn');
+        if (exportBtn) {
+          exportBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const table = document.querySelector('table.min-w-full');
+            if (!table) return;
+            const ths = Array.from(table.querySelectorAll('thead th'))
+              .map(th => th.textContent.trim());
+            // Exclude the last column (Actions)
+            const headers = ths.slice(0, ths.length - 1);
+            const rows = Array.from(table.querySelectorAll('tbody tr'))
+              .map(tr => Array.from(tr.querySelectorAll('td')).slice(0, ths.length - 1)
+                .map(td => td.textContent.replace(/\s+/g, ' ').trim())
+              );
+            if (!rows.length) return;
+            const escapeCSV = (v) => '"' + String(v).replace(/"/g, '""') + '"';
+            const csvLines = [headers.map(escapeCSV).join(',')];
+            rows.forEach(r => csvLines.push(r.map(escapeCSV).join(',')));
+            const csv = '\uFEFF' + csvLines.join('\r\n'); // BOM for Excel
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'reservation-history.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          });
+        }
 
         notificationBtn.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -921,6 +979,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
         document.querySelectorAll('.view-reservation').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             const id = btn.getAttribute('data-id') || '—';
             const title = btn.getAttribute('data-title') || '—';
             const type = btn.getAttribute('data-type') || '—';
@@ -934,7 +993,9 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
             resTitle.textContent = title;
             resType.textContent = type.charAt(0).toUpperCase() + type.slice(1);
             resDate.textContent = date ? new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' }) : '—';
-            const timeStr = start && end ? `${start} - ${end}` : (start || end || '—');
+            const start12 = to12h(start);
+            const end12 = to12h(end);
+            const timeStr = start12 && end12 ? `${start12} - ${end12}` : (start12 || end12 || '—');
             resTime.textContent = timeStr;
             resStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
             resRequestedBy.textContent = requestedBy;

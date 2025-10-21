@@ -347,11 +347,6 @@ $pendingCount = collect($requests)->where('status', 'pending')->count();
                     <!-- Page Header -->
                     <div class="flex justify-between items-center">
                         <h2 class="text-[#1a4d38] font-bold text-xl mb-1">Approval Workflow</h2>
-                        <div class="flex space-x-3">
-                            <button id="newRequestBtn" class="bg-[#2f855A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
-                                <i class="bx bx-plus mr-1"></i> New Request
-                            </button>
-                        </div>
                     </div>
 
                     <!-- Tabs -->
@@ -446,64 +441,6 @@ $pendingCount = collect($requests)->where('status', 'pending')->count();
                         </div>
                     </section>
 
-                    <!-- Reservation / Booking History -->
-                    <section class="mt-10">
-                        @php
-                            // Pull bookings from session as our simple history store
-                            $historyBookings = session('calendar_bookings', []);
-                            // Map approval requester names by id (if available)
-                            $reqById = collect(session('approval_requests', []))->keyBy('id');
-                        @endphp
-                        <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
-                            <i class='bx bx-history mr-2'></i>Reservation / Booking History
-                        </h3>
-                        <div class="dashboard-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reservation ID</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested By</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @forelse($historyBookings as $hb)
-                                        @php
-                                            $status = strtolower($hb['status'] ?? 'pending');
-                                            $statusClasses = [
-                                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                                'approved' => 'bg-green-100 text-green-800',
-                                                'rejected' => 'bg-red-100 text-red-800'
-                                            ];
-                                            $badge = $statusClasses[$status] ?? 'bg-gray-100 text-gray-800';
-                                            $title = $hb['name'] ?? ($hb['title'] ?? 'Booking');
-                                            $req = $reqById[$hb['id']] ?? null;
-                                            $requestedBy = $req['requested_by'] ?? ($user->name ?? 'User');
-                                            $dateStr = isset($hb['date']) ? \Carbon\Carbon::parse($hb['date'])->format('M d, Y') : '—';
-                                            $timeStr = (isset($hb['start_time']) ? $hb['start_time'] : '') . (isset($hb['end_time']) ? ' - ' . $hb['end_time'] : '');
-                                        @endphp
-                                        <tr>
-                                            <td class="px-6 py-3 text-sm text-gray-700">{{ $hb['id'] }}</td>
-                                            <td class="px-6 py-3 text-sm text-gray-900">{{ $title }}</td>
-                                            <td class="px-6 py-3 text-sm text-gray-700">{{ $requestedBy }}</td>
-                                            <td class="px-6 py-3 text-sm text-gray-700">{{ $dateStr }} @if($timeStr) • {{ $timeStr }} @endif</td>
-                                            <td class="px-6 py-3">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $badge }}">{{ ucfirst($status) }}</span>
-                                            </td>
-                                        </tr>
-                                        @empty
-                                        <tr>
-                                            <td colspan="5" class="px-6 py-6 text-center text-sm text-gray-500">No reservation history found.</td>
-                                        </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section>
                 </div>
             </div>
         </main>

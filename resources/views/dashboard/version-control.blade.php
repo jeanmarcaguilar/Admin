@@ -370,45 +370,18 @@ $user = auth()->user();
                     <!-- Header Section -->
                     <div class="flex justify-between items-center">
                         <h2 class="text-[#1a4d38] font-bold text-xl mb-1">Document Version Control</h2>
-                        <div class="flex space-x-3">
-                            <button id="newVersionBtn" class="bg-[#2f855A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
-                                <i class="bx bx-plus mr-1"></i> New Version
-                            </button>
-                        </div>
                     </div>
 
-                    <!-- Filters and Search -->
+                    <!-- Search -->
                     <section class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-200">
                         <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
-                            <i class='bx bx-filter-alt mr-2'></i>Filter Documents
+                            <i class='bx bx-search-alt-2 mr-2'></i>Search Documents
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div>
-                                <label for="documentFilter" class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
-                                <select id="documentFilter" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#2f855A] focus:ring focus:ring-[#2f855A]/50 text-sm">
-                                    <option value="all">All Documents</option>
-                                    <option value="contract">Contracts</option>
-                                    <option value="report">Reports</option>
-                                    <option value="proposal">Proposals</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="statusFilter" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                <select id="statusFilter" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-[#2f855A] focus:ring focus:ring-[#2f855A]/50 text-sm">
-                                    <option value="all">All Status</option>
-                                    <option value="draft">Draft</option>
-                                    <option value="pending">Pending Review</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="archived">Archived</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                                <div class="relative">
-                                    <input type="text" id="searchInput" placeholder="Search documents..." class="w-full pl-10 pr-4 py-2 rounded-lg border-gray-300 shadow-sm focus:border-[#2f855A] focus:ring focus:ring-[#2f855A]/50 text-sm">
-                                    <i class='bx bx-search absolute left-3 top-2.5 text-gray-400'></i>
-                                </div>
+                        <div>
+                            <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                            <div class="relative">
+                                <input type="text" id="searchInput" placeholder="Search by name, type or category..." class="w-full pl-10 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-[#2f855A] focus:ring focus:ring-[#2f855A]/50 text-sm">
+                                <i class='bx bx-search absolute left-3 top-3 text-gray-400'></i>
                             </div>
                         </div>
                     </section>
@@ -426,7 +399,6 @@ $user = auth()->user();
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Version</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Modified</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modified By</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -440,7 +412,7 @@ $user = auth()->user();
                                             $initials = collect(explode(' ', $userName))->map(fn($p) => strtoupper(substr($p,0,1)))->implode('');
                                         @endphp
                                         @forelse($documents as $doc)
-                                            <tr class="activity-item" data-doc-id="{{ $doc['id'] }}">
+                                            <tr class="activity-item" data-doc-id="{{ $doc['id'] }}" data-name="{{ strtolower($doc['name'] ?? '') }}" data-type="{{ strtolower($doc['type'] ?? '') }}" data-category="{{ strtolower($doc['category'] ?? 'other') }}" data-status="{{ strtolower($doc['status'] ?? 'indexed') }}">
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="flex items-center">
                                                         <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -458,9 +430,6 @@ $user = auth()->user();
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $doc['type'] }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst(strtolower($doc['category'] ?? 'Other')) }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">v{{ $doc['version'] ?? '1.0' }}</span>
-                                                </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ isset($doc['uploaded']) ? \Carbon\Carbon::parse($doc['uploaded'])->diffForHumans() : \Carbon\Carbon::now()->diffForHumans() }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     <div class="flex items-center">
@@ -486,48 +455,6 @@ $user = auth()->user();
                                     </tbody>
                                 </table>
                             </div>
-                            <!-- Pagination -->
-                            <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                    <div>
-                                        @php $total = is_countable($documents) ? count($documents) : 0; @endphp
-                                        <p class="text-sm text-gray-700">
-                                            @if($total > 0)
-                                                Showing <span class="font-medium">1</span> to <span class="font-medium">{{ $total }}</span> of <span class="font-medium">{{ $total }}</span> results
-                                            @else
-                                                Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span class="sr-only">Previous</span>
-                                                <i class='bx bx-chevron-left text-xl'></i>
-                                            </a>
-                                            <a href="#" aria-current="page" class="z-10 bg-[#2f855A] border-[#2f855A] text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                1
-                                            </a>
-                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                2
-                                            </a>
-                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                3
-                                            </a>
-                                            <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                                ...
-                                            </span>
-                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                8
-                                            </a>
-                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span class="sr-only">Next</span>
-                                                <i class='bx bx-chevron-right text-xl'></i>
-                                            </a>
-                                        </nav>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </section>
                 </div>
@@ -535,6 +462,37 @@ $user = auth()->user();
         </main>
     </div>
 
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const searchInput = document.getElementById('searchInput');
+        const tbody = document.querySelector('table.min-w-full tbody');
+        if (!tbody) return;
+
+        const rows = Array.from(tbody.querySelectorAll('tr.activity-item'));
+
+        function norm(v){ return (v || '').toString().trim().toLowerCase(); }
+
+        function rowMatches(row){
+          const q = norm(searchInput?.value);
+          const name = row.dataset.name || '';
+          const type = row.dataset.type || '';
+          const cat = row.dataset.category || '';
+          return !q || name.includes(q) || type.includes(q) || cat.includes(q);
+        }
+
+        function applyFilters(){
+          rows.forEach(r => {
+            const show = rowMatches(r);
+            r.classList.toggle('hidden', !show);
+          });
+        }
+
+        searchInput?.addEventListener('input', applyFilters);
+        applyFilters();
+      });
+    </script>
+</body>
+</html>
     <!-- Version History Modal -->
     <div id="versionHistoryModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="version-history-modal-title">
         <div class="bg-white rounded-lg w-full max-w-4xl">

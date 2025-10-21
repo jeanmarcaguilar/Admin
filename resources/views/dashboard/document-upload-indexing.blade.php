@@ -1180,15 +1180,42 @@
                     const typeEl = document.getElementById('uploadDocType');
                     const selCategory = catEl ? (catEl.value || '') : '';
                     const selDocType = typeEl ? (typeEl.value || '') : '';
+
+                    const allowedExt = ['pdf','doc','docx','xls','xlsx','ppt','pptx'];
+                    const validFiles = [];
+                    const tooLarge = [];
+                    const invalidType = [];
+
                     Array.from(files).forEach(file => {
+                        const ext = (file.name.split('.').pop() || '').toLowerCase();
                         if (file.size > 50 * 1024 * 1024) {
-                            alert('File size exceeds 50MB limit');
+                            tooLarge.push(file.name);
                             return;
                         }
+                        if (!allowedExt.includes(ext)) {
+                            invalidType.push(file.name);
+                            return;
+                        }
+                        validFiles.push(file);
                         formData.append('documents[]', file);
                     });
+
+                    if (tooLarge.length) {
+                        alert(`These files exceed the 50MB limit and were skipped:\n- ${tooLarge.join('\n- ')}`);
+                    }
+                    if (invalidType.length) {
+                        alert(`These files are not in allowed formats (PDF, Word, Excel, PowerPoint) and were skipped:\n- ${invalidType.join('\n- ')}`);
+                    }
+
+                    if (validFiles.length === 0) {
+                        alert('No valid files to upload.');
+                        return;
+                    }
+
                     if (selCategory) formData.append('category', selCategory);
                     if (selDocType) formData.append('docType', selDocType);
+
+                    const uploadedCount = validFiles.length;
 
                     fetch('{{ route('document.upload.store') }}', {
                         method: 'POST',
@@ -1202,8 +1229,21 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Redirect to Version Control to view/edit uploaded documents
-                            window.location.href = '{{ route('document.version.control') }}';
+                            // Success validation/confirmation before redirect
+                            if (window.Swal && Swal.fire) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Upload complete',
+                                    text: `${uploadedCount} file(s) uploaded successfully.`,
+                                    confirmButtonColor: '#2f855a',
+                                    confirmButtonText: 'View in Version Control'
+                                }).then(() => {
+                                    window.location.href = '{{ route('document.version.control') }}';
+                                });
+                            } else {
+                                showSuccessMessage(`${uploadedCount} file(s) uploaded successfully.`);
+                                window.location.href = '{{ route('document.version.control') }}';
+                            }
                         } else {
                             throw new Error(data.message || 'Failed to upload files');
                         }
