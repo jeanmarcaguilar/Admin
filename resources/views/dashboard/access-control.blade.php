@@ -13,8 +13,8 @@ $user = auth()->user();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <style>
         /* Modal Styles */
         .modal {
@@ -31,7 +31,7 @@ $user = auth()->user();
             opacity: 0;
             transition: opacity 0.3s ease-in-out;
         }
-        
+
         .modal.active {
             display: flex;
             opacity: 1;
@@ -215,6 +215,23 @@ $user = auth()->user();
             top: 50%;
             transform: translate(-50%, -50%);
         }
+
+        /* Validation error styles */
+        .validation-error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .border-red-500 {
+            border-color: #ef4444 !important;
+        }
+
+        .border-red-500:focus {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -347,6 +364,19 @@ $user = auth()->user();
         
         // Handle View button clicks with event delegation
         document.addEventListener('click', function(e) {
+            // Handle View button
+            // Handle Save Permission button (event delegation)
+            const saveBtn = e.target.closest('#savePermissionBtn');
+            if (saveBtn) {
+                const form = document.getElementById('newPermissionForm');
+                if (form) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try { form.requestSubmit ? form.requestSubmit() : form.submit(); } catch (_) { form.submit(); }
+                }
+                return;
+            }
+
             // Handle View button
             const viewBtn = e.target.closest('.view-permission-btn, [onclick*="showPermissionDetails"]');
             if (viewBtn) {
@@ -497,16 +527,105 @@ $user = auth()->user();
         window.toggleUserMenu = function(ev){
           try{
             if(ev && ev.stopPropagation) ev.stopPropagation();
+            if(ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
             var btn=document.getElementById('userMenuBtn');
             var menu=document.getElementById('userMenuDropdown');
-            var notifBtn=document.getElementById('notificationBtn');
             var notif=document.getElementById('notificationDropdown');
-            if(menu){ menu.classList.toggle('hidden'); }
+            console.debug('[UserMenu] click', { btn: !!btn, menu: !!menu });
+            if(menu){
+              var isHidden = menu.classList.contains('hidden');
+              if(isHidden){
+                menu.classList.remove('hidden');
+                try{ menu.style.setProperty('display','block','important'); }catch(_){ menu.style.display = 'block'; }
+                if (btn) {
+                  var rect = btn.getBoundingClientRect();
+                  var top = rect.bottom + 8;
+                  menu.style.position = 'fixed';
+                  menu.style.top = top + 'px';
+                  var width = menu.offsetWidth || 192;
+                  var left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
+                  menu.style.left = left + 'px';
+                  menu.style.right = 'auto';
+                  menu.style.zIndex = 9999;
+                }
+                // Post-open verification & fallback
+                setTimeout(function(){
+                  try{
+                    var cs = window.getComputedStyle(menu);
+                    var stillHidden = menu.classList.contains('hidden') || cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0';
+                    if(stillHidden){
+                      menu.classList.remove('hidden');
+                      try{ menu.style.setProperty('display','block','important'); }catch(_){ menu.style.display = 'block'; }
+                      menu.style.visibility = 'visible';
+                      menu.style.opacity = '1';
+                    }
+                    console.debug('[UserMenu] opened', { display: cs.display, top: menu.style.top, left: menu.style.left });
+                  }catch(e){}
+                }, 0);
+                window.__lastMenuOpenTs = Date.now();
+              } else {
+                menu.classList.add('hidden');
+                try{ menu.style.setProperty('display','none','important'); }catch(_){ menu.style.display = 'none'; }
+                console.debug('[UserMenu] closed');
+              }
+            }
             if(btn){ var ex=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', (!ex).toString()); }
             if(notif){ notif.classList.add('hidden'); }
           }catch(e){}
         };
       }
+      if (typeof window.toggleNotification !== 'function') {
+        window.toggleNotification = function(ev){
+          try{
+            if(ev && ev.stopPropagation) ev.stopPropagation();
+            var nb=document.getElementById('notificationBtn');
+            var nd=document.getElementById('notificationDropdown');
+            var ud=document.getElementById('userMenuDropdown');
+            if(nd){ nd.classList.toggle('hidden'); }
+            if(nb){ var ex=nb.getAttribute('aria-expanded')==='true'; nb.setAttribute('aria-expanded',(!ex).toString()); }
+            if(ud){ ud.classList.add('hidden'); }
+            var ub=document.getElementById('userMenuBtn'); if(ub){ ub.setAttribute('aria-expanded','false'); }
+          }catch(e){}
+        };
+      }
+      if (typeof window.hideAllMenus !== 'function') {
+        window.hideAllMenus = function(){
+          var ud=document.getElementById('userMenuDropdown');
+          var nd=document.getElementById('notificationDropdown');
+          var ub=document.getElementById('userMenuBtn');
+          var nb=document.getElementById('notificationBtn');
+          if(ud){ ud.classList.add('hidden'); ud.style.display='none'; }
+          if(nd){ nd.classList.add('hidden'); }
+          if(ub){ ub.setAttribute('aria-expanded','false'); }
+          if(nb){ nb.setAttribute('aria-expanded','false'); }
+        };
+      }
+      (function(){
+        if (window.__accessControlMenusBound) return; window.__accessControlMenusBound = true;
+        // Reparent dropdown to body to avoid stacking/overflow issues
+        document.addEventListener('DOMContentLoaded', function(){
+          try{
+            var menu=document.getElementById('userMenuDropdown');
+            if(menu && menu.parentNode !== document.body){ document.body.appendChild(menu); }
+          }catch(e){}
+        });
+        document.addEventListener('click', function(e){
+          if (typeof window.__lastMenuOpenTs === 'number' && (Date.now() - window.__lastMenuOpenTs) < 120) { return; }
+          var ud=document.getElementById('userMenuDropdown');
+          var ub=document.getElementById('userMenuBtn');
+          var nd=document.getElementById('notificationDropdown');
+          var nb=document.getElementById('notificationBtn');
+          var clickInsideUser = (ub && (ub.contains(e.target) || (ud && ud.contains(e.target))));
+          var clickInsideNotif = (nb && (nb.contains(e.target) || (nd && nd.contains(e.target))));
+          if(!clickInsideUser && !clickInsideNotif){ if(window.hideAllMenus) window.hideAllMenus(); }
+        });
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ if(window.hideAllMenus) window.hideAllMenus(); }});
+        var nb=document.getElementById('notificationBtn'); if(nb){ nb.addEventListener('click', function(e){ if(window.toggleNotification) window.toggleNotification(e); }); }
+        var ub=document.getElementById('userMenuBtn');
+        if(ub){ var hasInline = !!ub.getAttribute('onclick'); if(!hasInline){ ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); }); } }
+        window.addEventListener('resize', function(){ if(window.hideAllMenus) window.hideAllMenus(); });
+        window.addEventListener('scroll', function(){ if(window.hideAllMenus) window.hideAllMenus(); }, { passive: true });
+      })();
       // Modal fallback open/close to ensure reliability even if later scripts fail
       if (typeof window.openProfileModal !== 'function') {
         window.openProfileModal = function(){
@@ -845,21 +964,21 @@ $user = auth()->user();
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
-            <form id="newPermissionForm" class="p-6 space-y-6" action="{{ route('permissions.store') }}" method="POST">
+            <form id="newPermissionForm" class="p-6 space-y-6" action="{{ route('permissions.store') }}" method="POST" novalidate onsubmit="return window.submitNewPermissionAjax(event)">
                 @csrf
                 <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="permissionType" class="block text-sm font-medium text-gray-700 mb-1">Permission Type</label>
-                        <select id="permissionType" name="permission_type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="permissionType" class="block text-sm font-medium text-gray-700 mb-1">Permission Type *</label>
+                        <select id="permissionType" name="permission_type" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="user">User</option>
                             <option value="group">Group</option>
                             <option value="department">Department</option>
                         </select>
                     </div>
                     <div id="userField">
-                        <label for="user" class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
-                        <select id="user" name="user" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="user" class="block text-sm font-medium text-gray-700 mb-1">Select User *</label>
+                        <select id="user" name="user" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a user</option>
                             @foreach(($allUsers ?? []) as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
@@ -867,8 +986,8 @@ $user = auth()->user();
                         </select>
                     </div>
                     <div id="groupField" class="hidden">
-                        <label for="group" class="block text-sm font-medium text-gray-700 mb-1">Select Group</label>
-                        <select id="group" name="group" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="group" class="block text-sm font-medium text-gray-700 mb-1">Select Group *</label>
+                        <select id="group" name="group" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a group</option>
                             <option value="1">Finance Team</option>
                             <option value="2">HR Department</option>
@@ -876,8 +995,8 @@ $user = auth()->user();
                         </select>
                     </div>
                     <div>
-                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                        <select id="role" name="role" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+                        <select id="role" name="role" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="admin">Admin</option>
                             <option value="editor">Editor</option>
                             <option value="viewer">Viewer</option>
@@ -885,8 +1004,8 @@ $user = auth()->user();
                         </select>
                     </div>
                     <div>
-                        <label for="documentType" class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
-                        <select id="documentType" name="document_type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="documentType" class="block text-sm font-medium text-gray-700 mb-1">Document Type *</label>
+                        <select id="documentType" name="document_type" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="all">All Documents</option>
                             <option value="financial">Financial Reports</option>
                             <option value="hr">HR Documents</option>
@@ -935,7 +1054,7 @@ $user = auth()->user();
                     <button type="button" onclick="closeModal('newPermissionModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                         Cancel
                     </button>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#2f855a] hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855a]">
+                    <button id="savePermissionBtn" type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#2f855a] hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855a]">
                         Save Permission
                     </button>
                 </div>
@@ -952,22 +1071,21 @@ $user = auth()->user();
                     <i class='fas fa-times text-2xl'></i>
                 </button>
             </div>
-            <form id="editPermissionForm" class="p-6 space-y-6" method="POST">
+            <form id="editPermissionForm" class="p-6 space-y-6">
                 @csrf
-                @method('PATCH')
                 <input type="hidden" id="editPermissionId" name="id">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="editPermissionType" class="block text-sm font-medium text-gray-700 mb-1">Permission Type</label>
-                        <select id="editPermissionType" name="permission_type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="editPermissionType" class="block text-sm font-medium text-gray-700 mb-1">Permission Type *</label>
+                        <select id="editPermissionType" name="permission_type" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="user">User</option>
                             <option value="group">Group</option>
                             <option value="department">Department</option>
                         </select>
                     </div>
                     <div id="editUserField">
-                        <label for="editUser" class="block text-sm font-medium text-gray-700 mb-1">Select User</label>
-                        <select id="editUser" name="user" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="editUser" class="block text-sm font-medium text-gray-700 mb-1">Select User *</label>
+                        <select id="editUser" name="user" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a user</option>
                             @foreach(($allUsers ?? []) as $u)
                                 <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->email }})</option>
@@ -975,8 +1093,8 @@ $user = auth()->user();
                         </select>
                     </div>
                     <div id="editGroupField" class="hidden">
-                        <label for="editGroup" class="block text-sm font-medium text-gray-700 mb-1">Select Group</label>
-                        <select id="editGroup" name="group" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="editGroup" class="block text-sm font-medium text-gray-700 mb-1">Select Group *</label>
+                        <select id="editGroup" name="group" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="">Select a group</option>
                             <option value="1">Finance Team</option>
                             <option value="2">HR Department</option>
@@ -984,8 +1102,8 @@ $user = auth()->user();
                         </select>
                     </div>
                     <div>
-                        <label for="editRole" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                        <select id="editRole" name="role" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="editRole" class="block text-sm font-medium text-gray-700 mb-1">Role *</label>
+                        <select id="editRole" name="role" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="admin">Admin</option>
                             <option value="editor">Editor</option>
                             <option value="viewer">Viewer</option>
@@ -993,8 +1111,8 @@ $user = auth()->user();
                         </select>
                     </div>
                     <div>
-                        <label for="editDocumentType" class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
-                        <select id="editDocumentType" name="document_type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
+                        <label for="editDocumentType" class="block text-sm font-medium text-gray-700 mb-1">Document Type *</label>
+                        <select id="editDocumentType" name="document_type" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#2f855a] focus:border-transparent sm:text-sm rounded-md">
                             <option value="all">All Documents</option>
                             <option value="financial">Financial Reports</option>
                             <option value="hr">HR Documents</option>
@@ -1043,7 +1161,7 @@ $user = auth()->user();
                     <button type="button" onclick="closeModal('editPermissionModal')" class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855a]">
                         Cancel
                     </button>
-                    <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#2f855a] hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855a]">
+                    <button type="button" onclick="submitEditPermission()" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#2f855a] hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855a]">
                         Save Changes
                     </button>
                 </div>
@@ -1294,6 +1412,25 @@ $user = auth()->user();
         <div class="flex items-center">
             <i class="fas fa-check-circle mr-2"></i>
             <span>{{ session('success') }}</span>
+        </div>
+        <button onclick="document.getElementById('successToast').remove()" class="ml-4 text-white hover:text-gray-100">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <script>
+        setTimeout(() => {
+            const toast = document.getElementById('successToast');
+            if (toast) {
+                toast.remove();
+            }
+        }, 5000);
+    </script>
+    @endif
+    @if(session('status'))
+    <div id="successToast" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center justify-between z-50" style="min-width: 300px;">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span>{{ session('status') }}</span>
         </div>
         <button onclick="document.getElementById('successToast').remove()" class="ml-4 text-white hover:text-gray-100">
             <i class="fas fa-times"></i>
@@ -1959,48 +2096,50 @@ $user = auth()->user();
         confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
         
         // Add new click handler
-        newConfirmBtn.addEventListener('click', function handleConfirm() {
+        newConfirmBtn.addEventListener('click', async function handleConfirm() {
             console.log('Delete confirmed for permission ID:', permissionId);
             
-            fetch(`/permissions/${permissionId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Delete response:', data);
-                if (data.success) {
-                    closeModal('deletePermissionModal');
-                    Swal.fire({
+            const original = newConfirmBtn.innerHTML;
+            newConfirmBtn.disabled = true;
+            newConfirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+            
+            try {
+                const response = await fetch('{{ route("permissions.destroy", ":id") }}'.replace(':id', permissionId), {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                const data = await response.json().catch(() => ({}));
+                
+                if (response.ok && data.success === true) {
+                    await Swal.fire({
                         icon: 'success',
                         title: 'Success',
                         text: data.message || 'Permission deleted successfully',
                         showConfirmButton: false,
                         timer: 1500
-                    }).then(() => {
-                        window.location.reload();
                     });
+                    closeModal('deletePermissionModal');
+                    window.location.reload();
                 } else {
                     throw new Error(data.message || 'Failed to delete permission');
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error deleting permission:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
-                    text: error.message || 'An error occurred while deleting the permission.'
+                    text: error.message || 'An error occurred while deleting the permission.',
+                    confirmButtonColor: '#2f855a'
                 });
-            });
+            } finally {
+                newConfirmBtn.disabled = false;
+                newConfirmBtn.innerHTML = original;
+            }
         });
         
         // Show the modal
@@ -2032,7 +2171,7 @@ $user = auth()->user();
         showModal('editPermissionModal');
         
         // Fetch the permission details
-        fetch(`/permissions/${permissionId}`, {
+        fetch('{{ route("permissions.show", ":id") }}'.replace(':id', permissionId), {
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -2050,7 +2189,7 @@ $user = auth()->user();
                 const permission = data.permission;
                 
                 // Set the form action with the permission ID
-                form.action = `/permissions/${permissionId}`;
+                form.action = '{{ route("permissions.update", ":id") }}'.replace(':id', permissionId);
                 
                 // Set form values based on permission data
                 document.getElementById('editPermissionId').value = permissionId;
@@ -2093,46 +2232,124 @@ $user = auth()->user();
         });
     };
 
-    // Handle edit form submission
-    document.getElementById("editPermissionForm").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(form);
-        const permissionId = document.getElementById('editPermissionId').value;
+    // Submit edit permission function (matches case management pattern)
+    window.submitEditPermission = async function() {
+        console.log('submitEditPermission called');
+        const form = document.getElementById('editPermissionForm');
+        if (!form) {
+            console.error('Edit form not found');
+            return;
+        }
         
-        fetch(form.action, {
-            method: 'PUT',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(Object.fromEntries(formData.entries()))
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
+        const permissionId = document.getElementById('editPermissionId').value;
+        const submitBtn = form.querySelector('button[onclick="submitEditPermission()"]');
+        const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+        
+        if (submitBtn) { 
+            submitBtn.disabled = true; 
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...'; 
+        }
+        
+        try {
+            // Clear previous error styles and messages
+            clearValidationErrors();
+            
+            // Client-side validation
+            const trim = (v) => (v ?? "").toString().trim();
+            const errors = [];
+            
+            const permissionType = trim(document.getElementById('editPermissionType')?.value);
+            const user = trim(document.getElementById('editUser')?.value);
+            const group = trim(document.getElementById('editGroup')?.value);
+            const role = trim(document.getElementById('editRole')?.value);
+            const documentType = trim(document.getElementById('editDocumentType')?.value);
+
+            // Required field validation
+            if (!permissionType) errors.push("Permission type is required.");
+            if (!role) errors.push("Role is required.");
+            if (!documentType) errors.push("Document type is required.");
+            
+            // Conditional validation based on permission type
+            if (permissionType === 'user' && !user) {
+                errors.push("User selection is required.");
+            }
+            if (permissionType === 'group' && !group) {
+                errors.push("Group selection is required.");
+            }
+
+            // Visual hinting for invalid fields
+            const mark = (el, bad) => { 
+                if (!el) return; 
+                el.classList.toggle("border-red-500", !!bad); 
+                el.classList.toggle("border-gray-300", !bad); 
+            };
+            
+            mark(document.getElementById('editPermissionType'), !permissionType);
+            mark(document.getElementById('editRole'), !role);
+            mark(document.getElementById('editDocumentType'), !documentType);
+            mark(document.getElementById('editUser'), permissionType === 'user' && !user);
+            mark(document.getElementById('editGroup'), permissionType === 'group' && !group);
+
+            if (errors.length > 0) {
                 Swal.fire({
+                    icon: "error",
+                    title: "Please fix the following",
+                    html: `<div style="text-align:left">${errors.map(e => `• ${e}`).join('<br>')}</div>`,
+                    confirmButtonColor: "#2f855a",
+                });
+                // Focus on first invalid field
+                const firstInvalid = [document.getElementById('editPermissionType'), document.getElementById('editRole'), document.getElementById('editDocumentType'), document.getElementById('editUser'), document.getElementById('editGroup')].find(el => el && el.classList.contains('border-red-500'));
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+            
+            const formData = new FormData(form);
+            const response = await fetch('{{ route("permissions.update", ":id") }}'.replace(':id', permissionId), {
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+            
+            const data = await response.json().catch(() => ({}));
+            
+            if (response.ok && data.success === true) {
+                await Swal.fire({
                     icon: "success",
                     title: "Permission Updated",
                     text: data.message || "The permission has been successfully updated.",
                     showConfirmButton: false,
                     timer: 1500
-                }).then(() => {
-                    window.location.reload(); // Reload to show the updated permission
                 });
+                closeModal('editPermissionModal');
+                window.location.reload();
+            } else if (response.status === 422) {
+                const errs = (data && data.errors) || {};
+                displayValidationErrors(errs);
             } else {
-                throw new Error(data.message || 'Failed to update permission');
+                const msg = (data && (data.message || data.error)) || 'Failed to update permission. Please try again.';
+                Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#2f855a' });
             }
-        })
-        .catch(error => {
+        } catch (error) {
+            console.error('Error:', error);
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: error.message || "An error occurred while updating the permission."
+                text: error.message || "An error occurred while updating the permission.",
+                confirmButtonColor: '#2f855a'
             });
-        });
-    });
+        } finally {
+            if (submitBtn) { 
+                submitBtn.disabled = false; 
+                submitBtn.innerHTML = originalBtnText; 
+            }
+        }
+    };
+
+    // Edit form submission is now handled by onclick="submitEditPermission()" button
     
     // Helper function to toggle permission fields based on type
     function togglePermissionFields(type, prefix = '') {
@@ -2159,11 +2376,70 @@ $user = auth()->user();
 
     // Debug: Log when the script loads
     console.log('Access control script loaded');
+    // Render a visible success banner under the navbar
+    function showPermissionSuccessBanner(message){
+        try {
+            const existing = document.getElementById('permissionSuccessBanner');
+            if (existing) existing.remove();
+            const wrap = document.createElement('div');
+            wrap.id = 'permissionSuccessBanner';
+            // Inline styles to ensure visibility above all overlays
+            wrap.style.position = 'fixed';
+            wrap.style.top = '4rem';
+            wrap.style.left = '0';
+            wrap.style.right = '0';
+            wrap.style.zIndex = '999999';
+            wrap.innerHTML = `
+                <div class="mx-auto max-w-7xl px-4">
+                  <div class="bg-green-50 border border-green-200 text-green-800 rounded-md px-4 py-3 flex items-center justify-between shadow">
+                    <div class="flex items-center">
+                      <i class="fas fa-check-circle mr-2"></i>
+                      <span>${message || 'Permission created successfully.'}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <button id="reloadAfterSuccess" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">Reload</button>
+                      <button id="dismissPermissionSuccess" class="text-green-800 hover:underline focus:outline-none">Dismiss</button>
+                    </div>
+                  </div>
+                </div>`;
+            document.body.appendChild(wrap);
+            const d = document.getElementById('dismissPermissionSuccess');
+            if (d) d.addEventListener('click', function(){ try { wrap.remove(); } catch(_) {} });
+            const r = document.getElementById('reloadAfterSuccess');
+            if (r) r.addEventListener('click', function(){ window.location.reload(); });
+            setTimeout(function(){ try { wrap.remove(); } catch(_) {} }, 7000);
+        } catch(_) {}
+    }
+    // Show a toast after reload if a permission was just saved via AJAX
+    function showPostSaveToastIfAny(){
+        try {
+            if (localStorage.getItem('permission_saved') === '1') {
+                localStorage.removeItem('permission_saved');
+                const toast = document.createElement('div');
+                toast.id = 'successToast';
+                toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center justify-between z-50';
+                toast.style.minWidth = '300px';
+                toast.innerHTML = '<div class="flex items-center"><i class="fas fa-check-circle mr-2"></i><span>Permission created successfully.</span></div>' +
+                                  '<button class="ml-4 text-white hover:text-gray-100" aria-label="Close">\n\t<i class="fas fa-times"></i>\n</button>';
+                document.body.appendChild(toast);
+                const closeBtn = toast.querySelector('button');
+                if (closeBtn) closeBtn.addEventListener('click', function(){ toast.remove(); });
+                setTimeout(function(){ try { toast.remove(); } catch(_) {} }, 5000);
+            }
+        } catch(_) {}
+    }
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        showPostSaveToastIfAny();
+    } else {
+        document.addEventListener('DOMContentLoaded', showPostSaveToastIfAny);
+    }
     
     // Modal and Form Handling
     const newPermissionBtn = document.getElementById('newPermissionBtn');
     const newPermissionModal = document.getElementById('newPermissionModal');
     const newPermissionForm = document.getElementById('newPermissionForm');
+    // Guard to prevent duplicate submissions
+    let __savingPermission = false;
     const permissionType = document.getElementById('permissionType');
     const userField = document.getElementById('userField');
     const groupField = document.getElementById('groupField');
@@ -2172,8 +2448,322 @@ $user = auth()->user();
     const searchInput = document.getElementById('searchInput');
     const permissionRows = document.querySelectorAll('tbody tr[data-permission-id]');
     
+    // Submit new permission function (matches case management pattern)
+    window.submitNewPermission = async function() {
+        console.log('submitNewPermission called');
+        const form = document.getElementById('newPermissionForm');
+        if (!form) {
+            console.error('Form not found');
+            return;
+        }
+        
+        const submitBtn = document.getElementById('savePermissionBtn');
+        const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) { 
+            submitBtn.disabled = true; 
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...'; 
+        }
+        
+        try {
+            // Clear previous error styles and messages
+            clearValidationErrors();
+
+            // Client-side validation
+            const trim = (v) => (v ?? "").toString().trim();
+            const errors = [];
+            
+            const permissionType = trim(document.getElementById('permissionType')?.value);
+            const user = trim(document.getElementById('user')?.value);
+            const group = trim(document.getElementById('group')?.value);
+            const role = trim(document.getElementById('role')?.value);
+            const documentType = trim(document.getElementById('documentType')?.value);
+
+            // Required field validation
+            if (!permissionType) errors.push("Permission type is required.");
+            if (!role) errors.push("Role is required.");
+            if (!documentType) errors.push("Document type is required.");
+            
+            // Conditional validation based on permission type
+            if (permissionType === 'user' && !user) {
+                errors.push("User selection is required.");
+            }
+            if (permissionType === 'group' && !group) {
+                errors.push("Group selection is required.");
+            }
+
+            // Visual hinting for invalid fields
+            const mark = (el, bad) => { 
+                if (!el) return; 
+                el.classList.toggle("border-red-500", !!bad); 
+                el.classList.toggle("border-gray-300", !bad); 
+            };
+            
+            mark(document.getElementById('permissionType'), !permissionType);
+            mark(document.getElementById('role'), !role);
+            mark(document.getElementById('documentType'), !documentType);
+            mark(document.getElementById('user'), permissionType === 'user' && !user);
+            mark(document.getElementById('group'), permissionType === 'group' && !group);
+
+            if (errors.length > 0) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Please fix the following",
+                    html: `<div style="text-align:left">${errors.map(e => `• ${e}`).join('<br>')}</div>`,
+                    confirmButtonColor: "#2f855a",
+                });
+                // Focus on first invalid field
+                const firstInvalid = [document.getElementById('permissionType'), document.getElementById('role'), document.getElementById('documentType'), document.getElementById('user'), document.getElementById('group')].find(el => el && el.classList.contains('border-red-500'));
+                if (firstInvalid) firstInvalid.focus();
+                return;
+            }
+
+            const formData = new FormData(form);
+            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+            const csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
+            const response = await fetch('{{ route("permissions.store") }}', {
+                method: 'POST',
+                headers: { 
+                    'X-CSRF-TOKEN': csrf, 
+                    'Accept': 'application/json', 
+                    'X-Requested-With': 'XMLHttpRequest' 
+                },
+                body: formData
+            });
+            
+            const data = await response.json().catch(() => ({}));
+            
+            if (response.ok && data.success === true) {
+                form.reset();
+                // Keep modal open and show validation inside
+                showNewPermissionModalSuccess('Permission created successfully.');
+                // Also show page banner in case user closes modal immediately
+                showPermissionSuccessBanner('Permission created successfully.');
+                return;
+            } else if (response.status === 422) {
+                const errs = (data && data.errors) || {};
+                displayValidationErrors(errs);
+            } else {
+                const msg = (data && (data.message || data.error)) || 'Failed to create permission. Please try again.';
+                Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#2f855a' });
+            }
+        } catch(error) {
+            console.error('Error:', error);
+            Swal.fire({ 
+                icon: 'error', 
+                title: 'Error', 
+                text: (error && error.message) || 'Failed to create permission. Please try again.', 
+                confirmButtonColor: '#2f855a' 
+            });
+        } finally {
+            if (submitBtn) { 
+                submitBtn.disabled = false; 
+                submitBtn.innerHTML = originalBtnText; 
+            }
+        }
+    };
+
+    // Submit handler to keep validation/errors inside modal with client-side validation
+    async function submitNewPermissionAjax(ev) {
+        if (ev) { ev.preventDefault(); ev.stopPropagation(); }
+        if (!newPermissionForm) return false;
+
+        // Clear previous error styles and messages
+        clearValidationErrors();
+
+        // Client-side validation
+        const trim = (v) => (v ?? "").toString().trim();
+        const errors = [];
+        
+        const permissionType = trim(document.getElementById('permissionType')?.value);
+        const user = trim(document.getElementById('user')?.value);
+        const group = trim(document.getElementById('group')?.value);
+        const role = trim(document.getElementById('role')?.value);
+        const documentType = trim(document.getElementById('documentType')?.value);
+
+        // Required field validation
+        if (!permissionType) errors.push("Permission type is required.");
+        if (!role) errors.push("Role is required.");
+        if (!documentType) errors.push("Document type is required.");
+        
+        // Conditional validation based on permission type
+        if (permissionType === 'user' && !user) {
+            errors.push("User selection is required.");
+        }
+        if (permissionType === 'group' && !group) {
+            errors.push("Group selection is required.");
+        }
+
+        // Visual hinting for invalid fields
+        const mark = (el, bad) => { 
+            if (!el) return; 
+            el.classList.toggle("border-red-500", !!bad); 
+            el.classList.toggle("border-gray-300", !bad); 
+        };
+        
+        mark(document.getElementById('permissionType'), !permissionType);
+        mark(document.getElementById('role'), !role);
+        mark(document.getElementById('documentType'), !documentType);
+        mark(document.getElementById('user'), permissionType === 'user' && !user);
+        mark(document.getElementById('group'), permissionType === 'group' && !group);
+
+        if (errors.length > 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Please fix the following",
+                html: `<div style="text-align:left">${errors.map(e => `• ${e}`).join('<br>')}</div>`,
+                confirmButtonColor: "#2f855a",
+            });
+            // Focus on first invalid field
+            const firstInvalid = [document.getElementById('permissionType'), document.getElementById('role'), document.getElementById('documentType'), document.getElementById('user'), document.getElementById('group')].find(el => el && el.classList.contains('border-red-500'));
+            if (firstInvalid) firstInvalid.focus();
+            return false;
+        }
+
+        const formData = new FormData(newPermissionForm);
+        const url = '{{ route("permissions.store") }}';
+        const submitBtn = newPermissionForm.querySelector('button[type="submit"]');
+        const prevText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...'; }
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+
+            const data = await response.json().catch(() => ({}));
+
+            if (response.ok && data.success === true) {
+                // Keep modal open and show validation inside
+                showNewPermissionModalSuccess('Permission created successfully.');
+                // Also show page banner
+                showPermissionSuccessBanner('Permission created successfully.');
+                return false;
+            }
+
+            if (response.status === 422) {
+                const errs = (data && data.errors) || {};
+                displayValidationErrors(errs);
+                return false;
+            }
+
+            const msg = (data && (data.message || data.error)) || 'Failed to create permission. Please try again.';
+            Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#2f855a' });
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({ icon: 'error', title: 'Error', text: (error && error.message) || 'An error occurred while creating the permission.', confirmButtonColor: '#2f855a' });
+        } finally {
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = prevText; }
+        }
+        return false;
+    }
+    // Ensure global access for inline onsubmit
+    window.submitNewPermissionAjax = submitNewPermissionAjax;
+
+    // Final fallback: bind submit event directly
+    if (newPermissionForm) {
+        try { newPermissionForm.addEventListener('submit', submitNewPermissionAjax); } catch(_) {}
+    }
+
+    // Function to clear validation errors
+    function clearValidationErrors() {
+        // Clear error styles from form fields (both new and edit forms)
+        const fields = [
+            document.getElementById('permissionType'),
+            document.getElementById('editPermissionType'),
+            document.getElementById('user'),
+            document.getElementById('editUser'),
+            document.getElementById('group'),
+            document.getElementById('editGroup'),
+            document.getElementById('role'),
+            document.getElementById('editRole'),
+            document.getElementById('documentType'),
+            document.getElementById('editDocumentType'),
+            document.getElementById('notes'),
+            document.getElementById('editNotes')
+        ];
+        
+        fields.filter(Boolean).forEach(el => {
+            el.classList.remove('border-red-500');
+            el.classList.add('border-gray-300');
+        });
+
+        // Remove existing error messages
+        const existingErrors = document.querySelectorAll('.validation-error');
+        existingErrors.forEach(error => error.remove());
+    }
+
+    // Function to display validation errors
+    function displayValidationErrors(errors) {
+        const fieldMap = {
+            'permission_type': { 
+                element: document.getElementById('permissionType') || document.getElementById('editPermissionType'), 
+                label: 'Permission Type' 
+            },
+            'user': { 
+                element: document.getElementById('user') || document.getElementById('editUser'), 
+                label: 'User' 
+            },
+            'group': { 
+                element: document.getElementById('group') || document.getElementById('editGroup'), 
+                label: 'Group' 
+            },
+            'role': { 
+                element: document.getElementById('role') || document.getElementById('editRole'), 
+                label: 'Role' 
+            },
+            'document_type': { 
+                element: document.getElementById('documentType') || document.getElementById('editDocumentType'), 
+                label: 'Document Type' 
+            },
+            'notes': { 
+                element: document.getElementById('notes') || document.getElementById('editNotes'), 
+                label: 'Notes' 
+            }
+        };
+
+        Object.keys(errors).forEach(fieldName => {
+            const fieldInfo = fieldMap[fieldName];
+            if (fieldInfo && fieldInfo.element) {
+                // Add red border to field
+                fieldInfo.element.classList.remove('border-gray-300');
+                fieldInfo.element.classList.add('border-red-500');
+                
+                // Add error message below the field
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'validation-error text-red-500 text-xs mt-1';
+                errorDiv.textContent = errors[fieldName][0];
+                
+                // Insert error message after the field
+                const fieldContainer = fieldInfo.element.closest('div');
+                if (fieldContainer) {
+                    fieldContainer.appendChild(errorDiv);
+                }
+            }
+        });
+
+        // Show general error message if there are validation errors
+        if (Object.keys(errors).length > 0) {
+            const firstError = Object.values(errors).flat()[0] || 'Please correct the errors below and try again.';
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                text: firstError,
+                confirmButtonColor: '#2f855a'
+            });
+        }
+    }
+    
+    // Form submission is now handled by onclick="submitNewPermission()" button
+
     // Debug: Log element status
     console.log('New Permission Button:', newPermissionBtn);
+    console.log('New Permission Modal:', newPermissionModal);
     console.log('New Permission Modal:', newPermissionModal);
     
     // Debug: Check if elements exist
@@ -2181,31 +2771,43 @@ $user = auth()->user();
     if (!newPermissionModal) console.error('New Permission modal not found!');
     if (!newPermissionForm) console.warn('New Permission form not found!');
     
-    // Debug: Add a test button for development
-    const testButton = document.createElement('button');
-    testButton.textContent = 'Test Button';
-    testButton.className = 'bg-blue-500 text-white px-4 py-2 rounded';
-    testButton.onclick = function() {
-        console.log('Test button clicked!');
-        if (newPermissionModal) {
-            console.log('Showing modal via test button');
-            newPermissionModal.style.display = 'flex';
-            newPermissionModal.classList.add('active');
+    // Test validation function
+    console.log('Testing validation functions...');
+    console.log('clearValidationErrors function:', typeof clearValidationErrors);
+    console.log('displayValidationErrors function:', typeof displayValidationErrors);
+    console.log('submitNewPermission function:', typeof window.submitNewPermission);
+    
+    // Fallback: ensure Save button submits the form
+    document.addEventListener('DOMContentLoaded', function(){
+        const saveBtn = document.getElementById('savePermissionBtn');
+        const form = document.getElementById('newPermissionForm');
+        if (saveBtn && form) {
+            try {
+                saveBtn.addEventListener('click', function(ev){
+                    ev.preventDefault(); ev.stopPropagation();
+                    try { form.requestSubmit ? form.requestSubmit() : form.submit(); } catch (_) { form.submit(); }
+                });
+            } catch(_) {}
         }
-    };
-    document.body.appendChild(testButton);
+    });
+    
+    // Removed debug test button
 
     // Toggle user/group fields based on permission type
     function togglePermissionFields(type) {
+        const groupLabel = document.querySelector('label[for="group"]');
         if (type === 'user') {
             userField.classList.remove('hidden');
             groupField.classList.add('hidden');
-        } else if (type === 'group') {
+            if (groupLabel) groupLabel.textContent = 'Select Group *';
+        } else if (type === 'group' || type === 'department') {
             userField.classList.add('hidden');
             groupField.classList.remove('hidden');
+            if (groupLabel) groupLabel.textContent = (type === 'department') ? 'Select Department *' : 'Select Group *';
         } else {
             userField.classList.add('hidden');
             groupField.classList.add('hidden');
+            if (groupLabel) groupLabel.textContent = 'Select Group *';
         }
     }
 
@@ -2228,6 +2830,21 @@ $user = auth()->user();
         
         if (newPermissionModal) {
             console.log('Showing modal');
+            
+            // Reset form and clear validation errors
+            if (newPermissionForm) {
+                newPermissionForm.reset();
+                clearValidationErrors();
+            }
+            
+            // Reset form fields to default values
+            if (permissionType) permissionType.value = 'user';
+            if (roleSelect) roleSelect.value = 'admin';
+            
+            // Toggle fields based on default values
+            togglePermissionFields('user');
+            toggleCustomPermissions('admin');
+            
             // Make sure the modal is visible
             newPermissionModal.style.display = 'flex';
             newPermissionModal.classList.add('active');
@@ -2271,6 +2888,11 @@ $user = auth()->user();
         console.log('Closing modal:', modalId);
         const modal = document.getElementById(modalId);
         if (modal) {
+            // Clear validation errors when closing modal
+            if (modalId === 'newPermissionModal') {
+                clearValidationErrors();
+            }
+            
             modal.classList.add('hidden');
             modal.style.display = 'none';
             document.body.style.overflow = 'auto'; // Re-enable scrolling
@@ -2335,44 +2957,6 @@ $user = auth()->user();
     if (roleSelect) {
         roleSelect.addEventListener('change', (e) => {
             toggleCustomPermissions(e.target.value);
-        });
-    }
-
-    // Form submission
-    if (newPermissionForm) {
-        newPermissionForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(newPermissionForm);
-            const url = newPermissionForm.getAttribute('action');
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Show success message
-                    alert('Permission created successfully!');
-                    // Close modal and refresh the page to show new permission
-                    closeModal('newPermissionModal');
-                    window.location.reload();
-                } else {
-                    // Show error message
-                    alert(data.message || 'Failed to create permission. Please try again.');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('An error occurred while creating the permission.');
-            }
         });
     }
 

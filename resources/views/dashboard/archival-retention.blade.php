@@ -15,13 +15,14 @@ $settings = isset($settings) ? $settings : [
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>Archival & Retention Policy | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <style>
         /* Custom scrollbar */
         ::-webkit-scrollbar {
@@ -173,6 +174,46 @@ $settings = isset($settings) ? $settings : [
                 </button>
                 <h1 class="text-2xl font-bold tracking-tight">Archival & Retention Policy</h1>
             </div>
+    
+    <!-- Restore Archived Modal -->
+    <div id="restoreArchivedModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="restore-archived-title">
+        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="restore-archived-title" class="font-semibold text-sm text-gray-900 select-none">Restore Document</h3>
+                <button id="closeRestoreArchivedBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-6 pt-5 pb-6 text-sm text-gray-700">
+                <p class="mb-3">Document: <span id="restoreDocName" class="font-semibold text-gray-900"></span></p>
+                <p class="text-xs text-gray-500 mb-4">This will move the document back to the Upcoming list.</p>
+                <div class="flex justify-end space-x-3 mt-5">
+                    <button id="cancelRestoreArchivedBtn" type="button" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                    <button id="confirmRestoreArchivedBtn" type="button" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Restore</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Archived Modal -->
+    <div id="deleteArchivedModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="delete-archived-title">
+        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="delete-archived-title" class="font-semibold text-sm text-gray-900 select-none">Delete Archived Document</h3>
+                <button id="closeDeleteArchivedBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-6 pt-5 pb-6 text-sm text-gray-700">
+                <p class="mb-3">Document: <span id="deleteDocName" class="font-semibold text-gray-900"></span></p>
+                <p class="text-xs text-gray-500 mb-4">This permanently removes the archived entry from the list.</p>
+                <div class="flex justify-end space-x-3 mt-5">
+                    <button id="cancelDeleteArchivedBtn" type="button" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                    <button id="confirmDeleteArchivedBtn" type="button" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Extend Retention Modal -->
     <div id="extendRetentionModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="extend-retention-title">
@@ -401,39 +442,19 @@ $settings = isset($settings) ? $settings : [
                             <button id="printBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center">
                                 <i class="fas fa-print mr-2"></i> Print
                             </button>
+                            <button id="archivesBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center">
+                                <i class="fas fa-archive mr-2"></i> Archives
+                            </button>
                         </div>
                     </div>
 
-                    <!-- Search and Filter -->
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-3 md:space-y-0 md:space-x-4">
+                    <!-- Search -->
+                    <div class="flex">
                         <div class="relative flex-1 max-w-md">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
                             <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full pl-10 p-2.5" placeholder="Search documents...">
-                        </div>
-                        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
-                            <select id="filterStatus" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full p-2.5">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="archived">Archived</option>
-                                <option value="pending">Pending Review</option>
-                            </select>
-                            <select id="filterCategory" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full p-2.5">
-                                <option value="">All Categories</option>
-                                <option value="financial">Financial</option>
-                                <option value="hr">HR</option>
-                                <option value="legal">Legal</option>
-                                <option value="operations">Operations</option>
-                            </select>
-                            <select id="filterDocType" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full p-2.5">
-                                <option value="">All Types</option>
-                                <option value="pdf">PDF</option>
-                                <option value="word">Word</option>
-                                <option value="excel">Excel</option>
-                                <option value="powerpoint">PowerPoint</option>
-                                <option value="other">Other</option>
-                            </select>
                         </div>
                     </div>
 
@@ -649,62 +670,6 @@ $settings = isset($settings) ? $settings : [
                     </section>
                     @endif
 
-                    <!-- Retention Policy Settings -->
-                    <section class="mt-10">
-                        <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
-                            <i class='bx bx-cog mr-2'></i>Retention Policy Settings
-                        </h3>
-                        <div class="dashboard-card p-6">
-                            <form action="{{ route('archival.settings.save') }}" method="POST">
-                                @csrf
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label for="defaultRetention" class="block text-sm font-medium text-gray-700 mb-1">Default Retention Period</label>
-                                        <select id="defaultRetention" name="defaultRetention" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full p-2.5">
-                                            @php $dr = $settings['default_retention'] ?? '5'; @endphp
-                                            <option value="1" {{ $dr=='1' ? 'selected' : '' }}>1 year</option>
-                                            <option value="3" {{ $dr=='3' ? 'selected' : '' }}>3 years</option>
-                                            <option value="5" {{ $dr=='5' ? 'selected' : '' }}>5 years</option>
-                                            <option value="7" {{ $dr=='7' ? 'selected' : '' }}>7 years</option>
-                                            <option value="10" {{ $dr=='10' ? 'selected' : '' }}>10 years</option>
-                                            <option value="permanent" {{ $dr=='permanent' ? 'selected' : '' }}>Permanent</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label for="autoArchive" class="block text-sm font-medium text-gray-700 mb-1">Auto-Archive Documents</label>
-                                        <div class="flex items-center">
-                                            <div class="relative inline-block w-10 mr-2 align-middle select-none">
-                                                <input type="checkbox" id="autoArchive" name="autoArchive" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" {{ !empty($settings['auto_archive']) ? 'checked' : '' }} />
-                                                <label for="autoArchive" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                                            </div>
-                                            <span class="text-sm text-gray-600">Enabled</span>
-                                        </div>
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label for="notificationEmails" class="block text-sm font-medium text-gray-700 mb-1">Notification Emails</label>
-                                        <input type="text" id="notificationEmails" name="notificationEmails" value="{{ $settings['notification_emails'] ?? '' }}" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full p-2.5" placeholder="Enter email addresses separated by commas">
-                                        <p class="mt-1 text-xs text-gray-500">Email addresses to receive archival and deletion notifications</p>
-                                    </div>
-                                </div>
-                                <div class="mt-6 flex justify-end space-x-3">
-                                    <button type="button" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A]">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" class="bg-[#2f855A] hover:bg-[#28644c] text-white px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A]">
-                                        Save Changes
-                                    </button>
-                                </div>
-                            </form>
-                            <div class="mt-4 flex justify-end">
-                                <form action="{{ route('archival.run') }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-800">
-                                        Run Auto-Archive Now
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </section>
                 </div>
             </div>
         </main>
@@ -920,13 +885,39 @@ $settings = isset($settings) ? $settings : [
             const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
             const openSignOutBtn = document.getElementById("openSignOutBtn");
             const searchInput = document.getElementById("searchInput");
-            const filterStatus = document.getElementById("filterStatus");
-            const filterCategory = document.getElementById("filterCategory");
-            const filterDocType = document.getElementById("filterDocType");
+            // Filters removed from UI; keep a programmatic category filter for policy-card clicks
+            let currentCategoryFilter = '';
             // Export/Print elements
             const exportBtn = document.getElementById('exportBtn');
             const printBtn = document.getElementById('printBtn');
+            const archivesBtn = document.getElementById('archivesBtn');
             const upcomingTable = document.getElementById('upcomingTable');
+
+            // Hide any pre-rendered archived section by default and ensure stable IDs
+            (function initArchivedSectionHidden(){
+                try {
+                    const existingHeaderIcon = document.querySelector('h3 i.bx-archive');
+                    const section = existingHeaderIcon ? existingHeaderIcon.closest('section') : null;
+                    if (section) {
+                        if (!section.id) section.id = 'recentlyArchivedSection';
+                        section.style.display = 'none';
+                        const table = section.querySelector('table');
+                        if (table && !table.id) table.id = 'recentlyArchivedTable';
+                    }
+                } catch(_) {}
+            })();
+
+            function toggleArchivedSection(forceShow){
+                ensureArchivedTableExists();
+                const section = document.getElementById('recentlyArchivedSection');
+                if (!section) return;
+                const willShow = (typeof forceShow === 'boolean') ? forceShow : (section.style.display === 'none');
+                section.style.display = willShow ? '' : 'none';
+                if (willShow) {
+                    const table = document.getElementById('recentlyArchivedTable');
+                    if (table && table.scrollIntoView) table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
             // Extend/Archive modals
             const extendRetentionModal = document.getElementById("extendRetentionModal");
             const closeExtendRetentionBtn = document.getElementById("closeExtendRetentionBtn");
@@ -941,6 +932,7 @@ $settings = isset($settings) ? $settings : [
             const confirmArchiveNowBtn = document.getElementById("confirmArchiveNowBtn");
             const archiveDocName = document.getElementById("archiveDocName");
             const archiveReason = document.getElementById("archiveReason");
+            let rowToArchive = null;
 
             // Initialize sidebar state
             if (window.innerWidth >= 768) {
@@ -991,20 +983,279 @@ $settings = isset($settings) ? $settings : [
                 });
             });
 
+            // Open Archive modal via event delegation on buttons in the Upcoming table
+            document.addEventListener('click', function(e){
+                const btn = e.target.closest('.archive-btn');
+                if (!btn) return;
+                e.preventDefault();
+                rowToArchive = btn.closest('tr');
+                const name = btn.getAttribute('data-name') || (rowToArchive?.querySelector('td:first-child')?.textContent?.trim()) || 'Document';
+                archiveDocName.textContent = name;
+                openModal(archiveNowModal);
+            });
+
             // Close handlers for Archive modal
             closeArchiveNowBtn.addEventListener('click', () => closeModal(archiveNowModal));
             cancelArchiveNowBtn.addEventListener('click', () => closeModal(archiveNowModal));
-            confirmArchiveNowBtn.addEventListener('click', () => {
-                const reason = archiveReason.value.trim();
+            confirmArchiveNowBtn.addEventListener('click', async () => {
+                const reason = (archiveReason?.value || '').trim();
+                const name = archiveDocName.textContent || archiveDocName.textContent || 'Document';
+                // Remove from Upcoming table (hide the row)
+                if (rowToArchive) {
+                    try {
+                        rowToArchive.dataset.archived = '1';
+                        rowToArchive.dataset.docName = name;
+                        rowToArchive.style.display = 'none';
+                    } catch(_) {}
+                }
+
+                // Ensure Recently Archived table exists and append a new row
+                ensureArchivedTableExists();
+                const catUpper = (rowToArchive?.dataset?.category || '').toUpperCase();
+                appendArchivedRow({
+                    name,
+                    category: catUpper,
+                    archivedOn: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' }),
+                    scheduledDeletion: '-',
+                });
+
+                // Persist to session
+                await apiPost('/archival/archive', {
+                    name,
+                    category: (rowToArchive?.dataset?.category || ''),
+                    archived_on: new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: '2-digit' }),
+                    scheduled_deletion: '—'
+                });
+
+                // Close modal and show success
                 closeModal(archiveNowModal);
                 Swal.fire({
                     icon: 'success',
                     title: 'Document Archived',
-                    text: `${archiveDocName.textContent} has been archived.${reason ? ' Note: ' + reason : ''}`,
+                    text: `${name} has been archived.${reason ? ' Note: ' + reason : ''}`,
                     timer: 1600,
                     showConfirmButton: false
                 });
+
+                // Reset modal fields
+                if (archiveReason) archiveReason.value = '';
+                rowToArchive = null;
             });
+
+            function ensureArchivedTableExists(){
+                // Look for the Recently Archived section and table; create if missing
+                let section = document.getElementById('recentlyArchivedSection');
+                if (!section) {
+                    const byHeader = document.querySelector('h3 i.bx-archive')?.closest('section') || null;
+                    if (byHeader) {
+                        section = byHeader;
+                        if (!section.id) section.id = 'recentlyArchivedSection';
+                        const existingTable = section.querySelector('table');
+                        if (existingTable && !existingTable.id) existingTable.id = 'recentlyArchivedTable';
+                    }
+                }
+                // If still missing, create a new section at the end of dashboard container
+                if (!document.getElementById('recentlyArchivedTable')) {
+                    if (section && section.querySelector('table')) { section.querySelector('table').id = 'recentlyArchivedTable'; return; }
+
+                    const container = document.querySelector('.dashboard-container .space-y-6') || document.querySelector('.dashboard-container');
+                    const wrapper = document.createElement('section');
+                    wrapper.className = 'mt-10';
+                    wrapper.id = 'recentlyArchivedSection';
+                    wrapper.innerHTML = `
+                        <div class=\"flex justify-between items-center mb-4\">
+                            <h3 class=\"font-semibold text-lg text-[#1a4d38]\"><i class='bx bx-archive mr-2'></i>Recently Archived</h3>
+                        </div>
+                        <div class=\"dashboard-card overflow-hidden\">
+                            <div class=\"overflow-x-auto\">
+                                <table id=\"recentlyArchivedTable\" class=\"min-w-full divide-y divide-gray-200\">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archived On</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Scheduled Deletion</th>
+                                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                    // Append after upcoming section
+                    const upcoming = document.querySelector('section.mt-10');
+                    if (upcoming && upcoming.parentNode) {
+                        upcoming.parentNode.insertBefore(wrapper, upcoming.nextSibling);
+                    } else if (container) {
+                        container.appendChild(wrapper);
+                    } else {
+                        document.body.appendChild(wrapper);
+                    }
+                    // Start hidden by default
+                    wrapper.style.display = 'none';
+                }
+            }
+
+            function appendArchivedRow({ name, category, archivedOn, scheduledDeletion }){
+                const table = document.getElementById('recentlyArchivedTable');
+                if (!table) return;
+                let tbody = table.querySelector('tbody');
+                if (!tbody) { tbody = document.createElement('tbody'); table.appendChild(tbody); }
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50';
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <i class='bx bxs-file text-gray-400 text-xl mr-3 opacity-50'></i>
+                            <div>
+                                <div class="text-sm font-medium text-gray-500">${name}</div>
+                                <div class="text-xs text-gray-400">File • —</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">${category || '—'}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${archivedOn || '—'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap"><div class="text-sm text-gray-500">${scheduledDeletion || '—'}</div></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="restore-archived-btn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-name="${name}">Restore</button>
+                        <button class="delete-archived-btn text-red-600 hover:text-red-800" data-name="${name}">Delete Now</button>
+                    </td>`;
+                tbody.appendChild(tr);
+            }
+
+            // ---- API helpers for session-backed persistence ----
+            async function apiPost(url, payload){
+                try {
+                    const res = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify(payload || {})
+                    });
+                    return await res.json().catch(() => ({}));
+                } catch (e) { console.error('API error', e); return { success: false }; }
+            }
+
+            async function apiGet(url){
+                try {
+                    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    return await res.json().catch(() => ({}));
+                } catch (e) { console.error('API error', e); return { success: false, items: [] }; }
+            }
+
+            // Restore/Delete modals elements
+            const restoreArchivedModal = document.getElementById('restoreArchivedModal');
+            const deleteArchivedModal = document.getElementById('deleteArchivedModal');
+            const restoreDocName = document.getElementById('restoreDocName');
+            const deleteDocName = document.getElementById('deleteDocName');
+            const closeRestoreArchivedBtn = document.getElementById('closeRestoreArchivedBtn');
+            const cancelRestoreArchivedBtn = document.getElementById('cancelRestoreArchivedBtn');
+            const confirmRestoreArchivedBtn = document.getElementById('confirmRestoreArchivedBtn');
+            const closeDeleteArchivedBtn = document.getElementById('closeDeleteArchivedBtn');
+            const cancelDeleteArchivedBtn = document.getElementById('cancelDeleteArchivedBtn');
+            const confirmDeleteArchivedBtn = document.getElementById('confirmDeleteArchivedBtn');
+            let archivedRowTarget = null;
+
+            // Open Restore/Delete modals via event delegation on Recently Archived table actions
+            document.addEventListener('click', function(e){
+                const restoreBtn = e.target.closest('.restore-archived-btn');
+                if (restoreBtn) {
+                    archivedRowTarget = restoreBtn.closest('tr');
+                    const name = restoreBtn.getAttribute('data-name') || archivedRowTarget?.querySelector('td .text-sm')?.textContent?.trim() || 'Document';
+                    restoreDocName.textContent = name;
+                    openModal(restoreArchivedModal);
+                    return;
+                }
+                const deleteBtn = e.target.closest('.delete-archived-btn');
+                if (deleteBtn) {
+                    archivedRowTarget = deleteBtn.closest('tr');
+                    const name = deleteBtn.getAttribute('data-name') || archivedRowTarget?.querySelector('td .text-sm')?.textContent?.trim() || 'Document';
+                    deleteDocName.textContent = name;
+                    openModal(deleteArchivedModal);
+                    return;
+                }
+            });
+
+            // Restore modal handlers
+            closeRestoreArchivedBtn.addEventListener('click', () => closeModal(restoreArchivedModal));
+            cancelRestoreArchivedBtn.addEventListener('click', () => closeModal(restoreArchivedModal));
+            confirmRestoreArchivedBtn.addEventListener('click', async () => {
+                const name = restoreDocName.textContent || '';
+                // Try to find the original upcoming row by data-doc-name or text
+                let upcomingRow = document.querySelector(`tbody tr[data-doc-name="${CSS.escape(name)}"]`);
+                if (!upcomingRow) {
+                    const rows = document.querySelectorAll('#upcomingTable tbody tr');
+                    rows.forEach(r => {
+                        if (!upcomingRow) {
+                            const cell = r.querySelector('td:first-child');
+                            const text = (cell ? cell.textContent : '').trim();
+                            if (text.includes(name)) upcomingRow = r;
+                        }
+                    });
+                }
+                if (upcomingRow) {
+                    upcomingRow.style.display = '';
+                    upcomingRow.dataset.archived = '0';
+                }
+                if (archivedRowTarget && archivedRowTarget.parentNode) archivedRowTarget.parentNode.removeChild(archivedRowTarget);
+                // Persist restore
+                const catText = (archivedRowTarget?.querySelector('td:nth-child(2) span')?.textContent || '').trim().toLowerCase();
+                await apiPost('/archival/restore', { name, category: catText });
+                closeModal(restoreArchivedModal);
+                Swal.fire({ icon: 'success', title: 'Restored', text: `${name} moved back to Upcoming.`, timer: 1400, showConfirmButton: false });
+                archivedRowTarget = null;
+            });
+
+            // Delete modal handlers
+            closeDeleteArchivedBtn.addEventListener('click', () => closeModal(deleteArchivedModal));
+            cancelDeleteArchivedBtn.addEventListener('click', () => closeModal(deleteArchivedModal));
+            confirmDeleteArchivedBtn.addEventListener('click', async () => {
+                const name = deleteDocName.textContent || '';
+                if (archivedRowTarget && archivedRowTarget.parentNode) archivedRowTarget.parentNode.removeChild(archivedRowTarget);
+                const catText = (archivedRowTarget?.querySelector('td:nth-child(2) span')?.textContent || '').trim().toLowerCase();
+                await apiPost('/archival/delete', { name, category: catText });
+                closeModal(deleteArchivedModal);
+                Swal.fire({ icon: 'success', title: 'Deleted', text: `${name} removed from archived.`, timer: 1400, showConfirmButton: false });
+                archivedRowTarget = null;
+            });
+
+            // Load archived list from session on page load and hide corresponding upcoming rows
+            (async function loadArchivedOnStart(){
+                const res = await apiGet('/archival/list');
+                if (res && res.success && Array.isArray(res.items)) {
+                    if (res.items.length > 0) ensureArchivedTableExists();
+                    res.items.forEach(item => {
+                        appendArchivedRow({
+                            name: item.name,
+                            category: (item.category || '').toUpperCase(),
+                            archivedOn: item.archived_on || '—',
+                            scheduledDeletion: item.scheduled_deletion || '—'
+                        });
+                        // Hide upcoming rows that match
+                        hideUpcomingRowByNameCategory(item.name, (item.category || '').toLowerCase());
+                    });
+                }
+            })();
+
+            function hideUpcomingRowByNameCategory(name, category){
+                const rows = document.querySelectorAll('#upcomingTable tbody tr');
+                rows.forEach(r => {
+                    const cat = (r.dataset.category || '').toLowerCase();
+                    const cell = r.querySelector('td:first-child');
+                    const text = (cell ? cell.textContent : '').trim();
+                    if (text.includes(name) && (!category || category === cat)) {
+                        r.style.display = 'none';
+                        r.dataset.archived = '1';
+                        r.dataset.docName = name;
+                    }
+                });
+            }
 
             function toggleSidebar() {
                 if (window.innerWidth >= 768) {
@@ -1206,48 +1457,33 @@ $settings = isset($settings) ? $settings : [
                 closeAllDropdowns();
             });
 
-            // Filter documents
+            // Filter documents (by search term and optional category set via policy cards)
             function filterDocuments() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const statusFilter = filterStatus.value; // not used in current dataset but kept for UI parity
-                const categoryFilter = filterCategory.value;
-                const typeFilter = (filterDocType && filterDocType.value) ? filterDocType.value : '';
+                const searchTerm = (searchInput?.value || '').toLowerCase();
                 const rows = document.querySelectorAll("tbody tr");
 
                 rows.forEach(row => {
-                    const name = row.querySelector("td:first-child") ? row.querySelector("td:first-child").textContent.toLowerCase() : '';
+                    const firstCell = row.querySelector("td:first-child");
+                    const name = firstCell ? firstCell.textContent.toLowerCase() : '';
                     const category = (row.dataset.category || '').toLowerCase();
-                    const dtype = (row.dataset.type || '').toLowerCase();
 
                     const matchesSearch = !searchTerm || name.includes(searchTerm);
-                    const matchesStatus = true; // no explicit status column to filter
-                    const matchesCategory = !categoryFilter || category === categoryFilter.toLowerCase();
-                    const matchesType = !typeFilter || dtype === typeFilter.toLowerCase();
+                    const matchesCategory = !currentCategoryFilter || category === currentCategoryFilter.toLowerCase();
 
-                    if (matchesSearch && matchesStatus && matchesCategory && matchesType) {
-                        row.style.display = "";
-                    } else {
-                        row.style.display = "none";
-                    }
+                    row.style.display = (matchesSearch && matchesCategory) ? "" : "none";
                 });
             }
 
-            // Add event listeners for filtering
-            searchInput.addEventListener("input", filterDocuments);
-            filterStatus.addEventListener("change", filterDocuments);
-            filterCategory.addEventListener("change", filterDocuments);
-            if (filterDocType) filterDocType.addEventListener("change", filterDocuments);
+            // Add event listener for search filtering
+            if (searchInput) searchInput.addEventListener("input", filterDocuments);
 
             // Policy cards -> filter by category on click
             const policyCards = document.querySelectorAll('.policy-card');
             const upcomingSection = document.querySelector("section.mt-10");
             policyCards.forEach(card => {
                 card.addEventListener('click', () => {
-                    const cat = card.getAttribute('data-policy-category') || '';
-                    if (filterCategory) {
-                        filterCategory.value = cat;
-                        filterDocuments();
-                    }
+                    currentCategoryFilter = card.getAttribute('data-policy-category') || '';
+                    filterDocuments();
                     // Scroll to upcoming table for context
                     if (upcomingSection && upcomingSection.scrollIntoView) {
                         upcomingSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1296,6 +1532,13 @@ $settings = isset($settings) ? $settings : [
             if (printBtn) {
                 printBtn.addEventListener('click', () => {
                     window.print();
+                });
+            }
+
+            // Archives button -> toggle archived section show/hide
+            if (archivesBtn) {
+                archivesBtn.addEventListener('click', () => {
+                    toggleArchivedSection();
                 });
             }
         });

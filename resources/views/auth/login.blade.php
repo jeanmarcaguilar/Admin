@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login Portal</title>
+    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="apple-touch-icon" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <script>
       window.csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -33,9 +36,7 @@
 <body class="flex items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8 text-gray-900 text-xs">
   <div class="w-full max-w-sm sm:max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 p-8">
     <div class="flex items-center justify-center mb-8">
-      <div class="bg-green-700 rounded-full p-3 mr-3 shadow-md">
-        <i class="fas fa-user-shield text-green-300 text-2xl"></i>
-      </div>
+      <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="h-12 w-12 mr-3 rounded-full border border-gray-200" />
       <h2 class="text-2xl font-extrabold text-green-800">Login Portal</h2>
     </div>
     

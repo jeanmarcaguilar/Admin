@@ -9,6 +9,8 @@ $user = auth()->user();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Compliance Tracking | Administrative Dashboard</title>
+    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
@@ -176,7 +178,7 @@ $user = auth()->user();
                     <i class="fa-solid fa-bell text-xl"></i>
                     <span class="absolute top-1 right-1 bg-red-500 text-xs text-white rounded-full px-1">3</span>
                 </button>
-                <div class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
+                <div onclick="toggleUserMenu(event)" class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
                     <i class="fa-solid fa-user text-[18px] bg-white text-[#28644c] px-2.5 py-2 rounded-full"></i>
                     <span class="text-white font-medium">{{ $user->name }}</span>
                     <i class="fa-solid fa-chevron-down text-sm"></i>
@@ -217,10 +219,47 @@ $user = auth()->user();
         window.toggleUserMenu = function(ev){
           try{
             if(ev && ev.stopPropagation) ev.stopPropagation();
+            if(ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
             var btn=document.getElementById('userMenuBtn');
             var menu=document.getElementById('userMenuDropdown');
             var notif=document.getElementById('notificationDropdown');
-            if(menu){ menu.classList.toggle('hidden'); }
+            if(menu){
+              var isHidden = menu.classList.contains('hidden');
+              if(isHidden){
+                menu.classList.remove('hidden');
+                try{ menu.style.setProperty('display','block','important'); }catch(_){ menu.style.display = 'block'; }
+                // dynamic positioning under the button
+                if (btn) {
+                  var rect = btn.getBoundingClientRect();
+                  var top = rect.bottom + 8; // 8px gap
+                  menu.style.position = 'fixed';
+                  menu.style.top = top + 'px';
+                  // compute width and align right edge to button's right edge
+                  var width = menu.offsetWidth || 192; // fallback ~12rem
+                  var left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
+                  menu.style.left = left + 'px';
+                  menu.style.right = 'auto';
+                  menu.style.zIndex = 9999;
+                }
+                // verify it really opened; if not, force visibility
+                setTimeout(function(){
+                  try{
+                    var cs = window.getComputedStyle(menu);
+                    var stillHidden = menu.classList.contains('hidden') || cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0';
+                    if(stillHidden){
+                      menu.classList.remove('hidden');
+                      try{ menu.style.setProperty('display','block','important'); }catch(_){ menu.style.display = 'block'; }
+                      menu.style.visibility = 'visible';
+                      menu.style.opacity = '1';
+                    }
+                  }catch(e){}
+                }, 0);
+                window.__lastMenuOpenTs = Date.now();
+              } else {
+                menu.classList.add('hidden');
+                try{ menu.style.setProperty('display','none','important'); }catch(_){ menu.style.display = 'none'; }
+              }
+            }
             if(btn){ var ex=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', (!ex).toString()); }
             if(notif){ notif.classList.add('hidden'); }
           }catch(e){}
@@ -240,36 +279,50 @@ $user = auth()->user();
           }catch(e){}
         };
       }
+      // Utility to hide menus
+      if (typeof window.hideAllMenus !== 'function') {
+        window.hideAllMenus = function(){
+          var ud=document.getElementById('userMenuDropdown');
+          var nd=document.getElementById('notificationDropdown');
+          var ub=document.getElementById('userMenuBtn');
+          var nb=document.getElementById('notificationBtn');
+          if(ud){ ud.classList.add('hidden'); ud.style.display='none'; }
+          if(nd){ nd.classList.add('hidden'); }
+          if(ub){ ub.setAttribute('aria-expanded','false'); }
+          if(nb){ nb.setAttribute('aria-expanded','false'); }
+        };
+      }
       if (!window.__complianceMenusBound) {
         window.__complianceMenusBound = true;
+        // Reparent dropdown to body to avoid stacking/overflow issues
+        document.addEventListener('DOMContentLoaded', function(){
+          try{
+            var menu=document.getElementById('userMenuDropdown');
+            if(menu && menu.parentNode !== document.body){ document.body.appendChild(menu); }
+          }catch(e){}
+        });
         document.addEventListener('click', function(e){
+          if (typeof window.__lastMenuOpenTs === 'number' && (Date.now() - window.__lastMenuOpenTs) < 120) { return; }
           var ud=document.getElementById('userMenuDropdown');
           var ub=document.getElementById('userMenuBtn');
           var nd=document.getElementById('notificationDropdown');
           var nb=document.getElementById('notificationBtn');
           var clickInsideUser = (ub && (ub.contains(e.target) || (ud && ud.contains(e.target))));
           var clickInsideNotif = (nb && (nb.contains(e.target) || (nd && nd.contains(e.target))));
-          if(!clickInsideUser && !clickInsideNotif){
-            if(ud){ ud.classList.add('hidden'); }
-            if(nd){ nd.classList.add('hidden'); }
-            if(ub){ ub.setAttribute('aria-expanded','false'); }
-            if(nb){ nb.setAttribute('aria-expanded','false'); }
-          }
+          if(!clickInsideUser && !clickInsideNotif){ if(window.hideAllMenus) window.hideAllMenus(); }
         });
-        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){
-          var ud=document.getElementById('userMenuDropdown');
-          var nd=document.getElementById('notificationDropdown');
-          var ub=document.getElementById('userMenuBtn');
-          var nb=document.getElementById('notificationBtn');
-          if(ud){ ud.classList.add('hidden'); }
-          if(nd){ nd.classList.add('hidden'); }
-          if(ub){ ub.setAttribute('aria-expanded','false'); }
-          if(nb){ nb.setAttribute('aria-expanded','false'); }
-        }});
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ if(window.hideAllMenus) window.hideAllMenus(); }});
         var nb=document.getElementById('notificationBtn');
         if(nb){ nb.addEventListener('click', function(e){ if(window.toggleNotification) window.toggleNotification(e); }); }
         var ub=document.getElementById('userMenuBtn');
-        if(ub){ ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); }); }
+        if(ub){
+          // Avoid double-binding if inline onclick exists on the element
+          var hasInline = !!ub.getAttribute('onclick');
+          if(!hasInline){ ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); }); }
+        }
+        // Close on resize/scroll to avoid stale positioning
+        window.addEventListener('resize', function(){ if(window.hideAllMenus) window.hideAllMenus(); });
+        window.addEventListener('scroll', function(){ if(window.hideAllMenus) window.hideAllMenus(); }, { passive: true });
       }
     </script>
 
@@ -632,7 +685,7 @@ $user = auth()->user();
                 </div>
             </div>
             <!-- User Menu Dropdown -->
-            <div id="userMenuDropdown" onclick="event.stopPropagation();" class="hidden fixed right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index: 60;" role="menu" aria-labelledby="userMenuBtn">
+            <div id="userMenuDropdown" class="hidden fixed right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index: 9999;" role="menu" aria-labelledby="userMenuBtn" onclick="(function(e){ if(e&&e.stopPropagation) e.stopPropagation(); if(e&&e.stopImmediatePropagation) e.stopImmediatePropagation(); })(event)">
                 <div class="py-4 px-6 border-b border-gray-100 text-center">
                     <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
                         <i class="fas fa-user-circle text-3xl"></i>
@@ -794,6 +847,17 @@ $user = auth()->user();
                   var ps=document.getElementById('privacySecurityModal'); if(ps && e.target===ps){ if(window.closePrivacySecurityModal) window.closePrivacySecurityModal(); }
                   var so=document.getElementById('signOutModal'); if(so && e.target===so){ if(window.closeSignOutModal) window.closeSignOutModal(); }
                 });
+                var d=document.getElementById('userMenuDropdown');
+                var b=document.getElementById('userMenuBtn');
+                if(d){
+                  d.addEventListener('click', function(e){
+                    var t = e.target.closest('a,button');
+                    if(t){
+                      d.classList.add('hidden');
+                      if(b) b.setAttribute('aria-expanded','false');
+                    }
+                  });
+                }
               });
             </script>
 
@@ -1610,6 +1674,17 @@ document.addEventListener("DOMContentLoaded", () => {
             closeAllModals();
             closeAllSidebarDropdowns();
         });
+    }
+
+    // Hide user menu when clicking any actionable item inside it
+    if (userMenuDropdown) {
+        userMenuDropdown.addEventListener('click', (e) => {
+            const actionable = e.target && e.target.closest('button, a');
+            if (actionable) {
+                userMenuDropdown.classList.add('hidden');
+                if (userMenuBtn) userMenuBtn.setAttribute('aria-expanded', 'false');
+            }
+        }, true); // capture phase to run before inline stopImmediatePropagation
     }
 
     // Function to close all modals

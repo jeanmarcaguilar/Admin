@@ -57,7 +57,7 @@ Route::get('/dashboard', function () {
     $cases = \App\Models\CaseFile::all();
     $activeCases = $cases->filter(function ($c) {
         $s = strtolower($c->status ?? '');
-        return $s !== 'closed' && $s !== 'completed';
+        return in_array($s, ['active', 'in progress', 'urgent']);
     })->count();
     
     // Real statistics for dashboard cards
@@ -629,6 +629,152 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('hearings.create');
 
+    // Archival & Retention (session-backed demo endpoints)
+    Route::post('/archival/archive', function (Request $request) {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'nullable|string|max:100',
+            'archived_on' => 'nullable|string|max:50',
+            'scheduled_deletion' => 'nullable|string|max:50',
+        ]);
+        $list = session('archived_documents', []);
+        $entry = [
+            'name' => $data['name'],
+            'category' => $data['category'] ?? '',
+            'archived_on' => $data['archived_on'] ?? now()->format('M d, Y'),
+            'scheduled_deletion' => $data['scheduled_deletion'] ?? '—',
+        ];
+        // Avoid duplicates by name+category
+        $list = array_values(array_filter($list, function($i) use ($entry) {
+            return !(
+                (isset($i['name']) && $i['name'] === $entry['name']) &&
+                (isset($i['category']) && $i['category'] === $entry['category'])
+            );
+        }));
+        $list[] = $entry;
+        session(['archived_documents' => $list]);
+        return response()->json(['success' => true, 'archived' => $entry]);
+    })->name('archival.archive');
+
+    Route::post('/archival/restore', function (Request $request) {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'nullable|string|max:100',
+        ]);
+        $list = session('archived_documents', []);
+        $list = array_values(array_filter($list, function($i) use ($data) {
+            return !(
+                (isset($i['name']) && $i['name'] === $data['name']) &&
+                (isset($i['category']) && $i['category'] === ($data['category'] ?? ''))
+            );
+        }));
+        session(['archived_documents' => $list]);
+        return response()->json(['success' => true]);
+    })->name('archival.restore');
+
+    Route::post('/archival/delete', function (Request $request) {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'nullable|string|max:100',
+        ]);
+        $list = session('archived_documents', []);
+        $list = array_values(array_filter($list, function($i) use ($data) {
+            return !(
+                (isset($i['name']) && $i['name'] === $data['name']) &&
+                (isset($i['category']) && $i['category'] === ($data['category'] ?? ''))
+            );
+        }));
+        session(['archived_documents' => $list]);
+        return response()->json(['success' => true]);
+    })->name('archival.delete');
+
+    Route::get('/archival/list', function () {
+        $list = session('archived_documents', []);
+        return response()->json(['success' => true, 'items' => $list]);
+    })->name('archival.list');
+
+    // Permissions: create/store (AJAX)
+    Route::post('/permissions/store', function (Request $request) {
+        $validated = $request->validate([
+            'permission_type' => 'required|string|in:user,group,department',
+            'user' => 'nullable|required_if:permission_type,user|integer',
+            'group' => 'nullable|required_if:permission_type,group,department',
+            'role' => 'required|string|in:admin,editor,viewer,custom',
+            'document_type' => 'required|string|in:all,financial,hr,legal,other',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'string|in:view,edit,delete,share,download,print',
+            'notes' => 'nullable|string',
+        ]);
+
+        // Determine permissions based on role
+        $role = strtolower($validated['role']);
+        $perms = [];
+        if ($role === 'custom') {
+            $perms = array_values(array_unique(array_map('strtolower', $validated['permissions'] ?? [])));
+            if (empty($perms)) {
+                return response()->json(['success' => false, 'message' => 'Please select at least one permission for Custom role.'], 422);
+            }
+        } else {
+            // Use helper declared earlier in this group
+            $perms = defaultPermissionsForRole($role);
+        }
+
+        // Generate sequential code per year (session-backed)
+        $year = date('Y');
+        $seqKey = 'perm_seq_' . $year;
+        $seq = (int) session($seqKey, 0) + 1;
+        session([$seqKey => $seq]);
+        $code = 'PER-' . $year . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+
+        $nowIso = now()->toIso8601String();
+        $permission = [
+            'id' => $code,
+            'code' => $code,
+            'type' => $validated['permission_type'],
+            'subject' => [
+                'user_id' => $validated['permission_type'] === 'user' ? ($validated['user'] ?? null) : null,
+                'group' => $validated['permission_type'] === 'group' ? ($validated['group'] ?? null) : null,
+                'department' => $validated['permission_type'] === 'department' ? ($validated['group'] ?? null) : null,
+            ],
+            'role' => $role,
+            'permissions' => $perms,
+            'document_type' => strtolower($validated['document_type']),
+            'notes' => $validated['notes'] ?? null,
+            'created_at' => $nowIso,
+        ];
+
+        // Persist to database so it appears in the Access Control table
+        try {
+            \DB::table('permissions')->insert([
+                'type' => $validated['permission_type'],
+                'user_id' => $validated['permission_type'] === 'user' ? ($validated['user'] ?? null) : null,
+                'group_id' => in_array($validated['permission_type'], ['group','department']) ? ($validated['group'] ?? null) : null,
+                'role' => $role,
+                'document_type' => strtolower($validated['document_type']),
+                'permissions' => json_encode($perms),
+                'notes' => $validated['notes'] ?? null,
+                'status' => 'active',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Permission store failed: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to save permission.'], 500);
+        }
+
+        // Respond based on request type (AJAX vs standard form submit)
+        if ($request->expectsJson() || $request->ajax()) {
+            // Also set a flash message so a Blade toast can show after reload
+            try { session()->flash('success', 'Permission created successfully.'); } catch (\Throwable $e) {}
+            return response()->json([
+                'success' => true,
+                'permission' => $permission,
+            ]);
+        }
+
+        return redirect()->back()->with('status', 'Permission created successfully.');
+    })->name('permissions.store');
+
     // Visitors Registration (DB-backed)
     Route::get('/visitors-registration', function () {
         $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
@@ -801,8 +947,10 @@ Route::middleware('auth')->group(function () {
             return response()->json(['ok' => false, 'message' => 'Invalid or expired verification code.'], 422);
         }
 
-        $user->password = $pending['new_hash'];
-        $user->save();
+        \DB::table('users')->where('id', $user->id)->update([
+            'password' => $pending['new_hash'],
+            'updated_at' => now(),
+        ]);
         Cache::forget($cacheKey);
 
         return response()->json(['ok' => true, 'message' => 'Password changed successfully.']);

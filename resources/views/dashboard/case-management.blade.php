@@ -12,8 +12,8 @@ $user = auth()->user();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <style>
         /* Custom scrollbar */
@@ -195,10 +195,34 @@ $user = auth()->user();
         window.toggleUserMenu = function(ev){
           try{
             if(ev && ev.stopPropagation) ev.stopPropagation();
+            if(ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
             var btn=document.getElementById('userMenuBtn');
             var menu=document.getElementById('userMenuDropdown');
             var notif=document.getElementById('notificationDropdown');
-            if(menu){ menu.classList.toggle('hidden'); }
+            if(menu){
+              var isHidden = menu.classList.contains('hidden');
+              if(isHidden){
+                menu.classList.remove('hidden');
+                menu.style.display = 'block';
+                // dynamic positioning under the button
+                if (btn) {
+                  var rect = btn.getBoundingClientRect();
+                  var top = rect.bottom + 8; // 8px gap
+                  menu.style.position = 'fixed';
+                  menu.style.top = top + 'px';
+                  // compute width and align menu's right edge to button's right edge
+                  var width = menu.offsetWidth || 192; // fallback ~12rem
+                  var left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
+                  menu.style.left = left + 'px';
+                  menu.style.right = 'auto';
+                  menu.style.zIndex = 9999;
+                }
+                window.__lastMenuOpenTs = Date.now();
+              } else {
+                menu.classList.add('hidden');
+                menu.style.display = 'none';
+              }
+            }
             if(btn){ var ex=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', (!ex).toString()); }
             if(notif){ notif.classList.add('hidden'); }
           }catch(e){}
@@ -373,7 +397,11 @@ $user = auth()->user();
         // Bind user menu button click
         var ub=document.getElementById('userMenuBtn');
         if(ub){
-          ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); });
+          // If an inline onclick already exists, do not bind another listener to avoid double toggle
+          var hasInline = !!ub.getAttribute('onclick');
+          if(!hasInline){
+            ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); });
+          }
         }
         // Bind notification button click
         var nb=document.getElementById('notificationBtn');
@@ -382,6 +410,7 @@ $user = auth()->user();
         }
         // Close on outside click
         document.addEventListener('click', function(e){
+          if (typeof window.__lastMenuOpenTs === 'number' && (Date.now() - window.__lastMenuOpenTs) < 120) { return; }
           var ud=document.getElementById('userMenuDropdown');
           var ub=document.getElementById('userMenuBtn');
           var nd=document.getElementById('notificationDropdown');
@@ -395,6 +424,9 @@ $user = auth()->user();
           if(e.key === 'Escape'){ window.hideAllMenus(); }
         });
       })();
+      // Close dropdowns on resize/scroll to avoid stale positioning
+      window.addEventListener('resize', function(){ if(window.hideAllMenus) window.hideAllMenus(); });
+      window.addEventListener('scroll', function(){ if(window.hideAllMenus) window.hideAllMenus(); }, { passive: true });
     </script>
 
     <!-- Notification Dropdown -->
@@ -448,7 +480,7 @@ $user = auth()->user();
 
     <!-- User Menu Dropdown -->
     <!-- User Menu Dropdown -->
-    <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index:60;" role="menu" aria-labelledby="userMenuBtn">
+    <div id="userMenuDropdown" class="hidden fixed right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index: 9999;" role="menu" aria-labelledby="userMenuBtn" onclick="(function(e){ if(e&&e.stopPropagation) e.stopPropagation(); if(e&&e.stopImmediatePropagation) e.stopImmediatePropagation(); })(event)">
         <div class="py-4 px-6 border-b border-gray-100 text-center">
             <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
                 <i class="fas fa-user-circle text-3xl"></i>
@@ -457,10 +489,10 @@ $user = auth()->user();
             <p class="text-xs text-gray-400">Administrator</p>
         </div>
         <ul class="text-sm text-gray-700">
-            <li><button id="openProfileBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openProfileModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-            <li><button id="openAccountSettingsBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openAccountSettingsModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
-            <li><button id="openPrivacySecurityBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openPrivacySecurityModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
-            <li><button id="signOutBtn" onclick="(function(e){ e&&e.stopPropagation&&e.stopPropagation(); openSignOutModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+            <li><button type="button" id="openProfileBtn" onclick="(function(e){ if(e&&e.stopPropagation) e.stopPropagation(); if(e&&e.stopImmediatePropagation) e.stopImmediatePropagation(); var d=document.getElementById('userMenuDropdown'); if(d){ d.classList.add('hidden'); d.style.display='none'; } var b=document.getElementById('userMenuBtn'); if(b){ b.setAttribute('aria-expanded','false'); } openProfileModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+            <li><button type="button" id="openAccountSettingsBtn" onclick="(function(e){ if(e&&e.stopPropagation) e.stopPropagation(); if(e&&e.stopImmediatePropagation) e.stopImmediatePropagation(); var d=document.getElementById('userMenuDropdown'); if(d){ d.classList.add('hidden'); d.style.display='none'; } var b=document.getElementById('userMenuBtn'); if(b){ b.setAttribute('aria-expanded','false'); } openAccountSettingsModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
+            <li><button type="button" id="openPrivacySecurityBtn" onclick="(function(e){ if(e&&e.stopPropagation) e.stopPropagation(); if(e&&e.stopImmediatePropagation) e.stopImmediatePropagation(); var d=document.getElementById('userMenuDropdown'); if(d){ d.classList.add('hidden'); d.style.display='none'; } var b=document.getElementById('userMenuBtn'); if(b){ b.setAttribute('aria-expanded','false'); } openPrivacySecurityModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
+            <li><button type="button" id="signOutBtn" onclick="(function(e){ if(e&&e.stopPropagation) e.stopPropagation(); if(e&&e.stopImmediatePropagation) e.stopImmediatePropagation(); var d=document.getElementById('userMenuDropdown'); if(d){ d.classList.add('hidden'); d.style.display='none'; } var b=document.getElementById('userMenuBtn'); if(b){ b.setAttribute('aria-expanded','false'); } openSignOutModal(); })(event)" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
         </ul>
     </div>
 
@@ -637,35 +669,7 @@ $user = auth()->user();
                         </div>
                     </div>
 
-                    <!-- Search and Filter -->
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="relative flex-1 max-w-md">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                            <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full pl-10 p-2.5" placeholder="Search cases...">
-                        </div>
-                        <div class="flex flex-wrap gap-3">
-                            <select id="filterStatus" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full p-2.5">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="pending">Pending</option>
-                                <option value="closed">Closed</option>
-                                <option value="appeal">On Appeal</option>
-                            </select>
-                            <select id="filterType" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] block w-full p-2.5">
-                                <option value="">All Types</option>
-                                <option value="civil">Civil</option>
-                                <option value="criminal">Criminal</option>
-                                <option value="family">Family Law</option>
-                                <option value="corporate">Corporate</option>
-                                <option value="ip">Intellectual Property</option>
-                            </select>
-                            <button class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center">
-                                <i class="fas fa-filter mr-2"></i> Filter
-                            </button>
-                        </div>
-                    </div>
+                    
 
                     <!-- Upcoming Hearings (connected) -->
                     <div class="dashboard-card p-6 mt-6">
@@ -683,7 +687,11 @@ $user = auth()->user();
                                     <div class="text-right">
                                         <div class="text-sm text-gray-900">{{ $u['date'] ?? '-' }}</div>
                                         @if(!empty($u['time']))
-                                            <div class="text-xs text-gray-500">{{ $u['time'] }}</div>
+                                            @php
+                                                try { $__ut_disp = \Carbon\Carbon::parse($u['time'])->format('g:i A'); }
+                                                catch (\Exception $e) { $__ut_disp = $u['time']; }
+                                            @endphp
+                                            <div class="text-xs text-gray-500">{{ $__ut_disp }}</div>
                                         @endif
                                     </div>
                                 </li>
@@ -708,11 +716,25 @@ $user = auth()->user();
                                         <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
+                                
                                 <tbody id="casesTbody" class="bg-white divide-y divide-gray-200">
                                     @if(!empty($cases))
                                         @foreach($cases as $c)
                                             @php $typeKey = strtolower($c['type_badge'] ?? 'civil'); @endphp
-                                            <tr class="hover:bg-gray-50">
+                                            @php
+                                                $__ht_raw = $c['hearing_time'] ?? '';
+                                                try { $__ht_norm = $__ht_raw ? \Carbon\Carbon::parse($__ht_raw)->format('H:i') : ''; }
+                                                catch (\Exception $e) { $__ht_norm = preg_match('/^\d{2}:\d{2}$/', (string)$__ht_raw) ? $__ht_raw : ''; }
+                                            @endphp
+                                            <tr class="hover:bg-gray-50"
+                                                data-number="{{ $c['number'] }}"
+                                                data-name="{{ $c['name'] }}"
+                                                data-client="{{ $c['client'] }}"
+                                                data-type="{{ $typeKey }}"
+                                                data-status="{{ $c['status'] }}"
+                                                data-hearing-date="{{ $c['hearing_date'] ?? '' }}"
+                                                data-hearing-time="{{ $__ht_norm }}"
+                                            >
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900">{{ $c['number'] }}</div>
                                                     <div class="text-xs text-gray-500">Filed: {{ $c['filed'] }}</div>
@@ -734,7 +756,12 @@ $user = auth()->user();
                                                 <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ $c['status'] }}</span></td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm text-gray-900">{{ $c['hearing_date'] ?? '-' }}</div>
-                                                    <div class="text-xs text-gray-500">{{ $c['hearing_time'] ?? '' }}</div>
+                                                    @php
+                                                        $__ht = $c['hearing_time'] ?? '';
+                                                        try { $__ht_disp = $__ht ? \Carbon\Carbon::parse($__ht)->format('g:i A') : ''; }
+                                                        catch (\Exception $e) { $__ht_disp = $__ht; }
+                                                    @endphp
+                                                    <div class="text-xs text-gray-500">{{ $__ht_disp }}</div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     <a href="#" class="viewCaseBtn text-[#2f855A] hover:text-[#1a4d38] mr-3"
@@ -746,7 +773,7 @@ $user = auth()->user();
                                                        data-type-label="{{ $c['type_label'] }}"
                                                        data-status="{{ $c['status'] }}"
                                                        data-hearing-date="{{ $c['hearing_date'] ?? '' }}"
-                                                       data-hearing-time="{{ $c['hearing_time'] ?? '' }}">
+                                                       data-hearing-time="{{ (function($t){ try { return $t ? \Carbon\Carbon::parse($t)->format('g:i A') : ''; } catch (\Exception $e) { return $t; } })($c['hearing_time'] ?? '') }}">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     <a href="#" class="editCaseBtn text-blue-600 hover:text-blue-800 mr-3"
@@ -757,7 +784,7 @@ $user = auth()->user();
                                                        data-type="{{ $typeKey }}"
                                                        data-status="{{ $c['status'] }}"
                                                        data-hearing-date="{{ $c['hearing_date'] ?? '' }}"
-                                                       data-hearing-time="{{ $c['hearing_time'] ?? '' }}">
+                                                       data-hearing-time="{{ (function($t){ try { return $t ? \Carbon\Carbon::parse($t)->format('g:i A') : ''; } catch (\Exception $e) { return $t; } })($c['hearing_time'] ?? '') }}">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     <a href="#" class="deleteCaseBtn text-gray-600 hover:text-gray-900" title="More options"
@@ -1009,7 +1036,7 @@ $user = auth()->user();
 
     <!-- New Case Modal -->
     <div id="newCaseModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="new-case-title">
-        <div class="bg-white rounded-lg w-full max-w-3xl mx-4">
+        <div class="bg-white rounded-lg w-full max-w-lg mx-4">
             <div class="flex justify-between items-center border-b px-6 py-4">
                 <h3 id="new-case-title" class="text-lg font-semibold text-gray-900">Create New Case</h3>
                 <button type="button" onclick="closeModal('newCaseModal')" class="text-gray-400 hover:text-gray-600" aria-label="Close">
@@ -1053,14 +1080,19 @@ $user = auth()->user();
                             </select>
                         </div>
                         <div>
-                            <label for="client" class="block text-sm font-medium text-gray-700">Client *</label>
-                            <select id="client" name="client_id" required class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
-                                <option value="">Select client</option>
-                                @foreach($clients ?? [] as $client)
-                                    <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                @endforeach
-                            </select>
+                            <label for="hearing_date" class="block text-sm font-medium text-gray-700">Next Hearing Date</label>
+                            <input type="date" id="hearing_date" name="hearing_date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
                         </div>
+                        <div>
+                            <label for="hearing_time" class="block text-sm font-medium text-gray-700">Next Hearing Time</label>
+                            <input type="time" id="hearing_time" name="hearing_time" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="client" class="block text-sm font-medium text-gray-700">Client Name *</label>
+                            <input type="text" id="client" name="client_name" required placeholder="Enter client name"
+                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm" />
+                        </div>
+                        
                         <div>
                             <label for="court" class="block text-sm font-medium text-gray-700">Court</label>
                             <input type="text" id="court" name="court" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
@@ -1069,6 +1101,7 @@ $user = auth()->user();
                             <label for="judge" class="block text-sm font-medium text-gray-700">Judge</label>
                             <input type="text" id="judge" name="judge" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
                         </div>
+
                         <div class="md:col-span-2">
                             <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
                             <textarea id="description" name="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm"></textarea>
@@ -1323,7 +1356,7 @@ $user = auth()->user();
         </div>
     </div>
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     // Sidebar elements
     const sidebar = document.getElementById("sidebar");
     const mainContent = document.getElementById("main-content");
@@ -1338,50 +1371,79 @@ $user = auth()->user();
     const userMenuDropdown = document.getElementById("userMenuDropdown");
 
     // Modal elements
-    const profileModal = document.getElementById("profileModal");
-    const openProfileBtn = document.getElementById("openProfileBtn");
-    const closeProfileBtn = document.getElementById("closeProfileBtn");
-    const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
+    const modals = {
+        profile: document.getElementById("profileModal"),
+        accountSettings: document.getElementById("accountSettingsModal"),
+        privacySecurity: document.getElementById("privacySecurityModal"),
+        signOut: document.getElementById("signOutModal"),
+        newCase: document.getElementById("newCaseModal"),
+        viewCase: document.getElementById("viewCaseModal"),
+        editCase: document.getElementById("editCaseModal"),
+        deleteCase: document.getElementById("deleteCaseModal")
+    };
 
-    const accountSettingsModal = document.getElementById("accountSettingsModal");
-    const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
-    const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
-    const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
+    const modalButtons = {
+        profile: {
+            open: document.getElementById("openProfileBtn"),
+            close: [document.getElementById("closeProfileBtn"), document.getElementById("closeProfileBtn2")]
+        },
+        accountSettings: {
+            open: document.getElementById("openAccountSettingsBtn"),
+            close: [document.getElementById("closeAccountSettingsBtn"), document.getElementById("cancelAccountSettingsBtn")]
+        },
+        privacySecurity: {
+            open: document.getElementById("openPrivacySecurityBtn"),
+            close: [document.getElementById("closePrivacySecurityBtn"), document.getElementById("cancelPrivacySecurityBtn")]
+        },
+        signOut: {
+            open: document.getElementById("signOutBtn"),
+            close: [document.getElementById("cancelSignOutBtn"), document.getElementById("cancelSignOutBtn2")]
+        },
+        viewCase: {
+            close: [document.getElementById("closeViewCaseBtn"), document.getElementById("closeViewCaseBtn2")]
+        },
+        editCase: {
+            close: [document.getElementById("closeEditCaseBtn"), document.getElementById("cancelEditCaseBtn")]
+        },
+        deleteCase: {
+            close: [document.getElementById("closeDeleteCaseBtn"), document.getElementById("cancelDeleteCaseBtn")]
+        }
+    };
 
-    const privacySecurityModal = document.getElementById("privacySecurityModal");
-    const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
-    const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
-    const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
+    // View Case Modal fields
+    const vcFields = {
+        number: document.getElementById("vcNumber"),
+        status: document.getElementById("vcStatus"),
+        name: document.getElementById("vcName"),
+        client: document.getElementById("vcClient"),
+        type: document.getElementById("vcType"),
+        hearing: document.getElementById("vcHearing")
+    };
 
-    const signOutModal = document.getElementById("signOutModal");
-    const signOutBtn = document.getElementById("signOutBtn");
-    const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
-
-    // Add Case Modal
-    const addCaseModal = document.getElementById("addCaseModal");
-    const openAddCaseBtn = document.querySelector("button:has(i.fa-plus)");
-    const closeAddCaseModal = document.getElementById("closeAddCaseModal");
-    const cancelAddCase = document.getElementById("cancelAddCase");
-    const addCaseForm = document.getElementById("addCaseForm");
+    // Edit Case Modal fields
+    const ecFields = {
+        number: document.getElementById("ecNumber"),
+        status: document.getElementById("ecStatus"),
+        name: document.getElementById("ecName"),
+        client: document.getElementById("ecClient"),
+        type: document.getElementById("ecType"),
+        hearingDate: document.getElementById("ecHearingDate"),
+        hearingTime: document.getElementById("ecHearingTime")
+    };
 
     // Toggle sidebar
     function toggleSidebar() {
         const isOpen = sidebar.classList.contains("md:ml-0") || sidebar.classList.contains("ml-0");
-        
         if (window.innerWidth >= 768) {
-            // Desktop behavior
             sidebar.classList.toggle("-ml-72");
             sidebar.classList.toggle("md:ml-0");
             mainContent.classList.toggle("sidebar-closed");
         } else {
-            // Mobile behavior
             sidebar.classList.toggle("-ml-72");
             sidebar.classList.toggle("ml-0");
             overlay.classList.toggle("hidden");
             document.body.classList.toggle("overflow-hidden");
         }
-
-        // Update toggle button icon and ARIA
         const icon = toggleBtn.querySelector("i");
         icon.classList.toggle("fa-bars", !isOpen);
         icon.classList.toggle("fa-times", isOpen);
@@ -1401,6 +1463,26 @@ $user = auth()->user();
         });
     }
 
+    // Close all modals
+    function closeAllModals() {
+        Object.values(modals).forEach(modal => {
+            if (modal) {
+                modal.classList.remove("active");
+                modal.classList.add("hidden");
+                modal.style.display = "none";
+                document.body.style.overflow = "auto";
+            }
+        });
+        if (modals.newCase) {
+            const form = document.getElementById("newCaseForm");
+            if (form) form.reset();
+        }
+        if (modals.editCase) {
+            const form = document.getElementById("editCaseForm");
+            if (form) form.reset();
+        }
+    }
+
     // Handle sidebar dropdown toggles
     dropdownToggles.forEach((toggle) => {
         toggle.addEventListener("click", (e) => {
@@ -1408,18 +1490,14 @@ $user = auth()->user();
             const dropdown = toggle.nextElementSibling;
             const chevron = toggle.querySelector(".bx-chevron-down");
             const isOpen = !dropdown.classList.contains("hidden");
-
-            // Close all other dropdowns
             closeAllDropdowns(toggle);
-
-            // Toggle the clicked dropdown
             dropdown.classList.toggle("hidden");
             chevron.classList.toggle("rotate-180");
             toggle.setAttribute("aria-expanded", !isOpen);
         });
     });
 
-    // Handle sidebar toggle button
+    // Handle sidebar toggle
     if (toggleBtn) {
         toggleBtn.addEventListener("click", (e) => {
             e.stopPropagation();
@@ -1427,7 +1505,7 @@ $user = auth()->user();
         });
     }
 
-    // Close sidebar and dropdowns when clicking overlay
+    // Handle overlay click
     if (overlay) {
         overlay.addEventListener("click", () => {
             sidebar.classList.add("-ml-72");
@@ -1436,8 +1514,6 @@ $user = auth()->user();
             document.body.classList.remove("overflow-hidden");
             mainContent.classList.add("sidebar-closed");
             closeAllDropdowns();
-
-            // Reset toggle button
             const icon = toggleBtn.querySelector("i");
             icon.classList.add("fa-bars");
             icon.classList.remove("fa-times");
@@ -1448,7 +1524,6 @@ $user = auth()->user();
     // Handle window resize
     function handleResize() {
         if (window.innerWidth >= 768) {
-            // Desktop: Show sidebar by default
             sidebar.classList.remove("-ml-72");
             sidebar.classList.add("md:ml-0");
             mainContent.classList.remove("sidebar-closed");
@@ -1461,7 +1536,6 @@ $user = auth()->user();
                 toggleBtn.setAttribute("aria-expanded", "true");
             }
         } else {
-            // Mobile: Hide sidebar by default
             sidebar.classList.add("-ml-72");
             sidebar.classList.remove("md:ml-0", "ml-0");
             mainContent.classList.add("sidebar-closed");
@@ -1477,11 +1551,10 @@ $user = auth()->user();
         closeAllDropdowns();
     }
 
-    // Initialize resize handler
     window.addEventListener("resize", handleResize);
     handleResize();
 
-    // Close dropdowns and sidebar when clicking outside
+    // Close dropdowns and sidebar on outside click
     document.addEventListener("click", (e) => {
         if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target) && !sidebar.classList.contains("-ml-72")) {
             if (window.innerWidth < 768) {
@@ -1496,32 +1569,6 @@ $user = auth()->user();
             }
             closeAllDropdowns();
         }
-    });
-
-    // Notification dropdown toggle
-    if (notificationBtn && notificationDropdown) {
-        notificationBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            notificationDropdown.classList.toggle("hidden");
-            notificationBtn.setAttribute("aria-expanded", !notificationDropdown.classList.contains("hidden"));
-            userMenuDropdown.classList.add("hidden");
-            userMenuBtn.setAttribute("aria-expanded", "false");
-        });
-    }
-
-    // User menu dropdown toggle
-    if (userMenuBtn && userMenuDropdown) {
-        userMenuBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            userMenuDropdown.classList.toggle("hidden");
-            userMenuBtn.setAttribute("aria-expanded", !userMenuDropdown.classList.contains("hidden"));
-            notificationDropdown.classList.add("hidden");
-            notificationBtn.setAttribute("aria-expanded", "false");
-        });
-    }
-
-    // Close dropdowns when clicking outside
-    document.addEventListener("click", (e) => {
         if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
             notificationDropdown.classList.add("hidden");
             notificationBtn.setAttribute("aria-expanded", "false");
@@ -1532,280 +1579,322 @@ $user = auth()->user();
         }
     });
 
-    // Modal handling
-    function closeAllModals() {
-        const modals = [addCaseModal, profileModal, accountSettingsModal, privacySecurityModal, signOutModal];
-        modals.forEach((modal) => {
-            if (modal) modal.classList.add("hidden");
-        });
-    }
-
-    // Add Case Modal
-    if (openAddCaseBtn) {
-        openAddCaseBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            closeAllModals();
-            addCaseModal.classList.remove("hidden");
-        });
-    }
-
-    // Open New Case Modal
-    function openNewCaseModal() {
-        // Generate case number (format: C-YYYY-XXXX)
-        const now = new Date();
-        const randomNum = Math.floor(1000 + Math.random() * 9000);
-        document.getElementById('caseNumber').value = `C-${now.getFullYear()}-${randomNum}`;
-        
-        // Set today's date as default filing date
-        document.getElementById('filingDate').valueAsDate = new Date();
-        
-        // Show modal
-        document.getElementById('newCaseModal').classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    }
-
-    // Close modal function
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-        
-        // Reset the form when closing
-        if (modalId === 'newCaseModal') {
-            document.getElementById('newCaseForm').reset();
-        }
-    }
-
-    // Handle New Case button click
-    const newCaseBtn = document.getElementById('newCaseBtn');
-    if (newCaseBtn) {
-        newCaseBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            openNewCaseModal();
-        });
-    }
-    
-    // Submit New Case Form
-    async function submitNewCase() {
-        const form = document.getElementById('newCaseForm');
-        const submitBtn = form ? form.querySelector('button[type="button"]') : null;
-        const originalBtnText = submitBtn ? submitBtn.innerHTML : '';
-        
-        if (!form) return;
-        
-        // Show loading state
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...';
-        }
-        
-        try {
-            const formData = new FormData(form);
-            const response = await fetch('{{ route("case.create") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            });
-            
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to create case');
-            }
-            
-            // Show success message
-            await Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Case has been created successfully.',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            
-            // Reset form and close modal
-            form.reset();
-            closeModal('newCaseModal');
-            
-            // Reload the page to show the new case
-            window.location.reload();
-            
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.message || 'Failed to create case. Please try again.',
-                confirmButtonColor: '#2f855a'
-            });
-        } finally {
-            // Reset button state
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            }
-        }
-    }
-    
-    // Close modal when clicking outside or pressing Escape
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('modal-overlay')) {
-            closeModal('newCaseModal');
-        }
-    });
-    
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape') {
-            closeModal('newCaseModal');
-        }
-    });
-    
-    // Handle form submission
-    const addCaseForm = document.getElementById('addCaseForm');
-    if (addCaseForm) {
-        addCaseForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Here you would typically send the form data to your backend
-            // For now, we'll just show a success message and close the modal
-            
-            // Show success message
-            Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'New case has been created successfully!',
-                showConfirmButton: false,
-                timer: 2000
-            });
-            
-            // Close the modal
-            closeModal('addCaseModal');
-            
-            // Reset the form
-            this.reset();
-            
-            // In a real application, you would refresh the cases list or add the new case to the table
-            // window.location.reload(); // Uncomment to refresh the page
-        });
-    }
-
-    if (cancelAddCase) {
-        cancelAddCase.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    if (addCaseForm) {
-        addCaseForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            closeAllModals();
-            Swal.fire({
-                title: "Success!",
-                text: "Case added successfully.",
-                icon: "success",
-                confirmButtonColor: "#2f855A",
-                confirmButtonText: "OK",
-            });
-        });
-    }
-
-    // Profile Modal
-    if (openProfileBtn) {
-        openProfileBtn.addEventListener("click", () => {
-            closeAllModals();
-            profileModal.classList.remove("hidden");
-            userMenuDropdown.classList.add("hidden");
-            userMenuBtn.setAttribute("aria-expanded", "false");
-        });
-    }
-
-    if (closeProfileBtn) {
-        closeProfileBtn.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    if (closeProfileBtn2) {
-        closeProfileBtn2.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    // Account Settings Modal
-    if (openAccountSettingsBtn) {
-        openAccountSettingsBtn.addEventListener("click", () => {
-            closeAllModals();
-            accountSettingsModal.classList.remove("hidden");
-            userMenuDropdown.classList.add("hidden");
-            userMenuBtn.setAttribute("aria-expanded", "false");
-        });
-    }
-
-    if (closeAccountSettingsBtn) {
-        closeAccountSettingsBtn.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    if (cancelAccountSettingsBtn) {
-        cancelAccountSettingsBtn.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    // Privacy & Security Modal
-    if (openPrivacySecurityBtn) {
-        openPrivacySecurityBtn.addEventListener("click", () => {
-            closeAllModals();
-            privacySecurityModal.classList.remove("hidden");
-            userMenuDropdown.classList.add("hidden");
-            userMenuBtn.setAttribute("aria-expanded", "false");
-        });
-    }
-
-    if (closePrivacySecurityBtn) {
-        closePrivacySecurityBtn.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    if (cancelPrivacySecurityBtn) {
-        cancelPrivacySecurityBtn.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    // Sign Out Modal
-    if (signOutBtn) {
-        signOutBtn.addEventListener("click", () => {
-            closeAllModals();
-            signOutModal.classList.remove("hidden");
-            userMenuDropdown.classList.add("hidden");
-            userMenuBtn.setAttribute("aria-expanded", "false");
-        });
-    }
-
-    if (cancelSignOutBtn) {
-        cancelSignOutBtn.addEventListener("click", () => {
-            closeAllModals();
-        });
-    }
-
-    // Close modals when clicking outside
+    // Close modals on outside click
     document.addEventListener("click", (e) => {
         if (e.target.classList.contains("modal")) {
             closeAllModals();
         }
     });
+
+    // Close modals on Escape key
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeAllModals();
+            closeAllDropdowns();
+            window.hideAllMenus();
+        }
+    });
+
+    // Modal button event listeners
+    Object.entries(modalButtons).forEach(([key, { open, close }]) => {
+        if (open) {
+            open.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeAllModals();
+                if (modals[key]) {
+                    modals[key].classList.remove("hidden");
+                    modals[key].classList.add("active");
+                    modals[key].style.display = "flex";
+                    document.body.style.overflow = "hidden";
+                    userMenuDropdown.classList.add("hidden");
+                    userMenuBtn.setAttribute("aria-expanded", "false");
+                }
+            });
+        }
+        if (close) {
+            close.forEach(btn => {
+                if (btn) {
+                    btn.addEventListener("click", () => {
+                        closeAllModals();
+                    });
+                }
+            });
+        }
+    });
+
+    // View Case Modal handler
+    function openViewCaseModal(btn) {
+        if (!btn || !modals.viewCase) return;
+        const d = btn.dataset || {};
+        vcFields.number && (vcFields.number.textContent = d.number || '—');
+        vcFields.status && (vcFields.status.textContent = d.status || '—');
+        vcFields.name && (vcFields.name.textContent = d.name || '—');
+        vcFields.client && (vcFields.client.textContent = d.client || '—');
+        vcFields.type && (vcFields.type.textContent = (d.typeLabel || d.type || '—').split('_').join(' '));
+        vcFields.hearing && (vcFields.hearing.textContent = (d.hearingDate ? d.hearingDate : '—') + (d.hearingTime ? ' • ' + d.hearingTime : ''));
+        closeAllModals();
+        modals.viewCase.classList.remove("hidden");
+        modals.viewCase.classList.add("active");
+        modals.viewCase.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    // Helper: set <select> value by matching value or visible text (case-insensitive)
+    function setSelectByTextOrValue(sel, val){
+        if (!sel) return;
+        const target = (val || '').toString().trim();
+        if (!target){ sel.value = ''; return; }
+        // Try direct value match first
+        sel.value = target;
+        if (sel.value === target) return;
+        // Fallback: match by option text (case-insensitive)
+        const tLower = target.toLowerCase();
+        for (const opt of sel.options){
+            if ((opt.text || '').toLowerCase() === tLower){ sel.value = opt.value; return; }
+        }
+        // Last resort: case-insensitive value match
+        for (const opt of sel.options){
+            if ((opt.value || '').toLowerCase() === tLower){ sel.value = opt.value; return; }
+        }
+        // If no match, clear
+        sel.value = '';
+    }
+
+    // Edit Case Modal handler
+    function openEditCaseModal(btn) {
+        if (!btn || !modals.editCase) return;
+        const d = btn.dataset || {};
+        // Prefer row-level data attributes for robustness
+        const tr = btn.closest('tr');
+        const rd = tr ? tr.dataset || {} : {};
+        function txt(el){ return (el ? el.textContent : '').trim(); }
+        function byIdx(i){ return tr && tr.querySelectorAll('td')[i] || null; }
+        // Columns (0-based): 0 Number, 1 Name, 2 Client, 3 Type, 4 Status, 5 Hearing
+        const colNumber = byIdx(0);
+        const colName = byIdx(1);
+        const colClient = byIdx(2);
+        const colType = byIdx(3);
+        const colStatus = byIdx(4);
+        const colHearing = byIdx(5);
+
+        const numberVal = rd.number || d.number || txt(colNumber && colNumber.querySelector('.text-sm.font-medium'));
+        const nameVal = rd.name || d.name || txt(colName && colName.querySelector('.text-sm.font-medium'));
+        const clientVal = rd.client || d.client || txt(colClient && colClient.querySelector('.text-sm.font-medium'));
+        const typeVal = (rd.type || d.type || (txt(colType))).toString().toLowerCase();
+        const statusVal = rd.status || d.status || txt(colStatus && colStatus.querySelector('span'));
+        let hearingDateVal = rd.hearingDate || d.hearingDate || '';
+        let hearingTimeVal = rd.hearingTime || d.hearingTime || '';
+        if (!hearingDateVal || !hearingTimeVal) {
+            if (colHearing){
+                const dateEl = colHearing.querySelector('.text-sm');
+                const timeEl = colHearing.querySelector('.text-xs');
+                hearingDateVal = hearingDateVal || txt(dateEl);
+                hearingTimeVal = hearingTimeVal || txt(timeEl);
+            }
+        }
+
+        if (ecFields.number) ecFields.number.value = numberVal || '';
+        if (ecFields.status) setSelectByTextOrValue(ecFields.status, statusVal || '');
+        if (ecFields.name) ecFields.name.value = nameVal || '';
+        if (ecFields.client) {
+            setSelectByTextOrValue(ecFields.client, clientVal || '');
+            if (ecFields.client.value === '' && clientVal) {
+                const opt = document.createElement('option');
+                opt.value = clientVal;
+                opt.text = clientVal;
+                ecFields.client.appendChild(opt);
+                ecFields.client.value = clientVal;
+            }
+        }
+        if (ecFields.type) {
+            setSelectByTextOrValue(ecFields.type, typeVal || '');
+            if (ecFields.type.value === '' && typeVal) {
+                const known = ['civil','criminal','family','corporate','ip'];
+                const guess = known.includes(typeVal) ? typeVal : 'civil';
+                ecFields.type.value = guess;
+            }
+        }
+        if (ecFields.hearingDate) ecFields.hearingDate.value = hearingDateVal || '';
+        // Convert 12-hour time (e.g., "1:05 PM") from data-hearing-time into 24-hour HH:MM for <input type="time">
+        if (ecFields.hearingTime) {
+            let ht = hearingTimeVal || '';
+            // If already HH:MM or HH:MM:SS, use first 5 chars
+            const hhmmMatch = /^\d{2}:\d{2}(:\d{2})?$/.test(ht);
+            if (hhmmMatch) {
+                ecFields.hearingTime.value = ht.substring(0,5);
+            } else if (ht) {
+                // Parse formats like "h:mm AM/PM" or "hh:mm AM/PM"
+                const m = ht.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$/);
+                if (m) {
+                    let h = parseInt(m[1],10);
+                    const min = m[2];
+                    const ampm = m[3].toUpperCase();
+                    if (ampm === 'PM' && h !== 12) h += 12;
+                    if (ampm === 'AM' && h === 12) h = 0;
+                    const hh = String(h).padStart(2,'0');
+                    ecFields.hearingTime.value = `${hh}:${min}`;
+                } else {
+                    // Fallback: leave empty if unrecognized
+                    ecFields.hearingTime.value = '';
+                }
+            } else {
+                ecFields.hearingTime.value = '';
+            }
+        }
+        closeAllModals();
+        modals.editCase.classList.remove("hidden");
+        modals.editCase.classList.add("active");
+        modals.editCase.style.display = "flex";
+        document.body.style.overflow = "hidden";
+    }
+
+    // Submit handler: Edit Case form (AJAX -> route('case.update'))
+    (function(){
+        const form = document.getElementById('editCaseForm');
+        if (!form) return;
+        form.addEventListener('submit', async function(e){
+            e.preventDefault();
+            let submitBtn = form.querySelector('button[type="submit"]');
+            let original = submitBtn ? submitBtn.innerHTML : '';
+            try{
+                if (submitBtn){ submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...'; }
+
+                // Map UI fields to backend expected keys
+                const payload = {
+                    number: (ecFields.number?.value || '').trim(),
+                    case_name: (ecFields.name?.value || '').trim(),
+                    client_name: (ecFields.client?.value || '').trim(),
+                    case_type: (ecFields.type?.value || '').trim(),
+                    status: (ecFields.status?.value || '').trim(),
+                    hearing_date: (ecFields.hearingDate?.value || '').trim() || null,
+                    hearing_time: (ecFields.hearingTime?.value || '').trim() || null,
+                };
+
+                // Basic validation
+                if (!payload.number){ throw new Error('Missing case number.'); }
+                if (!payload.case_name){ throw new Error('Case name is required.'); }
+                if (!payload.client_name){ throw new Error('Client name is required.'); }
+                if (!payload.case_type){ throw new Error('Case type is required.'); }
+                if (!payload.status){ throw new Error('Status is required.'); }
+
+                const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+                const csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
+                const fd = new FormData();
+                fd.append('number', payload.number);
+                fd.append('case_name', payload.case_name);
+                fd.append('client_name', payload.client_name);
+                fd.append('case_type', payload.case_type);
+                fd.append('status', payload.status);
+                if (payload.hearing_date) fd.append('hearing_date', payload.hearing_date);
+                if (payload.hearing_time) fd.append('hearing_time', payload.hearing_time);
+                fd.append('_token', csrf);
+
+                const res = await fetch('{{ route("case.update") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: fd
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || data.success === false){
+                    throw new Error((data && (data.message || data.error)) || 'Failed to update case');
+                }
+
+                await Swal.fire({ icon: 'success', title: 'Saved', text: 'Case has been updated.', showConfirmButton: false, timer: 1200 });
+                closeAllModals();
+                // Refresh to reflect updates in the table and stats
+                window.location.reload();
+            }catch(err){
+                console.error('Update failed:', err);
+                Swal.fire({ icon: 'error', title: 'Error', text: (err && err.message) || 'Failed to update case. Please try again.', confirmButtonColor: '#2f855a' });
+            }finally{
+                submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = original || 'Save'; }
+            }
+        });
+    })();
+
+    // Delete Case Modal handler
+    function openDeleteCaseModal(btn){
+        if (!btn || !modals.deleteCase) return;
+        const tr = btn.closest('tr');
+        const rd = tr ? (tr.dataset || {}) : {};
+        const number = rd.number || btn.dataset.number || '';
+        const txtEl = document.getElementById('delCaseNumberText');
+        if (txtEl) txtEl.textContent = number || '—';
+        // store pending number on confirm button dataset
+        const confirmBtn = document.getElementById('confirmDeleteCaseBtn');
+        if (confirmBtn) confirmBtn.dataset.number = number || '';
+        closeAllModals();
+        modals.deleteCase.classList.remove('hidden');
+        modals.deleteCase.classList.add('active');
+        modals.deleteCase.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Bind confirm delete (ensure single binding)
+    (function(){
+        const confirmBtn = document.getElementById('confirmDeleteCaseBtn');
+        if (!confirmBtn || confirmBtn.__bound) return; // prevent double-binding
+        confirmBtn.__bound = true;
+        confirmBtn.addEventListener('click', async function(){
+            const number = (confirmBtn.dataset.number || '').trim();
+            if (!number){
+                Swal.fire({ icon: 'error', title: 'Error', text: 'Missing case number to delete.' });
+                return;
+            }
+            const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+            const csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
+            const fd = new FormData();
+            fd.append('number', number);
+            fd.append('_token', csrf);
+            // Loading state
+            const original = confirmBtn.innerHTML;
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
+            try{
+                const res = await fetch('{{ route("case.delete") }}', {
+                    method: 'POST',
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                    body: fd
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || data.success === false){
+                    throw new Error((data && (data.message || data.error)) || 'Failed to delete case');
+                }
+                await Swal.fire({ icon: 'success', title: 'Deleted', text: 'Case has been deleted.', showConfirmButton: false, timer: 1200 });
+                closeAllModals();
+                window.location.reload();
+            }catch(err){
+                console.error('Delete failed:', err);
+                Swal.fire({ icon: 'error', title: 'Error', text: (err && err.message) || 'Failed to delete case. Please try again.' });
+            }finally{
+                confirmBtn.disabled = false;
+                confirmBtn.innerHTML = original;
+            }
+        });
+    })();
+
+    // Event delegation for view and edit case buttons
+    document.addEventListener("click", (e) => {
+        const viewBtn = e.target.closest(".viewCaseBtn");
+        const editBtn = e.target.closest(".editCaseBtn");
+        const delBtn = e.target.closest(".deleteCaseBtn");
+        if (viewBtn) {
+            e.preventDefault();
+            openViewCaseModal(viewBtn);
+        } else if (editBtn) {
+            e.preventDefault();
+            openEditCaseModal(editBtn);
+        } else if (delBtn) {
+            e.preventDefault();
+            openDeleteCaseModal(delBtn);
+        }
+    });
 });
 </script>
-    
-
     <!-- View Case Modal -->
     <div id="viewCaseModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-case-title">
         <div class="bg-white rounded-lg w-full max-w-xl mx-4">
@@ -1880,7 +1969,12 @@ $user = auth()->user();
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600 mb-1" for="ecClient">Client</label>
-                        <input id="ecClient" name="client" type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]" />
+                        <select id="ecClient" name="client" class="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                            <option value="">Select client</option>
+                            @foreach($clients ?? [] as $client)
+                                <option value="{{ $client->name }}">{{ $client->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600 mb-1" for="ecType">Type</label>

@@ -7,6 +7,9 @@ $user = auth()->user();
 <head>
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
+  <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+  <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+  <link rel="apple-touch-icon" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
@@ -361,14 +364,16 @@ $user = auth()->user();
               <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $documentsCount }}</p>
               <p class="text-xs text-gray-500 mt-1">Document Management</p>
             </div>
-            <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A]">
-              <div class="flex justify-between items-start">
-                <p class="text-gray-800 font-semibold text-sm">Active Cases</p>
-                <i class="bx bx-briefcase text-[#2f855A] text-2xl"></i>
+            <a href="{{ route('case.management') }}" class="block focus:outline-none" aria-label="View Case Management">
+              <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A] cursor-pointer hover:shadow-md">
+                <div class="flex justify-between items-start">
+                  <p class="text-gray-800 font-semibold text-sm">Active Cases</p>
+                  <i class="bx bx-briefcase text-[#2f855A] text-2xl"></i>
+                </div>
+                <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $activeCases }}</p>
+                <p class="text-xs text-gray-500 mt-1">Legal Management</p>
               </div>
-              <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $activeCases }}</p>
-              <p class="text-xs text-gray-500 mt-1">Legal Management</p>
-            </div>
+            </a>
           </section>
           <section class="grid grid-cols-1 gap-4 chart-container">
             <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100 flex flex-col w-full">

@@ -103,3 +103,4 @@ echo "\nUpcoming hearings list:\n";
 foreach ($upcoming as $u) {
     echo "- " . $u['name'] . " (" . $u['number'] . ") - " . $u['date'] . " " . $u['time'] . "\n";
 }
+
