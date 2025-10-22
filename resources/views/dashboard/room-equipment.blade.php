@@ -1584,6 +1584,79 @@ $user = auth()->user();
     });
   }
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('combinedBookingForm');
+  if (!form) return;
+
+  const roomSelect = document.getElementById('roomSelect');
+  const dateInput = document.getElementById('bookingDate');
+  const startInput = document.getElementById('startTime');
+  const endInput = document.getElementById('endTime');
+
+  const existing = @json(session('calendar_bookings', []));
+
+  function toMinutes(t) {
+    if (!t) return null;
+    const [h, m] = t.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    return h * 60 + m;
+  }
+
+  function normalizeRoomKey(v){
+    return (v || '').toString().toLowerCase();
+  }
+
+  function bookingMatchesRoom(b, key){
+    const type = (b.type || '').toString().toLowerCase();
+    const name = normalizeRoomKey(b.name || b.title || '');
+    return (type === 'room') && (name.includes(key) || key.includes(name));
+  }
+
+  function overlaps(aStart, aEnd, bStart, bEnd){
+    return aStart < bEnd && aEnd > bStart; // strict overlap
+  }
+
+  form.addEventListener('submit', (e) => {
+    const roomKey = normalizeRoomKey(roomSelect?.value);
+    const dateVal = dateInput?.value;
+    const startVal = startInput?.value;
+    const endVal = endInput?.value;
+
+    if (!roomKey || !dateVal || !startVal || !endVal) return; // let HTML5 required handle
+
+    const startMins = toMinutes(startVal);
+    const endMins = toMinutes(endVal);
+    if (startMins === null || endMins === null || endMins <= startMins) return; // basic validation handled elsewhere
+
+    const conflicts = (existing || []).filter(b => {
+      try {
+        const bDate = (b.date || '').slice(0, 10);
+        const bStatus = (b.status || '').toString().toLowerCase();
+        // Consider pending/approved as occupying
+        const occupying = ['approved','pending','occupied'].includes(bStatus) || bStatus === '';
+        if (!occupying) return false;
+        if (bDate !== dateVal) return false;
+        if (!bookingMatchesRoom(b, roomKey)) return false;
+        const bs = toMinutes((b.start_time || '').slice(0,5));
+        const be = toMinutes((b.end_time || '').slice(0,5));
+        if (bs === null || be === null) return false;
+        return overlaps(startMins, endMins, bs, be);
+      } catch(_) { return false; }
+    });
+
+    if (conflicts.length > 0) {
+      e.preventDefault();
+      const first = conflicts[0];
+      const range = `${(first.start_time || '').slice(0,5)} - ${(first.end_time || '').slice(0,5)}`;
+      Swal.fire({
+        icon: 'error',
+        title: 'Room is occupied',
+        html: `<div class="text-left">The selected room is already booked on <b>${dateVal}</b> between <b>${range}</b>.<br/><div class="mt-2">Please choose a different time slot or room.</div></div>`,
+      });
+    }
+  });
+});
   </script>
 </body>
 </html>

@@ -985,6 +985,137 @@ $calendarBookings = $calendarBookings ?? [];
       // Initial render
       renderCalendar();
     });
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const bookings = @json($calendarBookings ?? []);
+
+      function toMinutes(t) {
+        if (!t) return null;
+        const [h, m] = t.split(':').map(Number);
+        if (Number.isNaN(h) || Number.isNaN(m)) return null;
+        return h * 60 + m;
+      }
+      function overlaps(aStart, aEnd, bStart, bEnd) { return aStart < bEnd && aEnd > bStart; }
+      function normalize(v){ return (v||'').toString().toLowerCase(); }
+
+      // Detect a booking form on this page (if any quick-create exists)
+      const possibleForms = Array.from(document.querySelectorAll('form'));
+      possibleForms.forEach(form => {
+        const dateEl = form.querySelector('#bookingDate, input[name="date"]');
+        const startEl = form.querySelector('#startTime, input[name="start_time"]');
+        const endEl   = form.querySelector('#endTime, input[name="end_time"]');
+        const roomEl  = form.querySelector('#roomSelect, select[name="room"], input[name="room"]');
+        if (!dateEl || !startEl || !endEl || !roomEl) return;
+
+        form.addEventListener('submit', (e) => {
+          const dateVal = dateEl.value;
+          const startVal = startEl.value;
+          const endVal = endEl.value;
+          const roomKey = normalize(roomEl.value);
+          if (!dateVal || !startVal || !endVal || !roomKey) return; // leave to HTML5 required
+
+          const s = toMinutes(startVal);
+          const f = toMinutes(endVal);
+          if (s === null || f === null || f <= s) return;
+
+          const conflict = (bookings || []).find(b => {
+            try {
+              const bDate = (b.date || '').slice(0,10);
+              const status = normalize(b.status);
+              const occupying = ['approved','pending','occupied'].includes(status) || status === '';
+              if (!occupying) return false;
+              if (bDate !== dateVal) return false;
+              const bName = normalize(b.name || b.title || '');
+              const bType = normalize(b.type || '');
+              const sameRoom = (bType === 'room') && (bName.includes(roomKey) || roomKey.includes(bName));
+              if (!sameRoom) return false;
+              const bs = toMinutes((b.start_time || '').slice(0,5));
+              const be = toMinutes((b.end_time || '').slice(0,5));
+              if (bs === null || be === null) return false;
+              return overlaps(s, f, bs, be);
+            } catch(_) { return false; }
+          });
+
+          if (conflict) {
+            e.preventDefault();
+            const range = `${(conflict.start_time||'').slice(0,5)} - ${(conflict.end_time||'').slice(0,5)}`;
+            Swal.fire({
+              icon: 'error',
+              title: 'Time slot unavailable',
+              html: `<div class="text-left">This room is already booked on <b>${dateVal}</b> between <b>${range}</b>.<br/><div class="mt-2">Please select a different time or room.</div></div>`
+            });
+          }
+        });
+      });
+    });
+  </script>
+  <script>
+    // Fallback calendar renderer: if #calendarGrid is empty after load, render a basic month view
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const grid = document.getElementById('calendarGrid');
+        const monthLabel = document.getElementById('monthLabel');
+        const prevBtn = document.getElementById('prevMonthBtn');
+        const nextBtn = document.getElementById('nextMonthBtn');
+        if (!grid || grid.children.length > 0) return;
+
+        let cur = new Date();
+        const bookings = @json($calendarBookings ?? []);
+
+        function daysInMonth(y, m){ return new Date(y, m + 1, 0).getDate(); }
+        function render(){
+          const y = cur.getFullYear();
+          const m = cur.getMonth();
+          if (monthLabel) monthLabel.textContent = cur.toLocaleString('default', { month: 'long' }) + ' ' + y;
+          grid.innerHTML = '';
+          const first = new Date(y, m, 1);
+          const startW = first.getDay();
+          const total = daysInMonth(y, m);
+          // Leading blanks
+          for (let i=0;i<startW;i++) {
+            const c = document.createElement('div');
+            c.className = 'h-24 border border-gray-100 rounded-md p-1 bg-gray-50';
+            grid.appendChild(c);
+          }
+          // Days
+          for (let d=1; d<=total; d++){
+            const cell = document.createElement('div');
+            cell.className = 'h-24 border border-gray-100 rounded-md p-1 relative bg-white hover:bg-gray-50';
+            const badge = document.createElement('span');
+            badge.className = 'absolute top-1 right-1 text-[10px] text-gray-400';
+            badge.textContent = d;
+            cell.appendChild(badge);
+            // simple event pills
+            const evs = (bookings||[]).filter(b=>{
+              if (!b.date) return false; const dt=new Date(b.date);
+              return dt.getFullYear()===y && dt.getMonth()===m && dt.getDate()===d;
+            });
+            if (evs.length){
+              const list = document.createElement('div'); list.className='mt-5 space-y-1';
+              evs.forEach(ev=>{
+                const pill = document.createElement('div');
+                const st = (ev.status||'').toLowerCase();
+                let color = st==='approved'?'bg-green-100 text-green-700':st==='rejected'?'bg-red-100 text-red-700':st==='pending'?'bg-yellow-100 text-yellow-800': (ev.type==='room'?'bg-green-100 text-green-700':'bg-blue-100 text-blue-700');
+                const s = (ev.start_time||'').slice(0,5); const e=(ev.end_time||'').slice(0,5);
+                pill.className = `text-[10px] px-2 py-1 rounded truncate ${color}`;
+                pill.textContent = `${ev.name||ev.title||'Booking'}${s?` (${s}${e?`-${e}`:''})`:''}`;
+                list.appendChild(pill);
+              });
+              cell.appendChild(list);
+            }
+            grid.appendChild(cell);
+          }
+          // Trailing blanks to fill 42 cells
+          const used = startW + total;
+          for (let i=used;i<42;i++){ const c=document.createElement('div'); c.className='h-24 border border-gray-100 rounded-md p-1 bg-gray-50'; grid.appendChild(c); }
+        }
+        render();
+        prevBtn?.addEventListener('click', (e)=>{ e.preventDefault(); cur.setMonth(cur.getMonth()-1); render(); });
+        nextBtn?.addEventListener('click', (e)=>{ e.preventDefault(); cur.setMonth(cur.getMonth()+1); render(); });
+      } catch(_) {}
+    });
   </script>
 </body>
 </html>

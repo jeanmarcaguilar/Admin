@@ -99,12 +99,12 @@
         }
 
         @media (min-width: 768px) {
-            #main-content {
-                width: calc(100% - 18rem);
-            }
-            #main-content.sidebar-closed {
-                width: calc(100% - 4rem);
-            }
+          #main-content {
+            width: calc(100% - 18rem);
+          }
+          #main-content.sidebar-closed {
+            width: calc(100% - 4rem);
+          }
         }
 
         .dashboard-container {
@@ -460,7 +460,7 @@
                     </div>
 
                     <!-- Document Upload Section -->
-                    <section class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-200">
+                    <section id="uploadSection" class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-200">
                         <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
                             <i class='bx bx-cloud-upload mr-2'></i>Upload New Document
                         </h3>
@@ -500,32 +500,78 @@
                         </div>
                     </section>
 
-                    <!-- Document List Section -->
+                    <!-- Browse by Category -->
                     <section class="mt-8">
-                        <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
-                            <i class='bx bx-list-ul mr-2'></i>Recent Documents
-                        </h3>
-                        <div class="dashboard-card bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="flex justify-between items-center mb-4 px-6 pt-6">
-                                <div class="flex space-x-2">
-                                    <div class="relative">
-                                        <select id="filterType" class="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                                            <option>All Types</option>
-                                            <option>PDF</option>
-                                            <option>Word</option>
-                                            <option>Excel</option>
-                                            <option>PowerPoint</option>
-                                        </select>
-                                        <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-                                            <i class="bx bx-chevron-down text-gray-500"></i>
-                                        </div>
-                                    </div>
-                                    <div class="relative">
-                                        <input type="text" id="searchInput" placeholder="Search documents..." class="pl-8 pr-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                                        <i class="bx bx-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                    </div>
-                                </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold text-lg text-[#1a4d38]">
+                                <i class='bx bx-category mr-2'></i>Browse by Category
+                            </h3>
+                            <div class="text-sm text-gray-500" id="documentCount">
+                                Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> documents
                             </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3 active-category" data-category="all">
+                                <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                                    <i class="bx bx-grid-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">All Documents</div>
+                                    <div class="text-xs text-gray-500">View all documents</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="financial">
+                                <div class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
+                                    <i class="bx bx-dollar text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Financial</div>
+                                    <div class="text-xs text-gray-500">Budgets, invoices, reports</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="hr">
+                                <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                    <i class="bx bx-id-card text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">HR</div>
+                                    <div class="text-xs text-gray-500">Employee files, policies</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="legal">
+                                <div class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center">
+                                    <i class="bx bx-gavel text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Legal</div>
+                                    <div class="text-xs text-gray-500">Contracts, case files</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="operations">
+                                <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+                                    <i class="bx bx-cog text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">Operations</div>
+                                    <div class="text-xs text-gray-500">SOPs, checklists, logs</div>
+                                </div>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Document List Section -->
+                    <section class="mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold text-lg text-[#1a4d38]">
+                                <i class='bx bx-list-ul mr-2'></i>Documents
+                            </h3>
+                            <div class="relative">
+                                <input type="text" id="documentSearch" placeholder="Search documents..." class="pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
+                                <i class="bx bx-search absolute left-2.5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
@@ -538,96 +584,22 @@
                                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @php
-                                            // Use documents provided by the route (session-backed)
-                                            $documents = $documents ?? [];
-                                        @endphp
-                                        @forelse($documents as $doc)
-                                            <tr class="activity-item" data-doc-id="{{ $doc['id'] }}">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                                            @if($doc['type'] == 'PDF')
-                                                                <i class="bx bxs-file-pdf text-red-500 text-xl"></i>
-                                                            @elseif($doc['type'] == 'Word')
-                                                                <i class="bx bxs-file-doc text-blue-500 text-xl"></i>
-                                                            @elseif($doc['type'] == 'Excel')
-                                                                <i class="bx bxs-file-xls text-green-500 text-xl"></i>
-                                                            @else
-                                                                <i class="bx bxs-file text-gray-500 text-xl"></i>
-                                                            @endif
-                                                        </div>
-                                                        <div class="ml-4">
-                                                            <div class="text-sm font-medium text-gray-900">{{ $doc['name'] }}</div>
-                                                            <div class="text-xs text-gray-500">{{ $doc['size'] }}</div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $doc['type'] }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst(strtolower($doc['category'] ?? 'Other')) }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ \Carbon\Carbon::parse($doc['uploaded'])->format('M d, Y') }}</td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $doc['status'] == 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">{{ $doc['status'] }}</span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                    <button onclick="showDocumentDetails({{ json_encode($doc) }})" class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
-                                                    <button onclick="showDownloadDocumentModal({{ json_encode($doc) }})" class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-download"></i></button>
-                                                    <button onclick="showShareDocumentModal({{ json_encode($doc) }})" class="text-gray-600 hover:text-gray-900 mr-3 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-share-alt"></i></button>
-                                                    <button onclick="showDeleteDocumentConfirmation('{{ $doc['id'] }}')" class="text-red-600 hover:text-red-900 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-trash"></i></button>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="6" class="px-6 py-6 text-center text-sm text-gray-500">
-                                                    No documents found.
-                                                </td>
-                                            </tr>
-                                        @endforelse
+                                    <tbody id="documentList" class="bg-white divide-y divide-gray-200">
+                                        <!-- Documents will be loaded here by JavaScript -->
                                     </tbody>
                                 </table>
                             </div>
                             <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
-                                <div class="flex-1 flex justify-between sm:hidden">
-                                    <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                        Previous
-                                    </a>
-                                    <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
-                                        Next
-                                    </a>
+                                <div class="text-sm text-gray-700">
+                                    Showing <span id="paginationStart">1</span> to <span id="paginationEnd">10</span> of <span id="paginationTotal">0</span> results
                                 </div>
-                                <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                                    <div>
-                                        @php $total = is_countable($documents) ? count($documents) : 0; @endphp
-                                        <p class="text-sm text-gray-700">
-                                            @if($total > 0)
-                                                Showing <span class="font-medium">1</span> to <span class="font-medium">{{ $total }}</span> of <span class="font-medium">{{ $total }}</span> results
-                                            @else
-                                                Showing <span class="font-medium">0</span> to <span class="font-medium">0</span> of <span class="font-medium">0</span> results
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span class="sr-only">Previous</span>
-                                                <i class="bx bx-chevron-left"></i>
-                                            </a>
-                                            <a href="#" aria-current="page" class="z-10 bg-[#2f855A] border-[#2f855A] text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                1
-                                            </a>
-                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                2
-                                            </a>
-                                            <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">
-                                                3
-                                            </a>
-                                            <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
-                                                <span class="sr-only">Next</span>
-                                                <i class="bx bx-chevron-right"></i>
-                                            </a>
-                                        </nav>
-                                    </div>
+                                <div class="flex space-x-2">
+                                    <button id="prevPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A] disabled:opacity-50" disabled>
+                                        Previous
+                                    </button>
+                                    <button id="nextPage" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A] disabled:opacity-50" disabled>
+                                        Next
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -891,6 +863,9 @@
             const fileInput = document.getElementById("document-upload");
             const dropZone = fileInput.parentElement;
             const documentsTable = document.querySelector("table tbody");
+            const uploadCategorySelect = document.getElementById("uploadCategory");
+            const uploadSection = document.getElementById("uploadSection");
+            const categoryCards = document.querySelectorAll('.category-card');
             const profileModal = document.getElementById("profileModal");
             const openProfileBtn = document.getElementById("openProfileBtn");
             const closeProfileBtn = document.getElementById("closeProfileBtn");
@@ -1484,6 +1459,323 @@
                     confirmBtn.innerHTML = originalText;
                 }
             }
+        });
+
+        // Document List and Category Filtering
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sample document data - in a real app, this would come from your backend
+            const documents = [
+                { id: 1, name: 'Q1 Financial Report.pdf', type: 'PDF', category: 'financial', uploaded: '2023-10-15', status: 'Indexed' },
+                { id: 2, name: 'Employee Handbook 2023.docx', type: 'Word', category: 'hr', uploaded: '2023-10-10', status: 'Indexed' },
+                { id: 3, name: 'Non-Disclosure Agreement.pdf', type: 'PDF', category: 'legal', uploaded: '2023-10-05', status: 'Pending' },
+                { id: 4, name: 'SOP - Document Management.docx', type: 'Word', category: 'operations', uploaded: '2023-09-28', status: 'Indexed' },
+                { id: 5, name: 'Budget Forecast 2024.xlsx', type: 'Excel', category: 'financial', uploaded: '2023-09-20', status: 'Indexed' },
+                { id: 6, name: 'Employee Benefits Guide.pdf', type: 'PDF', category: 'hr', uploaded: '2023-09-15', status: 'Indexed' },
+                { id: 7, name: 'Vendor Contract Template.docx', type: 'Word', category: 'legal', uploaded: '2023-09-10', status: 'Pending' },
+                { id: 8, name: 'IT Security Policy.pdf', type: 'PDF', category: 'operations', uploaded: '2023-09-05', status: 'Indexed' },
+                { id: 9, name: 'Annual Report 2023.pdf', type: 'PDF', category: 'financial', uploaded: '2023-08-28', status: 'Indexed' },
+                { id: 10, name: 'Onboarding Checklist.xlsx', type: 'Excel', category: 'hr', uploaded: '2023-08-20', status: 'Indexed' }
+            ];
+
+            // DOM Elements
+            const documentList = document.getElementById('documentList');
+            const categoryCards = document.querySelectorAll('.category-card');
+            const documentSearch = document.getElementById('documentSearch');
+            const uploadCategory = document.getElementById('uploadCategory');
+            const prevPageBtn = document.getElementById('prevPage');
+            const nextPageBtn = document.getElementById('nextPage');
+            const paginationStart = document.getElementById('paginationStart');
+            const paginationEnd = document.getElementById('paginationEnd');
+            const paginationTotal = document.getElementById('paginationTotal');
+            const visibleCount = document.getElementById('visibleCount');
+            const totalCount = document.getElementById('totalCount');
+
+            // State
+            let currentCategory = 'all';
+            let currentSearch = '';
+            let currentPage = 1;
+            const itemsPerPage = 5;
+
+            // Initialize
+            renderDocuments();
+            updatePagination();
+
+            // Event Listeners
+            categoryCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Update active category
+                    document.querySelector('.category-card.active-category')?.classList.remove('active-category');
+                    card.classList.add('active-category');
+                    
+                    // Update current category and reset to first page
+                    currentCategory = card.dataset.category;
+                    currentPage = 1;
+                    
+                    // Update upload category select if not 'all'
+                    if (currentCategory !== 'all') {
+                        uploadCategory.value = currentCategory;
+                    }
+                    
+                    // Re-render documents
+                    renderDocuments();
+                    updatePagination();
+                });
+            });
+
+            documentSearch.addEventListener('input', (e) => {
+                currentSearch = e.target.value.toLowerCase();
+                currentPage = 1; // Reset to first page when searching
+                renderDocuments();
+                updatePagination();
+            });
+
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderDocuments();
+                    updatePagination();
+                    window.scrollTo({ top: document.getElementById('documentList').offsetTop - 20, behavior: 'smooth' });
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(getFilteredDocuments().length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderDocuments();
+                    updatePagination();
+                    window.scrollTo({ top: document.getElementById('documentList').offsetTop - 20, behavior: 'smooth' });
+                }
+            });
+
+            // Helper Functions
+            function getFilteredDocuments() {
+                return documents.filter(doc => {
+                    // Filter by category
+                    const categoryMatch = currentCategory === 'all' || doc.category === currentCategory;
+                    
+                    // Filter by search term
+                    const searchMatch = !currentSearch || 
+                        doc.name.toLowerCase().includes(currentSearch) ||
+                        doc.type.toLowerCase().includes(currentSearch) ||
+                        doc.category.toLowerCase().includes(currentSearch) ||
+                        doc.status.toLowerCase().includes(currentSearch);
+                    
+                    return categoryMatch && searchMatch;
+                });
+            }
+
+            function renderDocuments() {
+                const filteredDocs = getFilteredDocuments();
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const paginatedDocs = filteredDocs.slice(startIndex, startIndex + itemsPerPage);
+
+                // Clear current list
+                documentList.innerHTML = '';
+
+                if (paginatedDocs.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No documents found matching your criteria.
+                        </td>
+                    `;
+                    documentList.appendChild(row);
+                    return;
+                }
+
+                // Add documents to the list
+                paginatedDocs.forEach(doc => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-md ${
+                                    doc.status === 'Indexed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                }">
+                                    <i class="bx ${getFileIcon(doc.type)} text-lg"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">${doc.name}</div>
+                                    <div class="text-xs text-gray-500">${formatFileSize(1024 * (doc.id * 100))}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                ${doc.type}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs rounded-full ${
+                                getCategoryClass(doc.category)
+                            }">
+                                ${doc.category.charAt(0).toUpperCase() + doc.category.slice(1)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${formatDate(doc.uploaded)}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                            }">
+                                ${doc.status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="showDocumentDetails(${doc.id})" class="text-blue-600 hover:text-blue-900 mr-3">
+                                <i class="bx bx-show"></i>
+                            </button>
+                            <a href="#" class="text-gray-600 hover:text-gray-900 mr-3">
+                                <i class="bx bx-download"></i>
+                            </a>
+                            <button onclick="showShareDocumentModal(${doc.id})" class="text-gray-600 hover:text-gray-900">
+                                <i class="bx bx-share-alt"></i>
+                            </button>
+                        </td>
+                    `;
+                    documentList.appendChild(row);
+                });
+
+                // Update counts
+                visibleCount.textContent = filteredDocs.length;
+                totalCount.textContent = documents.length;
+            }
+
+            function updatePagination() {
+                const filteredDocs = getFilteredDocuments();
+                const totalPages = Math.ceil(filteredDocs.length / itemsPerPage);
+                const startItem = filteredDocs.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+                const endItem = Math.min(startItem + itemsPerPage - 1, filteredDocs.length);
+
+                paginationStart.textContent = startItem;
+                paginationEnd.textContent = endItem;
+                paginationTotal.textContent = filteredDocs.length;
+
+                // Update button states
+                prevPageBtn.disabled = currentPage === 1;
+                nextPageBtn.disabled = currentPage >= totalPages;
+            }
+
+            function getFileIcon(fileType) {
+                switch(fileType.toLowerCase()) {
+                    case 'pdf': return 'bxs-file-pdf';
+                    case 'word': 
+                    case 'docx': 
+                    case 'doc': return 'bxs-file-doc';
+                    case 'excel': 
+                    case 'xlsx': 
+                    case 'xls': return 'bxs-file-xls';
+                    case 'powerpoint': 
+                    case 'pptx': 
+                    case 'ppt': return 'bxs-file-ppt';
+                    default: return 'bxs-file';
+                }
+            }
+
+            function getCategoryClass(category) {
+                switch(category) {
+                    case 'financial': return 'bg-green-100 text-green-800';
+                    case 'hr': return 'bg-blue-100 text-blue-800';
+                    case 'legal': return 'bg-yellow-100 text-yellow-800';
+                    case 'operations': return 'bg-purple-100 text-purple-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+
+            function formatDate(dateString) {
+                const options = { year: 'numeric', month: 'short', day: 'numeric' };
+                return new Date(dateString).toLocaleDateString('en-US', options);
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Make functions available globally for the inline event handlers
+            window.showDocumentDetails = function(id) {
+                const doc = documents.find(d => d.id === id);
+                if (doc) {
+                    const modal = document.getElementById('documentModal');
+                    const title = document.getElementById('document-modal-title');
+                    const content = document.getElementById('documentDetailsContent');
+                    
+                    title.textContent = doc.name;
+                    content.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-12 rounded-lg ${
+                                    doc.status === 'Indexed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                } flex items-center justify-center mr-4">
+                                    <i class="bx ${getFileIcon(doc.type)} text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-900">${doc.name}</h4>
+                                    <p class="text-sm text-gray-500">${doc.type} • ${formatFileSize(1024 * (doc.id * 100))}</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-6">
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Category</p>
+                                    <p class="mt-1 text-sm text-gray-900">${doc.category.charAt(0).toUpperCase() + doc.category.slice(1)}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded</p>
+                                    <p class="mt-1 text-sm text-gray-900">${formatDate(doc.uploaded)}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</p>
+                                    <span class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                        doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                                    }">
+                                        ${doc.status}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Size</p>
+                                    <p class="mt-1 text-sm text-gray-900">${formatFileSize(1024 * (doc.id * 100))}</p>
+                                </div>
+                            </div>
+                            <div class="mt-6 pt-6 border-t border-gray-200">
+                                <div class="flex space-x-3">
+                                    <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <i class="bx bx-download mr-2"></i>
+                                        Download
+                                    </a>
+                                    <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <i class="bx bx-edit mr-2"></i>
+                                        Edit Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            };
+
+            window.showShareDocumentModal = function(id) {
+                const doc = documents.find(d => d.id === id);
+                if (doc) {
+                    const modal = document.getElementById('shareDocumentModal');
+                    const title = document.getElementById('share-document-modal-title');
+                    const shareLink = document.getElementById('shareLink');
+                    
+                    title.textContent = `Share ${doc.name}`;
+                    shareLink.value = `${window.location.origin}/documents/${doc.id}`;
+                    
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            };
         });
     </script>
 </body>

@@ -1149,6 +1149,98 @@ $pendingCount = collect($requests)->where('status', 'pending')->count();
                 });
             }
 
+            // Helpers to extract row info
+            function getRowDate(row){
+                try {
+                    const td = row?.querySelector('td:nth-child(3) .text-sm.text-gray-900');
+                    const text = (td?.textContent || '').trim();
+                    if (!text) return null;
+                    const d = new Date(text);
+                    return isNaN(d.getTime()) ? null : d;
+                } catch(_) { return null; }
+            }
+
+            function isPastDate(d){
+                if (!d) return false;
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const cmp = new Date(d.getTime());
+                cmp.setHours(0,0,0,0);
+                return cmp < today;
+            }
+
+            // Yes/No validation modal for Approve (accept) button with basic qualifications
+            (function wireApproveYesNo(){
+                try {
+                    const approveForms = document.querySelectorAll('tbody form[action*="approve"]');
+                    approveForms.forEach(form => {
+                        form.addEventListener('submit', async function(e){
+                            e.preventDefault();
+                            const row = form.closest('tr[data-request-id]');
+                            const date = getRowDate(row);
+                            const issues = [];
+                            if (isPastDate(date)) issues.push('Booking date is in the past.');
+
+                            if (issues.length > 0) {
+                                await Swal.fire({
+                                    icon: 'error',
+                                    title: 'Cannot approve',
+                                    html: `<div class="text-left"><div class="font-semibold mb-1">Qualification not met:</div><ul class="list-disc pl-5">${issues.map(i=>`<li>${i}</li>`).join('')}</ul></div>`
+                                });
+                                return;
+                            }
+                            const { isConfirmed } = await Swal.fire({
+                                icon: 'question',
+                                title: 'Approve this request?',
+                                html: '<div class="text-left"><div class="font-semibold mb-1">Qualifications:</div><ul class="list-disc pl-5"><li>Date is not in the past</li></ul><div class="mt-2">Proceed?</div></div>',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText: 'No'
+                            });
+                            if (isConfirmed) {
+                                form.submit();
+                            }
+                        });
+                    });
+                } catch(_) {}
+            })();
+
+            // Yes/No validation modal for Reject button (require reason)
+            (function wireRejectYesNo(){
+                try {
+                    const rejectForms = document.querySelectorAll('tbody form[action*="reject"]');
+                    rejectForms.forEach(form => {
+                        form.addEventListener('submit', async function(e){
+                            e.preventDefault();
+                            const result = await Swal.fire({
+                                icon: 'warning',
+                                title: 'Reject this request?',
+                                html: '<div class="text-left mb-2">Please confirm if you want to reject this request.</div><textarea id="rejectReason" class="swal2-textarea" placeholder="Enter reason (required)"></textarea>',
+                                showCancelButton: true,
+                                confirmButtonText: 'Yes',
+                                cancelButtonText: 'No'
+                            });
+                            if (!result.isConfirmed) return;
+                            const reason = (document.getElementById('rejectReason')?.value || '').trim();
+                            if (!reason) {
+                                await Swal.fire({ icon: 'error', title: 'Reason required', text: 'Please provide a reason for rejection.' });
+                                return;
+                            }
+                            // Attach reason as hidden input and submit
+                            let input = form.querySelector('input[name="reason"]');
+                            if (!input) {
+                                input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = 'reason';
+                                form.appendChild(input);
+                            }
+                            input.value = reason;
+                            form.submit();
+                        });
+                    });
+                } catch(_) {}
+            })();
+
             window.addEventListener("resize", () => {
                 if (window.innerWidth >= 768) {
                     sidebar.classList.remove("-ml-72");
