@@ -9,35 +9,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use App\Mail\TwoFactorCodeMail;
 use App\Models\Visitor;
 
-// Test route to check authentication
-Route::get('/test-login', function () {
-    // Try to log in with hardcoded credentials
-    $credentials = [
-        'username' => 'admin',
-        'password' => 'admin123'
-    ];
-    
-    if (Auth::attempt($credentials)) {
-        return 'Login successful! User: ' . Auth::user()->name;
-    } else {
-        // Check if user exists
-        $user = \App\Models\User::where('username', 'admin')->first();
-        $userExists = $user ? 'User exists' : 'User does not exist';
-        $passwordMatch = $user && \Illuminate\Support\Facades\Hash::check('admin123', $user->password) ? 'Password matches' : 'Password does not match';
-        
-        return 'Login failed. ' . json_encode([
-            'error' => 'Authentication failed',
-            'user_exists' => $userExists,
-            'password_match' => $passwordMatch,
-            'user' => $user ? $user->toArray() : null,
-            'attempt' => Auth::attempt($credentials),
-            'session' => session()->all()
-        ], JSON_PRETTY_PRINT);
+if (!function_exists('formatBytes')) {
+    function formatBytes($bytes, $precision = 2) {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= (1 << (10 * $pow));
+        return round($bytes, $precision) . ' ' . $units[$pow];
     }
-});
+}
 
 // Redirect root to login page
 Route::get('/', function () {
@@ -142,1028 +127,660 @@ Route::post('/two-factor/verify', [TwoFactorController::class, 'verifyCode'])
     ->name('two-factor.verify');
 
 Route::middleware('auth')->group(function () {
-    if (!function_exists('defaultPermissionsForRole')) {
-        function defaultPermissionsForRole(string $role): array {
-            return match ($role) {
-                'admin' => ['view','edit','delete','share','download','print'],
-                'editor' => ['view','edit','share','download','print'],
-                'viewer' => ['view','download','print'],
-                default => ['view']
-            };
-        }
-    }
-    // Test route for debugging
-    Route::get('/test-case-stats', function () {
-        $cases = \App\Models\CaseFile::orderByDesc('created_at')->get()->map(function ($c) {
+    
+    // Document Upload & Indexing
+    Route::get('/document-upload-indexing', function () {
+        // Get documents from database
+        $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
             return [
-                'number' => $c->number ?? '',
-                'filed' => $c->created_at?->toDateString(),
-                'name' => $c->name ?? '',
-                'type_label' => $c->type_label ?? '',
-                'type_badge' => $c->type_badge ?? ($c->type_label ?? ''),
-                'client' => $c->client ?? '',
-                'client_org' => $c->client_org ?? '',
-                'client_initials' => $c->client_initials ?? '--',
-                'status' => $c->status ?? '',
-                'hearing_date' => $c->hearing_date ?? null,
-                'hearing_time' => $c->hearing_time ?? null,
+                'id' => $d->code ?? '', // Use code for frontend compatibility
+                'db_id' => $d->id, // Add actual database ID
+                'code' => $d->code ?? '',
+                'name' => $d->name ?? '',
+                'type' => $d->type ?? '',
+                'category' => $d->category ?? '',
+                'size' => $d->size_label ?? '0 MB',
+                'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
+                'status' => $d->status ?? 'Indexed',
             ];
         })->toArray();
         
-        $total = count($cases);
-        $activeCount = collect($cases)->filter(function ($c) {
-            $s = strtolower($c['status'] ?? '');
-            return in_array($s, ['active','in progress', 'urgent']);
-        })->count();
-        
-        $upcomingCount = collect($cases)->filter(function ($c) {
-            if (empty($c['hearing_date'])) return false;
-            try { 
-                $d = \Carbon\Carbon::parse($c['hearing_date']); 
-                return $d->gte(\Carbon\Carbon::today());
-            } catch (\Exception $e) { 
-                return false; 
-            }
-        })->count();
-        
-        return response()->json([
-            'total_cases' => $total,
-            'active_cases' => $activeCount,
-            'upcoming_hearings' => $upcomingCount,
-            'cases' => $cases
+        return view('dashboard.document-upload-indexing', [
+            'user' => auth()->user(),
+            'documents' => $documents
         ]);
-    });
-
-    // Case Management
-    Route::get('/case-management', function () {
-        $cases = \App\Models\CaseFile::orderByDesc('created_at')->get()->map(function ($c) {
-            return [
-                'number' => $c->number ?? '',
-                'filed' => $c->created_at?->toDateString(),
-                'name' => $c->name ?? '',
-                'type_label' => $c->type_label ?? '',
-                'type_badge' => $c->type_badge ?? ($c->type_label ?? ''),
-                'client' => $c->client ?? '',
-                'client_org' => $c->client_org ?? '',
-                'client_initials' => $c->client_initials ?? '--',
-                'status' => $c->status ?? '',
-                'hearing_date' => $c->hearing_date ?? null,
-                'hearing_time' => $c->hearing_time ?? null,
-            ];
-        })->toArray();
-        $total = count($cases);
-        $activeCount = collect($cases)->filter(function ($c) {
-            $s = strtolower($c['status'] ?? '');
-            return in_array($s, ['active','in progress', 'urgent']);
-        })->count();
-        $pendingTasks = collect($cases)->filter(function ($c) {
-            $s = strtolower($c['status'] ?? '');
-            return in_array($s, ['pending']);
-        })->count();
-        $closedCount = collect($cases)->filter(function ($c) {
-            $s = strtolower($c['status'] ?? '');
-            return in_array($s, ['closed', 'completed']);
-        })->count();
-        $today = \Carbon\Carbon::today();
-        $upcoming = collect($cases)->filter(function ($c) use ($today) {
-            if (empty($c['hearing_date'])) return false;
-            try { 
-                $d = \Carbon\Carbon::parse($c['hearing_date']); 
-                // Show hearings from today onwards (including future years)
-                return $d->gte($today);
-            } catch (\Exception $e) { 
-                return false; 
-            }
-        })->map(function ($c) {
-            $d = $c['hearing_date'] ? \Carbon\Carbon::parse($c['hearing_date']) : null;
-            return [
-                'number' => $c['number'] ?? '',
-                'name' => $c['name'] ?? '',
-                'date' => $d ? $d->format('M d, Y') : null,
-                'time' => $c['hearing_time'] ?? '',
-                'carbon' => $d,
-            ];
-        })->sortBy('carbon')->values()->all();
-        $upcomingCount = count($upcoming);
-        $nextHearing = $upcomingCount > 0 ? $upcoming[0] : null;
-
-        $recentActivities = collect($cases)->map(function ($c) {
-            $filed = $c['filed'] ?? null;
-            $d = $filed ? \Carbon\Carbon::parse($filed) : now();
-            return [
-                'number' => $c['number'] ?? '',
-                'name' => $c['name'] ?? '',
-                'filed' => $d,
-            ];
-        })->sortByDesc('filed')->take(5)->values()->all();
-
-        $successRate = $total > 0 ? round(($closedCount / $total) * 100) : 0;
-        $pendingProgress = $total > 0 ? round(($pendingTasks / $total) * 100) : 0;
-        $activeProgress = $total > 0 ? round(($activeCount / $total) * 100) : 0;
-        
-        // Calculate urgent cases
-        $urgentCount = collect($cases)->filter(function ($c) {
-            $s = strtolower($c['status'] ?? '');
-            return $s === 'urgent';
-        })->count();
-        
-        $stats = [
-            'active_cases' => $activeCount,
-            'upcoming_hearings' => $upcomingCount,
-            'pending_tasks' => $pendingTasks,
-            'closed_cases' => $closedCount,
-            'urgent_cases' => $urgentCount,
-            'total_cases' => $total,
-            'success_rate' => $successRate,
-            'pending_progress' => $pendingProgress,
-            'active_progress' => $activeProgress,
-            'success_progress' => $successRate,
-            'next_hearing' => $nextHearing,
-        ];
-
-        return view('dashboard.case-management', compact('cases','stats','recentActivities','upcoming'));
-    })->name('case.management');
-
-    // Compliance Tracking
-    Route::get('/compliance-tracking', function () {
-        return redirect()->route('document.compliance.tracking');
-    })->name('compliance.tracking');
+    })->name('document.upload.indexing');
     
-    // Compliance: create (AJAX)
-    Route::post('/compliance/create', function (Request $request) {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'type' => 'nullable|string|max:100',
-            'status' => 'nullable|string|in:active,pending,overdue,completed',
-            'due_date' => 'required|date',
-            'responsible_person' => 'nullable|string|max:150',
-            'priority' => 'nullable|string|in:low,medium,high,critical',
-            'description' => 'nullable|string',
+    // Document Upload Store
+    Route::post('/document-upload-indexing/upload', function (Request $request) {
+        $request->validate([
+            'documents.*' => 'required|file|max:51200', // 50MB max
+            'category' => 'nullable|string|in:financial,hr,legal,operations,contracts,utilities,projects,procurement,it,payroll',
+            'docType' => 'nullable|string|in:internal,payment,vendor,release_of_funds,purchase,disbursement,receipt',
+            'status' => 'nullable|string|max:50',
+            'dateRange' => 'nullable|string|max:100',
         ]);
 
-        // Normalize certain fields to lowercase for consistency
-        $normalized = $validated;
-        if (isset($normalized['type'])) $normalized['type'] = strtolower($normalized['type']);
-        if (isset($normalized['status'])) $normalized['status'] = strtolower($normalized['status']); else $normalized['status'] = 'pending';
-        if (isset($normalized['priority'])) $normalized['priority'] = strtolower($normalized['priority']); else $normalized['priority'] = 'medium';
-
-        $id = 'CMP-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        // Generate sequential compliance code like CPL-2023-045 (per-year counter stored in session)
-        $year = date('Y');
-        $key = 'compliance_seq_'.$year;
-        $seq = (int) session($key, 0) + 1;
-        session([$key => $seq]);
-        $code = 'CPL-' . $year . '-' . str_pad($seq, 3, '0', STR_PAD_LEFT);
-
-        // Persist to database so it survives refresh
-        try {
-            $record = \App\Models\ComplianceTracking::create([
-                'code' => $code,
-                'title' => $normalized['title'],
-                'type' => $normalized['type'] ?? null,
-                'status' => $normalized['status'] ?? 'pending',
-                'due_date' => $normalized['due_date'],
-                'description' => $normalized['description'] ?? null,
-                'responsible_person' => $normalized['responsible_person'] ?? null,
-                'priority' => $normalized['priority'] ?? 'medium',
-            ]);
-        } catch (\Throwable $e) {
-            \Log::error('Compliance create failed: '.$e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to save compliance.'], 500);
-        }
-
-        return response()->json([
-            'success' => true,
-            'compliance' => array_merge($normalized, [
-                // Use code as id for frontend simplicity
-                'id' => $code,
-                'code' => $code,
-                'created_at' => $record->created_at?->toIso8601String() ?? now()->toIso8601String(),
-            ]),
-        ]);
-    })->name('compliance.create');
-
-    // Compliance: update (AJAX)
-    Route::post('/compliance/update', function (Request $request) {
-        $validated = $request->validate([
-            'id' => 'required|string',
-            'title' => 'required|string|max:255',
-            'type' => 'nullable|string|max:100',
-            'status' => 'nullable|string|in:active,pending,overdue,completed',
-            'due_date' => 'nullable|date',
-            'responsible_person' => 'nullable|string|max:150',
-            'priority' => 'nullable|string|in:low,medium,high,critical',
-            'description' => 'nullable|string',
-        ]);
-        // Normalize
-        $data = $validated;
-        foreach (['type','status','priority'] as $k) { if (isset($data[$k])) $data[$k] = strtolower($data[$k]); }
-        // Update by code (id is code)
-        try {
-            $updated = \App\Models\ComplianceTracking::where('code', $validated['id'])->update(array_filter([
-                'title' => $data['title'] ?? null,
-                'type' => $data['type'] ?? null,
-                'status' => $data['status'] ?? null,
-                'due_date' => $data['due_date'] ?? null,
-                'description' => $data['description'] ?? null,
-                'responsible_person' => $data['responsible_person'] ?? null,
-                'priority' => $data['priority'] ?? null,
-            ], fn($v) => !is_null($v)));
-        } catch (\Throwable $e) {
-            \Log::error('Compliance update failed: '.$e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to update compliance.'], 500);
-        }
-        return response()->json(['success' => $updated > 0]);
-    })->name('compliance.update');
-
-    // Compliance: delete (AJAX)
-    Route::post('/compliance/delete', function (Request $request) {
-        $validated = $request->validate([
-            'id' => 'required|string',
-        ]);
-        try {
-            $deleted = \App\Models\ComplianceTracking::where('code', $validated['id'])->delete();
-        } catch (\Throwable $e) {
-            \Log::error('Compliance delete failed: '.$e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to delete compliance.'], 500);
-        }
-        return response()->json(['success' => $deleted > 0]);
-    })->name('compliance.delete');
-    
-    // Contract Management
-    Route::get('/contract-management', function () {
-        $contractsQuery = \DB::table('contracts');
-        $total = $contractsQuery->count();
-        $active = \DB::table('contracts')->where('status', 'active')->count();
-        $pending = \DB::table('contracts')->where('status', 'pending')->count();
-        $expiringSoon = \DB::table('contracts')
-            ->whereNotNull('created_on')
-            ->where('created_on', '>=', now()->subMonths(12)->toDateString())
-            ->count();
-        $contracts = \DB::table('contracts')->orderByDesc('created_on')->get();
-
-        return view('dashboard.contract-management', [
-            'stats' => [
-                'active' => $active,
-                'pending' => $pending,
-                'expiring' => $expiringSoon,
-                'total' => $total,
-            ],
-            'contracts' => $contracts,
-        ]);
-    })->name('contract.management');
-
-    // Contracts: update
-    Route::post('/contracts/update', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'code' => 'required|string',
-            'title' => 'required|string|max:255',
-            'company' => 'nullable|string|max:255',
-            'type' => 'required|string|in:nda,service,employment',
-            'status' => 'required|string|in:active,pending,expired',
-        ]);
-
-        $updated = \DB::table('contracts')
-            ->where('code', $validated['code'])
-            ->update([
-                'title' => $validated['title'],
-                'company' => $validated['company'] ?? null,
-                'type' => $validated['type'],
-                'status' => $validated['status'],
-                'updated_at' => now(),
-            ]);
-
-        return response()->json(['success' => $updated > 0]);
-    })->name('contracts.update');
-
-    // Contracts: delete
-    Route::post('/contracts/delete', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'code' => 'required|string',
-        ]);
-        $deleted = \DB::table('contracts')->where('code', $validated['code'])->delete();
-        return response()->json(['success' => $deleted > 0]);
-    })->name('contracts.delete');
-
-    // Contracts: create
-    Route::post('/contracts/create', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'company' => 'nullable|string|max:255',
-            'type' => 'required|string|in:nda,service,employment',
-            'status' => 'required|string|in:active,pending,expired',
-        ]);
-
-        // Generate sequential contract code per year using session counter (similar to compliance)
-        $year = date('Y');
-        $key = 'contract_seq_' . $year;
-        $seq = (int) session($key, 0) + 1;
-        session([$key => $seq]);
-        $code = 'CTR-' . $year . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
-
-        $nowDate = now()->toDateString();
-        $nowTs = now();
-
-        try {
-            \DB::table('contracts')->insert([
-                'code' => $code,
-                'title' => $validated['title'],
-                'company' => $validated['company'] ?? null,
-                'type' => $validated['type'],
-                'status' => $validated['status'],
-                'created_on' => $nowDate,
-                'created_at' => $nowTs,
-                'updated_at' => $nowTs,
-            ]);
-        } catch (\Throwable $e) {
-            \Log::error('Contract create failed: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to create contract.'], 500);
-        }
-
-        return response()->json([
-            'success' => true,
-            'contract' => [
-                'code' => $code,
-                'title' => $validated['title'],
-                'company' => $validated['company'] ?? null,
-                'type' => $validated['type'],
-                'status' => $validated['status'],
-                'created_on' => $nowDate,
-            ],
-        ]);
-    })->name('contracts.create');
-
-    // Deadline & Hearing Alerts (connected to database-backed cases and hearings)
-    Route::get('/deadline-hearing-alerts', function () {
-        $today = \Carbon\Carbon::today();
+        $uploadedFiles = [];
         
-        // Get case files with hearing dates
-        $cases = \App\Models\CaseFile::whereNotNull('hearing_date')
-            ->orderBy('hearing_date')
-            ->get()
-            ->map(function ($c) {
-                $d = null;
-                try { $d = $c->hearing_date ? \Carbon\Carbon::parse($c->hearing_date) : null; } catch (\Exception $e) {}
-                return [
-                    'number' => $c->number ?? '',
-                    'title' => $c->name ?? 'Hearing',
-                    'type' => $c->type_badge ?? ($c->type_label ?? 'Case'),
-                    'date' => $d ? $d->format('M d, Y') : '-',
-                    'time' => $c->hearing_time ?? '',
-                    'priority' => strtolower($c->status ?? '') === 'urgent' ? 'High' : 'Normal',
-                    'status' => null, // filled below
-                    'carbon' => $d,
-                    'source' => 'case_file'
+        foreach ($request->file('documents') as $file) {
+            if ($file->isValid()) {
+                // Store file
+                $path = $file->store('documents', 'public');
+                
+                // Get file extension and map to valid ENUM type
+                $extension = strtolower($file->getClientOriginalExtension());
+                $typeMapping = [
+                    'pdf' => 'internal',
+                    'doc' => 'internal',
+                    'docx' => 'internal',
+                    'xls' => 'internal',
+                    'xlsx' => 'internal',
+                    'ppt' => 'internal',
+                    'pptx' => 'internal',
                 ];
-            });
-
-        // Get dedicated hearings
-        $dedicatedHearings = \App\Models\Hearing::orderBy('hearing_date')
-            ->get()
-            ->map(function ($h) {
-                $d = null;
-                try { $d = $h->hearing_date ? \Carbon\Carbon::parse($h->hearing_date) : null; } catch (\Exception $e) {}
-                return [
-                    'number' => $h->case_number ?? '',
-                    'title' => $h->title ?? 'Hearing',
-                    'type' => $h->type ?? 'Hearing',
-                    'date' => $d ? $d->format('M d, Y') : '-',
-                    'time' => $h->hearing_time ?? '',
-                    'priority' => ucfirst($h->priority ?? 'Normal'),
-                    'status' => null, // filled below
-                    'carbon' => $d,
-                    'source' => 'hearing'
-                ];
-            });
-
-        // Combine and process all hearings
-        $hearings = $cases->concat($dedicatedHearings)
-            ->filter(function ($h) {
-                return $h['carbon'] !== null;
-            })
-            ->map(function ($h) use ($today) {
-                if ($h['carbon']->isSameDay($today)) {
-                    $h['status'] = 'today';
-                } elseif ($h['carbon']->lessThan($today)) {
-                    $h['status'] = 'overdue';
-                } else {
-                    $h['status'] = 'upcoming';
+                
+                $inferredType = $typeMapping[$extension] ?? 'internal';
+                
+                // Use provided docType or inferred type
+                $documentType = $request->input('docType', $inferredType);
+                
+                // Validate that the type is a valid ENUM value
+                $validTypes = ['internal', 'payment', 'vendor', 'release_of_funds', 'purchase', 'disbursement', 'receipt'];
+                if (!in_array($documentType, $validTypes)) {
+                    $documentType = 'internal';
                 }
-                return $h;
-            })
-            ->sortBy('carbon')
-            ->values()
-            ->all();
-
-        // Counts
-        $counts = [
-            'today' => collect($hearings)->where('status','today')->count(),
-            'upcoming' => collect($hearings)->where('status','upcoming')->count(),
-            'overdue' => collect($hearings)->where('status','overdue')->count(),
-        ];
-
-        return view('dashboard.deadline-hearing-alerts', compact('hearings', 'counts'));
-    })->name('deadline.hearing.alerts');
-
-    // Hearings/Alerts: create (AJAX)
-    Route::post('/hearings/create', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'type' => 'required|string|max:100',
-            'due_date' => 'required|date',
-            'priority' => 'nullable|string|in:low,medium,high',
-            'description' => 'nullable|string',
-            'related_to' => 'nullable|string|max:150',
-        ]);
-
-        $priority = strtolower($validated['priority'] ?? 'normal');
-        if (!in_array($priority, ['low','medium','high'])) { $priority = 'normal'; }
-
-        try {
-            $now = now();
-            \DB::table('hearings')->insert([
-                'case_number' => $validated['related_to'] ?? null,
-                'title' => $validated['title'],
-                'type' => $validated['type'],
-                'hearing_date' => $validated['due_date'],
-                'hearing_time' => null,
-                'priority' => ucfirst($priority),
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-            // Build response object compatible with the view
-            $h = (object) [
-                'case_number' => $validated['related_to'] ?? null,
-                'title' => $validated['title'],
-                'type' => $validated['type'],
-                'hearing_date' => $validated['due_date'],
-                'hearing_time' => null,
-                'priority' => ucfirst($priority),
-            ];
-        } catch (\Throwable $e) {
-            \Log::error('Hearing create failed: '.$e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to create alert.'], 500);
-        }
-
-        $dateObj = null;
-        try { $dateObj = $h->hearing_date ? \Carbon\Carbon::parse($h->hearing_date) : null; } catch (\Exception $e) {}
-        $today = \Carbon\Carbon::today();
-        $status = 'upcoming';
-        if ($dateObj) {
-            if ($dateObj->isSameDay($today)) $status = 'today';
-            elseif ($dateObj->lessThan($today)) $status = 'overdue';
-            else $status = 'upcoming';
+                
+                // Generate document code
+                $code = 'DOC-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                
+                // Create document record
+                $document = \App\Models\Document::create([
+                    'code' => $code,
+                    'name' => $file->getClientOriginalName(),
+                    'type' => $documentType,
+                    'category' => $request->input('category', 'internal'),
+                    'size' => formatBytes($file->getSize()),
+                    'size_label' => formatBytes($file->getSize()),
+                    'file_path' => $path,
+                    'file_type' => $file->getMimeType(),
+                    'status' => $request->input('status', 'Indexed'),
+                    'uploaded_on' => now()->toDateString(),
+                ]);
+                
+                $uploadedFiles[] = [
+                    'name' => $file->getClientOriginalName(),
+                    'size' => formatBytes($file->getSize()),
+                    'type' => $documentType,
+                    'path' => $path
+                ];
+            }
         }
 
         return response()->json([
             'success' => true,
-            'hearing' => [
-                'number' => $h->case_number ?? '',
-                'title' => $h->title ?? 'Hearing',
-                'type' => $h->type ?? 'Hearing',
-                'date' => $dateObj ? $dateObj->format('M d, Y') : '-',
-                'time' => $h->hearing_time ?? '',
-                'priority' => ucfirst($priority === 'medium' ? 'Normal' : $priority),
-                'status' => $status,
-            ],
+            'message' => count($uploadedFiles) . ' file(s) uploaded successfully',
+            'files' => $uploadedFiles
         ]);
-    })->name('hearings.create');
+    })->name('document.upload.store');
 
-    // Archival & Retention (session-backed demo endpoints)
-    Route::post('/archival/archive', function (Request $request) {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'nullable|string|max:100',
-            'archived_on' => 'nullable|string|max:50',
-            'scheduled_deletion' => 'nullable|string|max:50',
-        ]);
-        $list = session('archived_documents', []);
-        $entry = [
-            'name' => $data['name'],
-            'category' => $data['category'] ?? '',
-            'archived_on' => $data['archived_on'] ?? now()->format('M d, Y'),
-            'scheduled_deletion' => $data['scheduled_deletion'] ?? '—',
-        ];
-        // Avoid duplicates by name+category
-        $list = array_values(array_filter($list, function($i) use ($entry) {
-            return !(
-                (isset($i['name']) && $i['name'] === $entry['name']) &&
-                (isset($i['category']) && $i['category'] === $entry['category'])
-            );
-        }));
-        $list[] = $entry;
-        session(['archived_documents' => $list]);
-        return response()->json(['success' => true, 'archived' => $entry]);
-    })->name('archival.archive');
-
-    Route::post('/archival/restore', function (Request $request) {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'nullable|string|max:100',
-        ]);
-        $list = session('archived_documents', []);
-        $list = array_values(array_filter($list, function($i) use ($data) {
-            return !(
-                (isset($i['name']) && $i['name'] === $data['name']) &&
-                (isset($i['category']) && $i['category'] === ($data['category'] ?? ''))
-            );
-        }));
-        session(['archived_documents' => $list]);
-        return response()->json(['success' => true]);
-    })->name('archival.restore');
-
-    Route::post('/archival/delete', function (Request $request) {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'category' => 'nullable|string|max:100',
-        ]);
-        $list = session('archived_documents', []);
-        $list = array_values(array_filter($list, function($i) use ($data) {
-            return !(
-                (isset($i['name']) && $i['name'] === $data['name']) &&
-                (isset($i['category']) && $i['category'] === ($data['category'] ?? ''))
-            );
-        }));
-        session(['archived_documents' => $list]);
-        return response()->json(['success' => true]);
-    })->name('archival.delete');
-
-    Route::get('/archival/list', function () {
-        $list = session('archived_documents', []);
-        return response()->json(['success' => true, 'items' => $list]);
-    })->name('archival.list');
-
-    // Permissions: create/store (AJAX)
-    Route::post('/permissions/store', function (Request $request) {
-        $validated = $request->validate([
-            'permission_type' => 'required|string|in:user,group,department',
-            'user' => 'nullable|required_if:permission_type,user|integer',
-            'group' => 'nullable|required_if:permission_type,group,department',
-            'role' => 'required|string|in:admin,editor,viewer,custom',
-            'document_type' => 'required|string|in:all,financial,hr,legal,other',
-            'permissions' => 'nullable|array',
-            'permissions.*' => 'string|in:view,edit,delete,share,download,print',
-            'notes' => 'nullable|string',
-        ]);
-
-        // Determine permissions based on role
-        $role = strtolower($validated['role']);
-        $perms = [];
-        if ($role === 'custom') {
-            $perms = array_values(array_unique(array_map('strtolower', $validated['permissions'] ?? [])));
-            if (empty($perms)) {
-                return response()->json(['success' => false, 'message' => 'Please select at least one permission for Custom role.'], 422);
-            }
+    // Document Download Route
+    Route::get('/document/{id}/download', function ($id) {
+        // Debug logging
+        error_log("Download route called with ID: " . $id);
+        
+        // Find document by code or ID
+        $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
+        
+        if (!$document) {
+            error_log("Document not found with ID: " . $id);
+            abort(404, 'Document not found');
+        }
+        
+        error_log("Document found: " . $document->name . " (ID: " . $document->id . ", Code: " . $document->code . ")");
+        
+        $filePath = null;
+        $fileName = $document->name;
+        
+        // First try the stored file path
+        if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+            $filePath = Storage::disk('public')->path($document->file_path);
+            error_log("Using stored file path: " . $document->file_path);
         } else {
-            // Use helper declared earlier in this group
-            $perms = defaultPermissionsForRole($role);
+            error_log("Stored file path not found, searching for alternatives...");
+            // If stored path doesn't exist, try to find any file in documents directory
+            $files = Storage::disk('public')->allFiles('documents');
+            error_log("Available files: " . implode(', ', $files));
+            
+            if (!empty($files)) {
+                // Try to match by file extension or use the first available file
+                $documentExtension = pathinfo($fileName, PATHINFO_EXTENSION);
+                $matchingFiles = array_filter($files, function($file) use ($documentExtension) {
+                    $fileExtension = pathinfo($file, PATHINFO_EXTENSION);
+                    return strtolower($fileExtension) === strtolower($documentExtension);
+                });
+                
+                if (!empty($matchingFiles)) {
+                    $filePath = Storage::disk('public')->path(array_values($matchingFiles)[0]);
+                    error_log("Found matching file by extension: " . array_values($matchingFiles)[0]);
+                } elseif (!empty($files)) {
+                    // Fallback to first available file
+                    $filePath = Storage::disk('public')->path($files[0]);
+                    error_log("Using fallback file: " . $files[0]);
+                }
+            }
         }
-
-        // Generate sequential code per year (session-backed)
-        $year = date('Y');
-        $seqKey = 'perm_seq_' . $year;
-        $seq = (int) session($seqKey, 0) + 1;
-        session([$seqKey => $seq]);
-        $code = 'PER-' . $year . '-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
-
-        $nowIso = now()->toIso8601String();
-        $permission = [
-            'id' => $code,
-            'code' => $code,
-            'type' => $validated['permission_type'],
-            'subject' => [
-                'user_id' => $validated['permission_type'] === 'user' ? ($validated['user'] ?? null) : null,
-                'group' => $validated['permission_type'] === 'group' ? ($validated['group'] ?? null) : null,
-                'department' => $validated['permission_type'] === 'department' ? ($validated['group'] ?? null) : null,
-            ],
-            'role' => $role,
-            'permissions' => $perms,
-            'document_type' => strtolower($validated['document_type']),
-            'notes' => $validated['notes'] ?? null,
-            'created_at' => $nowIso,
-        ];
-
-        // Persist to database so it appears in the Access Control table
-        try {
-            \DB::table('permissions')->insert([
-                'type' => $validated['permission_type'],
-                'user_id' => $validated['permission_type'] === 'user' ? ($validated['user'] ?? null) : null,
-                'group_id' => in_array($validated['permission_type'], ['group','department']) ? ($validated['group'] ?? null) : null,
-                'role' => $role,
-                'document_type' => strtolower($validated['document_type']),
-                'permissions' => json_encode($perms),
-                'notes' => $validated['notes'] ?? null,
-                'status' => 'active',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        } catch (\Throwable $e) {
-            \Log::error('Permission store failed: ' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Failed to save permission.'], 500);
+        
+        if (!$filePath) {
+            error_log("No file path found for document: " . $document->name);
+            abort(404, 'File not found - no downloadable files available');
         }
+        
+        error_log("Final file path: " . $filePath);
+        
+        // Determine file type
+        $fileType = $document->file_type ?? mime_content_type($filePath) ?? 'application/octet-stream';
+        
+        // Return file download response
+        return response()->download($filePath, $fileName, [
+            'Content-Type' => $fileType,
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
+        ]);
+    })->name('document.download');
 
-        // Respond based on request type (AJAX vs standard form submit)
-        if ($request->expectsJson() || $request->ajax()) {
-            // Also set a flash message so a Blade toast can show after reload
-            try { session()->flash('success', 'Permission created successfully.'); } catch (\Throwable $e) {}
-            return response()->json([
-                'success' => true,
-                'permission' => $permission,
-            ]);
-        }
-
-        return redirect()->back()->with('status', 'Permission created successfully.');
-    })->name('permissions.store');
-
-    // Visitors Registration (DB-backed)
-    Route::get('/visitors-registration', function () {
-        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+    // Test Download Route (for debugging)
+    Route::get('/test-download', function () {
+        // Get documents from database
+        $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
             return [
-                'id' => $v->code,
-                'name' => $v->name,
-                'company' => $v->company,
-                'visitor_type' => $v->visitor_type,
-                'host' => $v->host,
-                'host_department' => $v->host_department,
-                'check_in_date' => $v->check_in_date,
-                'check_in_time' => $v->check_in_time,
-                'check_out_date' => $v->check_out_date,
-                'check_out_time' => $v->check_out_time,
-                'purpose' => $v->purpose,
-                'status' => $v->status,
-                'created_at' => $v->created_at?->toDateTimeString(),
+                'id' => $d->code ?? '',
+                'db_id' => $d->id,
+                'code' => $d->code ?? '',
+                'name' => $d->name ?? '',
+                'type' => $d->type ?? '',
+                'category' => $d->category ?? '',
+                'size' => $d->size_label ?? '0 MB',
+                'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
+                'status' => $d->status ?? 'Indexed',
             ];
         })->toArray();
-        $today = \Carbon\Carbon::today()->toDateString();
-        $totalToday = collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today)->count();
-        $checkedIn = collect($visitors)->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_in')->count();
-        $checkedOut = collect($visitors)->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_out')->count();
-        $scheduledToday = collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today && strtolower($v['status'] ?? '') === 'scheduled')->count();
-        $pendingApprovals = 0;
+        
+        return view('test_download', ['documents' => $documents]);
+    })->name('test.download');
+
+    // Visitor Registration Route
+    Route::get('/visitor-registration', function () {
+        $visitors = \App\Models\Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+            return [
+                'id' => $v->id,
+                'code' => $v->code ?? '',
+                'name' => $v->name ?? '',
+                'email' => $v->email ?? '',
+                'phone' => $v->phone ?? '',
+                'company' => $v->company ?? '',
+                'visitor_type' => $v->visitor_type ?? 'Guest',
+                'host' => $v->host ?? '',
+                'host_department' => $v->host_department ?? '',
+                'check_in_date' => $v->check_in_date ? (is_string($v->check_in_date) ? $v->check_in_date : $v->check_in_date->toDateString()) : '',
+                'check_in_time' => $v->check_in_time ?? '',
+                'check_out_date' => $v->check_out_date ? (is_string($v->check_out_date) ? $v->check_out_date : $v->check_out_date->toDateString()) : '',
+                'check_out_time' => $v->check_out_time ?? '',
+                'purpose' => $v->purpose ?? '',
+                'status' => $v->status ?? 'pending',
+                'notes' => $v->notes ?? '',
+                'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
+            ];
+        })->toArray();
+        
+        // Calculate statistics
+        $allVisitors = \App\Models\Visitor::all();
+        $now = now();
+        $todayVisitors = \App\Models\Visitor::whereDate('check_in_date', $now->toDateString())->count();
+        $checkedInVisitors = \App\Models\Visitor::where('status', 'checked_in')->count();
+        $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
+        
         $stats = [
-            'total_today' => $totalToday,
-            'checked_in' => $checkedIn,
-            'scheduled_today' => $scheduledToday,
-            'checked_out' => $checkedOut,
-            'pending_approvals' => $pendingApprovals,
+            'total_visitors' => $allVisitors->count(),
+            'today_visitors' => $todayVisitors,
+            'checked_in' => $checkedInVisitors,
+            'pending' => $pendingVisitors,
+            'checked_out' => $allVisitors->where('status', 'checked_out')->count(),
+            'expired' => $allVisitors->where('status', 'expired')->count(),
         ];
-        return view('dashboard.visitors-registration', compact('visitors','stats'));
+        
+        return view('dashboard.visitors-registration', [
+            'user' => auth()->user(),
+            'visitors' => $visitors,
+            'stats' => $stats
+        ]);
     })->name('visitors.registration');
     
-    // Check In/Out Tracking (DB-backed)
-    Route::get('/check-in-out-tracking', function () {
-        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
-            return [
-                'id' => $v->code,
-                'name' => $v->name,
-                'company' => $v->company,
-                'visitor_type' => $v->visitor_type,
-                'host' => $v->host,
-                'host_department' => $v->host_department,
-                'check_in_date' => $v->check_in_date,
-                'check_in_time' => $v->check_in_time,
-                'check_out_date' => $v->check_out_date,
-                'check_out_time' => $v->check_out_time,
-                'purpose' => $v->purpose,
-                'status' => $v->status,
-                'created_at' => $v->created_at?->toDateTimeString(),
-            ];
-        })->toArray();
-        $today = \Carbon\Carbon::today()->toDateString();
-
-        $currentCheckIns = collect($visitors)
-            ->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_in')
-            ->map(function ($v) {
-                // Compute duration since check-in
-                try {
-                    $start = null;
-                    if (!empty($v['check_in_date']) && !empty($v['check_in_time'])) {
-                        $start = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $v['check_in_date'].' '.$v['check_in_time']);
-                    } elseif (!empty($v['check_in_time'])) {
-                        $start = \Carbon\Carbon::createFromFormat('H:i', $v['check_in_time']);
-                    }
-                    if ($start) {
-                        $mins = $start->diffInMinutes(now());
-                        $v['duration'] = ($mins >= 60 ? floor($mins/60).'h ' : '').($mins % 60).'m';
-                    } else {
-                        $v['duration'] = '—';
-                    }
-                } catch (\Exception $e) {
-                    $v['duration'] = '—';
-                }
-                return $v;
-            })
-            ->values()->all();
-
-        $recentCheckOuts = collect($visitors)
-            ->filter(fn($v) => strtolower($v['status'] ?? '') === 'checked_out')
-            ->map(function ($v) {
-                // Compute duration between check-in and check-out if available
-                try {
-                    if (!empty($v['check_in_date']) && !empty($v['check_in_time']) && !empty($v['check_out_date']) && !empty($v['check_out_time'])) {
-                        $start = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $v['check_in_date'].' '.$v['check_in_time']);
-                        $end = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $v['check_out_date'].' '.$v['check_out_time']);
-                        $mins = max(0, $start->diffInMinutes($end));
-                        $v['duration_minutes'] = $mins;
-                        $v['duration'] = ($mins >= 60 ? floor($mins/60).'h ' : '').($mins % 60).'m';
-                    } else {
-                        $v['duration_minutes'] = null;
-                        $v['duration'] = '—';
-                    }
-                } catch (\Exception $e) {
-                    $v['duration_minutes'] = null;
-                    $v['duration'] = '—';
-                }
-                return $v;
-            })
-            ->values()->all();
-
-        // Compute average duration from completed visits
-        $avgMins = collect($recentCheckOuts)
-            ->pluck('duration_minutes')
-            ->filter(fn($m) => is_numeric($m))
-            ->avg();
-        $avgLabel = '0 min';
-        if ($avgMins && $avgMins > 0) {
-            $hours = floor($avgMins / 60);
-            $mins = (int) round($avgMins % 60);
-            $avgLabel = ($hours > 0 ? $hours.'h ' : '').$mins.'m';
-        }
-
-        $stats = [
-            'currently_checked_in' => count($currentCheckIns),
-            'todays_checkins' => collect($visitors)->filter(fn($v) => ($v['check_in_date'] ?? '') === $today)->count(),
-            // Average duration from completed visits
-            'average_duration' => $avgLabel,
-            'overstayed' => 0,
-        ];
-
-        return view('dashboard.check-in-out-tracking', [
-            'user' => auth()->user(),
-            'stats' => $stats,
-            'currentCheckIns' => $currentCheckIns,
-            'recentCheckOuts' => $recentCheckOuts,
-            'allVisitors' => $visitors,
-        ]);
-    })->name('checkinout.tracking');
-
-    // Account: initiate password change (Step 1)
-    Route::post('/account/change-password-request', function (Request $request) {
-        $user = $request->user();
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $cacheKey = 'pw_change_user_' . $user->id;
-        Cache::put($cacheKey, [
-            'new_hash' => Hash::make($validated['new_password']),
-            'code' => $code,
-            'issued_at' => now()->toDateTimeString(),
-        ], now()->addMinutes(10));
-
-        try {
-            Mail::to($user->email)->send(new TwoFactorCodeMail($user->name ?? $user->email, $code));
-        } catch (\Throwable $e) {
-            try {
-                Mail::mailer('log')->to($user->email)->send(new TwoFactorCodeMail($user->name ?? $user->email, $code));
-            } catch (\Throwable $e2) {}
-        }
-
-        return response()->json(['ok' => true, 'message' => 'Verification code sent to your email.']);
-    })->name('account.password.change.request');
-
-    // Account: verify password change (Step 2)
-    Route::post('/account/change-password-verify', function (Request $request) {
-        $user = $request->user();
-        $validated = $request->validate([
-            'code' => ['required', 'string', 'size:6'],
-        ]);
-
-        $cacheKey = 'pw_change_user_' . $user->id;
-        $pending = Cache::get($cacheKey);
-        if (!$pending || ($pending['code'] ?? null) !== $validated['code']) {
-            return response()->json(['ok' => false, 'message' => 'Invalid or expired verification code.'], 422);
-        }
-
-        \DB::table('users')->where('id', $user->id)->update([
-            'password' => $pending['new_hash'],
-            'updated_at' => now(),
-        ]);
-        Cache::forget($cacheKey);
-
-        return response()->json(['ok' => true, 'message' => 'Password changed successfully.']);
-    })->name('account.password.change.verify');
-
-    // Create a new visitor (DB-backed)
-    Route::post('/visitor/create', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'firstName' => 'required|string|max:100',
-            'lastName' => 'required|string|max:100',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'required|string|max:50',
-            'company' => 'required|string|max:150',
-            'visitorType' => 'required|string|in:client,vendor,contractor,guest,other',
-            // New flexible host inputs
-            'hostName' => 'nullable|string|max:150',
-            'hostDepartment' => 'nullable|string|max:150',
-            // Backward compatibility
-            'hostId' => 'nullable|string|in:1,2,3,4',
-            'purpose' => 'required|string|in:meeting,delivery,interview,maintenance,other',
-            'checkInDate' => 'required|date',
-            'checkInTime' => 'required|date_format:H:i',
-            'notes' => 'nullable|string|max:1000',
-        ]);
-
-        $hostMap = [
-            '1' => ['name' => 'Sarah Johnson', 'department' => 'Procurement'],
-            '2' => ['name' => 'Michael Brown', 'department' => 'Sales'],
-            '3' => ['name' => 'Jennifer Lee', 'department' => 'Business Development'],
-            '4' => ['name' => 'Robert Chen', 'department' => 'IT'],
-        ];
-
-        // Resolve host info from new fields or fallback to legacy hostId
-        $resolvedHostName = trim((string)($validated['hostName'] ?? ''));
-        $resolvedHostDept = trim((string)($validated['hostDepartment'] ?? ''));
-        if ($resolvedHostName === '' && !empty($validated['hostId'])) {
-            $legacy = $hostMap[$validated['hostId']] ?? null;
-            if ($legacy) {
-                $resolvedHostName = $legacy['name'];
-                $resolvedHostDept = $legacy['department'];
-            }
-        }
-        if ($resolvedHostName === '') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Host name is required.',
-                'errors' => ['hostName' => ['Host name is required.']],
-            ], 422);
-        }
-
-        $id = 'V-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        $fullName = trim($validated['firstName'] . ' ' . $validated['lastName']);
-
-        $visitor = Visitor::create([
-            'code' => $id,
-            'name' => $fullName,
-            'company' => $validated['company'],
-            'visitor_type' => $validated['visitorType'],
-            'host' => $resolvedHostName,
-            'host_department' => $resolvedHostDept,
-            'check_in_date' => $validated['checkInDate'],
-            'check_in_time' => $validated['checkInTime'],
-            'purpose' => $validated['purpose'],
-            'status' => 'scheduled',
-        ]);
-
-        return response()->json(['success' => true, 'visitor' => [
-            'id' => $visitor->code,
-            'name' => $visitor->name,
-            'company' => $visitor->company,
-            'visitor_type' => $visitor->visitor_type,
-            'host' => $visitor->host,
-            'host_department' => $visitor->host_department,
-            'check_in_date' => $visitor->check_in_date,
-            'check_in_time' => $visitor->check_in_time,
-            'purpose' => $visitor->purpose,
-            'status' => $visitor->status,
-            'created_at' => $visitor->created_at?->toDateTimeString(),
-        ]]);
-    })->name('visitor.create');
-
-    // Fetch a visitor by ID (AJAX helper, DB-backed)
-    Route::get('/visitor/get', function (\Illuminate\Http\Request $request) {
-        $request->validate(['id' => 'required|string']);
-        $v = Visitor::where('code', $request->query('id'))->first();
-        if (!$v) {
-            return response()->json(['success' => false, 'message' => 'Visitor not found'], 404);
-        }
-        return response()->json(['success' => true, 'visitor' => [
-            'id' => $v->code,
-            'name' => $v->name,
-            'company' => $v->company,
-            'visitor_type' => $v->visitor_type,
-            'host' => $v->host,
-            'host_department' => $v->host_department,
-            'check_in_date' => $v->check_in_date,
-            'check_in_time' => $v->check_in_time,
-            'check_out_date' => $v->check_out_date,
-            'check_out_time' => $v->check_out_time,
-            'purpose' => $v->purpose,
-            'status' => $v->status,
-        ]]);
-    })->name('visitor.get');
-
-    // Update visitor (limited fields) (DB-backed)
-    Route::post('/visitor/update', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'id' => 'required|string',
-            'company' => 'nullable|string|max:150',
-            'visitor_type' => 'nullable|string|in:client,vendor,contractor,guest,other',
-            'purpose' => 'nullable|string|in:meeting,delivery,interview,maintenance,other',
-            'check_in_date' => 'nullable|date',
-            'check_in_time' => 'nullable|date_format:H:i',
-            'status' => 'nullable|string|in:scheduled,checked_in,checked_out',
-        ]);
-        $v = Visitor::where('code', $validated['id'])->first();
-        if (!$v) {
-            return response()->json(['success' => false, 'message' => 'Visitor not found'], 404);
-        }
-        foreach (['company','visitor_type','purpose','check_in_date','check_in_time','status'] as $k) {
-            if (array_key_exists($k, $validated) && $validated[$k] !== null) {
-                $v->{$k} = $validated[$k];
-            }
-        }
-        if (($validated['status'] ?? null) === 'checked_out') {
-            if (empty($v->check_out_date)) {
-                $v->check_out_date = \Carbon\Carbon::today()->toDateString();
-            }
-            if (empty($v->check_out_time)) {
-                $v->check_out_time = now()->format('H:i');
-            }
-        }
-        $v->save();
-        return response()->json(['success' => true]);
-    })->name('visitor.update');
-
-    // Delete a visitor by ID (DB-backed)
-    Route::post('/visitor/delete', function (\Illuminate\Http\Request $request) {
-        $request->validate(['id' => 'required|string']);
-        $deleted = Visitor::where('code', $request->input('id'))->delete();
-        return response()->json(['success' => (bool)$deleted]);
-    })->name('visitor.delete');
-    
-    // Host Notification (view removed) → redirect to Visitors Registration
-    Route::get('/host-notification', function () {
-        return redirect()->route('visitors.registration');
-    })->name('host.notification');
-    
-    // Visitor History Records (DB-backed)
     Route::get('/visitor-history', function () {
-        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+        // Get visitors from database for history records
+        $visitors = \App\Models\Visitor::orderByDesc('created_at')->get()->map(function ($v) {
             return [
-                'id' => $v->code,
-                'name' => $v->name,
-                'company' => $v->company,
-                'visitor_type' => $v->visitor_type,
-                'host' => $v->host,
-                'host_department' => $v->host_department,
-                'check_in_date' => $v->check_in_date,
-                'check_in_time' => $v->check_in_time,
-                'check_out_date' => $v->check_out_date,
-                'check_out_time' => $v->check_out_time,
-                'purpose' => $v->purpose,
-                'status' => $v->status,
+                'id' => $v->id,
+                'code' => $v->code ?? '',
+                'name' => $v->name ?? '',
+                'email' => $v->email ?? '',
+                'phone' => $v->phone ?? '',
+                'company' => $v->company ?? '',
+                'visitor_type' => $v->visitor_type ?? 'Guest',
+                'host' => $v->host ?? '',
+                'host_department' => $v->host_department ?? '',
+                'check_in_date' => $v->check_in_date ? (is_string($v->check_in_date) ? $v->check_in_date : $v->check_in_date->toDateString()) : '',
+                'check_in_time' => $v->check_in_time ?? '',
+                'check_out_date' => $v->check_out_date ? (is_string($v->check_out_date) ? $v->check_out_date : $v->check_out_date->toDateString()) : '',
+                'check_out_time' => $v->check_out_time ?? '',
+                'purpose' => $v->purpose ?? '',
+                'status' => $v->status ?? 'pending',
+                'notes' => $v->notes ?? '',
+                'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
+        
+        // Calculate history statistics
+        $allVisitors = \App\Models\Visitor::all();
+        $now = now();
+        $todayVisitors = \App\Models\Visitor::whereDate('check_in_date', $now->toDateString())->count();
+        $checkedInVisitors = \App\Models\Visitor::where('status', 'checked_in')->count();
+        $checkedOutVisitors = \App\Models\Visitor::where('status', 'checked_out')->count();
+        $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
+        $overdueVisitors = \App\Models\Visitor::where('status', 'expired')->count();
+        
+        $stats = [
+            'total_visitors' => $allVisitors->count(),
+            'today_visitors' => $todayVisitors,
+            'checked_in' => $checkedInVisitors,
+            'checked_out' => $checkedOutVisitors,
+            'pending' => $pendingVisitors,
+            'overdue' => $overdueVisitors,
+        ];
+        
         return view('dashboard.visitor-history', [
             'user' => auth()->user(),
             'visitors' => $visitors,
+            'stats' => $stats
         ]);
     })->name('visitor.history');
     
-    Route::get('/visitor-history/records', function () {
-        $visitors = Visitor::orderByDesc('created_at')->get()->map(function ($v) {
+    Route::get('/visitor-history-records', function () {
+        // Get visitors from database for history records
+        $visitors = \App\Models\Visitor::orderByDesc('created_at')->get()->map(function ($v) {
             return [
-                'id' => $v->code,
-                'name' => $v->name,
-                'company' => $v->company,
-                'visitor_type' => $v->visitor_type,
-                'host' => $v->host,
-                'host_department' => $v->host_department,
-                'check_in_date' => $v->check_in_date,
-                'check_in_time' => $v->check_in_time,
-                'check_out_date' => $v->check_out_date,
-                'check_out_time' => $v->check_out_time,
-                'purpose' => $v->purpose,
-                'status' => $v->status,
+                'id' => $v->id,
+                'code' => $v->code ?? '',
+                'name' => $v->name ?? '',
+                'email' => $v->email ?? '',
+                'phone' => $v->phone ?? '',
+                'company' => $v->company ?? '',
+                'visitor_type' => $v->visitor_type ?? 'Guest',
+                'host' => $v->host ?? '',
+                'host_department' => $v->host_department ?? '',
+                'check_in_date' => $v->check_in_date ? (is_string($v->check_in_date) ? $v->check_in_date : $v->check_in_date->toDateString()) : '',
+                'check_in_time' => $v->check_in_time ?? '',
+                'check_out_date' => $v->check_out_date ? (is_string($v->check_out_date) ? $v->check_out_date : $v->check_out_date->toDateString()) : '',
+                'check_out_time' => $v->check_out_time ?? '',
+                'purpose' => $v->purpose ?? '',
+                'status' => $v->status ?? 'pending',
+                'notes' => $v->notes ?? '',
+                'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
+        
+        // Calculate history statistics
+        $allVisitors = \App\Models\Visitor::all();
+        $now = now();
+        $todayVisitors = \App\Models\Visitor::whereDate('check_in_date', $now->toDateString())->count();
+        $checkedInVisitors = \App\Models\Visitor::where('status', 'checked_in')->count();
+        $checkedOutVisitors = \App\Models\Visitor::where('status', 'checked_out')->count();
+        $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
+        $overdueVisitors = \App\Models\Visitor::where('status', 'expired')->count();
+        
+        $stats = [
+            'total_visitors' => $allVisitors->count(),
+            'today_visitors' => $todayVisitors,
+            'checked_in' => $checkedInVisitors,
+            'checked_out' => $checkedOutVisitors,
+            'pending' => $pendingVisitors,
+            'overdue' => $overdueVisitors,
+        ];
+        
         return view('dashboard.visitor-history', [
             'user' => auth()->user(),
             'visitors' => $visitors,
+            'stats' => $stats
         ]);
     })->name('visitor.history.records');
-    
-    // Scheduling & Calendar
-    Route::get('/scheduling-calendar', function () {
-        // Get all bookings from database for calendar display
-        $calendarBookings = \App\Models\Booking::orderByDesc('created_at')->get()->map(function ($b) {
+
+    // Document Management Routes
+    Route::get('/document-version-control', function () {
+        // Get documents from database
+        $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
             return [
-                'id' => $b->code,
-                'type' => $b->type,
-                'name' => $b->name,
-                'date' => $b->date,
-                'start_time' => $b->start_time,
-                'end_time' => $b->end_time,
-                'return_date' => $b->return_date,
-                'quantity' => $b->quantity,
-                'status' => $b->status,
-                'purpose' => $b->purpose,
-                'title' => $b->name, // For calendar display compatibility
+                'id' => $d->code ?? '',
+                'name' => $d->name ?? '',
+                'type' => $d->type ?? '',
+                'category' => $d->category ?? '',
+                'size' => $d->size_label ?? '0 MB',
+                'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
+                'status' => $d->status ?? 'Indexed',
+                'version' => $d->data_type ?? '1.0', // Version from data_type field
+                'description' => $d->description ?? '',
             ];
         })->toArray();
+        
+        return view('dashboard.version-control', [
+            'user' => auth()->user(),
+            'documents' => $documents
+        ]);
+    })->name('document.version.control');
+    
+    Route::post('/document-version-upload', function (Request $request) {
+        $request->validate([
+            'documents.*' => 'required|file|max:51200', // 50MB max
+            'version' => 'required|string|max:50',
+            'description' => 'nullable|string|max:500',
+            'docType' => 'nullable|string|in:internal,payment,vendor,release_of_funds,purchase,disbursement,receipt',
+            'category' => 'nullable|string|in:financial,hr,legal,operations,contracts,utilities,projects,procurement,it,payroll',
+            'status' => 'nullable|string|max:50',
+        ]);
+
+        $uploadedFiles = [];
+        
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $file) {
+                if ($file->isValid()) {
+                    $filename = time() . '_' . $file->getClientOriginalName();
+                    $path = $file->storeAs('documents', $filename, 'public');
+                    
+                    // Generate document code
+                    $code = 'DOC-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+                    
+                    // Create document record with version info
+                    $document = \App\Models\Document::create([
+                        'code' => $code,
+                        'name' => $file->getClientOriginalName(),
+                        'type' => $request->input('docType', 'internal'),
+                        'category' => $request->input('category', 'financial'),
+                        'size' => formatBytes($file->getSize()),
+                        'size_label' => formatBytes($file->getSize()),
+                        'file_path' => $path,
+                        'file_type' => $file->getMimeType(),
+                        'status' => $request->input('status', 'Indexed'),
+                        'uploaded_on' => now()->toDateString(),
+                        'description' => $request->input('description', ''),
+                        'data_type' => $request->input('version', '1.0'), // Store version in data_type
+                    ]);
+                    
+                    $uploadedFiles[] = [
+                        'name' => $file->getClientOriginalName(),
+                        'size' => formatBytes($file->getSize()),
+                        'type' => $request->input('docType', 'internal'),
+                        'version' => $request->input('version', '1.0'),
+                        'path' => $path
+                    ];
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => count($uploadedFiles) . ' file(s) uploaded successfully',
+            'files' => $uploadedFiles
+        ]);
+    })->name('document.version.upload');
+    
+    Route::get('/document-access-control', function () {
+        // Get permissions from database
+        $permissions = \App\Models\Permission::with(['user', 'document'])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($p) {
+                // Get user info
+                $user = $p->user;
+                $userName = $user ? $user->name : 'Unknown User';
+                $userEmail = $user ? $user->email : 'unknown@example.com';
+                
+                // Map access level to role
+                $roleMap = [
+                    'admin' => 'Admin',
+                    'write' => 'Editor', 
+                    'read' => 'Viewer'
+                ];
+                $role = $roleMap[$p->access_level] ?? 'Custom';
+                
+                // Get document type
+                $documentType = 'All Documents';
+                if ($p->document) {
+                    $documentType = $p->document->category ?? 'Other';
+                }
+                
+                // Determine permissions array
+                $permissionsArray = [];
+                if ($p->access_level === 'admin') {
+                    $permissionsArray = ['view', 'edit', 'delete', 'share'];
+                } elseif ($p->access_level === 'write') {
+                    $permissionsArray = ['view', 'edit'];
+                } else {
+                    $permissionsArray = ['view'];
+                }
+                
+                // Check if permission is expired
+                $status = 'active';
+                if ($p->expires_at && $p->expires_at->isPast()) {
+                    $status = 'expired';
+                }
+                
+                return [
+                    'id' => $p->id,
+                    'name' => $userName,
+                    'email' => $userEmail,
+                    'type' => $user ? 'User' : 'System',
+                    'role' => $role,
+                    'document_type' => $documentType,
+                    'permissions' => $permissionsArray,
+                    'status' => $status,
+                    'created_at' => $p->created_at?->toDateString(),
+                    'expires_at' => $p->expires_at?->toDateString(),
+                    'description' => $p->description,
+                ];
+            })->toArray();
+        
+        // Get all users for dropdowns
+        $allUsers = \App\Models\User::orderBy('name')->get(['id', 'name', 'email']);
+        
+        return view('dashboard.access-control', [
+            'user' => auth()->user(),
+            'permissions' => $permissions,
+            'allUsers' => $allUsers
+        ]);
+    })->name('document.access.control.permissions');
+    
+    Route::post('/permissions/store', function (Request $request) {
+        $request->validate([
+            'permissionType' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'user_id' => 'nullable|exists:users,id',
+            'document_id' => 'nullable|exists:documents,id',
+            'access_level' => 'required|string|in:read,write,admin',
+            'expires_at' => 'nullable|date|after:today',
+        ]);
+
+        // Create permission record (assuming a Permission model exists)
+        $permission = \App\Models\Permission::create([
+            'type' => $request->permissionType,
+            'description' => $request->description,
+            'user_id' => $request->user_id,
+            'document_id' => $request->document_id,
+            'access_level' => $request->access_level,
+            'expires_at' => $request->expires_at,
+            'created_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permission created successfully!',
+            'permission' => $permission
+        ]);
+    })->name('permissions.store');
+    
+    Route::delete('/permissions/{id}', function ($id) {
+        $permission = \App\Models\Permission::find($id);
+        
+        if (!$permission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permission not found.'
+            ], 404);
+        }
+        
+        $permission->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Permission deleted successfully!'
+        ]);
+    })->name('permissions.destroy');
+    
+    Route::get('/permissions/{id}', function ($id) {
+        $permission = \App\Models\Permission::find($id);
+        
+        if (!$permission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permission not found.'
+            ], 404);
+        }
+        
+        return response()->json([
+            'success' => true,
+            'permission' => $permission
+        ]);
+    })->name('permissions.show');
+    
+    Route::put('/permissions/{id}', function (Request $request, $id) {
+        $permission = \App\Models\Permission::find($id);
+        
+        if (!$permission) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Permission not found.'
+            ], 404);
+        }
+        
+        $request->validate([
+            'permissionType' => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'user_id' => 'nullable|exists:users,id',
+            'document_id' => 'nullable|exists:documents,id',
+            'access_level' => 'required|string|in:read,write,admin',
+            'expires_at' => 'nullable|date|after:today',
+        ]);
+
+        $permission->update([
+            'type' => $request->permissionType,
+            'description' => $request->description,
+            'user_id' => $request->user_id,
+            'document_id' => $request->document_id,
+            'access_level' => $request->access_level,
+            'expires_at' => $request->expires_at,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permission updated successfully!',
+            'permission' => $permission
+        ]);
+    })->name('permissions.update');
+    
+    Route::get('/document-archival-retention', function () {
+        // Get documents from database
+        $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
+            return [
+                'id' => $d->code ?? '',
+                'name' => $d->name ?? '',
+                'type' => $d->type ?? '',
+                'category' => $d->category ?? '',
+                'size' => $d->size_label ?? '0 MB',
+                'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
+                'status' => $d->status ?? 'Indexed',
+                'description' => $d->description ?? '',
+                'created_at' => $d->created_at?->toDateString() ?? now()->toDateString(),
+            ];
+        })->toArray();
+        
+        // Get archived documents (those with Archived status)
+        $archivedDocuments = \App\Models\Document::where('status', 'Archived')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($d) {
+                return [
+                    'id' => $d->code ?? '',
+                    'name' => $d->name ?? '',
+                    'type' => $d->type ?? '',
+                    'category' => $d->category ?? '',
+                    'size' => $d->size_label ?? '0 MB',
+                    'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
+                    'status' => $d->status ?? 'Archived',
+                    'description' => $d->description ?? '',
+                    'created_at' => $d->created_at?->toDateString() ?? now()->toDateString(),
+                ];
+            })->toArray();
+        
+        // Default retention settings
+        $settings = [
+            'default_retention' => '5',
+            'auto_archive' => true,
+            'notification_emails' => '',
+            'default_lead_time' => '7',
+        ];
+        
+        return view('dashboard.archival-retention', [
+            'user' => auth()->user(),
+            'documents' => $documents,
+            'archivedDocuments' => $archivedDocuments,
+            'settings' => $settings
+        ]);
+    })->name('document.archival.retention.policy');
+
+    // Facilities Management Routes
+    Route::get('/room-equipment', function () {
+        return view('dashboard.room-equipment', [
+            'user' => auth()->user()
+        ]);
+    })->name('room-equipment');
+    
+    Route::get('/scheduling-calendar', function () {
+        // Get bookings from database
+        $calendarBookings = \App\Models\Booking::orderBy('date', 'asc')
+            ->get()
+            ->map(function ($b) {
+                // Handle date field properly - convert to Carbon if it's a string
+                $date = null;
+                if ($b->date) {
+                    if (is_string($b->date)) {
+                        $date = \Carbon\Carbon::parse($b->date);
+                    } else {
+                        $date = $b->date;
+                    }
+                }
+                
+                return [
+                    'id' => $b->id,
+                    'code' => $b->code ?? '',
+                    'name' => $b->name ?? '',
+                    'title' => $b->name ?? '', // Use name as title for consistency
+                    'type' => $b->type ?? 'room',
+                    'date' => $date ? $date->toDateString() : '',
+                    'start_time' => $b->start_time ?? '',
+                    'end_time' => $b->end_time ?? '',
+                    'purpose' => $b->purpose ?? '',
+                    'status' => $b->status ?? 'pending',
+                    'created_at' => $b->created_at?->toDateString(),
+                    'updated_at' => $b->updated_at?->toDateString(),
+                ];
+            })->toArray();
         
         return view('dashboard.scheduling-calendar', [
             'user' => auth()->user(),
@@ -1171,1018 +788,969 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('scheduling.calendar');
     
-    // Approval Workflow
+    Route::get('/booking/combined', function () {
+        return redirect()->route('room-equipment')->with('info', 'Please use the booking form to submit bookings.');
+    });
+    
+    Route::post('/booking/combined', function (Request $request) {
+        $request->validate([
+            'booking_type' => 'required|string|in:room,equipment,both',
+            'room_id' => 'nullable|exists:rooms,id',
+            'equipment_id' => 'nullable|exists:equipment,id',
+            'name' => 'required|string|max:255',
+            'purpose' => 'required|string|max:500',
+            'date' => 'required|date|after_or_equal:today',
+            'start_time' => 'required|string',
+            'end_time' => 'required|string|after:start_time',
+            'attendees' => 'nullable|integer|min:1',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+
+        // Create booking record
+        $booking = \App\Models\Booking::create([
+            'code' => 'BK-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
+            'name' => $request->name,
+            'type' => $request->booking_type,
+            'room_id' => $request->room_id,
+            'equipment_id' => $request->equipment_id,
+            'purpose' => $request->purpose,
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'attendees' => $request->attendees ?? 1,
+            'notes' => $request->notes,
+            'user_id' => auth()->id(),
+            'status' => 'pending',
+        ]);
+
+        return back()->with('success', 'Booking submitted successfully! Your booking code is: ' . $booking->code);
+    })->name('booking.combined');
+    
     Route::get('/approval-workflow', function () {
-        $requests = \App\Models\Booking::where('status', 'pending')->get()->map(function ($b) {
-            return [
-                'id' => $b->code,
-                'type' => 'event',
-                'title' => $b->name . ': ' . $b->purpose,
-                'requested_by' => auth()->user()->name ?? 'User',
-                'date' => $b->date,
-                'status' => $b->status,
-            ];
-        })->toArray();
-        return view('dashboard.approval-workflow', compact('requests'));
+        return view('dashboard.approval-workflow', [
+            'user' => auth()->user()
+        ]);
     })->name('approval.workflow');
     
-    // Handle event creation
-    Route::post('/event/create', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'location' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
+    // Approval Workflow Actions
+    Route::post('/approval/approve/{id}', function ($id) {
+        // Find and update the approval request
+        $approval = \App\Models\Approval::find($id);
+        if ($approval) {
+            $approval->status = 'approved';
+            $approval->approved_by = auth()->user()->name;
+            $approval->approved_at = now();
+            $approval->save();
+            
+            return back()->with('success', 'Request approved successfully.');
+        }
         
-        // In a real app, you would save this to the database
-        $event = [
-            'id' => 'EVT-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
-            'title' => $validated['title'],
-            'date' => $validated['date'],
-            'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
-            'location' => $validated['location'],
-            'description' => $validated['description'] ?? '',
-            'status' => 'confirmed',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
-        
-        // In a real app, you would save the event to the database here
-        // $event = Event::create($validated);
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Event created successfully',
-            'event' => $event
-        ]);
-    })->name('event.create');
+        return back()->with('error', 'Request not found.');
+    })->name('approval.approve');
     
-    // Document Upload & Indexing
-    Route::get('/document-upload-indexing', function () {
-        $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
+    Route::post('/approval/reject/{id}', function ($id) {
+        // Find and update the approval request
+        $approval = \App\Models\Approval::find($id);
+        if ($approval) {
+            $approval->status = 'rejected';
+            $approval->rejected_by = auth()->user()->name;
+            $approval->rejected_at = now();
+            $approval->save();
+            
+            return back()->with('success', 'Request rejected successfully.');
+        }
+        
+        return back()->with('error', 'Request not found.');
+    })->name('approval.reject');
+    
+    Route::get('/reservation-history', function () {
+        return view('dashboard.reservation-history', [
+            'user' => auth()->user()
+        ]);
+    })->name('reservation.history');
+
+    // Legal Management Routes
+    Route::get('/case-management', function () {
+        // Debug: Check total cases first
+        $totalCases = \App\Models\CaseFile::count();
+        \Log::info('Total cases in database: ' . $totalCases);
+        
+        // Get cases from database with relationships
+        $cases = \App\Models\CaseFile::with(['client', 'assignedUser'])->orderByDesc('created_at')->get()->map(function ($c) {
             return [
-                'id' => $d->code ?? '',
-                'name' => $d->name ?? '',
-                'type' => $d->type ?? '',
-                'category' => $d->category ?? '',
-                'size' => $d->size_label ?? '0 MB',
-                // uploaded_on may already be a string (DATE); fallback to created_at timestamp
-                'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
-                'status' => $d->status ?? 'Indexed',
+                'id' => $c->id,
+                'number' => $c->number ?? '',
+                'code' => $c->number ?? '',  // Use number as code
+                'name' => $c->name ?? '',
+                'title' => $c->name ?? '',  // Use name as title
+                'description' => $c->contract_notes ?? '',
+                'client_id' => $c->client_id ?? '',
+                'client' => (is_object($c->client) && $c->client) ? $c->client->name : $c->client ?? 'N/A',
+                'client_name' => (is_object($c->client) && $c->client) ? $c->client->name : $c->client ?? 'N/A',
+                'client_org' => $c->client_org ?? '',
+                'client_initials' => $c->client_initials ?? '',
+                'case_type' => $c->type_label ?? '',
+                'type_label' => $c->type_label ?? '',
+                'type_badge' => $c->type_badge ?? 'civil',
+                'priority' => 'medium',  // Default since priority field doesn't exist
+                'status' => $c->status ?? 'open',
+                'assigned_to' => $c->assigned_to ?? '',
+                'assigned_name' => (is_object($c->assignedUser) && $c->assignedUser) ? $c->assignedUser->name : 'Unassigned',
+                'hearing_date' => $c->hearing_date ? $c->hearing_date->toDateString() : '',
+                'hearing_time' => $c->hearing_time ?? '',
+                'location' => '',  // Default since location field doesn't exist
+                'notes' => $c->contract_notes ?? '',
+                'contract_type' => $c->contract_type ?? '',
+                'contract_number' => $c->contract_number ?? '',
+                'contract_date' => $c->contract_date ? $c->contract_date->toDateString() : '',
+                'contract_expiration' => $c->contract_expiration ? $c->contract_expiration->toDateString() : '',
+                'contract_status' => $c->contract_status ?? '',
+                'filed' => $c->filed_date ? $c->filed_date->toDateString() : $c->created_at?->toDateString() ?? now()->toDateString(),
+                'created_by' => $c->created_by ?? '',
+                'created_at' => $c->created_at?->toDateString() ?? now()->toDateString(),
+                'updated_at' => $c->updated_at?->toDateString() ?? now()->toDateString(),
             ];
         })->toArray();
-        return view('dashboard.document-upload-indexing', compact('documents'));
-    })->name('document.upload.indexing');
-    // Upload documents (AJAX)
-    Route::post('/document-upload-indexing/upload', function (\Illuminate\Http\Request $request) {
-        $request->validate([
-            'documents' => 'required|array|min:1',
-            'documents.*' => 'file|max:51200', // 50MB
-        ]);
-
-        $uploaded = [];
-        $inputCategory = strtolower($request->input('category', '')) ?: null; // financial, hr, legal, operations
-        $inputDocType = $request->input('docType', ''); // PDF, Word, Excel, PowerPoint, Other
-        foreach ($request->file('documents', []) as $file) {
-            // In real app: $path = $file->store('documents'); infer type by mime
-            $ext = strtolower($file->getClientOriginalExtension());
-            $inferredType = match ($ext) {
-                'pdf' => 'PDF',
-                'doc', 'docx' => 'Word',
-                'xls', 'xlsx' => 'Excel',
-                'ppt', 'pptx' => 'PowerPoint',
-                default => strtoupper($ext)
-            };
-            $type = $inputDocType ?: $inferredType;
-            // if no category provided, map from file extension roughly
-            $category = $inputCategory ?: match (true) {
-                in_array($ext, ['xls','xlsx']) => 'financial',
-                in_array($ext, ['doc','docx']) => 'hr',
-                in_array($ext, ['pdf']) => 'legal',
-                default => 'operations',
-            };
-            
-            // Save to database using actual columns
-            $document = \App\Models\Document::create([
-                'code' => 'DOC-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
-                'name' => $file->getClientOriginalName(),
-                'type' => $type,
-                'category' => $category,
-                'size_label' => number_format($file->getSize() / (1024 * 1024), 1) . ' MB',
-                'uploaded_on' => now()->toDateString(),
-                'status' => 'Indexed',
-            ]);
-            
-            $doc = [
-                'id' => $document->code,
-                'name' => $document->name,
-                'type' => $document->type,
-                'category' => $document->category,
-                'size' => $document->size_label,
-                // uploaded_on is stored as DATE string; use it directly, otherwise created_at
-                'uploaded' => ($document->uploaded_on ?: ($document->created_at?->toDateString() ?? now()->toDateString())),
-                'status' => $document->status,
-            ];
-            $uploaded[] = $doc;
-        }
-        return response()->json([
-            'success' => true,
-            'message' => count($uploaded) . ' file(s) uploaded successfully!',
-            'documents' => $uploaded,
-        ]);
-    })->name('document.upload.store');
-
-    // Delete document (AJAX)
-    Route::post('/document/{id}/delete', function ($id) {
-        $deleted = \App\Models\Document::where('code', $id)->delete();
-
-        return response()->json([
-            'success' => (bool)$deleted,
-            'message' => $deleted ? 'Document #' . $id . ' deleted successfully.' : 'Document not found.',
-        ]);
-    })->name('document.delete');
-
-    // Download document (placeholder stream)
-    Route::get('/document/{id}/download', function ($id) {
-        $document = \App\Models\Document::where('code', $id)->first();
-        if (!$document) {
-            return response()->json(['error' => 'Document not found'], 404);
+        
+        \Log::info('Mapped cases count: ' . count($cases));
+        if (!empty($cases)) {
+            \Log::info('First case data: ' . json_encode($cases[0]));
         }
         
-        $fileName = $document->name ?? ($id . '.txt');
-        $content = "This is a placeholder download for {$fileName}.\nSince files are not stored, this file is generated dynamically.";
-        return response()->streamDownload(function () use ($content) {
-            echo $content;
-        }, $fileName, [
-            'Content-Type' => 'text/plain',
-        ]);
-    })->name('document.download');
-    
-    // Document Case Management
-    Route::get('/document-case-management', function () {
+        // Get upcoming hearings with relationships
+        $upcoming = \App\Models\CaseFile::with(['client'])
+            ->whereNotNull('hearing_date')
+            ->where('hearing_date', '>=', now()->subDays(30)->toDateString()) // Include recent past dates for demo
+            ->orderBy('hearing_date', 'asc')
+            ->get()
+            ->map(function ($c) {
+                return [
+                    'id' => $c->id,
+                    'code' => $c->number ?? '',
+                    'title' => $c->name ?? '',
+                    'client_name' => (is_object($c->client) && $c->client) ? $c->client->name : $c->client ?? 'N/A',
+                    'hearing_date' => $c->hearing_date ? $c->hearing_date->toDateString() : '',
+                    'hearing_time' => $c->hearing_time ?? '',
+                    'location' => '', // Default since location field doesn't exist
+                    'priority' => 'medium', // Default since priority field doesn't exist
+                ];
+            })->toArray();
+        
+        // Calculate statistics
+        $allCases = \App\Models\CaseFile::all();
+        $upcomingHearings = collect($upcoming);
+        
+        $stats = [
+            'total_cases' => $allCases->count(),
+            'active_cases' => $allCases->whereIn('status', ['open', 'active'])->count(),
+            'pending_cases' => $allCases->whereIn('status', ['pending', 'in_progress'])->count(),
+            'pending_tasks' => $allCases->where('status', 'in_progress')->count(),
+            'urgent_cases' => 0, // No priority field exists
+            'closed_cases' => $allCases->where('status', 'closed')->count(),
+            'archived_cases' => $allCases->where('status', 'archived')->count(),
+            'upcoming_hearings' => $upcomingHearings->count(),
+            'next_hearing' => $upcomingHearings->sortBy('hearing_date')->first(),
+        ];
+        
         return view('dashboard.case-management', [
-            'user' => auth()->user()
+            'user' => auth()->user(),
+            'cases' => $cases,
+            'upcoming' => $upcoming,
+            'stats' => $stats
+        ]);
+    })->name('case.management');
+    
+    Route::get('/document-case-management', function () {
+        // Debug: Check total cases first
+        $totalCases = \App\Models\CaseFile::count();
+        \Log::info('Total cases in database: ' . $totalCases);
+        
+        // Get cases from database with relationships
+        $cases = \App\Models\CaseFile::with(['client', 'assignedUser'])->orderByDesc('created_at')->get()->map(function ($c) {
+            return [
+                'id' => $c->id,
+                'number' => $c->number ?? '',
+                'code' => $c->number ?? '',  // Use number as code
+                'name' => $c->name ?? '',
+                'title' => $c->name ?? '',  // Use name as title
+                'description' => $c->contract_notes ?? '',
+                'client_id' => $c->client_id ?? '',
+                'client' => (is_object($c->client) && $c->client) ? $c->client->name : $c->client ?? 'N/A',
+                'client_name' => (is_object($c->client) && $c->client) ? $c->client->name : $c->client ?? 'N/A',
+                'client_org' => $c->client_org ?? '',
+                'client_initials' => $c->client_initials ?? '',
+                'case_type' => $c->type_label ?? '',
+                'type_label' => $c->type_label ?? '',
+                'type_badge' => $c->type_badge ?? 'civil',
+                'priority' => 'medium',  // Default since priority field doesn't exist
+                'status' => $c->status ?? 'open',
+                'assigned_to' => $c->assigned_to ?? '',
+                'assigned_name' => (is_object($c->assignedUser) && $c->assignedUser) ? $c->assignedUser->name : 'Unassigned',
+                'hearing_date' => $c->hearing_date ? $c->hearing_date->toDateString() : '',
+                'hearing_time' => $c->hearing_time ?? '',
+                'location' => '',  // Default since location field doesn't exist
+                'notes' => $c->contract_notes ?? '',
+                'contract_type' => $c->contract_type ?? '',
+                'contract_number' => $c->contract_number ?? '',
+                'contract_date' => $c->contract_date ? $c->contract_date->toDateString() : '',
+                'contract_expiration' => $c->contract_expiration ? $c->contract_expiration->toDateString() : '',
+                'contract_status' => $c->contract_status ?? '',
+                'filed' => $c->filed_date ? $c->filed_date->toDateString() : $c->created_at?->toDateString() ?? now()->toDateString(),
+                'created_by' => $c->created_by ?? '',
+                'created_at' => $c->created_at?->toDateString() ?? now()->toDateString(),
+                'updated_at' => $c->updated_at?->toDateString() ?? now()->toDateString(),
+            ];
+        })->toArray();
+        
+        \Log::info('Mapped cases count: ' . count($cases));
+        if (!empty($cases)) {
+            \Log::info('First case data: ' . json_encode($cases[0]));
+        }
+        
+        // Get upcoming hearings with relationships
+        $upcoming = \App\Models\CaseFile::with(['client'])
+            ->whereNotNull('hearing_date')
+            ->where('hearing_date', '>=', now()->subDays(30)->toDateString()) // Include recent past dates for demo
+            ->orderBy('hearing_date', 'asc')
+            ->get()
+            ->map(function ($c) {
+                return [
+                    'id' => $c->id,
+                    'code' => $c->number ?? '',
+                    'title' => $c->name ?? '',
+                    'client_name' => (is_object($c->client) && $c->client) ? $c->client->name : $c->client ?? 'N/A',
+                    'hearing_date' => $c->hearing_date ? $c->hearing_date->toDateString() : '',
+                    'hearing_time' => $c->hearing_time ?? '',
+                    'location' => '', // Default since location field doesn't exist
+                    'priority' => 'medium', // Default since priority field doesn't exist
+                ];
+            })->toArray();
+        
+        // Calculate statistics
+        $allCases = \App\Models\CaseFile::all();
+        $upcomingHearings = collect($upcoming);
+        
+        $stats = [
+            'total_cases' => $allCases->count(),
+            'active_cases' => $allCases->whereIn('status', ['open', 'active'])->count(),
+            'pending_cases' => $allCases->whereIn('status', ['pending', 'in_progress'])->count(),
+            'pending_tasks' => $allCases->where('status', 'in_progress')->count(),
+            'urgent_cases' => 0, // No priority field exists
+            'closed_cases' => $allCases->where('status', 'closed')->count(),
+            'archived_cases' => $allCases->where('status', 'archived')->count(),
+            'upcoming_hearings' => $upcomingHearings->count(),
+            'next_hearing' => $upcomingHearings->sortBy('hearing_date')->first(),
+        ];
+        
+        return view('dashboard.case-management', [
+            'user' => auth()->user(),
+            'cases' => $cases,
+            'upcoming' => $upcoming,
+            'stats' => $stats
         ]);
     })->name('document.case.management');
     
-    Route::get('/document-case-management/records', function () {
-        return view('dashboard.document-case-management-records', [
-            'user' => auth()->user()
+    Route::get('/contract-management', function () {
+        // Get contracts from database
+        $contracts = \App\Models\Contract::with('client')->orderByDesc('created_at')->get();
+        
+        // Calculate statistics
+        $allContracts = \App\Models\Contract::all();
+        $now = now();
+        
+        $stats = [
+            'total' => $allContracts->count(),
+            'active' => $allContracts->whereIn('status', ['active', 'signed'])->count(),
+            'pending' => $allContracts->whereIn('status', ['draft', 'pending', 'review'])->count(),
+            'expiring' => $allContracts->where('end_date', '>', $now)
+                ->where('end_date', '<=', $now->copy()->addDays(30))
+                ->count(),
+        ];
+        
+        return view('dashboard.contract-management', [
+            'user' => auth()->user(),
+            'contracts' => $contracts,
+            'stats' => $stats
         ]);
-    })->name('document.case.management.records');
+    })->name('contract.management');
     
-    // Create a new case (database-backed)
-    Route::post('/case/create', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'case_name' => 'required|string|max:255',
-            'client_name' => 'required|string|max:255',
-            'case_type' => 'required|string|in:civil,criminal,family,corporate,ip',
-            'status' => 'required|string|max:50',
-            'hearing_date' => 'nullable|date',
-            'hearing_time' => 'nullable|date_format:H:i',
+    Route::post('/contracts/create', function (Request $request) {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'type' => 'nullable|string|max:100',
+            'status' => 'required|string|in:draft,active,signed,expired,terminated,renewed,pending',
+            'start_date' => 'nullable|date',
+            'expiration' => 'nullable|date',
+            'value' => 'nullable|numeric|min:0',
+            'description' => 'nullable|string',
         ]);
 
-        $number = 'C-' . date('Y') . '-' . str_pad(rand(1, 999), 3, '0', STR_PAD_LEFT);
-        $typeMap = [
-            'civil' => ['label' => 'Civil', 'badge' => 'Civil'],
-            'criminal' => ['label' => 'Criminal Defense', 'badge' => 'Criminal'],
-            'family' => ['label' => 'Family Law', 'badge' => 'Family'],
-            'corporate' => ['label' => 'Corporate', 'badge' => 'Corporate'],
-            'ip' => ['label' => 'Intellectual Property', 'badge' => 'IP'],
-        ];
-        $typeLabel = $typeMap[$validated['case_type']]['label'] ?? ucfirst($validated['case_type']);
-
-        $client = $validated['client_name'];
-        $initials = collect(explode(' ', $client))->map(fn($p) => strtoupper(substr($p,0,1)))->implode('');
-        // Save to database
-        $caseFile = \App\Models\CaseFile::create([
-            'number' => $number,
-            'name' => $validated['case_name'],
-            'type_label' => $typeLabel,
-            'type_badge' => $typeLabel,
-            'client' => $client,
-            'client_org' => '',
-            'client_initials' => $initials ?: '--',
-            'status' => $validated['status'],
-            'hearing_date' => $validated['hearing_date'] ?? null,
-            'hearing_time' => $validated['hearing_time'] ?? null,
+        // Generate contract code
+        $contractCode = 'CT-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        
+        // Create contract record
+        $contract = \App\Models\Contract::create([
+            'code' => $contractCode,
+            'title' => $request->title,
+            'client_id' => null, // Will be updated if client relationship is needed
+            'type' => $request->type,
+            'status' => $request->status,
+            'start_date' => $request->start_date,
+            'end_date' => $request->expiration,
+            'value' => $request->value,
+            'description' => $request->description,
+            'created_by' => auth()->id(),
         ]);
 
-        $payload = [
-            'number' => $caseFile->number,
-            'filed' => $caseFile->created_at?->toDateString(),
-            'name' => $caseFile->name,
-            'type_label' => $caseFile->type_label,
-            'type_badge' => $caseFile->type_badge ?? $caseFile->type_label,
-            'client' => $caseFile->client,
-            'client_org' => $caseFile->client_org,
-            'client_initials' => $caseFile->client_initials,
-            'status' => $caseFile->status,
-            'hearing_date' => $caseFile->hearing_date,
-            'hearing_time' => $caseFile->hearing_time,
-        ];
         return response()->json([
             'success' => true,
-            'case' => $payload,
+            'message' => 'Contract created successfully!',
+            'contract' => $contract
+        ]);
+    })->name('contracts.create');
+    
+    Route::post('/contracts/update', function (Request $request) {
+        $request->validate([
+            'code' => 'required|string|exists:contracts,code',
+            'title' => 'required|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'type' => 'nullable|string|max:100',
+            'status' => 'required|string|in:draft,active,signed,expired,terminated,renewed,pending',
+            'expiration' => 'nullable|date',
+        ]);
+
+        $contract = \App\Models\Contract::where('code', $request->code)->first();
+        if ($contract) {
+            $contract->update([
+                'title' => $request->title,
+                'type' => $request->type,
+                'status' => $request->status,
+                'end_date' => $request->expiration,
+                'updated_by' => auth()->id(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Contract updated successfully!',
+                'contract' => $contract
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Contract not found.'
+        ], 404);
+    })->name('contracts.update');
+    
+    Route::post('/contracts/delete', function (Request $request) {
+        $request->validate([
+            'code' => 'required|string|exists:contracts,code'
+        ]);
+
+        $contract = \App\Models\Contract::where('code', $request->code)->first();
+        if ($contract) {
+            $contract->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Contract deleted successfully!'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Contract not found.'
+        ], 404);
+    })->name('contracts.delete');
+    
+    // Case Management Routes
+    Route::post('/case/create', function (Request $request) {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'case_type' => 'required|string|max:100',
+            'priority' => 'required|string|in:low,medium,high,urgent',
+            'status' => 'required|string|in:open,in_progress,closed,archived',
+            'hearing_date' => 'nullable|date',
+            'hearing_time' => 'nullable|string',
+            'client' => 'required|string|max:255',
+            'court' => 'nullable|string|max:255',
+            'judge' => 'nullable|string|max:255',
+            'contract_type' => 'nullable|string|in:employee,employment,service,other',
+        ]);
+
+        // Generate case number
+        $caseNumber = 'C-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        
+        // Create case record
+        $case = \App\Models\CaseFile::create([
+            'number' => $caseNumber,
+            'name' => $request->title,
+            'type_label' => ucfirst($request->case_type),
+            'type_badge' => ucfirst($request->case_type),
+            'client' => $request->client,
+            'status' => $request->status,
+            'hearing_date' => $request->hearing_date,
+            'hearing_time' => $request->hearing_time,
+            'contract_type' => $request->contract_type,
+            'contract_notes' => $request->description,
+            'created_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Case created successfully!',
+            'case' => $case
         ]);
     })->name('case.create');
-
-    // Update a case (database-backed)
-    Route::post('/case/update', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'number' => 'required|string',
-            'case_name' => 'required|string|max:255',
-            'client_name' => 'required|string|max:255',
-            'case_type' => 'required|string|in:civil,criminal,family,corporate,ip',
-            'status' => 'required|string|max:50',
+    
+    Route::post('/case/update', function (Request $request) {
+        $request->validate([
+            'id' => 'required|exists:case_files,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'case_type' => 'required|string|max:100',
+            'priority' => 'required|string|in:low,medium,high,urgent',
+            'status' => 'required|string|in:open,in_progress,closed,archived',
             'hearing_date' => 'nullable|date',
-            'hearing_time' => 'nullable|date_format:H:i',
+            'hearing_time' => 'nullable|string',
+            'client' => 'required|string|max:255',
+            'court' => 'nullable|string|max:255',
+            'judge' => 'nullable|string|max:255',
+            'contract_type' => 'nullable|string|in:employee,employment,service,other',
         ]);
-        
-        $caseFile = \App\Models\CaseFile::where('number', $validated['number'])->first();
-        if (!$caseFile) {
-            return response()->json(['success' => false, 'message' => 'Case not found'], 404);
+
+        $case = \App\Models\CaseFile::find($request->id);
+        if ($case) {
+            $case->update([
+                'name' => $request->title,
+                'type_label' => ucfirst($request->case_type),
+                'type_badge' => ucfirst($request->case_type),
+                'client' => $request->client,
+                'status' => $request->status,
+                'hearing_date' => $request->hearing_date,
+                'hearing_time' => $request->hearing_time,
+                'contract_type' => $request->contract_type,
+                'contract_notes' => $request->description,
+                'updated_by' => auth()->id(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Case updated successfully!',
+                'case' => $case
+            ]);
         }
 
-        $typeMap = [
-            'civil' => ['label' => 'Civil', 'badge' => 'Civil'],
-            'criminal' => ['label' => 'Criminal Defense', 'badge' => 'Criminal'],
-            'family' => ['label' => 'Family Law', 'badge' => 'Family'],
-            'corporate' => ['label' => 'Corporate', 'badge' => 'Corporate'],
-            'ip' => ['label' => 'Intellectual Property', 'badge' => 'IP'],
-        ];
-        $typeLabel = $typeMap[$validated['case_type']]['label'] ?? ucfirst($validated['case_type']);
-        $client = $validated['client_name'];
-        $initials = collect(explode(' ', $client))->map(fn($p) => strtoupper(substr($p,0,1)))->implode('');
-
-        $caseFile->update([
-            'name' => $validated['case_name'],
-            'type_label' => $typeLabel,
-            'type_badge' => $typeLabel,
-            'client' => $client,
-            'client_initials' => $initials ?: '--',
-            'status' => $validated['status'],
-            'hearing_date' => $validated['hearing_date'] ?? null,
-            'hearing_time' => $validated['hearing_time'] ?? null,
-        ]);
-
-        return response()->json(['success' => true, 'case' => $validated['number']]);
+        return response()->json([
+            'success' => false,
+            'message' => 'Case not found.'
+        ], 404);
     })->name('case.update');
-    // Delete a case (database-backed)
-    Route::post('/case/delete', function (\Illuminate\Http\Request $request) {
-        $request->validate(['number' => 'required|string']);
-        $deleted = \App\Models\CaseFile::where('number', $request->input('number'))->delete();
-        return response()->json(['success' => (bool)$deleted]);
+    
+    Route::post('/case/delete', function (Request $request) {
+        $request->validate([
+            'number' => 'required|exists:case_files,code'
+        ]);
+
+        $case = \App\Models\CaseFile::where('code', $request->number)->first();
+        if ($case) {
+            $case->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Case deleted successfully!'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Case not found.'
+        ], 404);
     })->name('case.delete');
-
-    // Fetch a case by number (AJAX helper)
-    Route::get('/case/get', function (\Illuminate\Http\Request $request) {
-        $request->validate(['number' => 'required|string']);
-        $caseFile = \App\Models\CaseFile::where('number', $request->query('number'))->first();
-        if (!$caseFile) {
-            return response()->json(['success' => false, 'message' => 'Case not found'], 404);
-        }
-        
-        $case = [
-            'number' => $caseFile->number,
-            'filed' => $caseFile->created_at?->toDateString(),
-            'name' => $caseFile->name,
-            'type_label' => $caseFile->type_label,
-            'type_badge' => $caseFile->type_badge ?? $caseFile->type_label,
-            'client' => $caseFile->client,
-            'client_org' => $caseFile->client_org,
-            'client_initials' => $caseFile->client_initials,
-            'status' => $caseFile->status,
-            'hearing_date' => $caseFile->hearing_date,
-            'hearing_time' => $caseFile->hearing_time,
-        ];
-        return response()->json(['success' => true, 'case' => $case]);
-    })->name('case.get');
-
-    // Update only hearing date/time (AJAX helper)
-    Route::post('/case/update-hearing', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'number' => 'required|string',
-            'hearing_date' => 'nullable|date',
-            'hearing_time' => 'nullable|date_format:H:i',
-        ]);
-        
-        $caseFile = \App\Models\CaseFile::where('number', $validated['number'])->first();
-        if (!$caseFile) {
-            return response()->json(['success' => false, 'message' => 'Case not found'], 404);
-        }
-        
-        $caseFile->update([
-            'hearing_date' => $validated['hearing_date'] ?? null,
-            'hearing_time' => $validated['hearing_time'] ?? null,
-        ]);
-        
-        return response()->json(['success' => true]);
-    })->name('case.update.hearing');
     
-    Route::get('/version/control', function () {
-        // Pull documents from database so freshly uploaded files appear here
-        $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
+    Route::get('/checkinout-tracking', function () {
+        // Get visitors from database for check-in/out tracking
+        $allVisitors = \App\Models\Visitor::orderByDesc('check_in_date')->get()->map(function ($v) {
             return [
-                'id' => $d->code ?? '',
-                'name' => $d->name ?? '',
-                'type' => $d->type ?? '',
-                'category' => $d->category ?? '',
-                'size' => $d->size_label ?? '0 MB',
-                'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
-                'status' => $d->status ?? 'Indexed',
-                'version' => $d->version ?? '1.0',
+                'id' => $v->id,
+                'code' => $v->code ?? '',
+                'name' => $v->name ?? '',
+                'email' => $v->email ?? '',
+                'phone' => $v->phone ?? '',
+                'company' => $v->company ?? '',
+                'visitor_type' => $v->visitor_type ?? 'Guest',
+                'host' => $v->host ?? '',
+                'host_department' => $v->host_department ?? '',
+                'check_in_date' => $v->check_in_date ? (is_string($v->check_in_date) ? $v->check_in_date : $v->check_in_date->toDateString()) : '',
+                'check_in_time' => $v->check_in_time ?? '',
+                'check_out_date' => $v->check_out_date ? (is_string($v->check_out_date) ? $v->check_out_date : $v->check_out_date->toDateString()) : '',
+                'check_out_time' => $v->check_out_time ?? '',
+                'purpose' => $v->purpose ?? '',
+                'status' => $v->status ?? 'pending',
+                'notes' => $v->notes ?? '',
+                'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
-        return view('dashboard.version-control', compact('documents'));
-    })->name('document.version.control');
-    
-    // Upload a new document version
-    Route::post('/version/upload', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'document_id' => 'required|string',
-            'version_number' => 'required|string',
-            'version_notes' => 'nullable|string',
-            'file' => 'required|file|max:51200', // up to 50MB
-        ]);
-
-        $doc = \App\Models\Document::where('code', $validated['document_id'])->first();
-        if (!$doc) {
-            return back()->withErrors(['document_id' => 'Selected document not found.'])->withInput();
-        }
-
-        // Store file to public disk under documents/
-        $path = $request->file('file')->store('documents', 'public');
-
-        // Update document with new version metadata
-        $doc->version = $validated['version_number'];
-        $doc->status = $doc->status ?: 'Indexed';
-        $doc->uploaded_on = now()->toDateString();
-        // Optionally keep a path reference if your schema has it
-        if (property_exists($doc, 'path') || \Illuminate\Support\Arr::exists($doc->getAttributes(), 'path')) {
-            $doc->path = $path;
-        }
-        $doc->save();
-
-        return back()->with('success', 'New version uploaded successfully.');
-    })->name('document.version.upload');
-    
-    Route::get('/access/control', function () {
-        // Load permissions from DB and shape for the table
-        $rows = \Illuminate\Support\Facades\DB::table('permissions')
-            ->orderByDesc('updated_at')
-            ->get();
-        $userIds = $rows->pluck('user_id')->filter()->unique()->values();
-        $users = \App\Models\User::whereIn('id', $userIds)->get()->keyBy('id');
-        $allUsers = \App\Models\User::orderBy('name')->get(['id','name','email']);
-        $permissions = $rows->map(function ($r) use ($users) {
-            $isUser = ($r->type === 'user');
-            $user = $isUser && $r->user_id ? ($users[$r->user_id] ?? null) : null;
+        
+        // Get currently checked-in visitors
+        $currentCheckIns = \App\Models\Visitor::where('status', 'checked_in')->orderByDesc('check_in_date')->get()->map(function ($v) {
             return [
-                'id' => (int) $r->id,
-                'type' => $isUser ? 'User' : ucfirst($r->type ?? 'group'),
-                'name' => $user?->name ?? ($r->type === 'group' ? 'Group #' . ($r->group_id ?? '-') : '—'),
-                'email' => $user?->email ?? '—',
-                'role' => ucfirst($r->role ?? 'viewer'),
-                'document_type' => match ($r->document_type) { 'all' => 'All Documents', 'financial' => 'Financial', 'hr' => 'HR', 'legal' => 'Legal', default => 'Other' },
-                'permissions' => is_array($r->permissions) ? $r->permissions : (json_decode($r->permissions, true) ?: []),
-                'status' => $r->status ?? 'active',
-                'last_updated' => optional(\Carbon\Carbon::parse($r->updated_at))->toDateTimeString() ?? '—',
+                'id' => $v->id,
+                'code' => $v->code ?? '',
+                'name' => $v->name ?? '',
+                'email' => $v->email ?? '',
+                'phone' => $v->phone ?? '',
+                'company' => $v->company ?? '',
+                'visitor_type' => $v->visitor_type ?? 'Guest',
+                'host' => $v->host ?? '',
+                'host_department' => $v->host_department ?? '',
+                'check_in_date' => $v->check_in_date ? (is_string($v->check_in_date) ? $v->check_in_date : $v->check_in_date->toDateString()) : '',
+                'check_in_time' => $v->check_in_time ?? '',
+                'check_out_date' => $v->check_out_date ? (is_string($v->check_out_date) ? $v->check_out_date : $v->check_out_date->toDateString()) : '',
+                'check_out_time' => $v->check_out_time ?? '',
+                'purpose' => $v->purpose ?? '',
+                'status' => $v->status ?? 'pending',
+                'notes' => $v->notes ?? '',
+                'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
-        return view('dashboard.access-control', [
-            'user' => auth()->user(),
-            'permissions' => $permissions,
-            'allUsers' => $allUsers,
-        ]);
-    })->name('document.access.control.permissions');
-    
-    Route::get('/archival/policy', function () {
-        // Settings still session-based for simplicity
-        $settings = session('archival_settings', [
-            'default_retention' => '5',
-            'auto_archive' => true,
-            'notification_emails' => '',
-        ]);
         
-        // Load all documents from DB so current and future uploads appear automatically
-        $all = \App\Models\Document::orderByDesc('created_at')->get();
-
-        $map = function ($d) {
-            return [
-                'id' => $d->code ?? '',
-                'name' => $d->name ?? 'Document',
-                'type' => $d->type ?? 'Other',
-                'category' => $d->category ?? 'other',
-                'size' => $d->size_label ?? '—',
-                'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
-                'status' => $d->status ?? 'Indexed',
-                'archived_on' => $d->is_archived ? ($d->updated_at?->toDateString() ?? null) : null,
-                // Scheduled deletion is illustrative; real logic can compute from category + policy
-                'scheduled_deletion' => null,
-            ];
-        };
-
-        $documents = $all->where('is_archived', false)->map($map)->values()->toArray();
-        $archivedDocuments = $all->where('is_archived', true)->map($map)->values()->toArray();
-
-        return view('dashboard.archival-retention', compact('settings', 'documents', 'archivedDocuments'));
-    })->name('document.archival.retention.policy');
-
-    // Save Archival Retention Settings
-    Route::post('/archival/settings', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'defaultRetention' => 'required|string|in:1,3,5,7,10,permanent',
-            'autoArchive' => 'nullable|in:on,1,true',
-            'notificationEmails' => 'nullable|string|max:500',
-        ]);
-
-        $settings = [
-            'default_retention' => $validated['defaultRetention'],
-            'auto_archive' => (bool) $request->has('autoArchive'),
-            'notification_emails' => $validated['notificationEmails'] ?? '',
-        ];
-
-        session(['archival_settings' => $settings]);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(['success' => true, 'settings' => $settings]);
-        }
-        return back()->with('success', 'Retention settings saved.');
-    })->name('archival.settings.save');
-
-    // Run Auto-Archive: move eligible uploaded_documents to archived_documents based on retention
-    Route::post('/archival/auto-archive', function (\Illuminate\Http\Request $request) {
-        $settings = session('archival_settings', [
-            'default_retention' => '5',
-            'auto_archive' => true,
-            'notification_emails' => '',
-        ]);
-
-        $docs = session('uploaded_documents', []);
-        $archived = session('archived_documents', []);
-
+        // Calculate check-in/out statistics
+        $allVisitorsCount = \App\Models\Visitor::all();
         $now = now();
-        $moved = [];
-        $kept = [];
-
-        foreach ($docs as $doc) {
-            $uploadedDate = isset($doc['uploaded']) ? \Carbon\Carbon::parse($doc['uploaded']) : $now->copy()->subYears(6);
-            $category = strtolower($doc['category'] ?? ($doc['type'] ?? 'other'));
-            // Determine retention in years
-            $retentionYears = match ($category) {
-                'financial' => 7,
-                'hr' => 7,
-                'legal' => 10,
-                default => (is_numeric($settings['default_retention']) ? (int)$settings['default_retention'] : 5),
-            };
-            $eligibleAt = $uploadedDate->copy()->addYears($retentionYears);
-
-            if ($settings['auto_archive'] && $eligibleAt->lessThanOrEqualTo($now)) {
-                $doc['archived_on'] = $now->toDateString();
-                $doc['scheduled_deletion'] = $uploadedDate->copy()->addYears($retentionYears + 2)->toDateString();
-                $moved[] = $doc;
-            } else {
-                $kept[] = $doc;
-            }
+        $todayVisitors = \App\Models\Visitor::whereDate('check_in_date', $now->toDateString())->count();
+        $checkedInVisitors = \App\Models\Visitor::where('status', 'checked_in')->count();
+        $checkedOutVisitors = \App\Models\Visitor::where('status', 'checked_out')->count();
+        $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
+        $overdueVisitors = \App\Models\Visitor::where('status', 'expired')->count();
+        
+        // Calculate duration for checked-in visitors
+        $avgDuration = 0;
+        $checkedInWithTime = $allVisitorsCount->where('status', 'checked_out')
+            ->filter(function ($v) {
+                return $v->check_in_time && $v->check_out_time;
+            });
+        
+        if ($checkedInWithTime->count() > 0) {
+            $totalMinutes = $checkedInWithTime->sum(function ($v) {
+                $checkIn = strtotime($v->check_in_date . ' ' . $v->check_in_time);
+                $checkOut = strtotime($v->check_out_date . ' ' . $v->check_out_time);
+                return ($checkOut - $checkIn) / 60; // Convert to minutes
+            });
+            $avgDuration = round($totalMinutes / $checkedInWithTime->count());
         }
-
-        if (!empty($moved)) {
-            // Merge into archived list
-            $archived = array_values(array_merge($moved, $archived));
-        }
-
-        session(['uploaded_documents' => $kept, 'archived_documents' => $archived]);
-
-        $result = [
-            'success' => true,
-            'archived_count' => count($moved),
-            'remaining_count' => count($kept),
-        ];
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json($result);
-        }
-        return back()->with('success', sprintf('Auto-archive complete. %d moved, %d remaining.', $result['archived_count'], $result['remaining_count']));
-    })->name('archival.run');
-    
-    // Compliance Tracking
-    Route::get('/compliance/tracking', function () {
-        // Initialize default values
-        $complianceItems = collect();
+        
         $stats = [
-            'active' => 0,
-            'pending' => 0,
-            'overdue' => 0,
-            'completed' => 0,
-            'total' => 0,
-            'due_this_month' => 0,
-            'at_risk' => 0
+            'currently_checked_in' => $checkedInVisitors,
+            'todays_checkins' => $todayVisitors,
+            'total_visitors' => $allVisitorsCount->count(),
+            'checked_in' => $checkedInVisitors,
+            'checked_out' => $checkedOutVisitors,
+            'pending' => $pendingVisitors,
+            'overdue' => $overdueVisitors,
+            'avg_duration_minutes' => $avgDuration,
+            'peak_hour' => '10:00', // Could be calculated from actual data
         ];
         
-        try {
-            if (class_exists('App\Models\ComplianceTracking')) {
-                // List items for table
-                $complianceItems = App\Models\ComplianceTracking::orderBy('due_date', 'asc')->get();
-
-                // Compute stats directly via DB for accuracy and performance
-                $total = App\Models\ComplianceTracking::count();
-                $active = App\Models\ComplianceTracking::where('status', 'active')->count();
-                $pending = App\Models\ComplianceTracking::where('status', 'pending')->count();
-                $overdue = App\Models\ComplianceTracking::where('status', 'overdue')->count();
-                $completed = App\Models\ComplianceTracking::where('status', 'completed')->count();
-
-                $startOfMonth = now()->startOfMonth();
-                $endOfMonth = now()->endOfMonth();
-                $dueThisMonth = App\Models\ComplianceTracking::whereBetween('due_date', [$startOfMonth, $endOfMonth])
-                    ->whereIn('status', ['active', 'pending'])
-                    ->count();
-
-                // At risk: either explicitly marked as 'at_risk' OR due within the next 7 days (including today) and not past due
-                $today = now()->startOfDay();
-                $in7Days = now()->addDays(7)->endOfDay();
-                $atRisk = App\Models\ComplianceTracking::where(function($q) use ($today, $in7Days) {
-                        $q->whereBetween('due_date', [$today, $in7Days])
-                          ->whereIn('status', ['active', 'pending']);
-                    })
-                    ->orWhere('status', 'at_risk')
-                    ->count();
-
-                $stats = [
-                    'active' => $active,
-                    'pending' => $pending,
-                    'overdue' => $overdue,
-                    'completed' => $completed,
-                    'total' => $total,
-                    'due_this_month' => $dueThisMonth,
-                    'at_risk' => $atRisk,
-                ];
-            }
-        } catch (\Exception $e) {
-            // Log the error for debugging
-            \Log::error('Compliance tracking error: ' . $e->getMessage());
-        }
+        return view('dashboard.check-in-out-tracking', [
+            'user' => auth()->user(),
+            'allVisitors' => $allVisitors,
+            'currentCheckIns' => $currentCheckIns,
+            'stats' => $stats
+        ]);
+    })->name('checkinout.tracking');
+    
+    Route::get('/compliance-tracking', function () {
+        $complianceItems = \App\Models\ComplianceTracking::latest('due_date')->get();
         
-        return view('dashboard.compliance-tracking', compact('complianceItems', 'stats'));
+        $stats = [
+            'active' => $complianceItems->where('status', 'active')->count(),
+            'pending' => $complianceItems->where('status', 'pending')->count(),
+        ];
+        
+        return view('dashboard.compliance-tracking', [
+            'user' => auth()->user(),
+            'complianceItems' => $complianceItems,
+            'stats' => $stats
+        ]);
+    })->name('compliance.tracking');
+    
+    Route::post('/compliance/create', function (Request $request) {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'type' => 'required|string|max:100',
+            'priority' => 'required|string|in:low,medium,high,urgent',
+            'status' => 'required|string|in:pending,in_progress,completed,overdue',
+            'due_date' => 'required|date|after:today',
+            'assigned_to' => 'nullable|exists:users,id',
+            'notes' => 'nullable|string',
+        ]);
+
+        // Generate compliance task code
+        $taskCode = 'CP-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        
+        // Create compliance task record
+        $compliance = \App\Models\Compliance::create([
+            'code' => $taskCode,
+            'title' => $request->title,
+            'description' => $request->description,
+            'type' => $request->type,
+            'priority' => $request->priority,
+            'status' => $request->status,
+            'due_date' => $request->due_date,
+            'assigned_to' => $request->assigned_to,
+            'notes' => $request->notes,
+            'created_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Compliance task created successfully!',
+            'compliance' => $compliance
+        ]);
+    })->name('compliance.create');
+    
+    Route::post('/compliance/update', function (Request $request) {
+        $request->validate([
+            'id' => 'required|exists:compliances,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'type' => 'required|string|max:100',
+            'priority' => 'required|string|in:low,medium,high,urgent',
+            'status' => 'required|string|in:pending,in_progress,completed,overdue',
+            'due_date' => 'required|date|after:today',
+            'assigned_to' => 'nullable|exists:users,id',
+            'notes' => 'nullable|string',
+        ]);
+
+        $compliance = \App\Models\Compliance::find($request->id);
+        if ($compliance) {
+            $compliance->update([
+                'title' => $request->title,
+                'description' => $request->description,
+                'type' => $request->type,
+                'priority' => $request->priority,
+                'status' => $request->status,
+                'due_date' => $request->due_date,
+                'assigned_to' => $request->assigned_to,
+                'notes' => $request->notes,
+                'updated_by' => auth()->id(),
+                'updated_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Compliance task updated successfully!',
+                'compliance' => $compliance
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Compliance task not found.'
+        ], 404);
+    })->name('compliance.update');
+    
+    Route::post('/compliance/delete', function (Request $request) {
+        $request->validate([
+            'id' => 'required|exists:compliances,id'
+        ]);
+
+        $compliance = \App\Models\Compliance::find($request->id);
+        if ($compliance) {
+            $compliance->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Compliance task deleted successfully!'
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Compliance task not found.'
+        ], 404);
+    })->name('compliance.delete');
+    
+    Route::get('/document-compliance-tracking', function () {
+        $complianceItems = \App\Models\ComplianceTracking::latest('due_date')->get();
+        
+        $stats = [
+            'active' => $complianceItems->where('status', 'active')->count(),
+            'pending' => $complianceItems->where('status', 'pending')->count(),
+        ];
+        
+        return view('dashboard.compliance-tracking', [
+            'user' => auth()->user(),
+            'complianceItems' => $complianceItems,
+            'stats' => $stats
+        ]);
     })->name('document.compliance.tracking');
     
-    // Reservation History - database-backed
-    Route::get('/reservation-history', function () {
-        $bookings = \App\Models\Booking::orderByDesc('created_at')->get()->map(function ($b) {
+    Route::get('/deadline-hearing-alerts', function () {
+        // Get hearings from database
+        $hearings = \App\Models\Hearing::orderBy('hearing_date', 'asc')->get()->map(function ($h) {
             return [
-                'id' => $b->code,
-                'type' => $b->type,
-                'name' => $b->name,
-                'date' => $b->date,
-                'start_time' => $b->start_time,
-                'end_time' => $b->end_time,
-                'return_date' => $b->return_date,
-                'quantity' => $b->quantity,
-                'status' => $b->status,
-                'purpose' => $b->purpose,
-            ];
-        })->toArray();
-        return view('dashboard.reservation-history', compact('bookings'));
-    })->name('reservation.history');
-    
-    // Room & Equipment Booking
-    Route::get('/room-equipment', function () {
-        // Get the authenticated user's bookings from database
-        $bookings = \App\Models\Booking::orderByDesc('created_at')->get()->map(function ($b) {
-            return [
-                'id' => $b->code,
-                'type' => $b->type,
-                'name' => $b->name,
-                'date' => $b->date,
-                'start_time' => $b->start_time,
-                'end_time' => $b->end_time,
-                'return_date' => $b->return_date,
-                'quantity' => $b->quantity,
-                'status' => $b->status,
-                'purpose' => $b->purpose,
+                'id' => $h->id,
+                'title' => $h->title ?? '',
+                'description' => $h->description ?? '',
+                'number' => $h->case_number ?? '', // Added for view compatibility
+                'case_number' => $h->case_number ?? '',
+                'date' => $h->hearing_date ? $h->hearing_date->toDateString() : '', // Added for view compatibility
+                'time' => $h->hearing_time ?? '', // Added for view compatibility
+                'hearing_date' => $h->hearing_date ? $h->hearing_date->toDateString() : '',
+                'hearing_time' => $h->hearing_time ?? '',
+                'court_location' => $h->court_location ?? '',
+                'priority' => $h->priority ?? 'medium',
+                'judge' => $h->judge ?? '',
+                'type' => $h->type ?? 'Hearing',
+                'status' => $h->status ?? 'scheduled',
+                'responsible_lawyer' => $h->responsible_lawyer ?? '',
+                'client_name' => $h->client_name ?? '',
+                'case_type' => $h->case_type ?? '',
+                'reminder_sent' => $h->reminder_sent ?? false,
+                'created_at' => $h->created_at?->toDateString() ?? now()->toDateString(),
             ];
         })->toArray();
         
-        return view('dashboard.room-equipment', compact('bookings'));
-    })->name('room-equipment');
-    
-    // Combined Booking (Room & Equipment)
-    Route::post('/booking/combined', function (\Illuminate\Http\Request $request) {
-        $bookings = [];
-        $successMessages = [];
+        // Calculate statistics
+        $now = now();
+        $upcomingCount = \App\Models\Hearing::where('hearing_date', '>=', $now->toDateString())->count();
+        $todayCount = \App\Models\Hearing::where('hearing_date', '=', $now->toDateString())->count();
+        $overdueCount = \App\Models\Hearing::where('hearing_date', '<', $now->toDateString())->count();
         
-        // Process Room Booking if room is selected
-        if ($request->filled('room')) {
-            $roomValidated = $request->validate([
-                'room' => 'required|string|in:conference,meeting,training',
-                'date' => 'required|date|after_or_equal:today',
-                'start_time' => 'required|date_format:H:i',
-                'end_time' => 'required|date_format:H:i|after:start_time',
-                'purpose' => 'required|string|max:500'
-            ]);
-            
-            // Save room booking to database
-            $roomBookingModel = \App\Models\Booking::create([
-                'code' => 'BK-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
-                'type' => 'room',
-                'name' => ucfirst($roomValidated['room']) . ' Room',
-                'date' => $roomValidated['date'],
-                'start_time' => $roomValidated['start_time'],
-                'end_time' => $roomValidated['end_time'],
-                'status' => 'pending',
-                'purpose' => $roomValidated['purpose']
-            ]);
-            
-            $roomBooking = [
-                'id' => $roomBookingModel->code,
-                'type' => $roomBookingModel->type,
-                'name' => $roomBookingModel->name,
-                'date' => $roomBookingModel->date,
-                'start_time' => $roomBookingModel->start_time,
-                'end_time' => $roomBookingModel->end_time,
-                'status' => $roomBookingModel->status,
-                'purpose' => $roomBookingModel->purpose
-            ];
-            
-            $bookings[] = $roomBooking;
-            $successMessages[] = 'Room booked successfully!';
-        }
-        
-        // Process Equipment Booking if equipment is selected
-        $equipmentData = $request->input('equipment', []);
-        $quantities = $request->input('quantity', []);
-        
-        // Process each equipment item
-        if (!empty($equipmentData) && is_array($equipmentData)) {
-            $equipmentValidated = $request->validate([
-                'date' => 'required|date|after_or_equal:today',
-                'start_time' => 'required|date_format:H:i',
-                'end_time' => 'required|date_format:H:i|after:start_time',
-                'purpose' => 'required|string|max:500',
-                'equipment.*' => 'nullable|string|in:projector,laptop,camera,audio,whiteboard',
-                'quantity.*' => 'nullable|integer|min:1|max:10'
-            ]);
-            
-            foreach ($equipmentData as $index => $equipment) {
-                if (!empty($equipment)) {
-                    $quantity = $quantities[$index] ?? 1;
-                    
-                    // Save equipment booking to database
-                    $equipmentBookingModel = \App\Models\Booking::create([
-                        'code' => 'EQ-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
-                        'type' => 'equipment',
-                        'name' => ucfirst($equipment) . ($quantity > 1 ? ' (x' . $quantity . ')' : ''),
-                        'date' => $equipmentValidated['date'],
-                        'start_time' => $equipmentValidated['start_time'],
-                        'end_time' => $equipmentValidated['end_time'],
-                        'quantity' => $quantity,
-                        'status' => 'pending',
-                        'purpose' => $equipmentValidated['purpose']
-                    ]);
-                    
-                    $equipmentBooking = [
-                        'id' => $equipmentBookingModel->code,
-                        'type' => $equipmentBookingModel->type,
-                        'name' => $equipmentBookingModel->name,
-                        'date' => $equipmentBookingModel->date,
-                        'start_time' => $equipmentBookingModel->start_time,
-                        'end_time' => $equipmentBookingModel->end_time,
-                        'quantity' => $equipmentBookingModel->quantity,
-                        'status' => $equipmentBookingModel->status,
-                        'purpose' => $equipmentBookingModel->purpose
-                    ];
-                    
-                    $bookings[] = $equipmentBooking;
-                }
-            }
-            
-            if (count($bookings) > 0) {
-                $successMessages[] = 'Equipment booking request' . (count($bookings) > 1 ? 's' : '') . ' submitted!';
-            }
-        }
-        
-        // If no bookings were made (shouldn't happen due to frontend validation)
-        if (empty($bookings)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Please select at least a room or equipment to book.'
-            ], 422);
-        }
-        
-        // Bookings are now saved to database, no need for session storage
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'messages' => $successMessages,
-                'bookings' => $bookings
-            ]);
-        }
-        
-        return redirect()->route('scheduling.calendar')->with([
-            'success' => implode(' ', $successMessages)
-        ]);
-    })->name('booking.combined');
-
-    // Approve/Reject endpoints update booking status in database
-    Route::post('/approval/{id}/approve', function (\Illuminate\Http\Request $request, $id) {
-        $booking = \App\Models\Booking::where('code', $id)->first();
-        if (!$booking) {
-            return response()->json(['success' => false, 'message' => 'Booking not found'], 404);
-        }
-
-        $booking->update(['status' => 'approved']);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Request approved.'
-            ]);
-        }
-        return back()->with('success', 'Request approved.');
-    })->name('approval.approve');
-
-    Route::post('/approval/{id}/reject', function (\Illuminate\Http\Request $request, $id) {
-        $booking = \App\Models\Booking::where('code', $id)->first();
-        if (!$booking) {
-            return response()->json(['success' => false, 'message' => 'Booking not found'], 404);
-        }
-
-        $booking->update(['status' => 'rejected']);
-
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Request rejected.'
-            ]);
-        }
-        return back()->with('success', 'Request rejected.');
-    })->name('approval.reject');
-    
-    // Room Booking (kept for backward compatibility)
-    Route::post('/room/book', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'room' => 'required|string|in:conference,meeting,training',
-            'date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'purpose' => 'required|string|max:500'
-        ]);
-        
-        // In a real app, you would save this to the database
-        $booking = [
-            'id' => 'BK-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
-            'type' => 'room',
-            'name' => ucfirst($validated['room']) . ' Room',
-            'date' => $validated['date'],
-            'start_time' => $validated['start_time'],
-            'end_time' => $validated['end_time'],
-            'status' => 'confirmed',
-            'purpose' => $validated['purpose']
+        $counts = [
+            'upcoming' => $upcomingCount,
+            'today' => $todayCount,
+            'overdue' => $overdueCount,
+            'total' => count($hearings),
         ];
         
-        if ($request->ajax() || $request->wantsJson()) {
+        return view('dashboard.deadline-hearing-alerts', [
+            'user' => auth()->user(),
+            'hearings' => $hearings,
+            'counts' => $counts
+        ]);
+    })->name('deadline.hearing.alerts');
+    
+    Route::post('/hearings/create', function (Request $request) {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'case_number' => 'nullable|string|max:255',
+            'hearing_date' => 'required|date|after_or_equal:today',
+            'hearing_time' => 'required|string',
+            'court_location' => 'nullable|string|max:255',
+            'priority' => 'required|string|in:low,medium,high,urgent',
+            'judge' => 'nullable|string|max:255',
+            'type' => 'nullable|string|max:100',
+            'status' => 'nullable|string|max:50',
+            'responsible_lawyer' => 'nullable|string|max:255',
+            'client_name' => 'nullable|string|max:255',
+            'case_type' => 'nullable|string|max:100',
+        ]);
+
+        // Create hearing record
+        $hearing = \App\Models\Hearing::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'case_number' => $request->case_number,
+            'hearing_date' => $request->hearing_date,
+            'hearing_time' => $request->hearing_time,
+            'court_location' => $request->court_location,
+            'priority' => $request->priority,
+            'judge' => $request->judge,
+            'type' => $request->type,
+            'status' => $request->status ?? 'scheduled',
+            'responsible_lawyer' => $request->responsible_lawyer,
+            'client_name' => $request->client_name,
+            'case_type' => $request->case_type,
+            'reminder_sent' => false,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hearing created successfully!',
+            'hearing' => $hearing
+        ]);
+    })->name('hearings.create');
+    
+    Route::post('/visitor/update', function (Request $request) {
+        $request->validate([
+            'id' => 'required|exists:visitors,id',
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'company' => 'nullable|string|max:255',
+            'purpose' => 'required|string|max:500',
+            'visit_date' => 'required|date',
+            'check_in_time' => 'nullable|string',
+            'check_out_time' => 'nullable|string',
+            'status' => 'required|string|in:pending,checked_in,checked_out,expired',
+            'notes' => 'nullable|string',
+        ]);
+
+        $visitor = \App\Models\Visitor::find($request->id);
+        if ($visitor) {
+            $visitor->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'company' => $request->company,
+                'purpose' => $request->purpose,
+                'visit_date' => $request->visit_date,
+                'check_in_time' => $request->check_in_time,
+                'check_out_time' => $request->check_out_time,
+                'status' => $request->status,
+                'notes' => $request->notes,
+                'updated_by' => auth()->id(),
+                'updated_at' => now(),
+            ]);
+
             return response()->json([
                 'success' => true,
-                'message' => 'Room booked successfully!',
-                'booking' => $booking
+                'message' => 'Visitor updated successfully!',
+                'visitor' => $visitor
             ]);
         }
-        
-        return back()->with([
-            'success' => 'Room booked successfully!',
-            'new_booking' => $booking
-        ]);
-    })->name('room.book');
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Visitor not found.'
+        ], 404);
+    })->name('visitor.update');
     
-    // Equipment Booking
-    Route::post('/equipment/book', function (\Illuminate\Http\Request $request) {
-        $validated = $request->validate([
-            'equipment' => 'required|string|in:projector,laptop,camera,audio,whiteboard',
-            'quantity' => 'required|integer|min:1|max:10',
-            'date_needed' => 'required|date|after_or_equal:today',
-            'return_date' => 'required|date|after_or_equal:date_needed',
-            'purpose' => 'required|string|max:500'
+    Route::get('/visitor/get', function (Request $request) {
+        $request->validate([
+            'id' => 'required|exists:visitors,id'
         ]);
-        
-        // In a real app, you would save this to the database
-        $booking = [
-            'id' => 'EQ-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT),
-            'type' => 'equipment',
-            'name' => ucfirst($validated['equipment']),
-            'date' => $validated['date_needed'],
-            'return_date' => $validated['return_date'],
-            'quantity' => $validated['quantity'],
-            'status' => 'pending',
-            'purpose' => $validated['purpose']
-        ];
-        
-        if ($request->ajax() || $request->wantsJson()) {
+
+        $visitor = \App\Models\Visitor::find($request->id);
+        if ($visitor) {
             return response()->json([
                 'success' => true,
-                'message' => 'Equipment booking request submitted!',
-                'booking' => $booking
+                'visitor' => $visitor
             ]);
         }
-        
-        return back()->with([
-            'success' => 'Equipment booking request submitted!',
-            'new_booking' => $booking
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Visitor not found.'
+        ], 404);
+    })->name('visitor.get');
+    
+    Route::post('/visitor/delete', function (Request $request) {
+        $request->validate([
+            'id' => 'required|exists:visitors,id'
         ]);
-    })->name('equipment.book');
-    
-    // View Booking
-    Route::get('/booking/{id}', function ($id) {
-        // In a real app, you would fetch this from the database
-        $booking = [
-            'id' => $id,
-            'type' => str_starts_with($id, 'BK-') ? 'room' : 'equipment',
-            'name' => str_starts_with($id, 'BK-') ? 'Conference Room' : 'Projector',
-            'date' => '2023-10-25',
-            'start_time' => str_starts_with($id, 'BK-') ? '10:00' : null,
-            'end_time' => str_starts_with($id, 'BK-') ? '11:30' : null,
-            'status' => 'confirmed',
-            'purpose' => 'Team meeting',
-            'quantity' => str_starts_with($id, 'BK-') ? null : 1,
-            'created_at' => now()->subDays(2)->format('Y-m-d H:i:s')
-        ];
-        
-        // If this is an equipment booking, add a return date
-        if (str_starts_with($id, 'EQ-')) {
-            $booking['return_date'] = date('Y-m-d', strtotime('+3 days'));
-        }
-        
-        return view('dashboard.booking-details', ['booking' => $booking]);
-    })->name('booking.view');
-    
-    // Cancel Booking
-    Route::post('/booking/{id}/cancel', function (\Illuminate\Http\Request $request, $id) {
-        // In a real app, you would update the status in the database
-        
-        if ($request->ajax() || $request->wantsJson()) {
+
+        $visitor = \App\Models\Visitor::find($request->id);
+        if ($visitor) {
+            $visitor->delete();
             return response()->json([
                 'success' => true,
-                'message' => 'Booking #' . $id . ' has been cancelled.'
+                'message' => 'Visitor deleted successfully!'
             ]);
         }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Visitor not found.'
+        ], 404);
+    })->name('visitor.delete');
+    
+    Route::post('/visitor/create', function (Request $request) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'company' => 'nullable|string|max:255',
+            'purpose' => 'required|string|max:500',
+            'visit_date' => 'required|date',
+            'check_in_time' => 'nullable|string',
+            'check_out_time' => 'nullable|string',
+            'status' => 'required|string|in:pending,checked_in,checked_out,expired',
+            'notes' => 'nullable|string',
+        ]);
+
+        // Generate visitor code
+        $visitorCode = 'V-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
         
-        return back()->with('success', 'Booking #' . $id . ' has been cancelled.');
-    })->name('booking.cancel');
+        // Create visitor record
+        $visitor = \App\Models\Visitor::create([
+            'code' => $visitorCode,
+            'name' => $request->name,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'company' => $request->company,
+            'purpose' => $request->purpose,
+            'check_in_date' => $request->visit_date,
+            'check_in_time' => $request->check_in_time,
+            'check_out_date' => $request->visit_date,
+            'check_out_time' => $request->check_out_time,
+            'status' => $request->status,
+            'notes' => $request->notes,
+            'created_by' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Visitor created successfully!',
+            'visitor' => $visitor
+        ]);
+    })->name('visitor.create');
+    
+    Route::post('/account/password/change-request', function (Request $request) {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = auth()->user();
+        
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'The current password is incorrect.']);
+        }
+
+        // Generate and send verification code
+        $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        Cache::put('password_change_' . $user->id, $code, now()->addMinutes(10));
+        
+        // Send code to user's email
+        Mail::to($user->email)->send(new TwoFactorCodeMail($code));
+
+        return back()->with('success', 'Verification code sent to your email.');
+    })->name('account.password.change.request');
+
+    Route::post('/account/password/change-verify', function (Request $request) {
+        $request->validate([
+            'code' => 'required|string|size:6',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = auth()->user();
+        $cachedCode = Cache::get('password_change_' . $user->id);
+
+        if (!$cachedCode || $cachedCode !== $request->code) {
+            return back()->withErrors(['code' => 'Invalid or expired verification code.']);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        // Clear the verification code
+        Cache::forget('password_change_' . $user->id);
+
+        return back()->with('success', 'Password changed successfully.');
+    })->name('account.password.change.verify');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/account/update', [ProfileController::class, 'update'])->name('account.update');
+    Route::patch('/privacy/update', [ProfileController::class, 'updatePrivacy'])->name('privacy.update');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/security', [ProfileController::class, 'updateSecurity'])->name('profile.security');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // Account Management
-    // Profile Security Settings
-    Route::patch('/profile/security', function (\Illuminate\Http\Request $request) {
-        // Validate the request
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        // Update the user's password
-        $user = $request->user();
-        $user->update([
-            'password' => \Illuminate\Support\Facades\Hash::make($validated['new_password'])
-        ]);
-
-        return back()->with('success', 'Password updated successfully!');
-    })->name('profile.security');
-
-    Route::post('/account/update', function (\Illuminate\Http\Request $request) {
-        // Validate the request
-        $validated = $request->validate([
-            'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-        ]);
-
-        // Update the user
-        $user = auth()->user();
-        $user->name = $validated['username'];
-        $user->email = $validated['email'];
-        $user->save();
-
-        return back()->with('success', 'Account updated successfully!');
-    })->name('account.update');
-
-    // Privacy & Security Management
-    Route::post('/privacy/update', function (\Illuminate\Http\Request $request) {
-        $user = auth()->user();
-        
-        // Validate the request
-        $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
-
-        // Update password
-        $user->update([
-            'password' => bcrypt($validated['new_password'])
-        ]);
-
-        return back()->with('success', 'Password updated successfully!');
-    })->name('privacy.update');
-
-    // Permission Management Routes
-    Route::prefix('permissions')->group(function () {
-        // Store a new permission
-        Route::post('/', function (\Illuminate\Http\Request $request) {
-            $validated = $request->validate([
-                'permission_type' => 'required|in:user,group,department',
-                'user' => 'nullable|integer',
-                'group' => 'nullable|integer',
-                'role' => 'required|in:admin,editor,viewer,custom',
-                'document_type' => 'required|in:all,financial,hr,legal,other',
-                'permissions' => 'nullable|array',
-                'permissions.*' => 'string|in:view,edit,delete,share,download,print',
-                'notes' => 'nullable|string|max:500'
-            ]);
-
-            $id = \Illuminate\Support\Facades\DB::table('permissions')->insertGetId([
-                'type' => $validated['permission_type'],
-                'user_id' => $validated['user'] ?? null,
-                'group_id' => $validated['group'] ?? null,
-                'role' => $validated['role'],
-                'document_type' => $validated['document_type'],
-                'permissions' => json_encode($validated['permissions'] ?? ($validated['role'] === 'custom' ? [] : defaultPermissionsForRole($validated['role']))),
-                'notes' => $validated['notes'] ?? null,
-                'status' => 'active',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-
-            $row = \Illuminate\Support\Facades\DB::table('permissions')->where('id', $id)->first();
-            return response()->json([
-                'success' => true,
-                'message' => 'Permission created successfully',
-                'permission' => $row
-            ]);
-        })->name('permissions.store');
-        
-        // Update an existing permission
-        Route::put('/{id}', function (\Illuminate\Http\Request $request, $id) {
-            $validated = $request->validate([
-                'permission_type' => 'required|in:user,group,department',
-                'user' => 'nullable|integer',
-                'group' => 'nullable|integer',
-                'role' => 'required|in:admin,editor,viewer,custom',
-                'document_type' => 'required|in:all,financial,hr,legal,other',
-                'permissions' => 'nullable|array',
-                'permissions.*' => 'string|in:view,edit,delete,share,download,print',
-                'notes' => 'nullable|string|max:500',
-                'status' => 'sometimes|in:active,inactive'
-            ]);
-            
-            \Illuminate\Support\Facades\DB::table('permissions')->where('id', $id)->update([
-                'type' => $validated['permission_type'],
-                'user_id' => $validated['user'] ?? null,
-                'group_id' => $validated['group'] ?? null,
-                'role' => $validated['role'],
-                'document_type' => $validated['document_type'],
-                'permissions' => json_encode($validated['permissions'] ?? ($validated['role'] === 'custom' ? [] : defaultPermissionsForRole($validated['role']))),
-                'notes' => $validated['notes'] ?? null,
-                'status' => $validated['status'] ?? 'active',
-                'updated_at' => now(),
-            ]);
-            $row = \Illuminate\Support\Facades\DB::table('permissions')->where('id', $id)->first();
-            return response()->json([
-                'success' => true,
-                'message' => 'Permission updated successfully',
-                'permission' => $row
-            ]);
-        })->name('permissions.update');
-        
-        // Delete a permission
-        Route::delete('/{id}', function ($id) {
-            // In a real application, you would delete the permission from the database
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Permission deleted successfully',
-                'id' => $id
-            ]);
-        })->name('permissions.destroy');
-        
-        // Get permission details
-        Route::get('/{id}', function ($id) {
-            $row = \Illuminate\Support\Facades\DB::table('permissions')->where('id', $id)->first();
-            if (!$row) {
-                return response()->json(['success' => false, 'message' => 'Permission not found'], 404);
-            }
-            // Decode permissions JSON
-            $row->permissions = is_array($row->permissions) ? $row->permissions : (json_decode($row->permissions, true) ?: []);
-            return response()->json([
-                'success' => true,
-                'permission' => $row
-            ]);
-        })->name('permissions.show');
-    });
-    
-    // Add your other protected routes here
 });

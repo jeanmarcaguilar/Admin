@@ -191,6 +191,17 @@ $user = auth()->user();
       </div>
     </div>
   </nav>
+  <script>
+    (function(){
+      if (typeof window.openCaseWithConfGate !== 'function'){
+        window.openCaseWithConfGate = function(href){
+          try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+          if (href){ window.location.href = href; }
+          return false;
+        };
+      }
+    })();
+  </script>
 
   <!-- User Menu Dropdown -->
   <div id="userMenuDropdown" onclick="event.stopPropagation();" class="hidden fixed right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index: 60;" role="menu" aria-labelledby="userMenuBtn">
@@ -292,18 +303,17 @@ $user = auth()->user();
             </a>
           </li>
           <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
-                <i class="bx bx-calendar-check"></i>
-                <span>Facilities Reservations</span>
+                <i class="bx bx-group"></i>
+                <span>Visitor Management</span>
               </div>
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
             <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li class="has-dropdown">
@@ -321,6 +331,21 @@ $user = auth()->user();
               <li><a href="{{ route('document.archival.retention.policy') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-archive mr-2"></i>Archival & Retention Policy</a></li>
             </ul>
           </li>
+          <li class="has-dropdown active">
+            <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+              <div class="flex items-center space-x-2">
+                <i class="bx bx-calendar-check"></i>
+                <span>Facilities Management</span>
+              </div>
+              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+            </div>
+            <ul class="dropdown-menu active bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+            </ul>
+          </li>
           <li class="has-dropdown">
             <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
@@ -330,24 +355,10 @@ $user = auth()->user();
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
             <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
               <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
               <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
               <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-            </ul>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-group"></i>
-                <span>Visitor Management</span>
-              </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-            </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li>
@@ -388,98 +399,62 @@ $user = auth()->user();
               </div>
               <form id="combinedBookingForm" class="space-y-4" action="{{ route('booking.combined') }}" method="POST" novalidate>
                 @csrf
-                <!-- Booking Mode -->
-                <fieldset class="border border-gray-200 rounded-md p-3">
-                  <legend class="text-sm font-semibold text-gray-700">Booking Type</legend>
-                  <div class="mt-2 flex flex-wrap gap-4 text-sm">
-                    <label class="inline-flex items-center gap-2">
-                      <input type="radio" name="booking_mode" value="both" class="text-[#2f855A]" checked>
-                      <span>Room + Equipment</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2">
-                      <input type="radio" name="booking_mode" value="room" class="text-[#2f855A]">
-                      <span>Room only</span>
-                    </label>
-                    <label class="inline-flex items-center gap-2">
-                      <input type="radio" name="booking_mode" value="equipment" class="text-[#2f855A]">
-                      <span>Equipment only</span>
-                    </label>
-                  </div>
-                  <p class="mt-2 text-xs text-gray-500">Choose what you need to book. The form will adjust automatically.</p>
-                </fieldset>
                 
-                <!-- Booking Details Section -->
-                <div class="space-y-4">
-                  <h4 class="text-md font-semibold text-gray-700 border-b pb-2">Booking Details</h4>
-                  
-                  <!-- Room Selection -->
-                  <div id="roomSection" class="form-group">
+                <!-- What to Book -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="form-group">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Select Room <span class="text-red-500">*</span></label>
-                    <select name="room" id="roomSelect" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
+                    <select name="room" id="roomSelect" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" required>
                       <option value="">-- Select a room --</option>
-                      <option value="conference">Conference Room (Max: 20pax)</option>
-                      <option value="meeting">Meeting Room (Max: 10pax)</option>
-                      <option value="training">Training Room (Max: 30pax)</option>
+                      <option value="conference">Conference Room</option>
+                      <option value="meeting">Meeting Room</option>
+                      <option value="training">Training Room</option>
                     </select>
                   </div>
                   
-                  <!-- Equipment Selection -->
-                  <div id="equipmentSection" class="form-group">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Add Equipment (Optional)</label>
-                    <div id="equipmentContainer">
-                      <div class="flex items-end space-x-2 mb-2">
-                        <div class="flex-1">
-                          <select name="equipment[]" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                            <option value="">-- Select equipment --</option>
-                            <option value="projector">Projector</option>
-                            <option value="laptop">Laptop</option>
-                            <option value="camera">Camera</option>
-                            <option value="audio">Audio System</option>
-                            <option value="whiteboard">Whiteboard</option>
-                          </select>
-                        </div>
-                        <div class="w-24">
-                          <input type="number" name="quantity[]" min="1" max="10" value="1" placeholder="Qty" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                        </div>
-                        <button type="button" onclick="removeEquipment(this)" class="text-red-500 hover:text-red-700">
-                          <i class="bx bx-trash"></i>
-                        </button>
-                      </div>
-                    </div>
-                    <button type="button" onclick="addEquipment()" class="mt-2 text-sm text-[#2f855A] hover:text-[#1a4d38] flex items-center">
-                      <i class="bx bx-plus mr-1"></i> Add Another Equipment
-                    </button>
+                  <div class="form-group">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Equipment (Optional)</label>
+                    <select name="equipment[]" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
+                      <option value="">No equipment needed</option>
+                      <option value="projector">Projector</option>
+                      <option value="laptop">Laptop</option>
+                      <option value="audio">Audio System</option>
+                    </select>
                   </div>
-                  
-                  <!-- Date and Time Selection -->
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                </div>
+                
+                <!-- Lead Time and Date/Time -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="form-group">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Lead Time (days before event)</label>
+                    <input type="number" name="lead_time" min="0" max="30" value="0" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" placeholder="How many days needed to prepare?">
+                  </div>
+                  <div class="space-y-4">
                     <div class="form-group">
                       <label class="block text-sm font-medium text-gray-700 mb-1">Date <span class="text-red-500">*</span></label>
                       <input type="date" name="date" id="bookingDate" min="{{ date('Y-m-d') }}" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" required>
                     </div>
-                    <div class="form-group">
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Start Time <span class="text-red-500">*</span></label>
-                      <input type="time" name="start_time" id="startTime" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Start Time <span class="text-red-500">*</span></label>
+                        <input type="time" name="start_time" id="startTime" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" required>
+                      </div>
+                      <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">End Time <span class="text-red-500">*</span></label>
+                        <input type="time" name="end_time" id="endTime" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" required>
+                      </div>
                     </div>
-                    <div class="form-group">
-                      <label class="block text-sm font-medium text-gray-700 mb-1">End Time <span class="text-red-500">*</span></label>
-                      <input type="time" name="end_time" id="endTime" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" required>
-                    </div>
-                    <div class="form-group">
-                      <label class="block text-sm font-medium text-gray-700 mb-1">Return Equipment Date</label>
-                      <input type="date" name="return_date" id="returnDate" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-                    </div>
-                  </div>
-                  
-                  <!-- Purpose -->
-                  <div class="form-group">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Purpose <span class="text-red-500">*</span></label>
-                    <textarea name="purpose" rows="3" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" placeholder="Briefly describe the purpose of the booking" required></textarea>
                   </div>
                 </div>
+                
+                <!-- Purpose -->
+                <div class="form-group">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Purpose <span class="text-red-500">*</span></label>
+                  <textarea name="purpose" rows="2" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent" placeholder="What's this booking for?" required></textarea>
+                </div>
 
-                <button id="submitBookingBtn" type="submit" class="w-full bg-[#2f855A] text-white py-2 px-4 rounded-md hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
-                  Submit Booking
+                <button id="submitBookingBtn" type="submit" class="w-full bg-[#2f855A] text-white py-3 px-4 rounded-md hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2 font-medium">
+                  Book Now
                 </button>
               </form>
             </div>
@@ -1089,48 +1064,6 @@ $user = auth()->user();
         closeAllDropdowns();
       });
 
-      // Set minimum return date to be same as booking date
-      document.getElementById('bookingDate')?.addEventListener('change', function() {
-        const returnDate = document.getElementById('returnDate');
-        if (returnDate) {
-          returnDate.min = this.value;
-          if (returnDate.value && returnDate.value < this.value) {
-            returnDate.value = this.value;
-          }
-        }
-      });
-
-      // Function to add equipment field
-      window.addEquipment = function() {
-        const container = document.getElementById('equipmentContainer');
-        const equipmentDiv = document.createElement('div');
-        equipmentDiv.className = 'flex items-end space-x-2 mb-2';
-        equipmentDiv.innerHTML = `
-          <div class="flex-1">
-            <select name="equipment[]" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-              <option value="">-- Select equipment --</option>
-              <option value="projector">Projector</option>
-              <option value="laptop">Laptop</option>
-              <option value="camera">Camera</option>
-              <option value="audio">Audio System</option>
-              <option value="whiteboard">Whiteboard</option>
-            </select>
-          </div>
-          <div class="w-24">
-            <input type="number" name="quantity[]" min="1" max="10" value="1" placeholder="Qty" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:border-transparent">
-          </div>
-          <button type="button" onclick="removeEquipment(this)" class="text-red-500 hover:text-red-700">
-            <i class="bx bx-trash"></i>
-          </button>
-        `;
-        container.appendChild(equipmentDiv);
-      };
-
-      // Function to remove equipment field
-      window.removeEquipment = function(button) {
-        button.parentElement.remove();
-      };
-
       // Function to show error message
       function showErrorMessage(message) {
         Swal.fire({
@@ -1486,20 +1419,17 @@ $user = auth()->user();
         // Get form data
         const formData = new FormData(this);
         const formObject = {};
+        
+        // Process equipment data (simplified - single equipment)
+        const equipment = formData.get('equipment[]');
         const equipmentData = [];
         
-        // Process equipment data
-        const equipmentItems = formData.getAll('equipment[]');
-        const quantities = formData.getAll('quantity[]');
-        
-        equipmentItems.forEach((equipment, index) => {
-          if (equipment && equipment !== '-- Select equipment --') {
-            equipmentData.push({
-              name: equipment,
-              quantity: parseInt(quantities[index] || 1, 10)
-            });
-          }
-        });
+        if (equipment && equipment !== 'No equipment needed') {
+          equipmentData.push({
+            name: equipment,
+            quantity: 1 // Default quantity for simplified form
+          });
+        }
         
         // Build the form object with proper structure
         formObject.room = formData.get('room') || null;
@@ -1507,7 +1437,7 @@ $user = auth()->user();
         formObject.date = formData.get('date') || new Date().toISOString().split('T')[0];
         formObject.start_time = formData.get('start_time') || null;
         formObject.end_time = formData.get('end_time') || null;
-        formObject.return_date = formData.get('return_date') || null;
+        formObject.lead_time = formData.get('lead_time') || 0; // Add lead time field
         formObject.equipment_data = equipmentData;
         formObject.status = 'pending'; // Default status
         
@@ -1540,20 +1470,7 @@ $user = auth()->user();
           showSuccessMessage('Booking created successfully');
           
           // Reset form
-          // Add the booking to the table immediately with the response data
-          if (responseData.booking || responseData) {
-            addBookingToTable(responseData.booking || responseData);
-          }
           this.reset();
-          
-          // Reset equipment container
-          const equipmentContainer = document.getElementById('equipmentContainer');
-          if (equipmentContainer) {
-            const firstChild = equipmentContainer.firstElementChild;
-            while (equipmentContainer.children.length > 1) {
-              equipmentContainer.removeChild(equipmentContainer.lastChild);
-            }
-          }
           
           // Redirect to calendar page to see the new booking
           setTimeout(() => {

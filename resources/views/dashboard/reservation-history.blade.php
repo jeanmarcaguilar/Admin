@@ -3,7 +3,63 @@
 $user = auth()->user();
 
 // Use provided $bookings (from route) or fallback to session store
-$bookings = $bookings ?? session('calendar_bookings', []);
+$bookings = $bookings ?? session('calendar_bookings', [
+    [
+        'id' => 'RES-001',
+        'name' => 'Conference Room A',
+        'type' => 'room',
+        'date' => '2025-01-25',
+        'start_time' => '09:00',
+        'end_time' => '11:00',
+        'status' => 'approved',
+        'lead_time' => '3',
+        'purpose' => 'Team meeting'
+    ],
+    [
+        'id' => 'RES-002',
+        'name' => 'Projector',
+        'type' => 'equipment',
+        'date' => '2025-01-26',
+        'start_time' => '14:00',
+        'end_time' => '16:00',
+        'status' => 'pending',
+        'lead_time' => '2',
+        'purpose' => 'Client presentation'
+    ],
+    [
+        'id' => 'RES-003',
+        'name' => 'Training Room B',
+        'type' => 'room',
+        'date' => '2025-01-28',
+        'start_time' => '10:00',
+        'end_time' => '17:00',
+        'status' => 'completed',
+        'lead_time' => '7',
+        'purpose' => 'Employee training'
+    ],
+    [
+        'id' => 'RES-004',
+        'name' => 'Audio System',
+        'type' => 'equipment',
+        'date' => '2025-01-30',
+        'start_time' => '13:00',
+        'end_time' => '15:00',
+        'status' => 'rejected',
+        'lead_time' => '1',
+        'purpose' => 'Company event'
+    ],
+    [
+        'id' => 'RES-005',
+        'name' => 'Meeting Room C',
+        'type' => 'room',
+        'date' => '2025-02-02',
+        'start_time' => '15:00',
+        'end_time' => '17:00',
+        'status' => 'pending',
+        'lead_time' => '5',
+        'purpose' => 'Board meeting'
+    ]
+]);
 // Map approval requests to enrich "Requested By" when available
 $approvalMap = collect(session('approval_requests', []))->keyBy('id');
 @endphp
@@ -196,7 +252,18 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
       </div>
     </div>
   </nav>
-
+  <script>
+    (function(){
+      if (typeof window.openCaseWithConfGate !== 'function'){
+        window.openCaseWithConfGate = function(href){
+          try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+          if (href){ window.location.href = href; }
+          return false;
+        };
+      }
+    })();
+  </script>
+ 
   <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
     <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
       <span class="font-semibold text-sm">Notifications</span>
@@ -263,16 +330,15 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
           <li class="has-dropdown">
             <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
-                <i class="bx bx-calendar-check"></i>
-                <span>Facilities Reservations</span>
+                <i class="bx bx-group"></i>
+                <span>Visitor Management</span>
               </div>
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
             <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li class="has-dropdown">
@@ -293,31 +359,31 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
           <li class="has-dropdown">
             <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
+                <i class="bx bx-calendar-check"></i>
+                <span>Facilities Management</span>
+              </div>
+              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+            </div>
+            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+            </ul>
+          </li>
+          <li class="has-dropdown">
+            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+              <div class="flex items-center space-x-2">
                 <i class="bx bx-file"></i>
                 <span>Legal Management</span>
               </div>
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
             <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
               <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
               <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
               <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-            </ul>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-group"></i>
-                <span>Visitor Management</span>
-              </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-            </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-             
-              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li>
@@ -369,6 +435,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Facility</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested By</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead Time</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Decision Notes</th>
                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -412,6 +479,16 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                       @endphp
                       <div class="text-sm text-gray-900">{{ $dateStr }}</div>
                       <div class="text-sm text-gray-500">{{ $timeStr ?: '—' }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      @php
+                        $leadTime = $reservation['lead_time'] ?? null;
+                        $leadTimeDisplay = $leadTime ? $leadTime . ' days' : 'Not specified';
+                      @endphp
+                      <div class="text-sm text-gray-900">{{ $leadTimeDisplay }}</div>
+                      @if($leadTime)
+                        <div class="text-xs text-gray-500">Preparation time</div>
+                      @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                       @php
@@ -476,7 +553,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                   </tr>
                   @empty
                   <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                    <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                       <i class="fas fa-inbox text-4xl text-gray-300 mb-2"></i>
                       <p class="text-sm">No reservation history found</p>
                     </td>
@@ -1144,6 +1221,155 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
           }
           closeAllDropdowns();
         });
+
+        // Lock synchronization with scheduling calendar
+        function updateReservationHistoryLockState(isLocked) {
+          const tableRows = document.querySelectorAll('tbody tr');
+          
+          tableRows.forEach(row => {
+            // Skip the "No reservation history found" row
+            if (row.querySelector('td[colspan]')) return;
+            
+            const idCell = row.querySelector('td:nth-child(1)');
+            const titleCell = row.querySelector('td:nth-child(2) .text-sm.font-medium');
+            const typeCell = row.querySelector('td:nth-child(2) .text-sm.text-gray-500');
+            const requestedByCell = row.querySelector('td:nth-child(3) .text-sm');
+            const dateCell = row.querySelector('td:nth-child(4) .text-sm:first-child');
+            const timeCell = row.querySelector('td:nth-child(4) .text-sm:last-child');
+            const leadTimeCell = row.querySelector('td:nth-child(5) .text-sm');
+            const statusCell = row.querySelector('td:nth-child(6) .status-badge');
+            const decisionNoteCell = row.querySelector('td:nth-child(7)');
+            const viewButton = row.querySelector('td:nth-child(8) button');
+            
+            if (isLocked) {
+              // Store original data if not already stored
+              if (!row.dataset.originalData) {
+                row.dataset.originalData = JSON.stringify({
+                  id: idCell?.textContent || '',
+                  title: titleCell?.textContent || '',
+                  type: typeCell?.textContent || '',
+                  requestedBy: requestedByCell?.textContent || '',
+                  date: dateCell?.textContent || '',
+                  time: timeCell?.textContent || '',
+                  leadTime: leadTimeCell?.textContent || '',
+                  status: statusCell?.textContent || '',
+                  statusClass: statusCell?.className || '',
+                  decisionNote: decisionNoteCell?.innerHTML || ''
+                });
+              }
+              
+              // Mask the data
+              if (idCell) {
+                idCell.textContent = '****';
+              }
+              if (titleCell) {
+                titleCell.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+              }
+              if (typeCell) {
+                typeCell.textContent = '****';
+              }
+              if (requestedByCell) {
+                requestedByCell.textContent = '****';
+              }
+              if (dateCell) {
+                dateCell.textContent = '** ** ****';
+              }
+              if (timeCell && timeCell.textContent !== '—') {
+                timeCell.textContent = '**:**** - **:****';
+              }
+              if (leadTimeCell) {
+                const text = leadTimeCell.textContent;
+                leadTimeCell.textContent = text.includes('days') ? '** days' : '****';
+              }
+              if (statusCell) {
+                statusCell.textContent = '****';
+                statusCell.className = 'status-badge bg-gray-100 text-gray-800';
+              }
+              if (decisionNoteCell && !decisionNoteCell.querySelector('.text-gray-400')) {
+                decisionNoteCell.innerHTML = '<span class="text-gray-400">****</span>';
+              }
+              
+              // Disable view button
+              if (viewButton) {
+                viewButton.disabled = true;
+                viewButton.style.opacity = '0.5';
+                viewButton.style.cursor = 'not-allowed';
+                viewButton.style.pointerEvents = 'none';
+              }
+              
+              // Add lock styling to row
+              row.style.opacity = '0.7';
+              row.classList.add('locked-row');
+            } else {
+              // Restore original data
+              if (row.dataset.originalData) {
+                try {
+                  const originalData = JSON.parse(row.dataset.originalData);
+                  
+                  if (idCell) {
+                    idCell.textContent = originalData.id;
+                  }
+                  if (titleCell) {
+                    titleCell.innerHTML = originalData.title;
+                  }
+                  if (typeCell) {
+                    typeCell.textContent = originalData.type;
+                  }
+                  if (requestedByCell) {
+                    requestedByCell.textContent = originalData.requestedBy;
+                  }
+                  if (dateCell) {
+                    dateCell.textContent = originalData.date;
+                  }
+                  if (timeCell) {
+                    timeCell.textContent = originalData.time;
+                  }
+                  if (leadTimeCell) {
+                    leadTimeCell.textContent = originalData.leadTime;
+                  }
+                  if (statusCell) {
+                    statusCell.textContent = originalData.status;
+                    statusCell.className = originalData.statusClass;
+                  }
+                  if (decisionNoteCell && originalData.decisionNote) {
+                    decisionNoteCell.innerHTML = originalData.decisionNote;
+                  }
+                } catch (e) {
+                  console.error('Error restoring original data:', e);
+                }
+              }
+              
+              // Restore view button
+              if (viewButton) {
+                viewButton.disabled = false;
+                viewButton.style.opacity = '1';
+                viewButton.style.cursor = 'pointer';
+                viewButton.style.pointerEvents = 'auto';
+              }
+              
+              // Remove lock styling from row
+              row.style.opacity = '1';
+              row.classList.remove('locked-row');
+            }
+          });
+        }
+
+        // Check and apply lock state on page load
+        function checkAndApplyLockState() {
+          const isLocked = localStorage.getItem('reservationsLocked') === 'true';
+          updateReservationHistoryLockState(isLocked);
+        }
+
+        // Listen for storage changes (for cross-tab synchronization)
+        window.addEventListener('storage', (e) => {
+          if (e.key === 'reservationsLocked') {
+            const isLocked = e.newValue === 'true';
+            updateReservationHistoryLockState(isLocked);
+          }
+        });
+
+        // Apply lock state on page load
+        checkAndApplyLockState();
       });
     </script>
 </body>

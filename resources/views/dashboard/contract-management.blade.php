@@ -74,6 +74,33 @@ $user = auth()->user();
             z-index: 60;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+
+        /* Match New Case overlay style for Add Contract modal */
+        #addContractModal {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        /* Match overlay style for View Contract modal as well */
+        #viewContractModal {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        /* Match overlay style for Edit Contract modal */
+        #editContractModal {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+        }
+        /* Match overlay style for Delete Contract modal */
+        #deleteContractModal {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         .modal.active {
@@ -179,6 +206,16 @@ $user = auth()->user();
             </div>
         </div>
     </nav>
+    <script>
+      (function(){
+        if (typeof window.openCaseWithConfGate !== 'function'){
+          window.openCaseWithConfGate = function(href){
+            if (href){ window.location.href = href; }
+            return false;
+          };
+        }
+      })();
+    </script>
     <script>
       if (typeof window.toggleUserMenu !== 'function') {
         window.toggleUserMenu = function(ev){
@@ -563,16 +600,15 @@ $user = auth()->user();
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Reservations</span>
+                                <i class="bx bx-group"></i>
+                                <span>Visitor Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown">
@@ -593,30 +629,31 @@ $user = auth()->user();
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
+                                <i class="bx bx-calendar-check"></i>
+                                <span>Facilities Management</span>
+                            </div>
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+                        </div>
+                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-dropdown">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                            <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Legal Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
                             <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
                             <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
                             <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li>
@@ -654,61 +691,84 @@ $user = auth()->user();
                         </div>
                     </div>
                     <!-- Stats Cards -->
-                    @php
-                        $list = is_iterable($contracts ?? []) ? $contracts : [];
-                        $totalContracts = 0;
-                        $activeCount = 0;
-                        $pendingCount = 0;
-                        foreach ($list as $item) {
-                            $status = is_array($item) ? strtolower($item['status'] ?? '') : strtolower($item->status ?? '');
-                            $totalContracts++;
-                            if ($status === 'active') { $activeCount++; }
-                            if ($status === 'pending') { $pendingCount++; }
-                        }
-                        $activePct = $totalContracts > 0 ? round(($activeCount / $totalContracts) * 100) : 0;
-                        $pendingPct = $totalContracts > 0 ? round(($pendingCount / $totalContracts) * 100) : 0;
-                    @endphp
-                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
+                    <!-- Stats Cards -->
+                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <!-- Total Contracts -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-800">Active Contracts</p>
-                                    <p id="activeCountEl" class="font-extrabold text-3xl mt-1 text-gray-900">{{ $activeCount }}</p>
-                                    <p class="text-xs text-gray-500 mt-1"><span id="activeCountText">{{ $activeCount }}</span> of <span id="totalContractsText">{{ $totalContracts }}</span> total</p>
+                                    <p class="text-sm font-medium text-gray-500">Total Contracts</p>
+                                    <p class="text-2xl font-bold text-gray-800 mt-1">{{ $stats['total'] ?? 0 }}</p>
                                 </div>
-                                <div class="p-4 rounded-full bg-blue-100 text-blue-600">
-                                    <i class="fas fa-file-contract text-2xl"></i>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div id="activeBar" class="bg-blue-500 h-2.5 rounded-full" style="width: {{ $activePct }}%"></div>
-                                </div>
-                                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                    <span id="activePctEl">{{ $activePct }}%</span>
-                                    <span>Total: <span id="activeTotalEl">{{ $totalContracts }}</span></span>
+                                <div class="p-3 rounded-full bg-blue-50 text-blue-600">
+                                    <i class="fas fa-file-contract text-xl"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
+
+                        <!-- Active Contracts -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-semibold text-gray-800">Pending Review</p>
-                                    <p id="pendingCountEl" class="font-extrabold text-3xl mt-1 text-gray-900">{{ $pendingCount }}</p>
-                                    <p class="text-xs text-gray-500 mt-1"><span id="pendingCountText">{{ $pendingCount }}</span> of <span>{{ $totalContracts }}</span> total</p>
+                                    <p class="text-sm font-medium text-gray-500">Active</p>
+                                    <p class="text-2xl font-bold text-green-600 mt-1">{{ $stats['active'] ?? 0 }}</p>
                                 </div>
-                                <div class="p-4 rounded-full bg-green-100 text-green-600">
-                                    <i class="fas fa-search text-2xl"></i>
+                                <div class="p-3 rounded-full bg-green-50 text-green-600">
+                                    <i class="fas fa-check-circle text-xl"></i>
                                 </div>
                             </div>
                             <div class="mt-4">
-                                <div class="w-full bg-gray-200 rounded-full h-2.5">
-                                    <div id="pendingBar" class="bg-green-500 h-2.5 rounded-full" style="width: {{ $pendingPct }}%"></div>
+                                @php
+                                    $activePercent = $stats['total'] > 0 ? round(($stats['active'] / $stats['total']) * 100) : 0;
+                                @endphp
+                                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-green-500 rounded-full" style="width: {{ $activePercent }}%"></div>
                                 </div>
-                                <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                    <span id="pendingPctEl">{{ $pendingPct }}%</span>
-                                    <span>Total: <span id="pendingTotalEl">{{ $totalContracts }}</span></span>
+                                <p class="text-xs text-gray-500 mt-1 text-right">{{ $activePercent }}% of total</p>
+                            </div>
+                        </div>
+
+                        <!-- Pending Review -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Pending Review</p>
+                                    <p class="text-2xl font-bold text-yellow-600 mt-1">{{ $stats['pending'] ?? 0 }}</p>
                                 </div>
+                                <div class="p-3 rounded-full bg-yellow-50 text-yellow-600">
+                                    <i class="fas fa-clock text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                @php
+                                    $pendingPercent = $stats['total'] > 0 ? round(($stats['pending'] / $stats['total']) * 100) : 0;
+                                @endphp
+                                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-yellow-500 rounded-full" style="width: {{ $pendingPercent }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1 text-right">{{ $pendingPercent }}% of total</p>
+                            </div>
+                        </div>
+
+                        <!-- Expiring Soon -->
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Expiring Soon</p>
+                                    <p class="text-2xl font-bold text-red-600 mt-1">{{ $stats['expiring'] ?? 0 }}</p>
+                                </div>
+                                <div class="p-3 rounded-full bg-red-50 text-red-600">
+                                    <i class="fas fa-exclamation-triangle text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                @php
+                                    $expiringPercent = $stats['total'] > 0 ? round(($stats['expiring'] / $stats['total']) * 100) : 0;
+                                @endphp
+                                <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full bg-red-500 rounded-full" style="width: {{ $expiringPercent }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1 text-right">{{ $expiringPercent }}% of total</p>
                             </div>
                         </div>
                     </section>
@@ -734,6 +794,19 @@ $user = auth()->user();
                                     <option value="nda">NDA</option>
                                     <option value="service">Service</option>
                                     <option value="employment">Employment</option>
+                                    <option value="employee">Employee</option>
+                                    <option value="consultancy">Consultancy</option>
+                                    <option value="internship">Internship</option>
+                                    <option value="probation">Probation</option>
+                                    <option value="vendor">Vendor</option>
+                                    <option value="supplier">Supplier</option>
+                                    <option value="lease">Lease</option>
+                                    <option value="license">License</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="purchase">Purchase</option>
+                                    <option value="sales">Sales</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="loan">Loan</option>
                                 </select>
                                 <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
                                     <i class="fas fa-filter text-gray-600 mr-2"></i>
@@ -743,55 +816,282 @@ $user = auth()->user();
                         </div>
                     </section>
 
-                    <!-- Contracts Table -->
-                    <section class="bg-gradient-to-br from-white to-gray-50 rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract ID</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
+                    <!-- Lock Button Section -->
+                    <div class="flex justify-end mb-4">
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-lock text-gray-500"></i>
+                                    <span class="text-sm font-medium text-gray-700">Secure Access</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                                    @forelse(($contracts ?? []) as $c)
-                                        @php
-                                            $badge = $c->type === 'nda' ? 'NDA' : ($c->type === 'service' ? 'Service' : 'Employment');
-                                            $statusLabel = ucfirst($c->status);
-                                            $statusClasses = $c->status === 'active' ? 'bg-green-100 text-green-800' : ($c->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-700');
-                                        @endphp
-                                        <tr class="table-row" data-code="{{ $c->code }}">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">{{ $c->code }}</div>
-                                                <div class="text-xs text-gray-500">Created: {{ $c->created_on ?? '—' }}</div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm font-medium text-gray-900">{{ $c->title }}</div>
-                                                <div class="text-xs text-gray-500">{{ $c->company ?? '—' }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">{{ $badge }}</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses }}">{{ $statusLabel }}</span>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <a href="#" class="viewContractBtn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View" data-id="{{ $c->code }}" data-title="{{ $c->title }}" data-company="{{ $c->company }}" data-type="{{ $badge }}" data-status="{{ $statusLabel }}" data-created="{{ $c->created_on ?? '' }}">View</a>
-                                                <a href="#" class="editContractBtn text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit" data-id="{{ $c->code }}" data-title="{{ $c->title }}" data-company="{{ $c->company }}" data-type="{{ $c->type }}" data-status="{{ $c->status }}" data-created="{{ $c->created_on ?? '' }}">Edit</a>
-                                                <a href="#" class="deleteContractBtn text-red-600 hover:text-red-900" data-tooltip="Delete" data-id="{{ $c->code }}" data-title="{{ $c->title }}">Delete</a>
-                                            </td>
-                                        </tr>
-                                    @empty
+                    <!-- Contracts Table -->
+                    <section class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-base font-semibold text-gray-900">Contract Management</h3>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
                                         <tr>
-                                            <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">No contracts found.</td>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        @forelse(($contracts ?? []) as $c)
+                                            @php
+                                                // Initialize status value with default 'draft' if not set
+                                                $statusValue = strtolower($c->contract_status ?? $c->status ?? 'draft');
+                                                
+                                                // Set default dates if not set
+                                                $startDate = $c->contract_start_date ?? $c->start_date ?? null;
+                                                $endDate = $c->contract_end_date ?? $c->end_date ?? $c->expires_on ?? $c->contract_expiration ?? null;
+                                                
+                                                // Convert string dates to Carbon instances if they exist
+                                                $startDate = $startDate ? \Carbon\Carbon::parse($startDate) : null;
+                                                $endDate = $endDate ? \Carbon\Carbon::parse($endDate) : null;
+
+                                                $startDateDisplay = (!empty($c->formatted_start_date) && $c->formatted_start_date !== 'N/A')
+                                                    ? $c->formatted_start_date
+                                                    : ($startDate ? $startDate->format('M d, Y') : null);
+                                                $endDateDisplay = (!empty($c->formatted_end_date) && $c->formatted_end_date !== 'N/A')
+                                                    ? $c->formatted_end_date
+                                                    : ($endDate ? $endDate->format('M d, Y') : null);
+                                                
+                                                // Calculate days remaining and status
+                                                $daysRemaining = null;
+                                                $isExpired = false;
+                                                $isExpiringSoon = false;
+                                                
+                                                if ($endDate) {
+                                                    $now = now();
+                                                    $daysRemaining = $now->diffInDays($endDate, false);
+                                                    $isExpired = $daysRemaining < 0;
+                                                    $isExpiringSoon = $daysRemaining >= 0 && $daysRemaining <= 30;
+                                                    
+                                                    // Auto-update status based on dates if not explicitly set
+                                                    if ($isExpired && $statusValue !== 'terminated') {
+                                                        $statusValue = 'expired';
+                                                    } elseif ($isExpiringSoon && $statusValue === 'active') {
+                                                        $statusValue = 'active';
+                                                    }
+                                                }
+                                                
+                                                // Ensure status is one of the expected values
+                                                $validStatuses = ['draft', 'active', 'pending', 'expired', 'terminated', 'renewed'];
+                                                if (!in_array($statusValue, $validStatuses)) {
+                                                    $statusValue = 'draft'; // Default to draft if status is invalid
+                                                }
+                                                
+                                                $statusConfig = [
+                                                    'draft' => [
+                                                        'bg' => 'bg-gray-100',
+                                                        'text' => 'text-gray-800',
+                                                        'ring' => 'ring-gray-300',
+                                                        'icon' => 'fa-file-lines',
+                                                        'label' => 'Draft'
+                                                    ],
+                                                    'active' => [
+                                                        'bg' => 'bg-green-50',
+                                                        'text' => 'text-green-800',
+                                                        'ring' => 'ring-green-600/20',
+                                                        'icon' => 'fa-circle-check',
+                                                        'label' => 'Active'
+                                                    ],
+                                                    'expired' => [
+                                                        'bg' => 'bg-red-50',
+                                                        'text' => 'text-red-800',
+                                                        'ring' => 'ring-red-600/20',
+                                                        'icon' => 'fa-clock-rotate-left',
+                                                        'label' => 'Expired'
+                                                    ],
+                                                    'terminated' => [
+                                                        'bg' => 'bg-red-50',
+                                                        'text' => 'text-red-800',
+                                                        'ring' => 'ring-red-600/20',
+                                                        'icon' => 'fa-ban',
+                                                        'label' => 'Terminated'
+                                                    ],
+                                                    'renewed' => [
+                                                        'bg' => 'bg-blue-50',
+                                                        'text' => 'text-blue-800',
+                                                        'ring' => 'ring-blue-600/20',
+                                                        'icon' => 'fa-rotate',
+                                                        'label' => 'Renewed'
+                                                    ],
+                                                    'pending' => [
+                                                        'bg' => 'bg-yellow-50',
+                                                        'text' => 'text-yellow-800',
+                                                        'ring' => 'ring-yellow-600/20',
+                                                        'icon' => 'fa-clock',
+                                                        'label' => 'Pending'
+                                                    ]
+                                                ];
+
+                                                // Get status config or default to draft
+                                                $statusInfo = $statusConfig[$statusValue] ?? [
+                                                    'bg' => 'bg-gray-50',
+                                                    'text' => 'text-gray-700',
+                                                    'ring' => 'ring-0',
+                                                    'icon' => 'fa-circle-info',
+                                                    'label' => ucfirst($statusValue)
+                                                ];
+
+                                                $statusClasses = "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {$statusInfo['bg']} {$statusInfo['text']} ring-1 ring-inset {$statusInfo['ring']}";
+                                                $statusLabel = $statusInfo['label'];
+                                                $statusIcon = $statusInfo['icon'];
+                                                
+                                                // Process dates
+                                                // Dates are already processed above
+                                            @endphp
+                                            <tr class="hover:bg-gray-50 cursor-pointer" data-id="{{ $c->id }}" onclick="toggleContractActions(event, this)">
+                                                <td class="px-4 py-3 text-sm text-gray-500">
+                                                    {{ $c->code ?? 'N/A' }}
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-900">
+                                                    <div class="font-medium">{{ $c->title ?? 'N/A' }}</div>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-500">
+                                                    {{ ucfirst($c->type ?? 'N/A') }}
+                                                </td>
+                                                <!-- Status Column -->
+                                                <td class="px-4 py-3 whitespace-nowrap">
+                                                    @php
+                                                        // Simple status display
+                                                        $status = strtolower($c->status ?? 'draft');
+                                                        $statusMap = [
+                                                            'active' => ['bg' => 'bg-green-100', 'text' => 'text-green-800', 'icon' => 'fa-check-circle', 'label' => 'Active'],
+                                                            'draft' => ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'icon' => 'fa-file', 'label' => 'Draft'],
+                                                            'expired' => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'icon' => 'fa-clock-rotate-left', 'label' => 'Expired'],
+                                                            'pending' => ['bg' => 'bg-yellow-100', 'text' => 'text-yellow-800', 'icon' => 'fa-clock', 'label' => 'Pending'],
+                                                            'terminated' => ['bg' => 'bg-red-100', 'text' => 'text-red-800', 'icon' => 'fa-ban', 'label' => 'Terminated'],
+                                                            'renewed' => ['bg' => 'bg-blue-100', 'text' => 'text-blue-800', 'icon' => 'fa-rotate', 'label' => 'Renewed']
+                                                        ];
+                                                        
+                                                        $statusInfo = $statusMap[$status] ?? ['bg' => 'bg-gray-100', 'text' => 'text-gray-800', 'icon' => 'fa-question-circle', 'label' => ucfirst($status)];
+                                                    @endphp
+                                                    
+                                                    <div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $statusInfo['bg'] }} {{ $statusInfo['text'] }}">
+                                                        <i class="fas {{ $statusInfo['icon'] }} mr-1.5"></i>
+                                                        {{ $statusInfo['label'] }}
+                                                    </div>
+                                                        @if($isExpired && $statusValue !== 'expired')
+                                                            <span class="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-red-800 border border-red-200">
+                                                                <i class="fas fa-exclamation-triangle mr-1"></i>Expired
+                                                            </span>
+                                                        @elseif($isExpiringSoon && $statusValue === 'active')
+                                                            <span class="ml-2 px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                                <i class="fas fa-clock mr-1"></i>Expiring Soon
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                        @if($statusValue === 'active' && $endDate)
+                                                            <div class="text-xs {{ $isExpiringSoon ? 'text-yellow-600' : 'text-gray-600' }} flex items-center">
+                                                                @if($isExpiringSoon)
+                                                                    <i class="fas fa-hourglass-half mr-1"></i>
+                                                                    <span>{{ $daysRemaining }} day{{ $daysRemaining !== 1 ? 's' : '' }} remaining ({{ $endDate->format('M d, Y') }})</span>
+                                                                @else
+                                                                    <i class="fas fa-calendar-check mr-1"></i>
+                                                                    <span>Active until {{ $endDate->format('M d, Y') }}</span>
+                                                                @endif
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-500">
+                                                    {{ $c->company ?? 'N/A' }}
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-500">
+                                                    @if($startDateDisplay)
+                                                        <div class="flex items-center">
+                                                            <i class="fas fa-calendar-day mr-2 text-gray-400"></i>
+                                                            <span>{{ $startDateDisplay }}</span>
+                                                        </div>
+                                                    @else
+                                                        <span class="text-gray-400">Not set</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-3 text-sm text-gray-500">
+                                                    @if($endDateDisplay)
+                                                        <div class="flex flex-col">
+                                                            <div class="flex items-center">
+                                                                <i class="fas fa-calendar-check mr-2 text-gray-400"></i>
+                                                                <span>{{ $endDateDisplay }}</span>
+                                                            </div>
+                                                            @if($isExpired)
+                                                                <span class="text-xs text-red-600 mt-1">
+                                                                    <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                                    Expired {{ abs($daysRemaining) }} days ago
+                                                                </span>
+                                                            @elseif($isExpiringSoon)
+                                                                <span class="text-xs text-yellow-600 mt-1">
+                                                                    <i class="fas fa-clock mr-1"></i>
+                                                                    {{ $daysRemaining }} days left
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <span class="text-gray-400">No end date</span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
+                                                    <div class="flex items-center space-x-2">
+                                                        <!-- Actions container - hidden by default -->
+                                                        <div class="contract-actions hidden absolute right-4 bg-white shadow-lg rounded-md p-2 z-10">
+                                                            <button class="viewContractBtn text-blue-600 hover:text-blue-800 mr-2" data-tooltip="View" 
+                                                                data-id="{{ $c->id }}" 
+                                                                data-code="{{ $c->code }}" 
+                                                                data-title="{{ $c->title }}"
+                                                                data-type="{{ $c->type }}"
+                                                                data-status="{{ $statusValue }}"
+                                                                data-start-date="{{ $startDate }}"
+                                                                data-end-date="{{ $endDate }}"
+                                                                data-value="{{ $c->value ?? '' }}"
+                                                                data-notes="{{ $c->notes ?? '' }}"
+                                                                data-created-at="{{ is_object($c->created_at) ? $c->created_at->format('M d, Y') : (is_string($c->created_at) ? \Carbon\Carbon::parse($c->created_at)->format('M d, Y') : 'N/A') }}"
+                                                                data-updated-at="{{ is_object($c->updated_at) ? $c->updated_at->format('M d, Y') : (is_string($c->updated_at) ? \Carbon\Carbon::parse($c->updated_at)->format('M d, Y') : 'N/A') }}">
+                                                                <i class="fas fa-eye"></i>
+                                                            </button>
+                                                            <button class="editContractBtn text-yellow-600 hover:text-yellow-800 mr-2" data-tooltip="Edit" 
+                                                                data-id="{{ $c->id }}" 
+                                                                data-code="{{ $c->code }}" 
+                                                                data-title="{{ $c->title }}"
+                                                                data-type="{{ $c->type }}"
+                                                                data-status="{{ $statusValue }}"
+                                                                data-start-date="{{ $startDate }}"
+                                                                data-end-date="{{ $endDate }}"
+                                                                data-value="{{ $c->value ?? '' }}"
+                                                                data-notes="{{ $c->notes ?? '' }}">
+                                                                <i class="fas fa-edit"></i>
+                                                            </button>
+                                                            <button class="deleteContractBtn text-red-600 hover:text-red-800" data-tooltip="Delete" 
+                                                                data-id="{{ $c->id }}" 
+                                                                data-title="{{ $c->title }}">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                                                    No contracts found.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -815,6 +1115,7 @@ $user = auth()->user();
                 <div><span class="font-semibold">Title:</span> <span id="viewContractTitle"></span></div>
                 <div><span class="font-semibold">Company:</span> <span id="viewContractCompany"></span></div>
                 <div><span class="font-semibold">Type:</span> <span id="viewContractType"></span></div>
+                <div><span class="font-semibold">Expiration:</span> <span id="viewContractExpiration"></span></div>
                 <div><span class="font-semibold">Status:</span> <span id="viewContractStatus"></span></div>
                 <div><span class="font-semibold">Created:</span> <span id="viewContractCreated"></span></div>
                 <div class="pt-4 text-right">
@@ -848,9 +1149,26 @@ $user = auth()->user();
                         <label for="editContractType" class="block mb-1 font-semibold">Type</label>
                         <select id="editContractType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
                             <option value="nda">NDA</option>
-                            <option value="service">Service Agreement</option>
-                            <option value="employment">Employment Contract</option>
+                            <option value="service">Service</option>
+                            <option value="employment">Employment</option>
+                            <option value="employee">Employee</option>
+                            <option value="consultancy">Consultancy</option>
+                            <option value="internship">Internship</option>
+                            <option value="probation">Probation</option>
+                            <option value="vendor">Vendor</option>
+                            <option value="supplier">Supplier</option>
+                            <option value="lease">Lease</option>
+                            <option value="license">License</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="purchase">Purchase</option>
+                            <option value="sales">Sales</option>
+                            <option value="partnership">Partnership</option>
+                            <option value="loan">Loan</option>
                         </select>
+                    </div>
+                    <div>
+                        <label for="editContractExpiration" class="block mb-1 font-semibold">Expiration</label>
+                        <input type="date" id="editContractExpiration" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]">
                     </div>
                     <div>
                         <label for="editContractStatus" class="block mb-1 font-semibold">Status</label>
@@ -871,44 +1189,136 @@ $user = auth()->user();
 
     <!-- Add Contract Modal -->
     <div id="addContractModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-contract-modal-title">
-        <div class="bg-white rounded-lg shadow-lg w-[380px] max-w-full mx-4" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                <h3 id="add-contract-modal-title" class="font-semibold text-sm text-gray-900 select-none">Add New Contract</h3>
-                <button id="closeAddContractModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200" aria-label="Close">
-                    <i class="fas fa-times text-xs"></i>
+        <div class="bg-white rounded-xl shadow-lg w-full max-w-2xl mx-4 overflow-hidden" role="document">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                <h3 id="add-contract-modal-title" class="text-lg font-semibold text-gray-900">Add New Contract</h3>
+                <button type="button" id="closeAddContractModal" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="px-8 pt-6 pb-8">
-                <form id="addContractForm" class="space-y-3 text-xs text-gray-700">
-                    <div>
-                        <label for="addContractTitle" class="block mb-1 font-semibold">Title</label>
-                        <input type="text" id="addContractTitle" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <form id="addContractForm" class="space-y-4">
+                    @csrf
+                    
+                    <!-- Contract Code & Title -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="contractCode" class="block text-sm font-medium text-gray-700 mb-1">Contract Code</label>
+                            <div class="relative">
+                                <input type="text" id="contractCode" name="code" readonly
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
+                                    value="CTR-{{ strtoupper(uniqid()) }}">
+                                <button type="button" id="regenerateCode" class="absolute inset-y-0 right-0 px-3 flex items-center text-[#2f855A] hover:text-[#28644c] focus:outline-none">
+                                    <i class="fas fa-sync-alt text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="contractTitle" class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
+                            <input type="text" id="contractTitle" name="title" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm"
+                                placeholder="Contract Title">
+                        </div>
                     </div>
-                    <div>
-                        <label for="addContractCompany" class="block mb-1 font-semibold">Company</label>
-                        <input type="text" id="addContractCompany" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
+
+                    <!-- Contract Type & Company -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="contractType" class="block text-sm font-medium text-gray-700 mb-1">Type <span class="text-red-500">*</span></label>
+                            <select id="contractType" name="type" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
+                                <option value="">Select Type</option>
+                                <option value="nda">NDA</option>
+                                <option value="service">Service</option>
+                                <option value="employment">Employment</option>
+                                <option value="employee">Employee</option>
+                                <option value="consultancy">Consultancy</option>
+                                <option value="internship">Internship</option>
+                                <option value="probation">Probation</option>
+                                <option value="vendor">Vendor</option>
+                                <option value="supplier">Supplier</option>
+                                <option value="lease">Lease</option>
+                                <option value="license">License</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="purchase">Purchase</option>
+                                <option value="sales">Sales</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="loan">Loan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="contractCompany" class="block text-sm font-medium text-gray-700 mb-1">Company <span class="text-red-500">*</span></label>
+                            <input type="text" id="contractCompany" name="company" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm"
+                                placeholder="Company Name">
+                        </div>
                     </div>
-                    <div>
-                        <label for="addContractType" class="block mb-1 font-semibold">Type</label>
-                        <select id="addContractType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                            <option value="nda">NDA</option>
-                            <option value="service">Service Agreement</option>
-                            <option value="employment">Employment Contract</option>
-                        </select>
+
+                    <!-- Status & Dates -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="contractStatus" class="block text-sm font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
+                            <select id="contractStatus" name="status" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
+                                <option value="draft">Draft</option>
+                                <option value="active" selected>Active</option>
+                                <option value="pending">Pending</option>
+                                <option value="expired">Expired</option>
+                                <option value="terminated">Terminated</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Start Date <span class="text-red-500">*</span></label>
+                            <input type="date" id="startDate" name="start_date" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
+                        </div>
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                            <input type="date" id="endDate" name="end_date"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm">
+                        </div>
                     </div>
-                    <div>
-                        <label for="addContractStatus" class="block mb-1 font-semibold">Status</label>
-                        <select id="addContractStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A]" required>
-                            <option value="active">Active</option>
-                            <option value="pending">Pending</option>
-                            <option value="expired">Expired</option>
-                        </select>
+
+                    <!-- File Upload -->
+                    <div class="space-y-2">
+                        <label for="contractFile" class="block text-sm font-medium text-gray-700 mb-2">Contract Document</label>
+                        <div class="flex items-center justify-center w-full">
+                            <label class="flex flex-col w-full h-32 border-2 border-dashed hover:bg-gray-50 hover:border-gray-300 rounded-lg cursor-pointer">
+                                <div class="flex flex-col items-center justify-center pt-7">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-400 group-hover:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <p class="pt-1 text-sm tracking-wider text-gray-500 group-hover:text-gray-600">
+                                        Upload a file or drag and drop
+                                    </p>
+                                    <p class="text-xs text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+                                </div>
+                                <input id="contractFile" name="file" type="file" class="opacity-0" />
+                            </label>
+                        </div>
                     </div>
-                    <div class="flex justify-end space-x-3 pt-2">
-                        <button type="button" id="cancelAddContract" class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-                        <button type="submit" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Add Contract</button>
+
+                    <!-- Description -->
+                    <div class="space-y-2">
+                        <label for="contractDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="contractDescription" name="description" rows="2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2f855A] focus:border-[#2f855A] text-sm"
+                            placeholder="Brief description of the contract"></textarea>
                     </div>
                 </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
+                <button type="button" id="cancelAddContract" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A] transition-colors duration-200">
+                    Cancel
+                </button>
+                <button type="submit" form="addContractForm" class="px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#2f855A] hover:bg-[#28644c] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A] transition-colors duration-200">
+                    Save Contract
+                </button>
             </div>
         </div>
     </div>
@@ -933,7 +1343,44 @@ $user = auth()->user();
     </div>
 
     <script>
+        // Track selected contract
+        let selectedContractId = null;
+
+        // Toggle actions for a contract row
+        function toggleContractActions(event, contractRow) {
+            // Prevent event bubbling to avoid immediate hiding
+            event.stopPropagation();
+            
+            // Hide all actions first
+            document.querySelectorAll('.contract-actions').forEach(actions => {
+                actions.classList.add('hidden');
+            });
+            
+            // If clicking the same row, deselect it
+            if (selectedContractId === contractRow.dataset.id) {
+                selectedContractId = null;
+            } else {
+                // Show actions for the clicked row
+                const actions = contractRow.querySelector('.contract-actions');
+                if (actions) {
+                    actions.classList.remove('hidden');
+                    selectedContractId = contractRow.dataset.id;
+                }
+            }
+        }
+
+        // Close actions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.contract-actions') && !e.target.closest('tr[data-id]')) {
+                document.querySelectorAll('.contract-actions').forEach(actions => {
+                    actions.classList.add('hidden');
+                });
+                selectedContractId = null;
+            }
+        });
+
         document.addEventListener("DOMContentLoaded", () => {
+            
             const sidebar = document.getElementById("sidebar");
             const mainContent = document.getElementById("main-content");
             const toggleBtn = document.getElementById("toggle-btn");
@@ -974,6 +1421,54 @@ $user = auth()->user();
             const cancelDeleteContract = document.getElementById('cancelDeleteContract');
             const confirmDeleteContract = document.getElementById('confirmDeleteContract');
             let __currentEditOriginalStatus = null;
+
+            // Masking state and helpers
+            window.__contractsUnmasked = false;
+            function renderRowDisplay(row, masked) {
+                try {
+                    const tds = row.querySelectorAll('td');
+                    if (!tds || tds.length === 0) return;
+                    if (tds.length === 1 && tds[0].hasAttribute('colspan')) return;
+
+                    if (!row.__origCells || row.__origCells.length !== tds.length) {
+                        row.__origCells = Array.from(tds).map(td => td.innerHTML);
+                    }
+
+                    if (!masked) {
+                        if (row.__origCells && row.__origCells.length === tds.length) {
+                            tds.forEach((td, i) => { td.innerHTML = row.__origCells[i]; });
+                        }
+                        return;
+                    }
+
+                    tds.forEach((td, i) => {
+                        if (i === tds.length - 1) return;
+                        td.textContent = '******';
+                    });
+                } catch (_) {}
+            }
+
+            function setTableMasked(masked) {
+                document.querySelectorAll('table tbody tr').forEach(tr => renderRowDisplay(tr, masked));
+            }
+
+            function setActionsVisible(visible){
+                try{
+                    const th = document.querySelector('th.actions-col');
+                    const cells = document.querySelectorAll('td.actions-cell');
+                    if (th){ th.style.display = visible ? '' : 'none'; }
+                    cells.forEach(td => { td.style.display = visible ? '' : 'none'; });
+                }catch(_){ }
+            }
+
+            function labelizeType(t) {
+                try {
+                    t = (t || '').toString().trim();
+                    if (!t) return '';
+                    t = t.replace(/[_-]+/g, ' ');
+                    return t.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                } catch (_) { return t || ''; }
+            }
 
             // Initialize sidebar state based on screen size
             if (window.innerWidth >= 768) {
@@ -1226,6 +1721,8 @@ $user = auth()->user();
                 document.getElementById('viewContractTitle').textContent = data.title;
                 document.getElementById('viewContractCompany').textContent = data.company;
                 document.getElementById('viewContractType').textContent = data.type;
+                const expEl = document.getElementById('viewContractExpiration');
+                if (expEl) expEl.textContent = data.expiration || '';
                 document.getElementById('viewContractStatus').textContent = data.status;
                 document.getElementById('viewContractCreated').textContent = data.created;
                 viewContractModal.classList.remove('hidden');
@@ -1240,6 +1737,8 @@ $user = auth()->user();
                 const normalized = (data.status || '').toLowerCase();
                 document.getElementById('editContractStatus').value = normalized.includes('pending') ? 'pending' : normalized;
                 __currentEditOriginalStatus = normalized.includes('pending') ? 'pending' : normalized;
+                const xInp = document.getElementById('editContractExpiration');
+                if (xInp) xInp.value = (data.expiration || '').substring(0,10);
                 editContractModal.classList.remove('hidden');
                 editContractModal.classList.add('active');
             }
@@ -1255,14 +1754,14 @@ $user = auth()->user();
                 e.preventDefault();
                 e.stopPropagation();
                 const d = e.currentTarget.dataset;
-                openViewModal({ id: d.id, title: d.title, company: d.company, type: d.type, status: d.status, created: d.created });
+                openViewModal({ id: d.id, title: d.title, company: d.company, type: d.type, status: d.status, created: d.created, expiration: d.expiration });
             }));
 
             editBtns.forEach(btn => btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const d = e.currentTarget.dataset;
-                openEditModal({ id: d.id, title: d.title, company: d.company, type: d.type, status: d.status, created: d.created });
+                openEditModal({ id: d.id, title: d.title, company: d.company, type: d.type, status: d.status, created: d.created, expiration: d.expiration });
             }));
 
             deleteBtns.forEach(btn => btn.addEventListener('click', (e) => {
@@ -1321,6 +1820,30 @@ $user = auth()->user();
                 deleteContractModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
             }
 
+            // Function to generate a new contract code
+            function generateContractCode() {
+                const timestamp = new Date().getTime().toString(36);
+                const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+                return `CTR-${timestamp}-${random}`;
+            }
+
+            // Initialize contract code when modal opens
+            document.getElementById('addContractModal').addEventListener('shown.bs.modal', function () {
+                document.getElementById('contractCode').value = generateContractCode();
+            });
+
+            // Handle regenerate code button click
+            document.getElementById('regenerateCode').addEventListener('click', function() {
+                document.getElementById('contractCode').value = generateContractCode();
+                
+                // Add a small animation to the refresh icon
+                const icon = this.querySelector('i');
+                icon.classList.add('animate-spin');
+                setTimeout(() => {
+                    icon.classList.remove('animate-spin');
+                }, 500);
+            });
+
             // Submit handlers (wired to backend)
             const editContractForm = document.getElementById('editContractForm');
             if (editContractForm) {
@@ -1331,55 +1854,77 @@ $user = auth()->user();
                     const company = document.getElementById('editContractCompany').value.trim();
                     const type = document.getElementById('editContractType').value;
                     const status = document.getElementById('editContractStatus').value;
+                    const expiration = document.getElementById('editContractExpiration')?.value || '';
 
                     const resp = await fetch('{{ route('contracts.update') }}', {
                         method: 'POST',
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
-                        body: new URLSearchParams({ code, title, company, type, status })
+                        body: new URLSearchParams({ code, title, company, type, status, expiration })
                     });
                     const data = await resp.json();
                     if (data.success) {
-                        // Update row in-place
-                        const row = Array.from(document.querySelectorAll('tbody tr')).find(tr => (tr.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent || '') === code);
+                        // Update row in-place (find by data-code since display is masked)
+                        const row = document.querySelector(`tbody tr[data-code="${code}"]`);
                         if (row) {
-                            // Title and company
-                            const titleCell = row.querySelector('td:nth-child(2)');
-                            if (titleCell) {
-                                const titleEl = titleCell.querySelector('.text-sm.font-medium');
-                                const compEl = titleCell.querySelector('.text-xs');
-                                if (titleEl) titleEl.textContent = title;
-                                if (compEl) compEl.textContent = company;
+                            const statusKey = (status || '').toLowerCase();
+                            const statusMap = {
+                                active: { bg: 'bg-green-100', text: 'text-green-800', icon: 'fa-check-circle', label: 'Active' },
+                                draft: { bg: 'bg-gray-100', text: 'text-gray-800', icon: 'fa-file', label: 'Draft' },
+                                expired: { bg: 'bg-red-100', text: 'text-red-800', icon: 'fa-clock-rotate-left', label: 'Expired' },
+                                pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: 'fa-clock', label: 'Pending' },
+                                terminated: { bg: 'bg-red-100', text: 'text-red-800', icon: 'fa-ban', label: 'Terminated' },
+                                renewed: { bg: 'bg-blue-100', text: 'text-blue-800', icon: 'fa-rotate', label: 'Renewed' },
+                            };
+                            const statusInfo = statusMap[statusKey] || { bg: 'bg-gray-100', text: 'text-gray-800', icon: 'fa-question-circle', label: (statusKey ? statusKey.charAt(0).toUpperCase() + statusKey.slice(1) : '') };
+
+                            const titleEl = row.querySelector('td:nth-child(2) .font-medium');
+                            if (titleEl) titleEl.textContent = title;
+                            const typeCell = row.querySelector('td:nth-child(3)');
+                            if (typeCell) typeCell.textContent = (type || '').toString();
+
+                            const statusCell = row.querySelector('td:nth-child(4)');
+                            if (statusCell) {
+                                statusCell.innerHTML = `<div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusInfo.bg} ${statusInfo.text}"><i class="fas ${statusInfo.icon} mr-1.5"></i>${statusInfo.label}</div>`;
                             }
-                            // Type badge
-                            const typeBadge = row.querySelector('td:nth-child(3) span');
-                            if (typeBadge) {
-                                const label = type === 'nda' ? 'NDA' : (type === 'service' ? 'Service' : 'Employment');
-                                typeBadge.textContent = label;
+
+                            const companyCell = row.querySelector('td:nth-child(5)');
+                            if (companyCell) companyCell.textContent = company || 'N/A';
+
+                            const endDateCell = row.querySelector('td:nth-child(7)');
+                            if (endDateCell) {
+                                if (expiration) {
+                                    endDateCell.innerHTML = `<div class="flex items-center"><i class="fas fa-calendar-check mr-2 text-gray-400"></i><span>${expiration}</span></div>`;
+                                } else {
+                                    endDateCell.innerHTML = `<span class="text-gray-400">No end date</span>`;
+                                }
                             }
-                            // Status badge
-                            const statusBadge = row.querySelector('td:nth-child(4) span');
-                            if (statusBadge) {
-                                const statusLabelNew = status.charAt(0).toUpperCase() + status.slice(1);
-                                const statusCls = status === 'active' ? 'bg-green-100 text-green-800' : (status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-700');
-                                statusBadge.textContent = statusLabelNew;
-                                statusBadge.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + statusCls;
-                            }
+
                             // Update action buttons datasets
-                            const viewBtn = row.querySelector('td:nth-child(5) .viewContractBtn');
-                            const editBtn = row.querySelector('td:nth-child(5) .editContractBtn');
+                            const viewBtn = row.querySelector('.viewContractBtn');
+                            const editBtn = row.querySelector('.editContractBtn');
                             if (viewBtn) {
-                                const badgeLabel = type === 'nda' ? 'NDA' : (type === 'service' ? 'Service' : 'Employment');
+                                const badgeLabel = labelizeType(type);
                                 viewBtn.dataset.title = title;
                                 viewBtn.dataset.company = company;
                                 viewBtn.dataset.type = badgeLabel;
-                                viewBtn.dataset.status = status.charAt(0).toUpperCase() + status.slice(1);
+                                viewBtn.dataset.status = statusInfo.label;
+                                viewBtn.dataset.expiration = expiration || '';
                             }
                             if (editBtn) {
                                 editBtn.dataset.title = title;
                                 editBtn.dataset.company = company;
                                 editBtn.dataset.type = type;
                                 editBtn.dataset.status = status;
+                                editBtn.dataset.expiration = expiration || '';
                             }
+
+                            // Refresh cached row HTML for masking/unmasking
+                            try {
+                                row.__origCells = Array.from(row.querySelectorAll('td')).map(td => td.innerHTML);
+                            } catch (_) {}
+
+                            // Re-render display respecting current mask state
+                            renderRowDisplay(row, !window.__contractsUnmasked);
                             // Update stats if status changed
                             try {
                                 const totalEl = document.getElementById('totalContractsText');
@@ -1438,7 +1983,7 @@ $user = auth()->user();
                     });
                     const data = await resp.json();
                     if (data.success) {
-                        const row = Array.from(document.querySelectorAll('tbody tr')).find(tr => (tr.querySelector('td:nth-child(1) .text-sm.font-medium')?.textContent || '') === code);
+                        const row = document.querySelector(`tbody tr[data-code="${code}"]`);
                         if (row) row.remove();
                         deleteContractModal.classList.remove('active');
                         deleteContractModal.classList.add('hidden');
@@ -1453,24 +1998,71 @@ $user = auth()->user();
             if (addContractForm) {
                 addContractForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
-                    const title = (document.getElementById('addContractTitle')?.value || '').trim();
-                    const company = (document.getElementById('addContractCompany')?.value || '').trim();
-                    const type = document.getElementById('addContractType')?.value || 'nda';
-                    const status = document.getElementById('addContractStatus')?.value || 'pending';
+                    // Get form values
+                    const form = e.target;
+                    const formData = new FormData(form);
+                    
+                    const type = document.getElementById('contractType')?.value || 'service';
+                    const status = document.getElementById('contractStatus')?.value || 'draft';
+                    const startDate = document.getElementById('startDate')?.value || new Date().toISOString().split('T')[0];
+                    const endDate = document.getElementById('endDate')?.value || '';
+
+                    formData.delete('type');
+                    formData.delete('status');
+                    formData.delete('start_date');
+                    formData.delete('end_date');
+
+                    formData.append('type', type);
+                    formData.append('status', status);
+                    formData.append('start_date', startDate);
+                    if (endDate) {
+                        formData.append('end_date', endDate);
+                    }
+                    
+                    // Log the form data for debugging
+                    console.log('Form data:', Object.fromEntries(formData.entries()));
 
                     try {
+                        console.log('Sending request to server...');
                         const resp = await fetch('{{ route('contracts.create') }}', {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
                                 'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Content-Type': 'application/x-www-form-urlencoded'
+                                'X-Requested-With': 'XMLHttpRequest'
                             },
-                            body: new URLSearchParams({ title, company, type, status })
+                            body: formData
                         });
-                        const data = await resp.json();
-                        if (!data || !data.success) throw new Error((data && data.message) || 'Create failed');
+                        
+                        const responseText = await resp.text();
+                        let data;
+                        try {
+                            data = JSON.parse(responseText);
+                            console.log('Server response:', data);
+                            
+                            if (!resp.ok) {
+                                let errorMsg = 'Server error: ' + (data?.message || resp.statusText || 'Unknown error');
+                                if (data?.errors) {
+                                    errorMsg += '\n' + Object.entries(data.errors)
+                                        .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : errors}`)
+                                        .join('\n');
+                                }
+                                throw new Error(errorMsg);
+                            }
+                            
+                            if (!data.contract) {
+                                console.error('Unexpected response format. Missing contract data.');
+                                throw new Error('Invalid response format from server');
+                            }
+                        } catch (e) {
+                            console.error('Error parsing server response:', e);
+                            console.error('Raw response:', responseText);
+                            throw new Error('Invalid server response. Please check the console for details.');
+                        }
+                        
+                        if (!data || !data.success) {
+                            throw new Error(data?.message || 'Failed to create contract. No success response from server.');
+                        }
 
                         // Update stats
                         const totalEl = document.getElementById('totalContractsText');
@@ -1481,7 +2073,9 @@ $user = auth()->user();
                         let total = parseInt(totalEl?.textContent || '0', 10) + 1;
                         let active = parseInt(activeCountEl?.textContent || '0', 10);
                         let pending = parseInt(pendingCountEl?.textContent || '0', 10);
-                        if (status === 'active') active += 1; else if (status === 'pending') pending += 1;
+                        const statusValue = formData.get('status');
+                        if (statusValue === 'active') active += 1; 
+                        else if (statusValue === 'pending') pending += 1;
                         if (totalEl) totalEl.textContent = total;
                         if (activeCountEl) activeCountEl.textContent = active;
                         if (activeCountText) activeCountText.textContent = active;
@@ -1504,39 +2098,50 @@ $user = auth()->user();
                         if (pendingTotalEl) pendingTotalEl.textContent = total;
 
                         // Append new row to table top
+                        const type = formData.get('type');
+                        const expiration = formData.get('end_date');
                         const c = data.contract || {};
-                        const badge = c.type === 'nda' ? 'NDA' : (c.type === 'service' ? 'Service' : 'Employment');
+                        const badge = labelizeType(c.type || type);
                         const statusLabel = (c.status || '').charAt(0).toUpperCase() + (c.status || '').slice(1);
-                        const statusClasses = c.status === 'active' ? 'bg-green-100 text-green-800' : (c.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-700');
+                        const statusKey = (c.status || '').toLowerCase();
+                        const statusMap = {
+                            active: { bg: 'bg-green-100', text: 'text-green-800', icon: 'fa-check-circle', label: 'Active' },
+                            draft: { bg: 'bg-gray-100', text: 'text-gray-800', icon: 'fa-file', label: 'Draft' },
+                            expired: { bg: 'bg-red-100', text: 'text-red-800', icon: 'fa-clock-rotate-left', label: 'Expired' },
+                            pending: { bg: 'bg-yellow-100', text: 'text-yellow-800', icon: 'fa-clock', label: 'Pending' },
+                            terminated: { bg: 'bg-red-100', text: 'text-red-800', icon: 'fa-ban', label: 'Terminated' },
+                            renewed: { bg: 'bg-blue-100', text: 'text-blue-800', icon: 'fa-rotate', label: 'Renewed' },
+                        };
+                        const statusInfo = statusMap[statusKey] || { bg: 'bg-gray-100', text: 'text-gray-800', icon: 'fa-question-circle', label: statusLabel };
+                        const startDateDisplay = c.start_date || formData.get('start_date') || '';
+                        const endDateDisplay = c.end_date || c.expires_on || formData.get('end_date') || '';
                         const tbody = document.querySelector('table tbody');
                         if (tbody) {
                             const tr = document.createElement('tr');
                             tr.className = 'table-row';
                             tr.setAttribute('data-code', c.code);
                             tr.innerHTML = `
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">${c.code}</div>
-                                    <div class="text-xs text-gray-500">Created: ${c.created_on || '—'}</div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900">${c.title || ''}</div>
-                                    <div class="text-xs text-gray-500">${c.company || '—'}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">${badge}</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClasses}">${statusLabel}</span>
-                                </td>
+                                <td class="px-4 py-3 text-sm text-gray-500">${c.code || 'N/A'}</td>
+                                <td class="px-4 py-3 text-sm text-gray-900"><div class="font-medium">${c.title || ''}</div></td>
+                                <td class="px-4 py-3 text-sm text-gray-500">${badge || 'N/A'}</td>
+                                <td class="px-4 py-3 whitespace-nowrap"><div class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${statusInfo.bg} ${statusInfo.text}"><i class="fas ${statusInfo.icon} mr-1.5"></i>${statusInfo.label}</div></td>
+                                <td class="px-4 py-3 text-sm text-gray-500">${c.company || 'N/A'}</td>
+                                <td class="px-4 py-3 text-sm text-gray-500"><div class="flex items-center"><i class="fas fa-calendar-day mr-2 text-gray-400"></i><span>${startDateDisplay || 'Not set'}</span></div></td>
+                                <td class="px-4 py-3 text-sm text-gray-500">${endDateDisplay ? `<div class=\"flex items-center\"><i class=\"fas fa-calendar-check mr-2 text-gray-400\"></i><span>${endDateDisplay}</span></div>` : `<span class=\"text-gray-400\">No end date</span>`}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="viewContractBtn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View" data-id="${c.code}" data-title="${c.title || ''}" data-company="${c.company || ''}" data-type="${badge}" data-status="${statusLabel}" data-created="${c.created_on || ''}">View</a>
-                                    <a href="#" class="editContractBtn text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit" data-id="${c.code}" data-title="${c.title || ''}" data-company="${c.company || ''}" data-type="${c.type || ''}" data-status="${c.status || ''}" data-created="${c.created_on || ''}">Edit</a>
+                                    <a href="#" class="viewContractBtn text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View" data-id="${c.code}" data-title="${c.title || ''}" data-company="${c.company || ''}" data-type="${badge}" data-status="${statusLabel}" data-created="${c.created_on || ''}" data-expiration="${c.expires_on || c.expiration || expiration || ''}">View</a>
+                                    <a href="#" class="editContractBtn text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit" data-id="${c.code}" data-title="${c.title || ''}" data-company="${c.company || ''}" data-type="${c.type || ''}" data-status="${c.status || ''}" data-created="${c.created_on || ''}" data-expiration="${c.expires_on || c.expiration || expiration || ''}">Edit</a>
                                     <a href="#" class="deleteContractBtn text-red-600 hover:text-red-900" data-tooltip="Delete" data-id="${c.code}" data-title="${c.title || ''}">Delete</a>
                                 </td>`;
                             // Insert at top (after potential empty row removed)
                             const emptyRow = tbody.querySelector('tr td[colspan]');
                             if (emptyRow) emptyRow.parentElement?.remove();
                             tbody.insertBefore(tr, tbody.firstChild);
+                            // Cache original HTML for masking/unmasking
+                            try { tr.__origCells = Array.from(tr.querySelectorAll('td')).map(td => td.innerHTML); } catch (_) {}
+
+                            // Render masked/unmasked according to current state
+                            renderRowDisplay(tr, !window.__contractsUnmasked);
 
                             // Rebind action buttons for the new row
                             tr.querySelectorAll('.viewContractBtn').forEach(btn => btn.addEventListener('click', (e) => {
@@ -1561,7 +2166,14 @@ $user = auth()->user();
                         toggleAddContractModal();
                         Swal.fire({ icon: 'success', title: 'Contract Added', text: 'The contract has been added successfully.', confirmButtonColor: '#2f855a' });
                     } catch (err) {
-                        Swal.fire({ icon: 'error', title: 'Failed', text: err?.message || 'Failed to add contract.', confirmButtonColor: '#2f855a' });
+console.error('Error creating contract:', err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Failed to Create Contract',
+                            text: err.message || 'An unknown error occurred while creating the contract.',
+                            confirmButtonColor: '#2f855a',
+                            confirmButtonText: 'OK'
+                        });
                     }
                 });
             }
@@ -1609,6 +2221,153 @@ $user = auth()->user();
                     }
                 });
             });
+
+            // Case lock synchronization with case management
+            function updateContractLockState(isLocked) {
+                const tableRows = document.querySelectorAll('tbody tr[data-id]');
+                console.log('Contract management found rows:', tableRows.length, 'isLocked:', isLocked);
+                
+                tableRows.forEach((row, index) => {
+                    console.log(`Processing contract row ${index}:`, row);
+                    
+                    const titleCell = row.querySelector('td:nth-child(2) .font-medium');
+                    const companyCell = row.querySelector('td:nth-child(5)');
+                    const typeCell = row.querySelector('td:nth-child(3)');
+                    const statusCell = row.querySelector('td:nth-child(4) div');
+                    const endDateCell = row.querySelector('td:nth-child(7)');
+                    const viewButton = row.querySelector('.viewContractBtn');
+                    const editButton = row.querySelector('.editContractBtn');
+                    const deleteButton = row.querySelector('.deleteContractBtn');
+                    
+                    console.log('Found cells:', { titleCell, companyCell, typeCell, statusCell, endDateCell });
+                    
+                    if (isLocked) {
+                        // Store original data if not already stored
+                        if (!row.dataset.originalData) {
+                            row.dataset.originalData = JSON.stringify({
+                                title: titleCell?.textContent || '',
+                                company: companyCell?.textContent || '',
+                                type: typeCell?.textContent || '',
+                                status: statusCell?.textContent || '',
+                                statusClass: statusCell?.className || '',
+                                expiration: endDateCell?.textContent || ''
+                            });
+                        }
+                        
+                        // Mask the data
+                        if (titleCell) {
+                            const maskedTitle = titleCell.textContent.replace(/./g, '*');
+                            titleCell.innerHTML = maskedTitle + ' <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                        }
+                        if (companyCell) {
+                            companyCell.textContent = '****';
+                        }
+                        if (typeCell) {
+                            typeCell.textContent = '****';
+                        }
+                        if (statusCell) {
+                            statusCell.textContent = '****';
+                            statusCell.className = 'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+                        }
+                        if (endDateCell) {
+                            endDateCell.textContent = '** ** ****';
+                        }
+                        
+                        // Disable action buttons
+                        if (viewButton) {
+                            viewButton.disabled = true;
+                            viewButton.style.opacity = '0.5';
+                            viewButton.style.cursor = 'not-allowed';
+                            viewButton.style.pointerEvents = 'none';
+                        }
+                        if (editButton) {
+                            editButton.disabled = true;
+                            editButton.style.opacity = '0.5';
+                            editButton.style.cursor = 'not-allowed';
+                            editButton.style.pointerEvents = 'none';
+                        }
+                        if (deleteButton) {
+                            deleteButton.disabled = true;
+                            deleteButton.style.opacity = '0.5';
+                            deleteButton.style.cursor = 'not-allowed';
+                            deleteButton.style.pointerEvents = 'none';
+                        }
+                        
+                        // Add lock styling to row
+                        row.style.opacity = '0.7';
+                        row.classList.add('locked-row');
+                    } else {
+                        // Restore original data
+                        if (row.dataset.originalData) {
+                            try {
+                                const originalData = JSON.parse(row.dataset.originalData);
+                                
+                                if (titleCell) {
+                                    titleCell.textContent = originalData.title;
+                                }
+                                if (companyCell) {
+                                    companyCell.textContent = originalData.company;
+                                }
+                                if (typeCell) {
+                                    typeCell.textContent = originalData.type;
+                                }
+                                if (statusCell) {
+                                    statusCell.textContent = originalData.status;
+                                    statusCell.className = originalData.statusClass;
+                                }
+                                if (endDateCell) {
+                                    endDateCell.textContent = originalData.expiration;
+                                }
+                            } catch (e) {
+                                console.error('Error restoring original data:', e);
+                            }
+                        }
+                        
+                        // Restore action buttons
+                        if (viewButton) {
+                            viewButton.disabled = false;
+                            viewButton.style.opacity = '1';
+                            viewButton.style.cursor = 'pointer';
+                            viewButton.style.pointerEvents = 'auto';
+                        }
+                        if (editButton) {
+                            editButton.disabled = false;
+                            editButton.style.opacity = '1';
+                            editButton.style.cursor = 'pointer';
+                            editButton.style.pointerEvents = 'auto';
+                        }
+                        if (deleteButton) {
+                            deleteButton.disabled = false;
+                            deleteButton.style.opacity = '1';
+                            deleteButton.style.cursor = 'pointer';
+                            deleteButton.style.pointerEvents = 'auto';
+                        }
+                        
+                        // Remove lock styling from row
+                        row.style.opacity = '1';
+                        row.classList.remove('locked-row');
+                    }
+                });
+            }
+
+            // Check and apply lock state on page load
+            function checkAndApplyContractLockState() {
+                const isLocked = localStorage.getItem('casesLocked') === 'true';
+                updateContractLockState(isLocked);
+            }
+
+            // Listen for storage changes (for cross-tab synchronization)
+            window.addEventListener('storage', (e) => {
+                console.log('Contract management received storage event:', e.key, e.newValue);
+                if (e.key === 'casesLocked') {
+                    const isLocked = e.newValue === 'true';
+                    console.log('Contract management updating lock state to:', isLocked);
+                    updateContractLockState(isLocked);
+                }
+            });
+
+            // Apply lock state on page load
+            checkAndApplyContractLockState();
         });
     </script>
 </body>

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('hearings', function (Blueprint $table) {
             $table->id();
-<<<<<<< HEAD
             $table->string('title');
             $table->string('type');
             $table->string('case_number')->nullable();
@@ -33,9 +32,6 @@ return new class extends Migration
             $table->index('hearing_date');
             $table->index('status');
             $table->index('priority');
-=======
-            $table->timestamps();
->>>>>>> 3467a8cdf3aef1c3632815755eba1f09b252a719
         });
     }
 

@@ -66,7 +66,9 @@
 
         .modal {
             display: none;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
             position: fixed;
             top: 0;
             left: 0;
@@ -84,6 +86,18 @@
         .modal > div:hover {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             transition: box-shadow 0.2s ease-in-out;
+        }
+
+        /* OTP modal specific animation */
+        .otp-modal-panel {
+            transform: translateY(8px) scale(0.97);
+            opacity: 0;
+            transition: all 0.25s ease-out;
+        }
+
+        .modal.active .otp-modal-panel {
+            transform: translateY(0) scale(1);
+            opacity: 1;
         }
 
         #main-content {
@@ -174,6 +188,11 @@
             max-height: 500px;
             opacity: 1;
         }
+
+        .active-category {
+            background-color: #f0fdf4 !important;
+            border-color: #2f855A !important;
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -204,6 +223,17 @@
             </div>
         </div>
     </nav>
+    <script>
+      (function(){
+        if (typeof window.openCaseWithConfGate !== 'function'){
+          window.openCaseWithConfGate = function(href){
+            try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+            if (href){ window.location.href = href; }
+            return false;
+          };
+        }
+      })();
+    </script>
 
     <!-- Notification Dropdown -->
     <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
@@ -333,6 +363,110 @@
             </div>
         </div>
     </div>
+
+    <!-- Upload Documents Modal -->
+    <div id="uploadDocumentsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="upload-documents-modal-title">
+        <div class="bg-white rounded-lg w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b px-6 py-4">
+                <h3 id="upload-documents-modal-title" class="text-xl font-semibold text-gray-900">Upload Documents</h3>
+                <button onclick="closeModal('uploadDocumentsModal')" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form id="uploadForm" class="p-6 space-y-6">
+                <!-- Document Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="docTitle" class="block text-sm font-medium text-gray-700 mb-2">Document Title *</label>
+                        <input type="text" id="docTitle" name="docTitle" required
+                               class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]"
+                               placeholder="Enter document title">
+                    </div>
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                        <select id="category" name="category" required
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                            <option value="">Select Category</option>
+                            <option value="financial">Financial</option>
+                            <option value="hr">HR</option>
+                            <option value="legal">Legal</option>
+                            <option value="operations">Operations</option>
+                            <option value="contracts">Contracts</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="projects">Projects</option>
+                            <option value="procurement">Procurement</option>
+                            <option value="it">IT</option>
+                            <option value="payroll">Payroll</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="docType" class="block text-sm font-medium text-gray-700 mb-2">Document Type *</label>
+                        <select id="docType" name="docType" required
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                            <option value="">Select Document Type</option>
+                            <option value="internal">Internal Document</option>
+                            <option value="payment">Payment</option>
+                            <option value="vendor">Vendor Document</option>
+                            <option value="release_of_funds">Release of Funds</option>
+                            <option value="purchase">Purchase Order</option>
+                            <option value="disbursement">Disbursement</option>
+                            <option value="receipt">Receipt</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="docStatus" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select id="docStatus" name="docStatus"
+                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                            <option value="Indexed">Indexed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Archived">Archived</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="docDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea id="docDescription" name="docDescription" rows="3"
+                              class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]"
+                              placeholder="Enter document description (optional)"></textarea>
+                </div>
+
+                <!-- File Upload -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Files *</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                        <i class="bx bx-cloud-upload text-4xl text-gray-400 mb-3"></i>
+                        <p class="text-gray-600 mb-4">Drag and drop files here or click to browse</p>
+                        <input type="file" id="documentFiles" name="documentFiles[]" class="hidden" multiple 
+                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+                        <label for="documentFiles" class="inline-flex items-center px-4 py-2 bg-[#2f855A] text-white rounded-md hover:bg-[#276749] cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
+                            <i class="bx bx-upload mr-2"></i>
+                            Select Files
+                        </label>
+                        <p class="text-xs text-gray-500 mt-3">Supports PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX (Max 50MB per file)</p>
+                        <div id="selectedFiles" class="mt-4 text-left"></div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="closeModal('uploadDocumentsModal')" 
+                            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#2f855A] hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                        <i class="bx bx-upload mr-2"></i>
+                        Upload Documents
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- User Menu Dropdown -->
     <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
         <div class="py-4 px-6 border-b border-gray-100 text-center">
@@ -370,16 +504,16 @@
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Reservations</span>
+                                <i class="bx bx-group"></i>
+                                <span>Visitor Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+                         
+                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown active">
@@ -400,31 +534,31 @@
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
+                                <i class="bx bx-calendar-check"></i>
+                                <span>Facilities Management</span>
+                            </div>
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+                        </div>
+                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-dropdown">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                            <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Legal Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('document.case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+                            <li><a href="{{ route('document.case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
                             <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
                             <li><a href="{{ route('document.compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
                             <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-bell mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                         
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li>
@@ -453,52 +587,24 @@
                     <div class="flex justify-between items-center">
                         <h2 class="text-[#1a4d38] font-bold text-xl mb-1">Document Upload & Indexing</h2>
                         <div class="flex space-x-3">
-                            <button id="uploadDocumentBtn" class="bg-[#2f855A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
-                                <i class="bx bx-plus mr-1"></i> Upload Document
+                            <button id="uploadDocumentsBtn" class="bg-[#2f855A] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#276749] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
+                                <i class="bx bx-upload mr-1"></i> Upload Documents
                             </button>
                         </div>
                     </div>
 
-                    <!-- Document Upload Section -->
-                    <section id="uploadSection" class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-200">
-                        <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
-                            <i class='bx bx-cloud-upload mr-2'></i>Upload New Document
-                        </h3>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-                            <i class="bx bx-cloud-upload text-4xl text-gray-400 mb-3"></i>
-                            <p class="text-gray-600 mb-4">Drag and drop files here or click to browse</p>
-                            <input type="file" id="document-upload" class="hidden" multiple accept=".pdf,.docx,.xlsx,.pptx">
-                            <label for="document-upload" class="inline-flex items-center px-4 py-2 bg-[#2f855A] text-white rounded-md hover:bg-[#276749] cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-[#2f855A] focus:ring-offset-2">
-                                <i class="bx bx-upload mr-2"></i>
-                                Select Files
-                            </label>
-                            <p class="text-xs text-gray-500 mt-3">Supports PDF, DOCX, XLSX, PPTX (Max 50MB)</p>
-                            <!-- Category and Type selectors for archival mapping -->
-                            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto text-left">
-                                <div>
-                                    <label for="uploadCategory" class="block text-xs font-medium text-gray-700 mb-1">Category</label>
-                                    <select id="uploadCategory" class="w-full border border-gray-300 rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
-                                        <option value="">Auto-detect</option>
-                                        <option value="financial">Financial</option>
-                                        <option value="hr">HR</option>
-                                        <option value="legal">Legal</option>
-                                        <option value="operations">Operations</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label for="uploadDocType" class="block text-xs font-medium text-gray-700 mb-1">Document Type</label>
-                                    <select id="uploadDocType" class="w-full border border-gray-300 rounded-md px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
-                                        <option value="">Infer from file</option>
-                                        <option value="PDF">PDF</option>
-                                        <option value="Word">Word</option>
-                                        <option value="Excel">Excel</option>
-                                        <option value="PowerPoint">PowerPoint</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+                    <div class="flex items-center justify-between bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg px-4 py-3">
+                <div class="text-sm font-medium">Confidential: Authorized personnel only. OTP required for sensitive actions.</div>
+                <button id="openOtpModalBtn" type="button" class="ml-4 inline-flex items-center px-3 py-1.5 bg-[#2f855A] text-white rounded-md text-xs hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
+                    <i class="bx bx-shield mr-1"></i>
+                    Open OTP
+                </button>
+                <button id="lockAllDocsBtn" type="button" class="ml-2 inline-flex items-center px-3 py-1.5 bg-gray-700 text-white rounded-md text-xs hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600">
+                    <i class="bx bx-lock mr-1"></i>
+                    Lock All
+                </button>
+            </div>
+
 
                     <!-- Browse by Category -->
                     <section class="mt-8">
@@ -510,7 +616,7 @@
                                 Showing <span id="visibleCount">0</span> of <span id="totalCount">0</span> documents
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6 gap-4 mb-6">
                             <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3 active-category" data-category="all">
                                 <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
                                     <i class="bx bx-grid-alt text-xl"></i>
@@ -525,7 +631,7 @@
                                     <i class="bx bx-dollar text-xl"></i>
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-gray-900">Financial</div>
+                                    <div class="font-medium">Financial</div>
                                     <div class="text-xs text-gray-500">Budgets, invoices, reports</div>
                                 </div>
                             </button>
@@ -534,7 +640,7 @@
                                     <i class="bx bx-id-card text-xl"></i>
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-gray-900">HR</div>
+                                    <div class="font-medium">Human Resources</div>
                                     <div class="text-xs text-gray-500">Employee files, policies</div>
                                 </div>
                             </button>
@@ -543,7 +649,7 @@
                                     <i class="bx bx-gavel text-xl"></i>
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-gray-900">Legal</div>
+                                    <div class="font-medium">Legal</div>
                                     <div class="text-xs text-gray-500">Contracts, case files</div>
                                 </div>
                             </button>
@@ -552,8 +658,62 @@
                                     <i class="bx bx-cog text-xl"></i>
                                 </div>
                                 <div>
-                                    <div class="font-semibold text-gray-900">Operations</div>
-                                    <div class="text-xs text-gray-500">SOPs, checklists, logs</div>
+                                    <div class="font-medium">Operations</div>
+                                    <div class="text-xs text-gray-500">Processes, procedures</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="contracts">
+                                <div class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+                                    <i class="bx bx-file text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Contracts</div>
+                                    <div class="text-xs text-gray-500">Agreements, NDAs</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="utilities">
+                                <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+                                    <i class="bx bx-wrench text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Utilities</div>
+                                    <div class="text-xs text-gray-500">Bills, services</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="projects">
+                                <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
+                                    <i class="bx bx-briefcase text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Projects</div>
+                                    <div class="text-xs text-gray-500">Project documentation</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="procurement">
+                                <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                                    <i class="bx bx-cart text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Procurement</div>
+                                    <div class="text-xs text-gray-500">Purchase orders</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="it">
+                                <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                                    <i class="bx bx-laptop text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">IT</div>
+                                    <div class="text-xs text-gray-500">Software, licenses</div>
+                                </div>
+                            </button>
+                            <button type="button" class="category-card group bg-white border border-gray-200 rounded-xl p-5 text-left shadow-sm hover:shadow-md transition flex items-start gap-3" data-category="payroll">
+                                <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                                    <i class="bx bx-credit-card text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Payroll</div>
+                                    <div class="text-xs text-gray-500">Salary, compensation</div>
                                 </div>
                             </button>
                         </div>
@@ -848,6 +1008,70 @@
         </script>
     @endif
 
+    <div id="otpModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="otp-modal-title">
+        <div class="otp-modal-panel bg-gradient-to-br from-emerald-50/80 via-white to-sky-50/80 rounded-3xl w-full max-w-md shadow-2xl border border-emerald-100/70">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-emerald-50/80 bg-white/80 rounded-t-3xl backdrop-blur-sm">
+                <div class="flex items-center space-x-3">
+                    <div class="h-9 w-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <i class="bx bx-shield text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 id="otp-modal-title" class="text-sm font-semibold text-gray-900">Security Verification</h3>
+                        <p class="text-xs text-gray-500">Enter the 6-digit code to view confidential document details.</p>
+                    </div>
+                </div>
+                <button id="closeOtpModalBtn" class="text-gray-400 hover:text-gray-600 focus:outline-none rounded-full p-1 hover:bg-gray-100">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="px-6 pt-5 pb-6 bg-white/80 rounded-b-3xl backdrop-blur-sm">
+                <label for="otpInput" class="block text-xs font-medium text-gray-600 mb-2">One-Time Password (OTP)</label>
+                <div class="relative">
+                    <i class="bx bx-lock-alt absolute left-3 top-2.5 text-gray-400"></i>
+                    <input
+                        id="otpInput"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        class="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2.5 text-sm tracking-[0.4em] text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-300"
+                        placeholder="••••••"
+                    >
+                </div>
+                <div class="mt-4 grid grid-cols-1 gap-2 text-[11px] text-gray-500 bg-emerald-50/60 border border-emerald-100 rounded-lg px-3 py-2">
+                    <div class="flex items-center">
+                        <i class="bx bx-check-shield text-emerald-500 mr-1 text-sm"></i>
+                        <span>Only authorized admins should use this OTP.</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="bx bx-timer text-emerald-500 mr-1 text-sm"></i>
+                        <span>Codes expire shortly for your protection.</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-emerald-700">
+                        <span>Time remaining:</span>
+                        <span id="otpTimerLabel" class="font-semibold">&nbsp;</span>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button
+                        type="button"
+                        id="cancelOtpBtn"
+                        class="px-4 py-2.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        id="verifyOtpBtn"
+                        class="inline-flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[#2f855A] hover:bg-[#276749] shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1"
+                    >
+                        <i class="bx bx-check-shield mr-1 text-sm"></i>
+                        Verify OTP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const sidebar = document.getElementById("sidebar");
@@ -859,12 +1083,8 @@
             const notificationDropdown = document.getElementById("notificationDropdown");
             const userMenuBtn = document.getElementById("userMenuBtn");
             const userMenuDropdown = document.getElementById("userMenuDropdown");
-            const uploadDocumentBtn = document.getElementById("uploadDocumentBtn");
-            const fileInput = document.getElementById("document-upload");
-            const dropZone = fileInput.parentElement;
+            const uploadDocumentsBtn = document.getElementById("uploadDocumentsBtn");
             const documentsTable = document.querySelector("table tbody");
-            const uploadCategorySelect = document.getElementById("uploadCategory");
-            const uploadSection = document.getElementById("uploadSection");
             const categoryCards = document.querySelectorAll('.category-card');
             const profileModal = document.getElementById("profileModal");
             const openProfileBtn = document.getElementById("openProfileBtn");
@@ -882,6 +1102,86 @@
             const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
             const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
             const openSignOutBtn = document.getElementById("openSignOutBtn");
+            const otpModal = document.getElementById("otpModal");
+            const openOtpModalBtn = document.getElementById("openOtpModalBtn");
+            const closeOtpModalBtn = document.getElementById("closeOtpModalBtn");
+            const cancelOtpBtn = document.getElementById("cancelOtpBtn");
+            const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+            const otpInput = document.getElementById("otpInput");
+            const otpTimerLabel = document.getElementById("otpTimerLabel");
+            let otpExpiresAt = null;
+            let otpTimerHandle = null;
+            const lockAllDocsBtn = document.getElementById("lockAllDocsBtn");
+            let pendingDocForOtp = null;
+            window.revealedDocs = new Set();
+            // Restore revealed docs from sessionStorage (persist across refresh)
+            try {
+                const saved = localStorage.getItem('revealedDocs');
+                if (saved) {
+                    JSON.parse(saved).forEach(id => window.revealedDocs.add(String(id)));
+                }
+            } catch(_) {}
+            // Helper to persist revealed docs
+            function saveRevealedDocs() {
+                try { localStorage.setItem('revealedDocs', JSON.stringify(Array.from(window.revealedDocs))); } catch(_) {}
+            }
+            // Define maskName before any masking calls
+            if (typeof window.maskName !== 'function') {
+                window.maskName = function(name) {
+                    if (!name || typeof name !== 'string') return 'Untitled';
+                    const safe = String(name);
+                    const lastDot = safe.lastIndexOf('.');
+                    if (lastDot <= 0) {
+                        return '*'.repeat(8);
+                    }
+                    const base = safe.slice(0, lastDot);
+                    const ext = safe.slice(lastDot);
+                    const masked = '*'.repeat(Math.max(base.length, 4));
+                    return masked + ext;
+                };
+            }
+            // Apply masking on load, respecting revealed state
+            try {
+                const revealed = window.revealedDocs || new Set();
+                document.querySelectorAll('tr[data-doc-id] .doc-name').forEach(el => {
+                    const row = el.closest('tr');
+                    const docId = row && row.dataset ? row.dataset.docId : null;
+                    const rawName = (el.dataset && el.dataset.name) ? el.dataset.name : el.textContent;
+                    const realName = (typeof rawName === 'string' && rawName.trim().length) ? rawName : 'Untitled';
+                    if (el.dataset) el.dataset.name = realName;
+                    if (docId && revealed.has(String(docId))) {
+                        el.textContent = realName;
+                    } else if (window.maskName) {
+                        el.textContent = window.maskName(realName);
+                    }
+                });
+            } catch(_) {}
+
+            // Cross-tab sync: react to localStorage changes (from Version Control page)
+            window.addEventListener('storage', (e) => {
+                if (e && e.key === 'revealedDocs') {
+                    try {
+                        const updated = new Set();
+                        const saved = localStorage.getItem('revealedDocs');
+                        if (saved) JSON.parse(saved).forEach(id => updated.add(String(id)));
+                        window.revealedDocs = updated;
+                    } catch(_) {}
+                    // Re-apply masking/unmasking
+                    try {
+                        document.querySelectorAll('tr[data-doc-id] .doc-name').forEach(el => {
+                            const row = el.closest('tr');
+                            const docId = row && row.dataset ? row.dataset.docId : null;
+                            const realName = (el.dataset && el.dataset.name) ? el.dataset.name : el.textContent;
+                            if (docId && window.revealedDocs && window.revealedDocs.has(String(docId))) {
+                                el.textContent = realName;
+                            } else if (window.maskName) {
+                                el.textContent = window.maskName(realName);
+                            }
+                        });
+                    } catch(_) {}
+                    if (typeof renderDocuments === 'function') { renderDocuments(); }
+                }
+            });
 
             // Initialize sidebar state
             if (window.innerWidth >= 768) {
@@ -984,6 +1284,393 @@
                 notificationDropdown.classList.add("hidden");
             });
 
+            function resetOtpState() {
+                otpExpiresAt = null;
+                if (otpTimerHandle) {
+                    clearInterval(otpTimerHandle);
+                    otpTimerHandle = null;
+                }
+                if (otpTimerLabel) otpTimerLabel.textContent = '';
+                if (otpInput) otpInput.value = '';
+            }
+
+            function startOtpTimer(seconds) {
+                otpExpiresAt = Date.now() + seconds * 1000;
+                if (!otpTimerLabel) return;
+                const update = () => {
+                    if (!otpExpiresAt) {
+                        otpTimerLabel.textContent = '';
+                        return;
+                    }
+                    const diff = Math.max(0, Math.floor((otpExpiresAt - Date.now()) / 1000));
+                    const mm = String(Math.floor(diff / 60)).padStart(2, '0');
+                    const ss = String(diff % 60).padStart(2, '0');
+                    otpTimerLabel.textContent = `${mm}:${ss}`;
+                    if (diff <= 0) {
+                        clearInterval(otpTimerHandle);
+                        otpTimerHandle = null;
+                    }
+                };
+                update();
+                if (otpTimerHandle) clearInterval(otpTimerHandle);
+                otpTimerHandle = setInterval(update, 1000);
+            }
+
+            if (openOtpModalBtn) {
+                openOtpModalBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    otpModal.classList.add("active");
+                    notificationDropdown.classList.add("hidden");
+                    userMenuDropdown.classList.add("hidden");
+                    resetOtpState();
+                    startOtpTimer(60);
+                    if (otpInput) setTimeout(() => otpInput.focus(), 80);
+                });
+            }
+            if (lockAllDocsBtn) {
+                lockAllDocsBtn.addEventListener("click", () => {
+                    const isLocked = localStorage.getItem('documentsLocked') === 'true';
+                    if (isLocked) {
+                        // Currently locked, so unlock
+                        if (typeof window.unlockAllDocs === 'function') {
+                            window.unlockAllDocs();
+                        }
+                    } else {
+                        // Currently unlocked, so lock
+                        const doLockAll = () => {
+                            if (typeof window.lockAllDocs === 'function') {
+                                window.lockAllDocs();
+                            }
+                        };
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                title: 'Lock All Documents?',
+                                text: 'This will mask all document names for confidentiality.',
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Lock All',
+                                cancelButtonText: 'Cancel'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    doLockAll();
+                                    Swal.fire('Locked!', 'All documents have been locked.', 'success');
+                                }
+                            });
+                        } else {
+                            doLockAll();
+                        }
+                    }
+                });
+            }
+            if (closeOtpModalBtn) {
+                closeOtpModalBtn.addEventListener("click", () => {
+                    otpModal.classList.remove("active");
+                    resetOtpState();
+                });
+            }
+            if (cancelOtpBtn) {
+                cancelOtpBtn.addEventListener("click", () => {
+                    otpModal.classList.remove("active");
+                    resetOtpState();
+                });
+            }
+            if (verifyOtpBtn) {
+                verifyOtpBtn.addEventListener("click", async () => {
+                    const code = (otpInput?.value || "").trim();
+                    const now = Date.now();
+                    if (!otpExpiresAt || now > otpExpiresAt) {
+                        if (window.Swal) Swal.fire({ icon: 'error', title: 'OTP Expired', text: 'Your OTP has expired. Please request a new code.' });
+                        resetOtpState();
+                        return;
+                    }
+                    if (code.length !== 6) {
+                        if (window.Swal) Swal.fire({ icon: 'error', title: 'Invalid OTP', text: 'Please enter the 6-digit code.' });
+                        return;
+                    }
+                    if (window.Swal) await Swal.fire({ icon: 'success', title: 'Verified', timer: 800, showConfirmButton: false });
+                    otpModal.classList.remove("active");
+                    resetOtpState();
+                    
+                    console.log('OTP verified successfully'); // Debug log
+                    console.log('pendingDocForOtp:', pendingDocForOtp); // Debug log
+                    
+                    // After successful OTP, open the pending document details
+                    if (pendingDocForOtp) {
+                        try {
+                            console.log('Revealing document:', pendingDocForOtp.id); // Debug log
+                            // Reveal name in the list for this document
+                            const row = document.querySelector(`tr[data-doc-id="${pendingDocForOtp.id}"]`);
+                            const nameEl = row ? row.querySelector('.doc-name') : null;
+                            console.log('Found name element:', !!nameEl); // Debug log
+                            
+                            if (nameEl) {
+                                const realName = nameEl.dataset.name || pendingDocForOtp.name || nameEl.textContent;
+                                console.log('Setting name to:', realName); // Debug log
+                                nameEl.textContent = realName;
+                            }
+                            
+                            // Add to revealed docs set
+                            try { 
+                                window.revealedDocs.add(String(pendingDocForOtp.id)); 
+                                console.log('Added to revealedDocs:', Array.from(window.revealedDocs)); // Debug log
+                                saveRevealedDocs(); 
+                            } catch(_) {}
+                            
+                            // Update our local revealedDocs to sync
+                            revealedDocs = window.revealedDocs;
+                            
+                            // Re-render to update all UI elements including button states
+                            if (typeof renderDocuments === 'function') { 
+                                console.log('Re-rendering documents'); // Debug log
+                                renderDocuments(); 
+                            }
+                            
+                            // Update the specific lock button for this document
+                            setTimeout(() => {
+                                const lockButton = document.querySelector(`tr[data-doc-id="${pendingDocForOtp.id}"] button[onclick*="toggleDocumentLock"]`);
+                                if (lockButton) {
+                                    console.log('Updating lock button state'); // Debug log
+                                    // When unlocked, show Lock button (green)
+                                    lockButton.innerHTML = '<i class="bx bx-lock"></i>';
+                                    lockButton.title = 'Lock';
+                                    lockButton.classList.remove('text-gray-600');
+                                    lockButton.classList.add('text-green-600');
+                                }
+                            }, 100); // Small delay to ensure DOM is updated
+                            
+                            showDocumentDetails(pendingDocForOtp);
+                        } finally {
+                            pendingDocForOtp = null;
+                            if (otpInput) otpInput.value = '';
+                        }
+                    } else {
+                        // No specific doc targeted: reveal all currently listed names
+                        console.log('Revealing all documents'); // Debug log
+                        const ids = [];
+                        document.querySelectorAll('tr[data-doc-id] .doc-name').forEach(el => {
+                            if (el && el.closest('tr') && el.closest('tr').dataset && el.closest('tr').dataset.docId) {
+                                try { 
+                                    const id = String(el.closest('tr').dataset.docId); 
+                                    window.revealedDocs.add(id); 
+                                    ids.push(id); 
+                                } catch(_) {}
+                            }
+                            if (el.dataset && el.dataset.name) {
+                                console.log('Revealing name:', el.dataset.name); // Debug log
+                                el.textContent = el.dataset.name;
+                            }
+                        });
+                        saveRevealedDocs();
+                        
+                        // Update our local revealedDocs to sync
+                        revealedDocs = window.revealedDocs;
+                        
+                        if (typeof renderDocuments === 'function') { 
+                            console.log('Re-rendering documents after revealing all'); // Debug log
+                            renderDocuments(); 
+                        }
+                        
+                        // Update all lock buttons to locked state (showing Lock button)
+                        setTimeout(() => {
+                            document.querySelectorAll('tr[data-doc-id] button[onclick*="toggleDocumentLock"]').forEach(button => {
+                                const docId = button.getAttribute('onclick').match(/toggleDocumentLock\('([^']+)'/);
+                                if (docId && revealedDocs.has(docId[1])) {
+                                    // When unlocked, show Lock button (green)
+                                    button.innerHTML = '<i class="bx bx-lock"></i>';
+                                    button.title = 'Lock';
+                                    button.classList.remove('text-gray-600');
+                                    button.classList.add('text-green-600');
+                                }
+                            });
+                        }, 100);
+                    }
+                });
+            }
+
+            // Require OTP before opening a document's information
+            window.requireOtpForDoc = function(doc) {
+                pendingDocForOtp = doc || null;
+                if (otpModal) {
+                    otpModal.classList.add('active');
+                    if (otpInput) setTimeout(() => otpInput.focus(), 50);
+                }
+            };
+
+            // Lock a single document (re-mask its name) with confirmation
+            function performLockDoc(docId) {
+                try { window.revealedDocs.delete(String(docId)); saveRevealedDocs(); } catch(_) {}
+                const row = document.querySelector(`tr[data-doc-id="${docId}"]`);
+                if (row) {
+                    const nameEl = row.querySelector('.doc-name');
+                    const realName = nameEl && nameEl.dataset ? nameEl.dataset.name : '';
+                    if (nameEl && realName && window.maskName) nameEl.textContent = window.maskName(realName);
+                }
+                if (typeof renderDocuments === 'function') { renderDocuments(); }
+            }
+
+            window.lockDoc = function(docId) {
+                const doLock = () => performLockDoc(docId);
+                if (window.Swal && Swal.fire) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Lock this document?',
+                        text: 'The document name will be hidden again until OTP is verified.',
+                        showCancelButton: true,
+                        confirmButtonColor: '#2f855a',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, lock it',
+                        cancelButtonText: 'Cancel'
+                    }).then(result => {
+                        if (result.isConfirmed) doLock();
+                    });
+                } else {
+                    if (window.confirm('Lock this document and hide its name again?')) {
+                        doLock();
+                    }
+                }
+            };
+
+            // Lock all documents (re-mask all names)
+            window.lockAllDocs = function() {
+                try { window.revealedDocs.clear(); saveRevealedDocs(); } catch(_) {}
+                document.querySelectorAll('.doc-name').forEach(el => {
+                    if (el.dataset && el.dataset.name && window.maskName) {
+                        el.textContent = window.maskName(el.dataset.name);
+                    }
+                });
+                if (typeof renderDocuments === 'function') { renderDocuments(); }
+                // Save lock state to localStorage for cross-page synchronization
+                localStorage.setItem('documentsLocked', 'true');
+                // Update lock button
+                if (lockAllDocsBtn) {
+                    lockAllDocsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                    lockAllDocsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                    lockAllDocsBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                }
+            };
+
+            // Unlock all documents (reveal all names) - requires OTP verification
+            window.unlockAllDocs = function() {
+                // Show OTP modal for verification
+                pendingDocForOtp = null; // Clear any pending specific document
+                if (otpModal) {
+                    otpModal.classList.add('active');
+                    if (otpInput) setTimeout(() => otpInput.focus(), 50);
+                    // Update modal title to indicate unlock operation
+                    const modalTitle = document.getElementById('otp-modal-title');
+                    const modalSubtitle = otpModal.querySelector('p.text-xs.text-gray-500');
+                    if (modalTitle) modalTitle.textContent = 'Unlock All Documents';
+                    if (modalSubtitle) modalSubtitle.textContent = 'Enter the 6-digit code to unlock all confidential document names.';
+                }
+            };
+
+            // Initialize lock state on page load
+            function initializeLockState() {
+                const isLocked = localStorage.getItem('documentsLocked') === 'true';
+                
+                // First, restore revealed documents from localStorage
+                try {
+                    const saved = localStorage.getItem('revealedDocs');
+                    if (saved) {
+                        const savedIds = JSON.parse(saved);
+                        console.log('Restoring revealed documents:', savedIds); // Debug log
+                        savedIds.forEach(id => {
+                            const doc = documents.find(d => d.id === id);
+                            if (doc) {
+                                window.revealedDocs.add(id);
+                                console.log('Restored document:', id, '-', doc.name); // Debug log
+                            }
+                        });
+                        console.log('Final revealed documents:', Array.from(window.revealedDocs)); // Debug log
+                        
+                        // Re-render documents to show restored names
+                        if (typeof renderDocuments === 'function') { 
+                            console.log('Re-rendering after restoring revealed docs'); // Debug log
+                            renderDocuments(); 
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error restoring revealed documents:', error); // Debug log
+                }
+                
+                if (isLocked) {
+                    // Apply lock state
+                    if (typeof window.lockAllDocs === 'function') {
+                        // Apply lock without showing confirmation
+                        try { window.revealedDocs.clear(); saveRevealedDocs(); } catch(_) {}
+                        document.querySelectorAll('.doc-name').forEach(el => {
+                            if (el.dataset && el.dataset.name && window.maskName) {
+                                el.textContent = window.maskName(el.dataset.name);
+                            }
+                        });
+                        if (typeof renderDocuments === 'function') { renderDocuments(); }
+                        // Update button
+                        if (lockAllDocsBtn) {
+                            lockAllDocsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                            lockAllDocsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                            lockAllDocsBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                        }
+                    }
+                } else {
+                    // Check if there are any revealed documents
+                    const hasRevealedDocs = window.revealedDocs.size > 0;
+                    
+                    if (hasRevealedDocs) {
+                        // Some documents are unlocked, show "Lock All" button
+                        if (lockAllDocsBtn) {
+                            lockAllDocsBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                            lockAllDocsBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                            lockAllDocsBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                        }
+                    } else {
+                        // All documents are locked, show "Unlock All" button
+                        if (lockAllDocsBtn) {
+                            lockAllDocsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                            lockAllDocsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                            lockAllDocsBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                        }
+                    }
+                }
+            }
+
+            // Listen for storage changes (for cross-tab synchronization)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'documentsLocked') {
+                    const isLocked = e.newValue === 'true';
+                    if (isLocked) {
+                        if (typeof window.lockAllDocs === 'function') {
+                            // Apply lock without confirmation
+                            try { window.revealedDocs.clear(); saveRevealedDocs(); } catch(_) {}
+                            document.querySelectorAll('.doc-name').forEach(el => {
+                                if (el.dataset && el.dataset.name && window.maskName) {
+                                    el.textContent = window.maskName(el.dataset.name);
+                                }
+                            });
+                            if (typeof renderDocuments === 'function') { renderDocuments(); }
+                            // Update button
+                            if (lockAllDocsBtn) {
+                                lockAllDocsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                                lockAllDocsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                                lockAllDocsBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                            }
+                        }
+                    } else {
+                        if (typeof window.unlockAllDocs === 'function') {
+                            window.unlockAllDocs();
+                        }
+                    }
+                }
+            });
+
+            // Initialize lock state when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeLockState);
+            } else {
+                initializeLockState();
+            }
+
             openProfileBtn.addEventListener("click", (e) => {
                 e.stopPropagation();
                 profileModal.classList.add("active");
@@ -1065,6 +1752,9 @@
                 if (!signOutModal.contains(e.target)) {
                     signOutModal.classList.remove("active");
                 }
+                if (otpModal && !otpModal.contains(e.target) && e.target !== openOtpModalBtn) {
+                    otpModal.classList.remove("active");
+                }
             });
 
             profileModal.querySelector("div").addEventListener("click", (e) => {
@@ -1079,6 +1769,11 @@
             signOutModal.querySelector("div").addEventListener("click", (e) => {
                 e.stopPropagation();
             });
+            if (otpModal) {
+                otpModal.querySelector("div").addEventListener("click", (e) => {
+                    e.stopPropagation();
+                });
+            }
 
             window.addEventListener("resize", () => {
                 if (window.innerWidth >= 768) {
@@ -1099,23 +1794,74 @@
                 closeAllDropdowns();
             });
 
-            // Initialize dropdowns
+            // Category filtering functionality
+            categoryCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const selectedCategory = this.getAttribute('data-category');
+                    
+                    // Update active state
+                    categoryCards.forEach(c => c.classList.remove('active-category', 'ring-2', 'ring-[#2f855A]'));
+                    this.classList.add('active-category', 'ring-2', 'ring-[#2f855A]');
+                    
+                    // Filter documents
+                    filterDocumentsByCategory(selectedCategory);
+                });
+            });
+
+            function filterDocumentsByCategory(category) {
+                const rows = documentsTable.querySelectorAll('tr');
+                let visibleCount = 0;
+                
+                rows.forEach(row => {
+                    if (row.querySelector('td[colspan]')) {
+                        // Skip "No documents" row
+                        return;
+                    }
+                    
+                    const docCategory = row.getAttribute('data-category') || '';
+                    
+                    if (category === 'all' || docCategory === category) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                // Update document count
+                updateDocumentCount(visibleCount, rows.length);
+            }
+
+            function updateDocumentCount(visible, total) {
+                const visibleCountEl = document.getElementById('visibleCount');
+                const totalCountEl = document.getElementById('totalCount');
+                
+                if (visibleCountEl) visibleCountEl.textContent = visibleCount;
+                if (totalCountEl) totalCountEl.textContent = total;
+            }
             document.querySelectorAll(".has-dropdown.active .dropdown-menu").forEach((menu) => {
                 menu.classList.remove("hidden");
                 menu.classList.add("active");
                 menu.style.maxHeight = `${menu.scrollHeight}px`;
             });
 
-            // Document upload handling
+            // Upload Documents button functionality
+            uploadDocumentsBtn.addEventListener('click', () => {
+                openModal('uploadDocumentsModal');
+            });
+
+            // File upload handling
+            const documentFilesInput = document.getElementById('documentFiles');
+            const selectedFilesDiv = document.getElementById('selectedFiles');
+            const uploadForm = document.getElementById('uploadForm');
+            const dropZone = documentFilesInput.parentElement.parentElement;
+
+            // Prevent default drag behaviors
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, preventDefaults, false);
             });
 
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
+            // Highlight drop zone when item is dragged over it
             ['dragenter', 'dragover'].forEach(eventName => {
                 dropZone.addEventListener(eventName, highlight, false);
             });
@@ -1123,6 +1869,11 @@
             ['dragleave', 'drop'].forEach(eventName => {
                 dropZone.addEventListener(eventName, unhighlight, false);
             });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
 
             function highlight() {
                 dropZone.classList.add('border-blue-500', 'bg-blue-50');
@@ -1137,106 +1888,188 @@
             function handleDrop(e) {
                 const dt = e.dataTransfer;
                 const files = dt.files;
-                handleFiles(files);
+                documentFilesInput.files = files;
+                displaySelectedFiles(files);
             }
 
-            fileInput.addEventListener('change', function() {
-                handleFiles(this.files);
+            documentFilesInput.addEventListener('change', function() {
+                displaySelectedFiles(this.files);
             });
 
-            uploadDocumentBtn.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            function handleFiles(files) {
+            function displaySelectedFiles(files) {
+                selectedFilesDiv.innerHTML = '';
                 if (files.length > 0) {
-                    const formData = new FormData();
-                    const catEl = document.getElementById('uploadCategory');
-                    const typeEl = document.getElementById('uploadDocType');
-                    const selCategory = catEl ? (catEl.value || '') : '';
-                    const selDocType = typeEl ? (typeEl.value || '') : '';
-
-                    const allowedExt = ['pdf','doc','docx','xls','xlsx','ppt','pptx'];
-                    const validFiles = [];
-                    const tooLarge = [];
-                    const invalidType = [];
-
+                    const fileList = document.createElement('div');
+                    fileList.className = 'space-y-2';
+                    
                     Array.from(files).forEach(file => {
-                        const ext = (file.name.split('.').pop() || '').toLowerCase();
-                        if (file.size > 50 * 1024 * 1024) {
-                            tooLarge.push(file.name);
-                            return;
-                        }
-                        if (!allowedExt.includes(ext)) {
-                            invalidType.push(file.name);
-                            return;
-                        }
-                        validFiles.push(file);
-                        formData.append('documents[]', file);
+                        const fileItem = document.createElement('div');
+                        fileItem.className = 'flex items-center justify-between p-2 bg-gray-50 rounded';
+                        
+                        const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+                        fileItem.innerHTML = `
+                            <div class="flex items-center">
+                                <i class="bx bx-file text-gray-500 mr-2"></i>
+                                <span class="text-sm text-gray-700">${file.name}</span>
+                                <span class="text-xs text-gray-500 ml-2">(${fileSize})</span>
+                            </div>
+                            <button type="button" onclick="removeFile(this, '${file.name}')" class="text-red-500 hover:text-red-700">
+                                <i class="bx bx-x"></i>
+                            </button>
+                        `;
+                        fileList.appendChild(fileItem);
                     });
-
-                    if (tooLarge.length) {
-                        alert(`These files exceed the 50MB limit and were skipped:\n- ${tooLarge.join('\n- ')}`);
-                    }
-                    if (invalidType.length) {
-                        alert(`These files are not in allowed formats (PDF, Word, Excel, PowerPoint) and were skipped:\n- ${invalidType.join('\n- ')}`);
-                    }
-
-                    if (validFiles.length === 0) {
-                        alert('No valid files to upload.');
-                        return;
-                    }
-
-                    if (selCategory) formData.append('category', selCategory);
-                    if (selDocType) formData.append('docType', selDocType);
-
-                    const uploadedCount = validFiles.length;
-
-                    fetch('{{ route('document.upload.store') }}', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: formData
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            // Success validation/confirmation before redirect
-                            if (window.Swal && Swal.fire) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Upload complete',
-                                    text: `${uploadedCount} file(s) uploaded successfully.`,
-                                    confirmButtonColor: '#2f855a',
-                                    confirmButtonText: 'View in Version Control'
-                                }).then(() => {
-                                    window.location.href = '{{ route('document.version.control') }}';
-                                });
-                            } else {
-                                showSuccessMessage(`${uploadedCount} file(s) uploaded successfully.`);
-                                window.location.href = '{{ route('document.version.control') }}';
-                            }
-                        } else {
-                            throw new Error(data.message || 'Failed to upload files');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert(error.message || 'An error occurred while uploading the files');
-                    });
+                    
+                    selectedFilesDiv.appendChild(fileList);
                 }
             }
+
+            window.removeFile = function(button, fileName) {
+                const dt = new DataTransfer();
+                const input = document.getElementById('documentFiles');
+                const { files } = input;
+                
+                for (let i = 0; i < files.length; i++) {
+                    if (files[i].name !== fileName) {
+                        dt.items.add(files[i]);
+                    }
+                }
+                
+                input.files = dt.files;
+                displaySelectedFiles(input.files);
+            };
+
+            // Form submission
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const files = documentFilesInput.files;
+                
+                if (files.length === 0) {
+                    alert('Please select at least one file to upload.');
+                    return;
+                }
+                
+                // Add files to formData
+                for (let i = 0; i < files.length; i++) {
+                    formData.append('documents[]', files[i]);
+                }
+                
+                // Add form fields with correct names
+                const title = document.getElementById('docTitle').value;
+                const category = document.getElementById('category').value;
+                const docType = document.getElementById('docType').value;
+                const status = document.getElementById('docStatus').value;
+                const description = document.getElementById('docDescription').value;
+                
+                formData.append('title', title);
+                formData.append('category', category);
+                formData.append('docType', docType);
+                formData.append('status', status);
+                formData.append('description', description);
+                
+                // Validate file sizes
+                const maxSize = 50 * 1024 * 1024; // 50MB
+                const allowedExt = ['pdf','doc','docx','xls','xlsx','ppt','pptx'];
+                const validFiles = [];
+                const tooLarge = [];
+                const invalidType = [];
+                
+                Array.from(files).forEach(file => {
+                    const ext = (file.name.split('.').pop() || '').toLowerCase();
+                    if (file.size > maxSize) {
+                        tooLarge.push(file.name);
+                        return;
+                    }
+                    if (!allowedExt.includes(ext)) {
+                        invalidType.push(file.name);
+                        return;
+                    }
+                    validFiles.push(file);
+                });
+                
+                if (tooLarge.length) {
+                    alert(`These files exceed the 50MB limit and were skipped:\n- ${tooLarge.join('\n- ')}`);
+                    return;
+                }
+                
+                if (invalidType.length) {
+                    alert(`These files are not in allowed formats and were skipped:\n- ${invalidType.join('\n- ')}`);
+                    return;
+                }
+                
+                if (validFiles.length === 0) {
+                    alert('No valid files to upload.');
+                    return;
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="bx bx-loader-alt animate-spin mr-2"></i> Uploading...';
+                submitBtn.disabled = true;
+                
+                fetch('{{ route('document.upload.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Upload Complete',
+                                text: `${validFiles.length} file(s) uploaded successfully.`,
+                                confirmButtonColor: '#2f855a',
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                closeModal('uploadDocumentsModal');
+                                uploadForm.reset();
+                                selectedFilesDiv.innerHTML = '';
+                                window.location.reload();
+                            });
+                        } else {
+                            alert(`${validFiles.length} file(s) uploaded successfully.`);
+                            closeModal('uploadDocumentsModal');
+                            uploadForm.reset();
+                            selectedFilesDiv.innerHTML = '';
+                            window.location.reload();
+                        }
+                    } else {
+                        throw new Error(data.message || 'Failed to upload files');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message || 'An error occurred while uploading the files');
+                })
+                .finally(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                });
+            });
 
             function addDocumentToTable(doc) {
                 const row = document.createElement('tr');
                 row.className = 'activity-item';
                 row.setAttribute('data-doc-id', doc.id);
+                row.setAttribute('data-category', doc.category || '');
 
-                const uploadedDate = new Date(doc.uploaded);
-                const formattedDate = uploadedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const safeName = (doc && typeof doc.name === 'string' && doc.name.trim().length) ? doc.name : 'Untitled';
+                let formattedDate = '—';
+                try {
+                    const uploadedDate = new Date(doc && doc.uploaded ? doc.uploaded : '');
+                    if (!isNaN(uploadedDate.getTime())) {
+                        formattedDate = uploadedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                    }
+                } catch(_) {}
 
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -1248,7 +2081,7 @@
                                   '<i class="bx bxs-file text-gray-500 text-xl"></i>'}
                             </div>
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">${doc.name}</div>
+                                <div class="text-sm font-medium text-gray-900 doc-name" data-name="${safeName}">${(window.revealedDocs && window.revealedDocs.has(String(doc.id))) ? safeName : (window.maskName ? window.maskName(safeName) : safeName)}</div>
                                 <div class="text-xs text-gray-500">${doc.size}</div>
                             </div>
                         </div>
@@ -1259,8 +2092,11 @@
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${doc.status}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick='showDocumentDetails(${JSON.stringify(doc)})' class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
-                        <button onclick='showDownloadDocumentModal(${JSON.stringify(doc)})' class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-download"></i></button>
+                        <button onclick='requireOtpForDoc(${JSON.stringify(doc)})' class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer" title="View (OTP required)">View</button>
+                        ${(window.revealedDocs && window.revealedDocs.has(String(doc.id))) ? `<button onclick='lockDoc(${JSON.stringify(doc.id)})' class="text-gray-600 hover:text-gray-900 mr-3 bg-transparent border-none p-0 cursor-pointer" title="Lock"><i class="bx bx-lock-alt"></i></button>` : ''}
+                        <button onclick='showDownloadDocumentModal(${JSON.stringify(doc)})' class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs font-medium mr-2 transition-colors" title="Download Document">
+                            <i class="bx bx-download mr-1"></i>Download
+                        </button>
                         <button onclick='showShareDocumentModal(${JSON.stringify(doc)})' class="text-gray-600 hover:text-gray-900 mr-3 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-share-alt"></i></button>
                         <button onclick="showDeleteDocumentConfirmation('${doc.id}')" class="text-red-600 hover:text-red-900 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-trash"></i></button>
                     </td>
@@ -1318,13 +2154,19 @@
 
             window.showDocumentDetails = function(doc) {
                 const contentDiv = document.getElementById('documentDetailsContent');
-                const uploadedDate = new Date(doc.uploaded);
-                const formattedDate = uploadedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                const safeName = (doc && typeof doc.name === 'string' && doc.name.trim().length) ? doc.name : 'Untitled';
+                let formattedDate = '—';
+                try {
+                    const uploadedDate = new Date(doc && doc.uploaded ? doc.uploaded : '');
+                    if (!isNaN(uploadedDate.getTime())) {
+                        formattedDate = uploadedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    }
+                } catch(_) {}
 
                 contentDiv.innerHTML = `
                     <div class="space-y-6">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900">${doc.name}</h3>
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">${safeName}</h3>
                             <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
                                 ${doc.status}
                             </span>
@@ -1337,11 +2179,11 @@
                                 </div>
                                 <div class="mb-4">
                                     <dt class="text-sm font-medium text-gray-500">Type</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${doc.type}</dd>
+                                    <dd class="mt-1 text-sm text-gray-900">${(doc.type || '—')}</dd>
                                 </div>
                                 <div class="mb-4">
                                     <dt class="text-sm font-medium text-gray-500">Size</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${doc.size}</dd>
+                                    <dd class="mt-1 text-sm text-gray-900">${(doc.size || '—')}</dd>
                                 </div>
                                 <div class="mb-4">
                                     <dt class="text-sm font-medium text-gray-500">Uploaded</dt>
@@ -1366,6 +2208,7 @@
             // Download modal handlers
             let currentDownloadDoc = null;
             window.showDownloadDocumentModal = function(doc) {
+                console.log('Download document clicked:', doc); // Debug log
                 currentDownloadDoc = doc;
                 document.getElementById('downloadDocName').textContent = doc.name || '—';
                 document.getElementById('downloadDocType').textContent = doc.type || '—';
@@ -1373,14 +2216,59 @@
                 openModal('downloadDocumentModal');
             };
             window.performDownload = function() {
+                console.log('Perform download called with:', currentDownloadDoc); // Debug log
+                
                 if (!currentDownloadDoc || !currentDownloadDoc.id) {
-                    alert('Document not available for download.');
+                    console.log('Download failed - missing document or ID'); // Debug log
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Download Error',
+                        text: 'Document not available for download.',
+                        confirmButtonColor: '#2f855A'
+                    });
                     return;
                 }
-                const baseDocUrl = "{{ url('/document') }}";
-                const url = `${baseDocUrl}/${currentDownloadDoc.id}/download`;
-                closeModal('downloadDocumentModal');
-                window.location.href = url;
+                
+                // Show loading state
+                const downloadBtn = document.getElementById('confirmDownloadBtn');
+                const originalText = downloadBtn.innerHTML;
+                downloadBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Downloading...';
+                downloadBtn.disabled = true;
+                
+                // Use the document code (stored in id field) for download
+                const url = "/document/" + currentDownloadDoc.id + "/download";
+                console.log('Download URL:', url); // Debug log
+                
+                // Create a temporary link to trigger download
+                const link = document.createElement('a');
+                link.href = url;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                
+                // Handle download success/failure
+                link.onerror = function() {
+                    console.log('Download error occurred'); // Debug log
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Download Failed',
+                        text: 'Failed to download the document. Please try again.',
+                        confirmButtonColor: '#2f855A'
+                    });
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                    closeModal('downloadDocumentModal');
+                };
+                
+                link.click();
+                document.body.removeChild(link);
+                
+                // Close modal after a short delay and show success message
+                setTimeout(() => {
+                    closeModal('downloadDocumentModal');
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                    showSuccessMessage('Download started successfully!');
+                }, 1000);
             };
 
             // Share modal handlers
@@ -1463,319 +2351,251 @@
 
         // Document List and Category Filtering
         document.addEventListener('DOMContentLoaded', function() {
-            // Sample document data - in a real app, this would come from your backend
-            const documents = [
-                { id: 1, name: 'Q1 Financial Report.pdf', type: 'PDF', category: 'financial', uploaded: '2023-10-15', status: 'Indexed' },
-                { id: 2, name: 'Employee Handbook 2023.docx', type: 'Word', category: 'hr', uploaded: '2023-10-10', status: 'Indexed' },
-                { id: 3, name: 'Non-Disclosure Agreement.pdf', type: 'PDF', category: 'legal', uploaded: '2023-10-05', status: 'Pending' },
-                { id: 4, name: 'SOP - Document Management.docx', type: 'Word', category: 'operations', uploaded: '2023-09-28', status: 'Indexed' },
-                { id: 5, name: 'Budget Forecast 2024.xlsx', type: 'Excel', category: 'financial', uploaded: '2023-09-20', status: 'Indexed' },
-                { id: 6, name: 'Employee Benefits Guide.pdf', type: 'PDF', category: 'hr', uploaded: '2023-09-15', status: 'Indexed' },
-                { id: 7, name: 'Vendor Contract Template.docx', type: 'Word', category: 'legal', uploaded: '2023-09-10', status: 'Pending' },
-                { id: 8, name: 'IT Security Policy.pdf', type: 'PDF', category: 'operations', uploaded: '2023-09-05', status: 'Indexed' },
-                { id: 9, name: 'Annual Report 2023.pdf', type: 'PDF', category: 'financial', uploaded: '2023-08-28', status: 'Indexed' },
-                { id: 10, name: 'Onboarding Checklist.xlsx', type: 'Excel', category: 'hr', uploaded: '2023-08-20', status: 'Indexed' }
-            ];
+            // Load documents from backend (passed from controller)
+            const documents = Array.isArray(@json($documents ?? [])) ? @json($documents ?? []) : [];
+            
+            console.log('Documents loaded:', documents.length); // Debug log
 
             // DOM Elements
             const documentList = document.getElementById('documentList');
             const categoryCards = document.querySelectorAll('.category-card');
-            const documentSearch = document.getElementById('documentSearch');
-            const uploadCategory = document.getElementById('uploadCategory');
-            const prevPageBtn = document.getElementById('prevPage');
-            const nextPageBtn = document.getElementById('nextPage');
-            const paginationStart = document.getElementById('paginationStart');
-            const paginationEnd = document.getElementById('paginationEnd');
-            const paginationTotal = document.getElementById('paginationTotal');
-            const visibleCount = document.getElementById('visibleCount');
-            const totalCount = document.getElementById('totalCount');
+            const visibleCountEl = document.getElementById('visibleCount');
+            const totalCountEl = document.getElementById('totalCount');
 
             // State
             let currentCategory = 'all';
-            let currentSearch = '';
-            let currentPage = 1;
-            const itemsPerPage = 5;
-
-            // Initialize
-            renderDocuments();
-            updatePagination();
-
-            // Event Listeners
-            categoryCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    // Update active category
-                    document.querySelector('.category-card.active-category')?.classList.remove('active-category');
-                    card.classList.add('active-category');
+            // Use the existing revealedDocs from OTP system
+            let revealedDocs = window.revealedDocs || new Set();
+            
+            // Restore revealed documents from localStorage on page load
+            try {
+                const saved = localStorage.getItem('revealedDocs');
+                if (saved) {
+                    const savedIds = JSON.parse(saved);
+                    console.log('Found saved IDs:', savedIds); // Debug log
+                    console.log('Available document IDs:', documents.map(d => d.id)); // Debug log
                     
-                    // Update current category and reset to first page
-                    currentCategory = card.dataset.category;
-                    currentPage = 1;
-                    
-                    // Update upload category select if not 'all'
-                    if (currentCategory !== 'all') {
-                        uploadCategory.value = currentCategory;
-                    }
-                    
-                    // Re-render documents
-                    renderDocuments();
-                    updatePagination();
-                });
-            });
-
-            documentSearch.addEventListener('input', (e) => {
-                currentSearch = e.target.value.toLowerCase();
-                currentPage = 1; // Reset to first page when searching
-                renderDocuments();
-                updatePagination();
-            });
-
-            prevPageBtn.addEventListener('click', () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    renderDocuments();
-                    updatePagination();
-                    window.scrollTo({ top: document.getElementById('documentList').offsetTop - 20, behavior: 'smooth' });
+                    savedIds.forEach(id => {
+                        const doc = documents.find(d => d.id === id);
+                        if (doc) {
+                            revealedDocs.add(id);
+                            console.log('Restored document:', id, '-', doc.name); // Debug log
+                        } else {
+                            console.log('Document not found for ID:', id); // Debug log
+                        }
+                    });
+                    console.log('Final revealed documents:', Array.from(revealedDocs)); // Debug log
                 }
-            });
+            } catch (error) {
+                console.error('Error restoring revealed documents:', error); // Debug log
+            }
+            
+            // Sync with global OTP system
+            window.revealedDocs = revealedDocs;
 
-            nextPageBtn.addEventListener('click', () => {
-                const totalPages = Math.ceil(getFilteredDocuments().length / itemsPerPage);
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    renderDocuments();
-                    updatePagination();
-                    window.scrollTo({ top: document.getElementById('documentList').offsetTop - 20, behavior: 'smooth' });
+            // Function to mask document name
+            function maskDocumentName(name) {
+                if (!name || typeof name !== 'string') return 'Untitled';
+                const lastDot = name.lastIndexOf('.');
+                if (lastDot <= 0) {
+                    return '*'.repeat(Math.min(name.length, 8));
                 }
-            });
-
-            // Helper Functions
-            function getFilteredDocuments() {
-                return documents.filter(doc => {
-                    // Filter by category
-                    const categoryMatch = currentCategory === 'all' || doc.category === currentCategory;
-                    
-                    // Filter by search term
-                    const searchMatch = !currentSearch || 
-                        doc.name.toLowerCase().includes(currentSearch) ||
-                        doc.type.toLowerCase().includes(currentSearch) ||
-                        doc.category.toLowerCase().includes(currentSearch) ||
-                        doc.status.toLowerCase().includes(currentSearch);
-                    
-                    return categoryMatch && searchMatch;
-                });
+                const base = name.slice(0, lastDot);
+                const ext = name.slice(lastDot);
+                const masked = '*'.repeat(Math.min(base.length, 6));
+                return masked + ext;
             }
 
-            function renderDocuments() {
-                const filteredDocs = getFilteredDocuments();
-                const startIndex = (currentPage - 1) * itemsPerPage;
-                const paginatedDocs = filteredDocs.slice(startIndex, startIndex + itemsPerPage);
+            // Function to toggle lock/unlock for a document
+            function toggleDocumentLock(docId, button) {
+                if (revealedDocs.has(docId)) {
+                    // Document is currently unlocked, so lock it
+                    revealedDocs.delete(docId);
+                    button.innerHTML = '<i class="bx bx-lock-open-alt"></i>';
+                    button.title = 'Unlock';
+                    button.classList.remove('text-green-600');
+                    button.classList.add('text-gray-600');
+                    
+                    // Save to localStorage immediately
+                    try {
+                        localStorage.setItem('revealedDocs', JSON.stringify(Array.from(revealedDocs)));
+                        console.log('Saved locked state to localStorage'); // Debug log
+                    } catch(_) {}
+                } else {
+                    // Document is currently locked, so unlock it - require OTP for security
+                    requireOtpForDoc({ id: docId, name: documents.find(d => d.id === docId)?.name });
+                    // Button will be updated after OTP verification
+                }
+                
+                // Sync with global OTP system
+                window.revealedDocs = revealedDocs;
+                
+                // Re-render documents to update the name display
+                renderDocuments(currentCategory);
+            }
 
+            // Function to render documents
+            function renderDocuments(category = 'all') {
+                console.log('Rendering documents for category:', category); // Debug log
+                console.log('Current revealedDocs:', Array.from(revealedDocs)); // Debug log
+                
+                // Filter documents based on category
+                const filteredDocs = category === 'all' 
+                    ? documents 
+                    : documents.filter(doc => doc.category === category);
+                
+                console.log('Filtered documents:', filteredDocs.length); // Debug log
+                
                 // Clear current list
                 documentList.innerHTML = '';
-
-                if (paginatedDocs.length === 0) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                            No documents found matching your criteria.
-                        </td>
+                
+                if (filteredDocs.length === 0) {
+                    documentList.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                <div class="flex flex-col items-center">
+                                    <i class="bx bx-file text-4xl text-gray-300 mb-3"></i>
+                                    <p class="text-lg font-medium">No documents found</p>
+                                    <p class="text-sm mt-1">${category === 'all' ? 'Upload your first document to get started' : 'No documents in this category'}</p>
+                                </div>
+                            </td>
+                        </tr>
                     `;
-                    documentList.appendChild(row);
-                    return;
-                }
-
-                // Add documents to the list
-                paginatedDocs.forEach(doc => {
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50';
-                    row.innerHTML = `
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-md ${
-                                    doc.status === 'Indexed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                } else {
+                    filteredDocs.forEach(doc => {
+                        const row = document.createElement('tr');
+                        row.className = 'hover:bg-gray-50';
+                        row.setAttribute('data-category', doc.category || '');
+                        row.setAttribute('data-doc-id', doc.id); // Important for OTP system
+                        
+                        const safeName = (doc && typeof doc.name === 'string' && doc.name.trim().length) ? doc.name : 'Untitled';
+                        const isRevealed = revealedDocs.has(doc.id);
+                        const displayName = isRevealed ? safeName : maskDocumentName(safeName);
+                        
+                        console.log('Document:', doc.id, '-', safeName, 'Revealed:', isRevealed, 'Display:', displayName); // Debug log
+                        
+                        row.innerHTML = `
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                        <i class="bx ${getFileIcon(doc.type)} text-xl"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900 doc-name" data-name="${safeName}">${displayName}</div>
+                                        <div class="text-xs text-gray-500">${doc.size || '—'}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    ${doc.type || '—'}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full ${getCategoryClass(doc.category)}">
+                                    ${(doc.category ? (doc.category.charAt(0).toUpperCase() + doc.category.slice(1)) : '—')}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ${formatDate(doc.uploaded)}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
                                 }">
-                                    <i class="bx ${getFileIcon(doc.type)} text-lg"></i>
-                                </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">${doc.name}</div>
-                                    <div class="text-xs text-gray-500">${formatFileSize(1024 * (doc.id * 100))}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                ${doc.type}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 py-1 text-xs rounded-full ${
-                                getCategoryClass(doc.category)
-                            }">
-                                ${doc.category.charAt(0).toUpperCase() + doc.category.slice(1)}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            ${formatDate(doc.uploaded)}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                            }">
-                                ${doc.status}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button onclick="showDocumentDetails(${doc.id})" class="text-blue-600 hover:text-blue-900 mr-3">
-                                <i class="bx bx-show"></i>
-                            </button>
-                            <a href="#" class="text-gray-600 hover:text-gray-900 mr-3">
-                                <i class="bx bx-download"></i>
-                            </a>
-                            <button onclick="showShareDocumentModal(${doc.id})" class="text-gray-600 hover:text-gray-900">
-                                <i class="bx bx-share-alt"></i>
-                            </button>
-                        </td>
-                    `;
-                    documentList.appendChild(row);
-                });
-
-                // Update counts
-                visibleCount.textContent = filteredDocs.length;
-                totalCount.textContent = documents.length;
-            }
-
-            function updatePagination() {
-                const filteredDocs = getFilteredDocuments();
-                const totalPages = Math.ceil(filteredDocs.length / itemsPerPage);
-                const startItem = filteredDocs.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
-                const endItem = Math.min(startItem + itemsPerPage - 1, filteredDocs.length);
-
-                paginationStart.textContent = startItem;
-                paginationEnd.textContent = endItem;
-                paginationTotal.textContent = filteredDocs.length;
-
-                // Update button states
-                prevPageBtn.disabled = currentPage === 1;
-                nextPageBtn.disabled = currentPage >= totalPages;
-            }
-
-            function getFileIcon(fileType) {
-                switch(fileType.toLowerCase()) {
-                    case 'pdf': return 'bxs-file-pdf';
-                    case 'word': 
-                    case 'docx': 
-                    case 'doc': return 'bxs-file-doc';
-                    case 'excel': 
-                    case 'xlsx': 
-                    case 'xls': return 'bxs-file-xls';
-                    case 'powerpoint': 
-                    case 'pptx': 
-                    case 'ppt': return 'bxs-file-ppt';
-                    default: return 'bxs-file';
+                                    ${doc.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button onclick="requireOtpForDoc(${JSON.stringify(doc)})" class="text-blue-600 hover:text-blue-900 mr-3" title="View (OTP required)">
+                                    <i class="bx bx-show"></i>
+                                </button>
+                                <button onclick="toggleDocumentLock('${doc.id}', this)" 
+                                        class="${revealedDocs.has(doc.id) ? 'text-green-600' : 'text-gray-600'} hover:text-gray-900 mr-3" 
+                                        title="${revealedDocs.has(doc.id) ? 'Lock' : 'Unlock'}">
+                                    <i class="bx ${revealedDocs.has(doc.id) ? 'bx-lock' : 'bx-lock-open-alt'}"></i>
+                                </button>
+                                <button onclick='showDownloadDocumentModal(${JSON.stringify(doc)})' class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs font-medium mr-2 transition-colors" title="Download Document">
+                                    <i class="bx bx-download mr-1"></i>Download
+                                </button>
+                                <button onclick='showShareDocumentModal(${JSON.stringify(doc)})' class="text-gray-600 hover:text-gray-900 mr-3" title="Share Document">
+                                    <i class="bx bx-share-alt"></i>
+                                </button>
+                            </td>
+                        `;
+                        documentList.appendChild(row);
+                    });
                 }
+                
+                // Update counts
+                if (visibleCountEl) visibleCountEl.textContent = filteredDocs.length;
+                if (totalCountEl) totalCountEl.textContent = documents.length;
+            }
+
+            // Helper functions
+            function getFileIcon(type) {
+                const typeStr = String(type || '').toLowerCase();
+                if (typeStr.includes('pdf')) return 'bxs-file-pdf';
+                if (typeStr.includes('doc')) return 'bxs-file-doc';
+                if (typeStr.includes('xls')) return 'bxs-file-xls';
+                if (typeStr.includes('ppt')) return 'bxs-file-slideshow';
+                return 'bxs-file';
             }
 
             function getCategoryClass(category) {
-                switch(category) {
-                    case 'financial': return 'bg-green-100 text-green-800';
-                    case 'hr': return 'bg-blue-100 text-blue-800';
-                    case 'legal': return 'bg-yellow-100 text-yellow-800';
-                    case 'operations': return 'bg-purple-100 text-purple-800';
-                    default: return 'bg-gray-100 text-gray-800';
-                }
+                const classes = {
+                    'financial': 'bg-green-100 text-green-800',
+                    'hr': 'bg-blue-100 text-blue-800',
+                    'legal': 'bg-yellow-100 text-yellow-800',
+                    'operations': 'bg-purple-100 text-purple-800',
+                    'contracts': 'bg-red-100 text-red-800',
+                    'utilities': 'bg-cyan-100 text-cyan-800',
+                    'projects': 'bg-pink-100 text-pink-800',
+                    'procurement': 'bg-indigo-100 text-indigo-800',
+                    'it': 'bg-gray-100 text-gray-800',
+                    'payroll': 'bg-amber-100 text-amber-800'
+                };
+                return classes[category] || 'bg-gray-100 text-gray-800';
             }
 
             function formatDate(dateString) {
-                const options = { year: 'numeric', month: 'short', day: 'numeric' };
-                return new Date(dateString).toLocaleDateString('en-US', options);
+                try {
+                    if (!dateString) return '—';
+                    const d = new Date(dateString);
+                    if (isNaN(d.getTime())) return '—';
+                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                } catch(_) {
+                    return '—';
+                }
             }
 
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            // Category card click handlers
+            categoryCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const selectedCategory = this.getAttribute('data-category');
+                    console.log('Category clicked:', selectedCategory); // Debug log
+                    
+                    // Update active state
+                    categoryCards.forEach(c => c.classList.remove('active-category', 'ring-2', 'ring-[#2f855A]'));
+                    this.classList.add('active-category', 'ring-2', 'ring-[#2f855A]');
+                    
+                    // Update current category and render
+                    currentCategory = selectedCategory;
+                    renderDocuments(currentCategory);
+                });
+            });
+
+            // Initial render
+            renderDocuments('all');
+            
+            // Set initial active state for "All Documents"
+            const allCard = document.querySelector('[data-category="all"]');
+            if (allCard) {
+                allCard.classList.add('active-category', 'ring-2', 'ring-[#2f855A]');
             }
-
-            // Make functions available globally for the inline event handlers
-            window.showDocumentDetails = function(id) {
-                const doc = documents.find(d => d.id === id);
-                if (doc) {
-                    const modal = document.getElementById('documentModal');
-                    const title = document.getElementById('document-modal-title');
-                    const content = document.getElementById('documentDetailsContent');
-                    
-                    title.textContent = doc.name;
-                    content.innerHTML = `
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                <div class="flex-shrink-0 h-12 w-12 rounded-lg ${
-                                    doc.status === 'Indexed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                                } flex items-center justify-center mr-4">
-                                    <i class="bx ${getFileIcon(doc.type)} text-2xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-lg font-medium text-gray-900">${doc.name}</h4>
-                                    <p class="text-sm text-gray-500">${doc.type} • ${formatFileSize(1024 * (doc.id * 100))}</p>
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4 mt-6">
-                                <div>
-                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Category</p>
-                                    <p class="mt-1 text-sm text-gray-900">${doc.category.charAt(0).toUpperCase() + doc.category.slice(1)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded</p>
-                                    <p class="mt-1 text-sm text-gray-900">${formatDate(doc.uploaded)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Status</p>
-                                    <span class="mt-1 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                        doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                    }">
-                                        ${doc.status}
-                                    </span>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Size</p>
-                                    <p class="mt-1 text-sm text-gray-900">${formatFileSize(1024 * (doc.id * 100))}</p>
-                                </div>
-                            </div>
-                            <div class="mt-6 pt-6 border-t border-gray-200">
-                                <div class="flex space-x-3">
-                                    <a href="#" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <i class="bx bx-download mr-2"></i>
-                                        Download
-                                    </a>
-                                    <button type="button" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <i class="bx bx-edit mr-2"></i>
-                                        Edit Details
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                }
-            };
-
-            window.showShareDocumentModal = function(id) {
-                const doc = documents.find(d => d.id === id);
-                if (doc) {
-                    const modal = document.getElementById('shareDocumentModal');
-                    const title = document.getElementById('share-document-modal-title');
-                    const shareLink = document.getElementById('shareLink');
-                    
-                    title.textContent = `Share ${doc.name}`;
-                    shareLink.value = `${window.location.origin}/documents/${doc.id}`;
-                    
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                }
-            };
+            
+            // Initialize Lock All button state and restore revealed documents
+            initializeLockState();
         });
     </script>
 </body>

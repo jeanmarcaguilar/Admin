@@ -187,6 +187,17 @@ $user = auth()->user();
         </div>
     </nav>
     <script>
+      (function(){
+        if (typeof window.openCaseWithConfGate !== 'function'){
+          window.openCaseWithConfGate = function(href){
+            try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+            if (href){ window.location.href = href; }
+            return false;
+          };
+        }
+      })();
+    </script>
+    <script>
       if (typeof window.toggleSidebarDropdown !== 'function') {
         window.toggleSidebarDropdown = function(el){
           try{
@@ -380,16 +391,15 @@ $user = auth()->user();
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
                             <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Reservations</span>
+                                <i class="bx bx-group"></i>
+                                <span>Visitor Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown">
@@ -407,6 +417,21 @@ $user = auth()->user();
                             <li><a href="{{ route('document.archival.retention.policy') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-archive mr-2"></i>Archival & Retention Policy</a></li>
                         </ul>
                     </li>
+                    <li class="has-dropdown">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
+                            <div class="flex items-center space-x-2">
+                                <i class="bx bx-calendar-check"></i>
+                                <span>Facilities Management</span>
+                            </div>
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+                        </div>
+                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                        </ul>
+                    </li>
                     <li class="has-dropdown active">
                         <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
                             <div class="flex items-center space-x-2">
@@ -416,24 +441,10 @@ $user = auth()->user();
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300 rotate-180"></i>
                         </div>
                         <ul class="dropdown-menu bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
                             <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
                             <li><a href="{{ route('document.compliance.tracking') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
                             <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li>
@@ -554,6 +565,7 @@ $user = auth()->user();
                                     <option value="financial">Financial</option>
                                     <option value="hr">HR</option>
                                     <option value="safety">Safety</option>
+                                    <option value="government">Government</option>
                                 </select>
                                 <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
                                     <i class="fas fa-filter text-gray-600 mr-2"></i>
@@ -563,6 +575,13 @@ $user = auth()->user();
                         </div>
                     </section>
                     <section class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Compliance Management</h3>
+                            <button id="lockAllComplianceBtn" type="button" class="inline-flex items-center px-3 py-1.5 bg-gray-700 text-white rounded-md text-xs hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600">
+                                <i class="bx bx-lock mr-1"></i>
+                                Lock All
+                            </button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
@@ -614,6 +633,31 @@ $user = auth()->user();
                                             <td colspan="6" class="px-6 py-10 text-center text-sm text-gray-500">No compliance items found.</td>
                                         </tr>
                                     @endforelse
+                                    <tr class="table-row">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-medium text-gray-900">CPL-2023-046</div>
+                                            <div class="text-xs text-gray-500">Created: 2023-10-01</div>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm font-medium text-gray-900">Government Permit Renewal</div>
+                                            <div class="text-xs text-gray-500">Annual business permit compliance</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">Government</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">2024-01-15</div>
+                                            <div class="text-xs text-gray-500">in 45 days</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <a href="#" class="text-[#2f855A] hover:text-[#1a4d38] mr-3" data-tooltip="View"><i class="fas fa-eye"></i></a>
+                                            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit"><i class="fas fa-edit"></i></a>
+                                            <a href="#" class="text-red-600 hover:text-red-900" data-tooltip="Delete"><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
                                     <tr class="table-row">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm font-medium text-gray-900">CPL-2023-045</div>
@@ -1071,6 +1115,7 @@ $user = auth()->user();
                                 <option value="financial">Financial</option>
                                 <option value="hr">HR</option>
                                 <option value="safety">Safety</option>
+                                <option value="government">Government</option>
                                 <option value="environmental">Environmental</option>
                                 <option value="other">Other</option>
                             </select>
@@ -1158,6 +1203,7 @@ $user = auth()->user();
                             <option value="financial">Financial</option>
                             <option value="hr">HR</option>
                             <option value="safety">Safety</option>
+                            <option value="government">Government</option>
                             <option value="environmental">Environmental</option>
                             <option value="other">Other</option>
                         </select>
@@ -1883,6 +1929,16 @@ document.addEventListener("DOMContentLoaded", () => {
             completed: 'bg-blue-100 text-blue-800'
         }[compliance.status] || 'bg-gray-100 text-gray-800';
 
+        const typeClasses = {
+            legal: 'bg-blue-100 text-blue-800',
+            financial: 'bg-blue-100 text-blue-800',
+            hr: 'bg-green-100 text-green-800',
+            safety: 'bg-orange-100 text-orange-800',
+            government: 'bg-purple-100 text-purple-800',
+            environmental: 'bg-teal-100 text-teal-800',
+            other: 'bg-gray-100 text-gray-800'
+        }[compliance.type] || 'bg-gray-100 text-gray-800';
+
         const tr = document.createElement('tr');
         tr.className = 'table-row';
         tr.dataset.id = compliance.id;
@@ -1896,7 +1952,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="text-xs text-gray-500">${compliance.description ? compliance.description.substring(0, 50) + (compliance.description.length > 50 ? '...' : '') : 'No description'}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">${compliance.type.charAt(0).toUpperCase() + compliance.type.slice(1)}</span>
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${typeClasses}">${compliance.type.charAt(0).toUpperCase() + compliance.type.slice(1)}</span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">${compliance.due_date.split('T')[0]}</div>
@@ -2303,6 +2359,140 @@ document.addEventListener("DOMContentLoaded", () => {
         initComplianceTracking();
     }
 });
+
+// Compliance tracking lock synchronization with case management
+(function() {
+    // Lock all compliance items function
+    window.lockAllComplianceItems = function() {
+        const tableRows = document.querySelectorAll('tbody tr');
+        const buttons = document.querySelectorAll('button:not([id*="notificationBtn"]):not([id*="userMenuBtn"]):not([id*="toggle-btn"])');
+        const inputs = document.querySelectorAll('input, select, textarea');
+        const actionButtons = document.querySelectorAll('.fa-edit, .fa-trash, .fa-eye, [onclick*="edit"], [onclick*="delete"], [onclick*="view"]');
+        
+        // Add locked class and mask data in table rows
+        tableRows.forEach(row => {
+            row.classList.add('locked-row');
+            const cells = row.querySelectorAll('td');
+            cells.forEach((cell, index) => {
+                // Skip the first column (ID) and last column (actions) for masking
+                if (index > 0 && index < cells.length - 1) {
+                    const originalText = cell.textContent.trim();
+                    // Check if cell contains actual text content (not HTML elements)
+                    if (originalText && cell.children.length === 0) {
+                        cell.setAttribute('data-original-text', originalText);
+                        cell.textContent = '••••••••';
+                        cell.style.color = '#9ca3af';
+                        cell.style.fontStyle = 'italic';
+                    }
+                }
+            });
+        });
+        
+        // Disable all buttons except essential navigation ones
+        buttons.forEach(button => {
+            if (!button.closest('#notificationDropdown') && !button.closest('#userMenuDropdown')) {
+                button.disabled = true;
+                button.style.opacity = '0.5';
+                button.style.cursor = 'not-allowed';
+                button.setAttribute('title', 'Access restricted - Cases are locked');
+            }
+        });
+        
+        // Disable all form inputs
+        inputs.forEach(input => {
+            input.disabled = true;
+            input.style.opacity = '0.5';
+            input.style.cursor = 'not-allowed';
+        });
+        
+        // Hide action buttons
+        actionButtons.forEach(button => {
+            button.style.display = 'none';
+        });
+        
+        console.log('Compliance tracking items locked due to case management lock');
+    };
+
+    // Unlock all compliance items function
+    window.unlockAllComplianceItems = function() {
+        const tableRows = document.querySelectorAll('tbody tr.locked-row');
+        const buttons = document.querySelectorAll('button:disabled');
+        const inputs = document.querySelectorAll('input:disabled, select:disabled, textarea:disabled');
+        const actionButtons = document.querySelectorAll('.fa-edit, .fa-trash, .fa-eye, [onclick*="edit"], [onclick*="delete"], [onclick*="view"]');
+        
+        // Remove locked class and restore data in table rows
+        tableRows.forEach(row => {
+            row.classList.remove('locked-row');
+            const cells = row.querySelectorAll('td');
+            cells.forEach((cell, index) => {
+                if (index > 0 && index < cells.length - 1) {
+                    const originalText = cell.getAttribute('data-original-text');
+                    if (originalText) {
+                        cell.textContent = originalText;
+                        cell.removeAttribute('data-original-text');
+                        cell.style.color = '';
+                        cell.style.fontStyle = '';
+                    }
+                }
+            });
+        });
+        
+        // Enable all buttons
+        buttons.forEach(button => {
+            button.disabled = false;
+            button.style.opacity = '';
+            button.style.cursor = '';
+            button.removeAttribute('title');
+        });
+        
+        // Enable all form inputs
+        inputs.forEach(input => {
+            input.disabled = false;
+            input.style.opacity = '';
+            input.style.cursor = '';
+        });
+        
+        // Show action buttons
+        actionButtons.forEach(button => {
+            button.style.display = '';
+        });
+        
+        console.log('Compliance tracking items unlocked');
+    };
+
+    // Initialize lock state based on compliance tracking lock
+    function initializeComplianceLockState() {
+        const isLocked = localStorage.getItem('complianceLocked') === 'true';
+        console.log('Initializing compliance lock state. Compliance locked:', isLocked);
+        
+        if (isLocked) {
+            window.lockAllComplianceItems();
+        } else {
+            window.unlockAllComplianceItems();
+        }
+    }
+
+    // Listen for localStorage changes (cross-tab synchronization)
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'complianceLocked') {
+            const isLocked = e.newValue === 'true';
+            console.log('Storage event detected - complianceLocked changed to:', isLocked);
+            
+            if (isLocked) {
+                window.lockAllComplianceItems();
+            } else {
+                window.unlockAllComplianceItems();
+            }
+        }
+    });
+
+    // Initialize lock state when page loads
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeComplianceLockState);
+    } else {
+        initializeComplianceLockState();
+    }
+})();
 </script>
 </body>
 </html>

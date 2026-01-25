@@ -141,6 +141,13 @@ CREATE TABLE `case_files` (
   `filed_date` date DEFAULT NULL,
   `hearing_date` date DEFAULT NULL,
   `hearing_time` varchar(20) DEFAULT NULL,
+  `contract_type` enum('employee','employment','service','other') DEFAULT NULL,
+  `contract_number` varchar(100) DEFAULT NULL,
+  `contract_date` date DEFAULT NULL,
+  `contract_expiration` date DEFAULT NULL,
+  `contract_status` enum('active','expired','terminated','renewed') DEFAULT NULL,
+  `contract_notes` text DEFAULT NULL,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -149,20 +156,20 @@ CREATE TABLE `case_files` (
 -- Dumping data for table `case_files`
 --
 
-INSERT INTO `case_files` (`id`, `number`, `name`, `type_label`, `type_badge`, `client`, `client_org`, `client_initials`, `status`, `filed_date`, `hearing_date`, `hearing_time`, `created_at`, `updated_at`) VALUES
-(1, 'C-2025-001', 'Smith vs. Johnson Contract Dispute', 'Civil', 'Contract', 'John Smith', 'Smith Enterprises', 'JS', 'active', NULL, '2025-11-15', '09:00 AM', '2025-10-18 11:52:59', '2025-10-20 00:02:06'),
-(2, 'C-2025-002', 'ABC Corp Employment Case', 'Labor', 'Employment', 'ABC Corporation', 'ABC Corp', 'AC', 'urgent', NULL, '2025-11-20', '02:00 PM', '2025-10-18 11:52:59', '2025-10-20 00:02:06'),
-(3, 'C-2025-003', 'Property Rights Litigation', 'Property', 'Real Estate', 'Maria Garcia', 'Garcia Properties', 'MG', 'pending', NULL, '2025-12-05', '10:30 AM', '2025-10-18 11:52:59', '2025-10-20 00:02:06'),
-(4, 'C-2025-004', 'Patent Infringement Case', 'Intellectual Property', 'Patent', 'Tech Innovations Ltd', 'Tech Innovations', 'TI', 'active', NULL, '2025-02-12', '11:00 AM', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(5, 'C-2025-005', 'Family Law Matter', 'Family', 'Divorce', 'Robert Chen', 'Chen Family', 'RC', 'completed', NULL, '2025-01-30', '09:30 AM', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(6, 'C-2025-006', 'Criminal Defense Case', 'Criminal', 'Defense', 'Lisa Martinez', 'Martinez Defense', 'LM', 'active', NULL, '2025-02-18', '03:00 PM', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(7, 'C-2025-007', 'Corporate Merger', 'Corporate', 'Merger', 'Wilson & Associates', 'Wilson Corp', 'WA', 'urgent', NULL, '2025-02-08', '01:00 PM', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(8, 'C-2025-008', 'Personal Injury Claim', 'Personal Injury', 'Tort', 'James Wilson', 'Wilson Legal', 'JW', 'pending', NULL, '2025-02-25', '10:00 AM', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(9, 'C-2024-001', 'Smith vs. Johnson Contract Dispute', 'Civil', 'Civil', 'John Smith', 'Smith Enterprises', 'JS', 'Active', NULL, '2024-02-15', '10:00', '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
-(10, 'C-2024-002', 'State vs. Robert Davis', 'Criminal Defense', 'Criminal', 'Robert Davis', '', 'RD', 'Pending', NULL, '2024-02-20', '14:30', '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
-(11, 'C-2024-003', 'Williams Divorce Proceedings', 'Family Law', 'Family', 'Sarah Williams', '', 'SW', 'Active', NULL, '2024-02-25', '09:00', '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
-(12, 'C-2024-004', 'TechCorp Merger Agreement', 'Corporate', 'Corporate', 'TechCorp Inc.', 'TechCorp Inc.', 'TC', 'Closed', NULL, NULL, NULL, '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
-(13, 'C-2024-005', 'Innovation Patent Dispute', 'Intellectual Property', 'IP', 'Innovation Labs', 'Innovation Labs LLC', 'IL', 'Active', NULL, '2024-03-01', '11:00', '2025-10-19 23:54:00', '2025-10-19 23:54:00');
+INSERT INTO `case_files` (`id`, `number`, `name`, `type_label`, `type_badge`, `client`, `client_org`, `client_initials`, `status`, `filed_date`, `hearing_date`, `hearing_time`, `contract_type`, `contract_number`, `contract_date`, `contract_expiration`, `contract_status`, `contract_notes`, `created_at`, `updated_at`) VALUES
+(1, 'C-2025-001', 'Smith vs. Johnson Contract Dispute', 'Civil', 'Contract', 'John Smith', 'Smith Enterprises', 'JS', 'active', NULL, '2025-11-15', '09:00 AM', 'employment', 'CN-2025-001', '2025-01-15', '2025-12-31', 'active', 'Standard employment contract', '2025-10-18 11:52:59', '2025-10-20 00:02:06'),
+(2, 'C-2025-002', 'ABC Corp Employment Case', 'Labor', 'Employment', 'ABC Corporation', 'ABC Corp', 'AC', 'urgent', NULL, '2025-11-20', '02:00 PM', 'service', 'CN-2025-002', '2025-02-01', '2025-11-30', 'active', 'Service agreement for consulting', '2025-10-18 11:52:59', '2025-10-20 00:02:06'),
+(3, 'C-2025-003', 'Property Rights Litigation', 'Property', 'Real Estate', 'Maria Garcia', 'Garcia Properties', 'MG', 'pending', NULL, '2025-12-05', '10:30 AM', 'employee', 'CN-2025-003', '2024-12-15', '2025-12-14', 'active', 'Employee contract for full-time position', '2025-10-18 11:52:59', '2025-10-20 00:02:06'),
+(4, 'C-2025-004', 'Patent Infringement Case', 'Intellectual Property', 'Patent', 'Tech Innovations Ltd', 'Tech Innovations', 'TI', 'active', NULL, '2025-02-12', '11:00 AM', 'other', 'CN-2025-004', '2025-01-10', '2026-01-09', 'active', 'Special project contract', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
+(5, 'C-2025-005', 'Family Law Matter', 'Family', 'Divorce', 'Robert Chen', 'Chen Family', 'RC', 'completed', NULL, '2025-01-30', '09:30 AM', 'employment', 'CN-2025-005', '2024-11-15', '2025-11-14', 'expired', 'Expired employment contract', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
+(6, 'C-2025-006', 'Criminal Defense Case', 'Criminal', 'Defense', 'Lisa Martinez', 'Martinez Defense', 'LM', 'active', NULL, '2025-02-18', '03:00 PM', 'service', 'CN-2025-006', '2025-01-05', '2025-12-31', 'active', 'Legal services agreement', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
+(7, 'C-2025-007', 'Corporate Merger', 'Corporate', 'Merger', 'Wilson & Associates', 'Wilson Corp', 'WA', 'urgent', NULL, '2025-02-08', '01:00 PM', 'other', 'CN-2025-007', '2025-01-20', '2026-01-19', 'active', 'Merger agreement', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
+(8, 'C-2025-008', 'Personal Injury Claim', 'Personal Injury', 'Tort', 'James Wilson', 'Wilson Legal', 'JW', 'pending', NULL, '2025-02-25', '10:00 AM', 'service', 'CN-2025-008', '2025-02-01', '2025-11-30', 'active', 'Legal representation agreement', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
+(9, 'C-2024-001', 'Smith vs. Johnson Contract Dispute', 'Civil', 'Civil', 'John Smith', 'Smith Enterprises', 'JS', 'Active', NULL, '2024-02-15', '10:00', 'employment', 'CN-2024-001', '2024-01-15', '2024-12-31', 'expired', 'Annual employment contract', '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
+(10, 'C-2024-002', 'State vs. Robert Davis', 'Criminal Defense', 'Criminal', 'Robert Davis', '', 'RD', 'Pending', NULL, '2024-02-20', '14:30', 'service', 'CN-2024-002', '2024-01-10', '2024-12-31', 'expired', 'Legal defense contract', '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
+(11, 'C-2024-003', 'Williams Divorce Proceedings', 'Family Law', 'Family', 'Sarah Williams', '', 'SW', 'Active', NULL, '2024-02-25', '09:00', 'other', 'CN-2024-003', '2024-01-20', '2024-12-31', 'expired', 'Divorce settlement agreement', '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
+(12, 'C-2024-004', 'TechCorp Merger Agreement', 'Corporate', 'Corporate', 'TechCorp Inc.', 'TechCorp Inc.', 'TC', 'Closed', NULL, NULL, NULL, 'other', 'CN-2024-004', '2024-01-05', '2025-01-04', 'active', 'Merger and acquisition agreement', '2025-10-19 23:54:00', '2025-10-19 23:54:00'),
+(13, 'C-2024-005', 'Innovation Patent Dispute', 'Intellectual Property', 'IP', 'Innovation Labs', 'Innovation Labs LLC', 'IL', 'Active', NULL, '2024-03-01', '11:00', 'service', 'CN-2024-005', '2024-01-15', '2025-01-14', 'active', 'IP legal services contract', '2025-10-19 23:54:00', '2025-10-19 23:54:00');
 
 -- --------------------------------------------------------
 
@@ -213,17 +220,53 @@ CREATE TABLE `contracts` (
   `type` varchar(100) NOT NULL,
   `status` varchar(50) NOT NULL DEFAULT 'active',
   `company` varchar(255) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
   `created_on` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
+-- Table structure for table `clients`
+--
+
+CREATE TABLE `clients` (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `company` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` text COLLATE utf8mb4_unicode_ci,
+  `city` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `state` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `postal_code` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `country` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text COLLATE utf8mb4_unicode_ci,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `clients_email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `clients`
+--
+
+INSERT INTO `clients` (`id`, `name`, `email`, `phone`, `company`, `address`, `city`, `state`, `postal_code`, `country`, `notes`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'Acme Corporation', 'info@acme.com', '123-456-7890', 'Acme Corp', '123 Business St', 'New York', 'NY', '10001', 'USA', 'Primary client with multiple cases', NOW(), NOW(), NULL),
+(2, 'Globex Corporation', 'contact@globex.com', '234-567-8901', 'Globex', '456 Corporate Ave', 'San Francisco', 'CA', '94105', 'USA', 'Tech client with international presence', NOW(), NOW(), NULL),
+(3, 'Initech', 'info@initech.com', '345-678-9012', 'Initech Inc', '789 Office Park', 'Austin', 'TX', '73301', 'USA', 'Software development company', NOW(), NOW(), NULL),
+(4, 'Umbrella Corporation', 'contact@umbrella.com', '456-789-0123', 'Umbrella', '1 Research Park', 'Raccoon City', 'IL', '60007', 'USA', 'Pharmaceutical research', NOW(), NOW(), NULL),
+(5, 'Stark Industries', 'tony@stark.com', '555-0123', 'Stark Industries', '200 Park Avenue', 'New York', 'NY', '10166', 'USA', 'Advanced technology and defense', NOW(), NOW(), NULL);
+
+--
 -- Dumping data for table `contracts`
 --
 
-INSERT INTO `contracts` (`id`, `code`, `title`, `type`, `status`, `company`, `created_on`, `created_at`, `updated_at`) VALUES
-(3, 'CTR-2025-0001', 'dwdd', 'service', 'pending', 'wdwdwdwd', '2025-10-20', '2025-10-20 08:25:33', '2025-10-20 08:38:21');
+INSERT INTO `contracts` (`id`, `code`, `title`, `type`, `status`, `company`, `start_date`, `end_date`, `created_on`, `created_at`, `updated_at`) VALUES
+(3, 'CTR-2025-0001', 'dwdd', 'service', 'pending', 'wdwdwdwd', '2025-10-20', '2026-10-20', '2025-10-20', '2025-10-20 08:25:33', '2025-10-20 08:38:21');
 
 -- --------------------------------------------------------
 
@@ -235,12 +278,18 @@ CREATE TABLE `documents` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `code` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `type` varchar(255) DEFAULT NULL,
-  `category` varchar(255) DEFAULT NULL,
-  `size_label` varchar(255) DEFAULT NULL,
-  `uploaded_on` date DEFAULT NULL,
-  `status` varchar(255) DEFAULT NULL,
-  `is_archived` tinyint(1) NOT NULL DEFAULT 0,
+  `type` enum('internal','payment','vendor','release_of_funds','purchase','disbursement','receipt') NOT NULL,
+  `category` enum('financial','hr','legal','operations','contracts','utilities','projects','procurement','it','payroll') DEFAULT NULL,
+  `size` varchar(20) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `status` enum('Indexed','Pending','Archived') DEFAULT 'Indexed',
+  `is_shared` tinyint(1) DEFAULT 0,
+  `visibility` enum('everyone','admin') DEFAULT 'everyone',
+  `is_receipt` tinyint(1) DEFAULT 0,
+  `client_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `data_type` varchar(100) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -249,13 +298,35 @@ CREATE TABLE `documents` (
 -- Dumping data for table `documents`
 --
 
-INSERT INTO `documents` (`id`, `code`, `name`, `type`, `category`, `size_label`, `uploaded_on`, `status`, `is_archived`, `created_at`, `updated_at`) VALUES
-(1, 'DOC-2025-0001', 'Q3-Report-2025.pdf', 'PDF', 'financial', '1.2 MB', '2025-10-01', 'Indexed', 0, '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(2, 'DOC-2025-0002', 'Meeting-Minutes.docx', 'Word', 'hr', '0.3 MB', '2025-10-05', 'Indexed', 0, '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(3, 'DOC-2025-0003', 'Budget-2025.xlsx', 'Excel', 'legal', '0.9 MB', '2025-10-10', 'Indexed', 0, '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(4, 'DOC-2025-0004', 'Strategy.pptx', 'PowerPoint', 'operations', '2.5 MB', '2025-10-12', 'Indexed', 0, '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(5, 'DOC-2025-3767', 'Diagrams (1) (1).docx', 'Word', 'hr', '0.0 MB', '2025-10-20', 'Indexed', 0, '2025-10-19 19:28:47', '2025-10-19 19:28:47'),
-(6, 'DOC-2025-0292', 'Delig-Resume.docx', 'Word', 'hr', '0.0 MB', '2025-10-20', 'Indexed', 0, '2025-10-19 19:31:41', '2025-10-19 19:31:41');
+-- Internal Documents
+INSERT INTO `documents` (`id`, `code`, `name`, `type`, `category`, `size`, `date`, `status`, `is_shared`, `visibility`, `is_receipt`, `client_id`, `data_type`, `description`, `file_path`, `created_at`, `updated_at`) VALUES
+-- Internal Documents
+(1, 'DOC-2025-1001', 'Q1 Financial Report', 'internal', 'financial', '2.5 MB', '2025-10-15', 'Indexed', 0, 'admin', 0, NULL, 'financial_report', 'First quarter financial report for 2025', 'documents/financial/q1_report_2025.pdf', NOW(), NOW()),
+(2, 'DOC-2025-1002', 'Employee Handbook 2025', 'internal', 'hr', '1.8 MB', '2025-10-10', 'Indexed', 0, 'everyone', 0, NULL, 'handbook', 'Updated employee handbook for 2025', 'documents/hr/employee_handbook_2025.pdf', NOW(), NOW()),
+
+-- Payment Documents
+(3, 'PAY-2025-1001', 'Vendor Payment - ABC Corp', 'payment', 'financial', '1.2 MB', '2025-10-12', 'Indexed', 1, 'admin', 0, 1, 'vendor_payment', 'Payment to ABC Corp for office supplies', 'documents/payments/abc_corp_payment_oct.pdf', NOW(), NOW()),
+(4, 'PAY-2025-1002', 'Utility Bill - October 2025', 'payment', 'utilities', '0.8 MB', '2025-10-05', 'Indexed', 0, 'admin', 0, NULL, 'utility_bill', 'Monthly utility bill payment', 'documents/payments/utility_oct_2025.pdf', NOW(), NOW()),
+
+-- Vendor Documents
+(5, 'VEND-2025-1001', 'Vendor Contract - XYZ Supplies', 'vendor', 'contracts', '1.5 MB', '2025-09-28', 'Indexed', 0, 'admin', 0, 2, 'vendor_contract', 'Annual supply contract with XYZ', 'documents/vendors/xyz_supply_contract.pdf', NOW(), NOW()),
+(6, 'VEND-2025-1002', 'Vendor NDA - Tech Solutions Inc', 'vendor', 'legal', '1.1 MB', '2025-10-01', 'Indexed', 1, 'admin', 0, 3, 'nda', 'Non-disclosure agreement with vendor', 'documents/vendors/tech_solutions_nda.pdf', NOW(), NOW()),
+
+-- Release of Funds Documents
+(7, 'ROF-2025-1001', 'Project Alpha - Phase 1 Release', 'release_of_funds', 'projects', '0.9 MB', '2025-10-18', 'Indexed', 1, 'admin', 0, 4, 'fund_release', 'Approval for release of funds for Phase 1', 'documents/funds/project_alpha_phase1.pdf', NOW(), NOW()),
+(8, 'ROF-2025-1002', 'Emergency Fund Release', 'release_of_funds', 'financial', '1.0 MB', '2025-10-08', 'Indexed', 0, 'admin', 0, 5, 'emergency_fund', 'Approval for emergency fund release', 'documents/funds/emergency_release_oct.pdf', NOW(), NOW()),
+
+-- Purchase Documents
+(9, 'PO-2025-1001', 'Office Equipment Purchase', 'purchase', 'procurement', '2.1 MB', '2025-10-14', 'Indexed', 0, 'admin', 0, NULL, 'purchase_order', 'Purchase order for new office computers', 'documents/purchases/office_equipment_po.pdf', NOW(), NOW()),
+(10, 'PO-2025-1002', 'Software License Renewal', 'purchase', 'it', '0.7 MB', '2025-10-02', 'Indexed', 1, 'admin', 0, 6, 'software_license', 'Annual software license renewal', 'documents/purchases/software_licenses_2025.pdf', NOW(), NOW()),
+
+-- Disbursement Documents
+(11, 'DISB-2025-1001', 'October 2025 Payroll', 'disbursement', 'payroll', '2.8 MB', '2025-10-01', 'Indexed', 0, 'admin', 0, NULL, 'payroll', 'Monthly payroll disbursement', 'documents/disbursements/payroll_oct_2025.pdf', NOW(), NOW()),
+(12, 'DISB-2025-1002', 'Vendor Payments - October 2025', 'disbursement', 'financial', '1.9 MB', '2025-10-03', 'Indexed', 1, 'admin', 0, 7, 'vendor_payments', 'Monthly vendor payments report', 'documents/disbursements/vendor_payments_oct.pdf', NOW(), NOW()),
+
+-- Receipt Documents
+(13, 'RCPT-2025-1001', 'Client Payment Receipt - #1001', 'receipt', 'financial', '0.5 MB', '2025-10-20', 'Indexed', 1, 'everyone', 1, 1, 'payment_receipt', 'Payment receipt for client #1001', 'documents/receipts/client_1001_payment.pdf', NOW(), NOW()),
+(14, 'RCPT-2025-1002', 'Office Supplies Receipt - Oct 2025', 'receipt', 'procurement', '0.6 MB', '2025-10-19', 'Indexed', 0, 'admin', 1, NULL, 'supplies_receipt', 'Receipt for office supplies purchase', 'documents/receipts/office_supplies_oct.pdf', NOW(), NOW());
 
 -- --------------------------------------------------------
 
@@ -607,10 +678,11 @@ ALTER TABLE `contracts`
 --
 ALTER TABLE `documents`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `documents_code_index` (`code`);
+  ADD KEY `documents_code_index` (`code`),
+  ADD KEY `documents_client_id_foreign` (`client_id`);
 
 --
--- Indexes for table `events`
+-- Constraints for table `documents`
 --
 ALTER TABLE `events`
   ADD PRIMARY KEY (`id`);
@@ -731,6 +803,87 @@ ALTER TABLE `contracts`
 --
 ALTER TABLE `documents`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- Table structure for table `contract_types`
+--
+
+CREATE TABLE `contract_types` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `duration_months` int(11) DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `contract_types`
+--
+
+INSERT INTO `contract_types` (`id`, `name`, `description`, `duration_months`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Permanent', 'Regular employment with no fixed end date', NULL, 1, NOW(), NOW()),
+(2, 'Fixed Term', 'Employment for a specific period', 12, 1, NOW(), NOW()),
+(3, 'Probationary', 'Initial employment period for evaluation', 6, 1, NOW(), NOW()),
+(4, 'Project-based', 'Employment for a specific project duration', 6, 1, NOW(), NOW()),
+(5, 'Seasonal', 'Employment for seasonal work', 3, 1, NOW(), NOW());
+
+--
+-- Table structure for table `employee_contracts`
+--
+
+CREATE TABLE `employee_contracts` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `employee_id` bigint(20) UNSIGNED NOT NULL,
+  `contract_type_id` bigint(20) UNSIGNED NOT NULL,
+  `contract_number` varchar(100) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date DEFAULT NULL,
+  `job_title` varchar(255) NOT NULL,
+  `department` varchar(100) DEFAULT NULL,
+  `salary` decimal(12,2) NOT NULL,
+  `status` enum('active','expired','terminated','renewed') NOT NULL DEFAULT 'active',
+  `renewal_reminder_date` date DEFAULT NULL,
+  `document_path` varchar(255) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Indexes for table `contract_types`
+--
+ALTER TABLE `contract_types`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `employee_contracts`
+--
+ALTER TABLE `employee_contracts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `employee_contracts_contract_number_unique` (`contract_number`),
+  ADD KEY `employee_contracts_employee_id_foreign` (`employee_id`),
+  ADD KEY `employee_contracts_contract_type_id_foreign` (`contract_type_id`);
+
+--
+-- AUTO_INCREMENT for table `contract_types`
+--
+ALTER TABLE `contract_types`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `employee_contracts`
+--
+ALTER TABLE `employee_contracts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for table `employee_contracts`
+--
+ALTER TABLE `employee_contracts`
+  ADD CONSTRAINT `employee_contracts_contract_type_id_foreign` FOREIGN KEY (`contract_type_id`) REFERENCES `contract_types` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `employee_contracts_employee_id_foreign` FOREIGN KEY (`employee_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- AUTO_INCREMENT for table `events`

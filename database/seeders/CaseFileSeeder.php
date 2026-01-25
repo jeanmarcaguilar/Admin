@@ -14,7 +14,7 @@ class CaseFileSeeder extends Seeder
     {
         $cases = [
             [
-                'number' => 'C-2024-001',
+                'number' => 'C-2025-001',
                 'name' => 'Smith vs. Johnson Contract Dispute',
                 'client' => 'John Smith',
                 'client_org' => 'Smith Enterprises',
@@ -22,11 +22,11 @@ class CaseFileSeeder extends Seeder
                 'type_label' => 'Civil',
                 'type_badge' => 'Civil',
                 'status' => 'Active',
-                'hearing_date' => '2024-02-15',
+                'hearing_date' => now()->addDays(7)->toDateString(),
                 'hearing_time' => '10:00',
             ],
             [
-                'number' => 'C-2024-002',
+                'number' => 'C-2025-002',
                 'name' => 'State vs. Robert Davis',
                 'client' => 'Robert Davis',
                 'client_org' => '',
@@ -34,11 +34,11 @@ class CaseFileSeeder extends Seeder
                 'type_label' => 'Criminal Defense',
                 'type_badge' => 'Criminal',
                 'status' => 'Pending',
-                'hearing_date' => '2024-02-20',
+                'hearing_date' => now()->addDays(14)->toDateString(),
                 'hearing_time' => '14:30',
             ],
             [
-                'number' => 'C-2024-003',
+                'number' => 'C-2025-003',
                 'name' => 'Williams Divorce Proceedings',
                 'client' => 'Sarah Williams',
                 'client_org' => '',
@@ -46,11 +46,11 @@ class CaseFileSeeder extends Seeder
                 'type_label' => 'Family Law',
                 'type_badge' => 'Family',
                 'status' => 'Active',
-                'hearing_date' => '2024-02-25',
+                'hearing_date' => now()->addDays(21)->toDateString(),
                 'hearing_time' => '09:00',
             ],
             [
-                'number' => 'C-2024-004',
+                'number' => 'C-2025-004',
                 'name' => 'TechCorp Merger Agreement',
                 'client' => 'TechCorp Inc.',
                 'client_org' => 'TechCorp Inc.',
@@ -62,7 +62,7 @@ class CaseFileSeeder extends Seeder
                 'hearing_time' => null,
             ],
             [
-                'number' => 'C-2024-005',
+                'number' => 'C-2025-005',
                 'name' => 'Innovation Patent Dispute',
                 'client' => 'Innovation Labs',
                 'client_org' => 'Innovation Labs LLC',
@@ -70,7 +70,7 @@ class CaseFileSeeder extends Seeder
                 'type_label' => 'Intellectual Property',
                 'type_badge' => 'IP',
                 'status' => 'Active',
-                'hearing_date' => '2024-03-01',
+                'hearing_date' => now()->addDays(30)->toDateString(),
                 'hearing_time' => '11:00',
             ],
         ];

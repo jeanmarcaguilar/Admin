@@ -253,16 +253,15 @@ $user = auth()->user();
           <li class="has-dropdown">
             <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
-                <i class="bx bx-calendar-check"></i>
-                <span>Facilities Reservations</span>
+                <i class="bx bx-group"></i>
+                <span>Visitor Management</span>
               </div>
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
             <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li class="has-dropdown">
@@ -283,30 +282,31 @@ $user = auth()->user();
           <li class="has-dropdown">
             <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
+                <i class="bx bx-calendar-check"></i>
+                <span>Facilities Management</span>
+              </div>
+              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+            </div>
+            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+            </ul>
+          </li>
+          <li class="has-dropdown">
+            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+              <div class="flex items-center space-x-2">
                 <i class="bx bx-file"></i>
                 <span>Legal Management</span>
               </div>
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
             <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
               <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
               <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
               <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-            </ul>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-group"></i>
-                <span>Visitor Management</span>
-              </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-            </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li>
@@ -364,7 +364,7 @@ $user = auth()->user();
               <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $documentsCount }}</p>
               <p class="text-xs text-gray-500 mt-1">Document Management</p>
             </div>
-            <a href="{{ route('case.management') }}" class="block focus:outline-none" aria-label="View Case Management">
+            <a href="{{ route('case.management') }}" class="block focus:outline-none" aria-label="View Case Management" onclick="return openCaseWithConfGate(this.href)">
               <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A] cursor-pointer hover:shadow-md">
                 <div class="flex justify-between items-start">
                   <p class="text-gray-800 font-semibold text-sm">Active Cases</p>
@@ -389,6 +389,17 @@ $user = auth()->user();
   </div>
 
   <!-- Modals -->
+  <script>
+    (function(){
+      if (typeof window.openCaseWithConfGate !== 'function'){
+        window.openCaseWithConfGate = function(href){
+          try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+          if (href){ window.location.href = href; }
+          return false;
+        };
+      }
+    })();
+  </script>
   <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
     <div class="py-4 px-6 border-b border-gray-100 text-center">
       <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">

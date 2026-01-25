@@ -8,6 +8,7 @@ $settings = isset($settings) ? $settings : [
     'default_retention' => '5',
     'auto_archive' => true,
     'notification_emails' => '',
+    'default_lead_time' => '7', // Default lead time in days before archival
 ];
 @endphp
 
@@ -274,6 +275,17 @@ $settings = isset($settings) ? $settings : [
             </div>
         </div>
     </nav>
+    <script>
+      (function(){
+        if (typeof window.openCaseWithConfGate !== 'function'){
+          window.openCaseWithConfGate = function(href){
+            try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+            if (href){ window.location.href = href; }
+            return false;
+          };
+        }
+      })();
+    </script>
 
     <!-- Notification Dropdown -->
     <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
@@ -360,16 +372,16 @@ $settings = isset($settings) ? $settings : [
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Reservations</span>
+                                <i class="bx bx-group"></i>
+                                <span>Visitor Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+                           
+                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown">
@@ -390,31 +402,31 @@ $settings = isset($settings) ? $settings : [
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
+                                <i class="bx bx-calendar-check"></i>
+                                <span>Facilities Management</span>
+                            </div>
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+                        </div>
+                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-dropdown">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                            <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Legal Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
                             <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
                             <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
                             <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                           
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -474,53 +486,406 @@ $settings = isset($settings) ? $settings : [
                             }
                         }
                     @endphp
+                    <!-- Document Retention Stats -->
                     <section class="mt-8">
+                        <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
+                            <i class='bx bx-stats mr-2'></i>Document Retention Overview
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <!-- Total Documents -->
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Total Documents</p>
+                                        <h3 class="text-2xl font-bold text-gray-900">{{ count($documents) + count($archivedDocuments ?? []) }}</h3>
+                                    </div>
+                                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                                        <i class='bx bx-file text-xl'></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2 flex items-center text-xs text-gray-500">
+                                    <span class="flex items-center">
+                                        <span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                                        {{ count($documents) }} Active
+                                    </span>
+                                    <span class="flex items-center ml-3">
+                                        <span class="w-2 h-2 bg-gray-300 rounded-full mr-1"></span>
+                                        {{ count($archivedDocuments ?? []) }} Archived
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Upcoming Archivals -->
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Upcoming Archivals</p>
+                                        <h3 class="text-2xl font-bold text-amber-600">
+                                            {{ count(array_filter($documents, function($doc) {
+                                                $expiryDate = $doc['expiry_date'] ?? null;
+                                                return $expiryDate && 
+                                                       strtotime($expiryDate) > time() && 
+                                                       strtotime($expiryDate) < strtotime('+30 days');
+                                            })) }}
+                                        </h3>
+                                    </div>
+                                    <div class="p-3 rounded-full bg-amber-100 text-amber-600">
+                                        <i class='bx bx-time-five text-xl'></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">Due in next 30 days</p>
+                            </div>
+
+                            <!-- Expiring Soon -->
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Expiring Soon</p>
+                                        <h3 class="text-2xl font-bold text-red-600">
+                                            {{ count(array_filter($documents, function($doc) {
+                                                $expiryDate = $doc['expiry_date'] ?? null;
+                                                return $expiryDate && 
+                                                       strtotime($expiryDate) < time() && 
+                                                       strtotime($expiryDate) > strtotime('-7 days');
+                                            })) }}
+                                        </h3>
+                                    </div>
+                                    <div class="p-3 rounded-full bg-red-100 text-red-600">
+                                        <i class='bx bx-error text-xl'></i>
+                                    </div>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-500">Past retention period</p>
+                            </div>
+
+                            <!-- Storage Usage -->
+                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">Storage Used</p>
+                                        <h3 class="text-2xl font-bold text-gray-900">
+                                            @php
+                                                $totalSize = array_sum(array_map(function($doc) {
+                                                    return $doc['size'] ?? 0;
+                                                }, array_merge($documents, $archivedDocuments ?? [])));
+                                                echo round($totalSize / (1024 * 1024), 2) . ' MB';
+                                            @endphp
+                                        </h3>
+                                    </div>
+                                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                                        <i class='bx bx-hdd text-xl'></i>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-green-600 h-2 rounded-full" style="width: {{ min(100, ($totalSize / (100 * 1024 * 1024)) * 100) }}%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {{ round(($totalSize / (100 * 1024 * 1024)) * 100, 1) }}% of 100MB used
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Document Stats Overview -->
+                        <div class="mb-8">
+                            <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
+                                <i class='bx bx-stats mr-2'></i>Document Statistics
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                <!-- Total Documents -->
+                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Total Documents</p>
+                                            <p class="text-2xl font-semibold text-gray-900">{{ count($documents) }}</p>
+                                        </div>
+                                        <div class="p-3 rounded-full bg-blue-50">
+                                            <i class='bx bx-file text-blue-500 text-xl'></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="flex items-center text-xs text-gray-500">
+                                            <span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+                                            <span>Active: {{ count(array_filter($documents, function($doc) { return ($doc['status'] ?? '') === 'active'; })) }}</span>
+                                        </div>
+                                        <div class="flex items-center text-xs text-gray-500 mt-1">
+                                            <span class="w-2 h-2 bg-amber-500 rounded-full mr-1"></span>
+                                            <span>Pending: {{ count(array_filter($documents, function($doc) { return ($doc['status'] ?? '') === 'pending'; })) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Storage Usage -->
+                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Storage Used</p>
+                                            <p class="text-2xl font-semibold text-gray-900">
+                                                @php
+                                                    $totalSize = array_sum(array_map(function($doc) { return $doc['size'] ?? 0; }, $documents));
+                                                    echo round($totalSize / (1024 * 1024), 2) . ' MB';
+                                                @endphp
+                                            </p>
+                                        </div>
+                                        <div class="p-3 rounded-full bg-green-50">
+                                            <i class='bx bx-hdd text-green-500 text-xl'></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="text-xs text-gray-500">
+                                            <span>Last 30 days: +{{ rand(5, 15) }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Upcoming Archivals -->
+                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Upcoming Archivals</p>
+                                            <p class="text-2xl font-semibold text-amber-600">
+                                                {{ count(array_filter($documents, function($doc) {
+                                                    return !empty($doc['expiry_date']) && 
+                                                           strtotime($doc['expiry_date']) > time() && 
+                                                           strtotime($doc['expiry_date']) < strtotime('+30 days');
+                                                })) }}
+                                            </p>
+                                        </div>
+                                        <div class="p-3 rounded-full bg-amber-50">
+                                            <i class='bx bx-time-five text-amber-500 text-xl'></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full inline-flex items-center">
+                                            <i class='bx bx-time mr-1'></i>
+                                            <span>Next 30 days</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Document Categories -->
+                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-500">Categories</p>
+                                            <p class="text-2xl font-semibold text-gray-900">{{ count(array_unique(array_column($documents, 'category'))) }}</p>
+                                        </div>
+                                        <div class="p-3 rounded-full bg-purple-50">
+                                            <i class='bx bx-category-alt text-purple-500 text-xl'></i>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            @php
+                                                $categories = array_count_values(array_column($documents, 'category'));
+                                                arsort($categories);
+                                                $topCategories = array_slice($categories, 0, 3, true);
+                                            @endphp
+                                            @foreach($topCategories as $category => $count)
+                                                <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
+                                                    {{ ucfirst($category) }} ({{ $count }})
+                                                </span>
+                                            @endforeach
+                                            @if(count($categories) > 3)
+                                                <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
+                                                    +{{ count($categories) - 3 }} more
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Filter Buttons -->
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <button class="px-3 py-1.5 text-sm font-medium bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors">
+                                    All Documents
+                                </button>
+                                <button class="px-3 py-1.5 text-sm font-medium bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors">
+                                    <i class='bx bx-check-circle mr-1'></i> Active
+                                </button>
+                                <button class="px-3 py-1.5 text-sm font-medium bg-amber-50 text-amber-700 rounded-full hover:bg-amber-100 transition-colors">
+                                    <i class='bx bx-time-five mr-1'></i> Upcoming Archive
+                                </button>
+                                <button class="px-3 py-1.5 text-sm font-medium bg-purple-50 text-purple-700 rounded-full hover:bg-purple-100 transition-colors">
+                                    <i class='bx bx-archive mr-1'></i> Archived
+                                </button>
+                            </div>
+                        </div>
+
                         <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
                             <i class='bx bx-time-five mr-2'></i>Document Retention Policies
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <!-- Financial Documents -->
-                            <div class="dashboard-card p-6 policy-card cursor-pointer" data-policy-category="financial">
+                            <div class="dashboard-card p-6 policy-card cursor-pointer group hover:shadow-lg transition-shadow" data-policy-category="financial">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-medium text-gray-900">Financial Documents</h4>
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">7 years</span>
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class='bx bx-money-withdraw text-blue-500 mr-2'></i>
+                                        Financial Documents
+                                    </h4>
+                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full group-hover:bg-blue-200 transition-colors">7 years</span>
                                 </div>
                                 <p class="text-sm text-gray-600 mb-4">Tax returns, financial statements, audit reports, and related documents.</p>
-                                <div class="flex items-center text-xs text-gray-500">
-                                    <i class='bx bx-file mr-1'></i>
-                                    <span>{{ $policyCounts['financial'] }} documents</span>
-                                    <span class="mx-2">•</span>
-                                    <span class="text-green-600">Compliant</span>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <div class="flex items-center">
+                                            <i class='bx bx-file mr-1'></i>
+                                            <span>{{ $policyCounts['financial'] }} documents</span>
+                                        </div>
+                                        <div class="mx-2">•</div>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <div class="flex items-center">
+                                            <i class='bx bx-time mr-1'></i>
+                                            <span>Lead Time: {{ $settings['default_lead_time'] ?? '7' }} days</span>
+                                        </div>
+                                        <button class="text-blue-600 hover:text-blue-800 text-xs font-medium">Configure</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- HR Records -->
-                            <div class="dashboard-card p-6 policy-card cursor-pointer" data-policy-category="hr">
+                            <div class="dashboard-card p-6 policy-card cursor-pointer group hover:shadow-lg transition-shadow" data-policy-category="hr">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-medium text-gray-900">Employee Records</h4>
-                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">7 years</span>
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class='bx bx-group text-green-500 mr-2'></i>
+                                        HR Records
+                                    </h4>
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full group-hover:bg-green-200 transition-colors">5 years</span>
                                 </div>
-                                <p class="text-sm text-gray-600 mb-4">Employment applications, performance reviews, and termination records.</p>
-                                <div class="flex items-center text-xs text-gray-500">
-                                    <i class='bx bx-file mr-1'></i>
-                                    <span>{{ $policyCounts['hr'] }} documents</span>
-                                    <span class="mx-2">•</span>
-                                    <span class="text-green-600">Compliant</span>
+                                <p class="text-sm text-gray-600 mb-4">Employee records, contracts, performance reviews, and related HR documents.</p>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <div class="flex items-center">
+                                            <i class='bx bx-file mr-1'></i>
+                                            <span>{{ $policyCounts['hr'] ?? 0 }} documents</span>
+                                        </div>
+                                        <div class="mx-2">•</div>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <div class="flex items-center">
+                                            <i class='bx bx-time mr-1'></i>
+                                            <span>Lead Time: {{ $settings['default_lead_time'] ?? '7' }} days</span>
+                                        </div>
+                                        <button class="text-blue-600 hover:text-blue-800 text-xs font-medium">Configure</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- Legal Documents -->
-                            <div class="dashboard-card p-6 policy-card cursor-pointer" data-policy-category="legal">
+                            <div class="dashboard-card p-6 policy-card cursor-pointer group hover:shadow-lg transition-shadow" data-policy-category="legal">
                                 <div class="flex items-center justify-between mb-4">
-                                    <h4 class="font-medium text-gray-900">Legal Contracts</h4>
-                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">10+ years</span>
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class='bx bx-gavel text-purple-500 mr-2'></i>
+                                        Legal Documents
+                                    </h4>
+                                    <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded-full group-hover:bg-purple-200 transition-colors">10+ years</span>
                                 </div>
-                                <p class="text-sm text-gray-600 mb-4">Contracts, agreements, and other legal documents with varying retention periods.</p>
-                                <div class="flex items-center text-xs text-gray-500">
-                                    <i class='bx bx-file mr-1'></i>
-                                    <span>{{ $policyCounts['legal'] }} documents</span>
-                                    <span class="mx-2">•</span>
-                                    <span class="text-amber-500">Review needed</span>
+                                <p class="text-sm text-gray-600 mb-4">Contracts, agreements, legal correspondence, and compliance documents.</p>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <div class="flex items-center">
+                                            <i class='bx bx-file mr-1'></i>
+                                            <span>{{ $policyCounts['legal'] ?? 0 }} documents</span>
+                                        </div>
+                                        <div class="mx-2">•</div>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs text-gray-500">
+                                        <div class="flex items-center">
+                                            <i class='bx bx-time mr-1'></i>
+                                            <span>Lead Time: {{ $settings['default_lead_time'] ?? '7' }} days</span>
+                                        </div>
+                                        <button class="text-blue-600 hover:text-blue-800 text-xs font-medium">Configure</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Loan Documents -->
+                            <div class="dashboard-card p-6 policy-card cursor-pointer group hover:shadow-lg transition-shadow" data-policy-category="loan">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class='bx bx-credit-card text-amber-500 mr-2'></i>
+                                        Loan Documents
+                                    </h4>
+                                    <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded-full group-hover:bg-amber-200 transition-colors">7 years</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4">Loan applications, agreements, promissory notes, and related documents.</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <div class="flex items-center">
+                                        <i class='bx bx-file mr-1'></i>
+                                        <span>{{ $policyCounts['loan'] ?? 0 }} documents</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                                        <span>Compliant</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Client Documents -->
+                            <div class="dashboard-card p-6 policy-card cursor-pointer group hover:shadow-lg transition-shadow" data-policy-category="client">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class='bx bx-user-check text-cyan-500 mr-2'></i>
+                                        Client Documents
+                                    </h4>
+                                    <span class="bg-cyan-100 text-cyan-800 text-xs font-medium px-2.5 py-0.5 rounded-full group-hover:bg-cyan-200 transition-colors">5 years</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4">Client receipts, contracts, KYC documents, and related client records.</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <div class="flex items-center">
+                                        <i class='bx bx-file mr-1'></i>
+                                        <span>{{ $policyCounts['client'] ?? 0 }} documents</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                                        <span>Compliant</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vendor Documents -->
+                            <div class="dashboard-card p-6 policy-card cursor-pointer group hover:shadow-lg transition-shadow" data-policy-category="vendor">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class='bx bx-store text-orange-500 mr-2'></i>
+                                        Vendor Documents
+                                    </h4>
+                                    <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full group-hover:bg-orange-200 transition-colors">5 years</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4">Vendor contracts, agreements, and related documentation.</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <div class="flex items-center">
+                                        <i class='bx bx-file mr-1'></i>
+                                        <span>{{ $policyCounts['vendor'] ?? 0 }} documents</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                                        <span>Compliant</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Internal Documents -->
+                            <div class="dashboard-card p-6 policy-card cursor-pointer group hover:shadow-lg transition-shadow" data-policy-category="internal">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h4 class="font-medium text-gray-900">
+                                        <i class='bx bx-buildings text-gray-500 mr-2'></i>
+                                        Internal Documents
+                                    </h4>
+                                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full group-hover:bg-gray-200 transition-colors">3 years</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mb-4">Internal memos, policies, procedures, and other company documents.</p>
+                                <div class="flex items-center justify-between text-xs text-gray-500">
+                                    <div class="flex items-center">
+                                        <i class='bx bx-file mr-1'></i>
+                                        <span>{{ $policyCounts['internal'] ?? 0 }} documents</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                                        <span>Compliant</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -566,12 +931,12 @@ $settings = isset($settings) ? $settings : [
                                                     $displayCategory = $doc['type'] ?? 'Other';
                                                 }
                                             @endphp
-                                            <tr class="hover:bg-gray-50" data-category="{{ $categoryKey }}" data-type="{{ strtolower($doc['type'] ?? 'other') }}">
+                                            <tr class="hover:bg-gray-50" data-category="{{ $categoryKey }}" data-type="{{ strtolower($doc['type'] ?? 'other') }}" data-doc-id="{{ $doc['id'] ?? '' }}">
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="flex items-center">
                                                         <i class='bx {{ $icon }} text-xl mr-3'></i>
                                                         <div>
-                                                            <div class="text-sm font-medium text-gray-900">{{ $doc['name'] }}</div>
+                                                            <div class="text-sm font-medium text-gray-900"><span class="doc-name" data-name="{{ $doc['name'] }}">{{ $doc['name'] }}</span></div>
                                                             <div class="text-xs text-gray-500">{{ ($doc['type'] ?? 'File') }} • {{ ($doc['size'] ?? '') }}</div>
                                                         </div>
                                                     </div>
@@ -859,6 +1224,61 @@ $settings = isset($settings) ? $settings : [
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // Shared lock/open state using localStorage (same as other pages)
+            if (!window.revealedDocs) window.revealedDocs = new Set();
+            try {
+                const saved = localStorage.getItem('revealedDocs');
+                if (saved) { JSON.parse(saved).forEach(id => window.revealedDocs.add(String(id))); }
+            } catch(_) {}
+            if (typeof window.maskName !== 'function') {
+                window.maskName = function(name){
+                    if (!name || typeof name !== 'string') return 'Untitled';
+                    const safe = String(name);
+                    const lastDot = safe.lastIndexOf('.');
+                    if (lastDot <= 0) { return '*'.repeat(8); }
+                    const base = safe.slice(0, lastDot);
+                    const ext = safe.slice(lastDot);
+                    const masked = '*'.repeat(Math.max(base.length, 4));
+                    return masked + ext;
+                };
+            }
+            // Apply masking based on revealedDocs
+            try {
+                const revealed = window.revealedDocs || new Set();
+                document.querySelectorAll('tr[data-doc-id] .doc-name').forEach(el => {
+                    const row = el.closest('tr');
+                    const docId = row && row.dataset ? row.dataset.docId : null;
+                    const realName = (el.dataset && el.dataset.name) ? el.dataset.name : el.textContent;
+                    if (docId && revealed.has(String(docId))) {
+                        el.textContent = realName;
+                    } else if (window.maskName) {
+                        el.textContent = window.maskName(realName);
+                    }
+                });
+            } catch(_) {}
+            // Cross-tab sync: react to localStorage changes
+            window.addEventListener('storage', (e) => {
+                if (e && e.key === 'revealedDocs') {
+                    try {
+                        const updated = new Set();
+                        const saved = localStorage.getItem('revealedDocs');
+                        if (saved) JSON.parse(saved).forEach(id => updated.add(String(id)));
+                        window.revealedDocs = updated;
+                    } catch(_) {}
+                    try {
+                        document.querySelectorAll('tr[data-doc-id] .doc-name').forEach(el => {
+                            const row = el.closest('tr');
+                            const docId = row && row.dataset ? row.dataset.docId : null;
+                            const realName = (el.dataset && el.dataset.name) ? el.dataset.name : el.textContent;
+                            if (docId && window.revealedDocs && window.revealedDocs.has(String(docId))) {
+                                el.textContent = realName;
+                            } else if (window.maskName) {
+                                el.textContent = window.maskName(realName);
+                            }
+                        });
+                    } catch(_) {}
+                }
+            });
             const sidebar = document.getElementById("sidebar");
             const mainContent = document.getElementById("main-content");
             const toggleBtn = document.getElementById("toggle-btn");
@@ -1541,6 +1961,222 @@ $settings = isset($settings) ? $settings : [
                     toggleArchivedSection();
                 });
             }
+
+            // Global document lock synchronization with document upload indexing
+            function updateArchivalLockState(isLocked) {
+                const upcomingTableRows = document.querySelectorAll('#upcomingTable tbody tr');
+                const archivedTableRows = document.querySelectorAll('#recentlyArchivedTable tbody tr');
+                
+                // Process upcoming table rows
+                upcomingTableRows.forEach(row => {
+                    // Skip the "No documents available" row
+                    if (row.querySelector('td[colspan]')) return;
+                    
+                    const docNameCell = row.querySelector('.doc-name');
+                    const categoryCell = row.querySelector('td:nth-child(2) span');
+                    const retentionCell = row.querySelector('td:nth-child(3)');
+                    const scheduledCell = row.querySelector('td:nth-child(4) .text-sm');
+                    const extendButton = row.querySelector('.extend-btn');
+                    const archiveButton = row.querySelector('.archive-btn');
+                    
+                    if (isLocked) {
+                        // Store original data if not already stored
+                        if (!row.dataset.originalData) {
+                            row.dataset.originalData = JSON.stringify({
+                                docName: docNameCell?.textContent || '',
+                                category: categoryCell?.textContent || '',
+                                retention: retentionCell?.textContent || '',
+                                scheduled: scheduledCell?.textContent || ''
+                            });
+                        }
+                        
+                        // Mask the data
+                        if (docNameCell) {
+                            const maskedName = docNameCell.textContent.replace(/./g, '*');
+                            docNameCell.innerHTML = maskedName + ' <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                        }
+                        if (categoryCell) {
+                            categoryCell.textContent = '****';
+                        }
+                        if (retentionCell) {
+                            retentionCell.textContent = '****';
+                        }
+                        if (scheduledCell) {
+                            scheduledCell.textContent = '** ** ****';
+                        }
+                        
+                        // Disable action buttons
+                        if (extendButton) {
+                            extendButton.disabled = true;
+                            extendButton.style.opacity = '0.5';
+                            extendButton.style.cursor = 'not-allowed';
+                            extendButton.style.pointerEvents = 'none';
+                        }
+                        if (archiveButton) {
+                            archiveButton.disabled = true;
+                            archiveButton.style.opacity = '0.5';
+                            archiveButton.style.cursor = 'not-allowed';
+                            archiveButton.style.pointerEvents = 'none';
+                        }
+                        
+                        // Add lock styling to row
+                        row.style.opacity = '0.7';
+                        row.classList.add('locked-row');
+                    } else {
+                        // Restore original data
+                        if (row.dataset.originalData) {
+                            try {
+                                const originalData = JSON.parse(row.dataset.originalData);
+                                
+                                if (docNameCell) {
+                                    docNameCell.textContent = originalData.docName;
+                                }
+                                if (categoryCell) {
+                                    categoryCell.textContent = originalData.category;
+                                }
+                                if (retentionCell) {
+                                    retentionCell.textContent = originalData.retention;
+                                }
+                                if (scheduledCell) {
+                                    scheduledCell.textContent = originalData.scheduled;
+                                }
+                            } catch (e) {
+                                console.error('Error restoring original data:', e);
+                            }
+                        }
+                        
+                        // Restore action buttons
+                        if (extendButton) {
+                            extendButton.disabled = false;
+                            extendButton.style.opacity = '1';
+                            extendButton.style.cursor = 'pointer';
+                            extendButton.style.pointerEvents = 'auto';
+                        }
+                        if (archiveButton) {
+                            archiveButton.disabled = false;
+                            archiveButton.style.opacity = '1';
+                            archiveButton.style.cursor = 'pointer';
+                            archiveButton.style.pointerEvents = 'auto';
+                        }
+                        
+                        // Remove lock styling from row
+                        row.style.opacity = '1';
+                        row.classList.remove('locked-row');
+                    }
+                });
+
+                // Process archived table rows
+                archivedTableRows.forEach(row => {
+                    const docNameCell = row.querySelector('td:first-child .text-sm');
+                    const categoryCell = row.querySelector('td:nth-child(2)');
+                    const archivedOnCell = row.querySelector('td:nth-child(3)');
+                    const deletionCell = row.querySelector('td:nth-child(4)');
+                    const restoreButton = row.querySelector('.restore-archived-btn');
+                    const deleteButton = row.querySelector('.delete-archived-btn');
+                    
+                    if (isLocked) {
+                        // Store original data if not already stored
+                        if (!row.dataset.originalData) {
+                            row.dataset.originalData = JSON.stringify({
+                                docName: docNameCell?.textContent || '',
+                                category: categoryCell?.textContent || '',
+                                archivedOn: archivedOnCell?.textContent || '',
+                                deletion: deletionCell?.textContent || ''
+                            });
+                        }
+                        
+                        // Mask the data
+                        if (docNameCell) {
+                            const maskedName = docNameCell.textContent.replace(/./g, '*');
+                            docNameCell.innerHTML = maskedName + ' <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                        }
+                        if (categoryCell) {
+                            categoryCell.textContent = '****';
+                        }
+                        if (archivedOnCell) {
+                            archivedOnCell.textContent = '** ** ****';
+                        }
+                        if (deletionCell) {
+                            deletionCell.textContent = '** ** ****';
+                        }
+                        
+                        // Disable action buttons
+                        if (restoreButton) {
+                            restoreButton.disabled = true;
+                            restoreButton.style.opacity = '0.5';
+                            restoreButton.style.cursor = 'not-allowed';
+                            restoreButton.style.pointerEvents = 'none';
+                        }
+                        if (deleteButton) {
+                            deleteButton.disabled = true;
+                            deleteButton.style.opacity = '0.5';
+                            deleteButton.style.cursor = 'not-allowed';
+                            deleteButton.style.pointerEvents = 'none';
+                        }
+                        
+                        // Add lock styling to row
+                        row.style.opacity = '0.7';
+                        row.classList.add('locked-row');
+                    } else {
+                        // Restore original data
+                        if (row.dataset.originalData) {
+                            try {
+                                const originalData = JSON.parse(row.dataset.originalData);
+                                
+                                if (docNameCell) {
+                                    docNameCell.textContent = originalData.docName;
+                                }
+                                if (categoryCell) {
+                                    categoryCell.textContent = originalData.category;
+                                }
+                                if (archivedOnCell) {
+                                    archivedOnCell.textContent = originalData.archivedOn;
+                                }
+                                if (deletionCell) {
+                                    deletionCell.textContent = originalData.deletion;
+                                }
+                            } catch (e) {
+                                console.error('Error restoring original data:', e);
+                            }
+                        }
+                        
+                        // Restore action buttons
+                        if (restoreButton) {
+                            restoreButton.disabled = false;
+                            restoreButton.style.opacity = '1';
+                            restoreButton.style.cursor = 'pointer';
+                            restoreButton.style.pointerEvents = 'auto';
+                        }
+                        if (deleteButton) {
+                            deleteButton.disabled = false;
+                            deleteButton.style.opacity = '1';
+                            deleteButton.style.cursor = 'pointer';
+                            deleteButton.style.pointerEvents = 'auto';
+                        }
+                        
+                        // Remove lock styling from row
+                        row.style.opacity = '1';
+                        row.classList.remove('locked-row');
+                    }
+                });
+            }
+
+            // Check and apply lock state on page load
+            function checkAndApplyArchivalLockState() {
+                const isLocked = localStorage.getItem('documentsLocked') === 'true';
+                updateArchivalLockState(isLocked);
+            }
+
+            // Listen for storage changes (for cross-tab synchronization)
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'documentsLocked') {
+                    const isLocked = e.newValue === 'true';
+                    updateArchivalLockState(isLocked);
+                }
+            });
+
+            // Apply lock state on page load
+            checkAndApplyArchivalLockState();
         });
     </script>
 </body>

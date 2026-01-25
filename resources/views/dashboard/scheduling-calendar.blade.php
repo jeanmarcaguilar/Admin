@@ -142,6 +142,13 @@ $calendarBookings = $calendarBookings ?? [];
       transform: translateX(4px);
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
+    /* Hide upcoming events by default - only show when locked */
+    #upcomingEventsList .dashboard-card {
+      display: none;
+    }
+    #upcomingEventsList .dashboard-card.locked-visible {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -166,6 +173,112 @@ $calendarBookings = $calendarBookings ?? [];
       </div>
     </div>
   </nav>
+  <script>
+    (function(){
+      // Utilities
+      function qs(sel, root){ return (root||document).querySelector(sel); }
+      function qsa(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+      function hide(el){ if(!el) return; el.classList.add('hidden'); el.style.display='none'; }
+      function show(el){ if(!el) return; el.classList.remove('hidden'); el.style.display='block'; }
+
+      // User menu toggle
+      function toggleUserMenu(ev){
+        try{
+          if(ev){ ev.stopPropagation && ev.stopPropagation(); ev.stopImmediatePropagation && ev.stopImmediatePropagation(); }
+          var btn = qs('#userMenuBtn');
+          var menu = qs('#userMenuDropdown');
+          var open = menu && menu.classList.contains('hidden');
+          if(!menu) return;
+          if(open){
+            // Position under button
+            var rect = btn.getBoundingClientRect();
+            menu.style.position='fixed';
+            menu.style.top = (rect.bottom + 8) + 'px';
+            var width = menu.offsetWidth || 192;
+            var left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
+            menu.style.left = left + 'px';
+            menu.style.right = 'auto';
+            show(menu);
+            btn && btn.setAttribute('aria-expanded','true');
+          } else {
+            hide(menu);
+            btn && btn.setAttribute('aria-expanded','false');
+          }
+        }catch(e){}
+      }
+
+      // Notification toggle (if present)
+      function toggleNotification(ev){
+        try{
+          if(ev){ ev.stopPropagation && ev.stopPropagation(); }
+          var nd = qs('#notificationDropdown');
+          if(!nd) return;
+          if(nd.classList.contains('hidden')) show(nd); else hide(nd);
+          // Close user menu when opening notifications
+          hide(qs('#userMenuDropdown'));
+          var ub = qs('#userMenuBtn'); ub && ub.setAttribute('aria-expanded','false');
+        }catch(e){}
+      }
+
+      // Sidebar open/close
+      function toggleSidebar(){
+        var sidebar = qs('#sidebar');
+        var overlay = qs('#overlay');
+        if(!sidebar) return;
+        var isClosed = sidebar.classList.contains('-ml-72');
+        if(isClosed){ sidebar.classList.remove('-ml-72'); show(overlay); }
+        else { sidebar.classList.add('-ml-72'); hide(overlay); }
+      }
+
+      // Dropdowns in sidebar
+      function wireSidebarDropdowns(){
+        qsa('#sidebar .has-dropdown').forEach(function(sec){
+          var header = qs('div', sec);
+          var caret = qs('.bx-chevron-down', header);
+          var menu = qs('.dropdown-menu', sec);
+          if(header && !header.__wired){
+            header.__wired = true;
+            header.addEventListener('click', function(){
+              if(!menu) return;
+              var hidden = menu.classList.contains('hidden');
+              if(hidden){ menu.classList.remove('hidden'); menu.style.display='block'; caret && caret.classList.add('rotate-180'); }
+              else { menu.classList.add('hidden'); menu.style.display='none'; caret && caret.classList.remove('rotate-180'); }
+            });
+          }
+        });
+      }
+
+      // One-time init
+      function init(){
+        var ub = qs('#userMenuBtn'); if(ub && !ub.__wired){ ub.__wired=true; ub.addEventListener('click', toggleUserMenu); }
+        var nb = qs('#notificationBtn'); if(nb && !nb.__wired){ nb.__wired=true; nb.addEventListener('click', toggleNotification); }
+        var tb = qs('#toggle-btn'); if(tb && !tb.__wired){ tb.__wired=true; tb.addEventListener('click', function(e){ e.preventDefault(); toggleSidebar(); }); }
+        var ov = qs('#overlay'); if(ov && !ov.__wired){ ov.__wired=true; ov.addEventListener('click', function(){ var s=qs('#sidebar'); s && s.classList.add('-ml-72'); hide(ov); }); }
+        wireSidebarDropdowns();
+        // Close menus on outside click / ESC
+        document.addEventListener('click', function(e){
+          var menu = qs('#userMenuDropdown'); var btn = qs('#userMenuBtn');
+          if(menu && btn && !menu.contains(e.target) && !btn.contains(e.target)){ hide(menu); btn.setAttribute('aria-expanded','false'); }
+          var nd = qs('#notificationDropdown'); var nb2 = qs('#notificationBtn');
+          if(nd && nb2 && !nd.contains(e.target) && !nb2.contains(e.target)){ hide(nd); }
+        });
+        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ hide(qs('#userMenuDropdown')); hide(qs('#notificationDropdown')); } });
+      }
+
+      if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', init, {once:true}); } else { init(); }
+    })();
+  </script>
+  <script>
+    (function(){
+      if (typeof window.openCaseWithConfGate !== 'function'){
+        window.openCaseWithConfGate = function(href){
+          try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+          if (href){ window.location.href = href; }
+          return false;
+        };
+      }
+    })();
+  </script>
 
   <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
     <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
@@ -230,18 +343,18 @@ $calendarBookings = $calendarBookings ?? [];
             </a>
           </li>
           <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
-                <i class="bx bx-calendar-check"></i>
-                <span>Facilities Reservations</span>
+                <i class="bx bx-group"></i>
+                <span>Visitor Management</span>
               </div>
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
-            <ul class="dropdown-menu bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+              
+              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li class="has-dropdown">
@@ -260,6 +373,21 @@ $calendarBookings = $calendarBookings ?? [];
             </ul>
           </li>
           <li class="has-dropdown">
+            <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+              <div class="flex items-center space-x-2">
+                <i class="bx bx-calendar-check"></i>
+                <span>Facilities Management</span>
+              </div>
+              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+            </div>
+            <ul class="dropdown-menu bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+            </ul>
+          </li>
+          <li class="has-dropdown">
             <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
               <div class="flex items-center space-x-2">
                 <i class="bx bx-file"></i>
@@ -268,25 +396,10 @@ $calendarBookings = $calendarBookings ?? [];
               <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
             <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
               <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
               <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
               <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-            </ul>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-group"></i>
-                <span>Visitor Management</span>
-              </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-            </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-            
-              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
             </ul>
           </li>
           <li>
@@ -316,87 +429,107 @@ $calendarBookings = $calendarBookings ?? [];
             <!-- Calendar Panel -->
             <section class="lg:col-span-2 dashboard-card">
               <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-                <h3 class="text-[#1a4d38] font-bold text-sm">Calendar</h3>
+                <h3 class="text-[#1a4d38] font-bold text-sm">Calendar View</h3>
                 <div class="flex items-center gap-2">
+                  <button id="todayBtn" class="text-xs bg-[#28644c] text-white px-3 py-1.5 rounded-md hover:bg-[#2f855A]">Today</button>
                   <button id="prevMonthBtn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md"><i class="fa-solid fa-chevron-left mr-1"></i>Prev</button>
-                  <span id="monthLabel" class="text-sm font-semibold select-none">{{ now()->format('F Y') }}</span>
+                  <span id="monthLabel" class="text-sm font-semibold select-none min-w-[120px] text-center">{{ now()->format('F Y') }}</span>
                   <button id="nextMonthBtn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md">Next<i class="fa-solid fa-chevron-right ml-1"></i></button>
                 </div>
               </div>
               <div class="p-6">
-                <div class="grid grid-cols-7 gap-2 text-xs">
-                  <div class="text-gray-500 text-center font-semibold">Sun</div>
-                  <div class="text-gray-500 text-center font-semibold">Mon</div>
-                  <div class="text-gray-500 text-center font-semibold">Tue</div>
-                  <div class="text-gray-500 text-center font-semibold">Wed</div>
-                  <div class="text-gray-500 text-center font-semibold">Thu</div>
-                  <div class="text-gray-500 text-center font-semibold">Fri</div>
-                  <div class="text-gray-500 text-center font-semibold">Sat</div>
+                <div class="grid grid-cols-7 gap-2 text-xs mb-2">
+                  <div class="text-gray-500 text-center font-semibold py-2">Sun</div>
+                  <div class="text-gray-500 text-center font-semibold py-2">Mon</div>
+                  <div class="text-gray-500 text-center font-semibold py-2">Tue</div>
+                  <div class="text-gray-500 text-center font-semibold py-2">Wed</div>
+                  <div class="text-gray-500 text-center font-semibold py-2">Thu</div>
+                  <div class="text-gray-500 text-center font-semibold py-2">Fri</div>
+                  <div class="text-gray-500 text-center font-semibold py-2">Sat</div>
                 </div>
-                <div id="calendarGrid" class="mt-2 grid grid-cols-7 gap-2"></div>
+                <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+                <div class="mt-4 flex items-center justify-between text-xs text-gray-500">
+                  <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-100 text-green-700 rounded"></span> Approved</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-yellow-100 text-yellow-800 rounded"></span> Pending</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-100 text-red-700 rounded"></span> Rejected</span>
+                  </div>
+                  <div id="eventCount" class="text-xs">0 events this month</div>
+                </div>
               </div>
             </section>
             <aside class="space-y-4">
               <div class="dashboard-card">
                 <div class="px-6 py-4 flex items-center justify-between">
-                  <h3 class="text-[#1a4d38] font-bold text-sm">Actions</h3>
-                  <div class="flex items-center gap-2">
-                    <a href="{{ route('room-equipment') }}" class="text-xs bg-[#28644c] text-white px-3 py-1.5 rounded-md hover:bg-[#2f855A]">Book Now</a>
-                    @if (Route::has('calendar.clear'))
-                      <form method="POST" action="{{ route('calendar.clear') }}">
-                        @csrf
-                        <button type="submit" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-md">Clear Calendar</button>
-                      </form>
-                    @else
-                      <button type="button" class="text-xs bg-gray-100 text-gray-400 px-3 py-1.5 rounded-md cursor-not-allowed" title="Add route('calendar.clear') to enable">Clear Calendar</button>
-                    @endif
-                  </div>
+                  <h3 class="text-[#1a4d38] font-bold text-sm">Quick Actions</h3>
+                </div>
+                <div class="p-4 space-y-3">
+                  <a href="{{ route('room-equipment') }}" class="w-full flex items-center justify-center gap-2 bg-[#28644c] text-white px-4 py-2.5 rounded-md hover:bg-[#2f855A] transition-colors text-sm font-medium">
+                    <i class="bx bx-plus"></i> New Booking
+                  </a>
+                  <button id="lockAllBtn" class="w-full flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2.5 rounded-md transition-colors text-sm font-medium" onclick="lockAllReservations()">
+                    <i class="bx bx-lock"></i> Lock All Reservations
+                  </button>
+                  <button id="exportBtn" class="w-full flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2.5 rounded-md transition-colors text-sm font-medium">
+                    <i class="bx bx-download"></i> Export Calendar
+                  </button>
+                  @if (Route::has('calendar.clear'))
+                    <form method="POST" action="{{ route('calendar.clear') }}" class="w-full">
+                      @csrf
+                      <button type="submit" class="w-full flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2.5 rounded-md transition-colors text-sm font-medium">
+                        <i class="bx bx-trash"></i> Clear All
+                      </button>
+                    </form>
+                  @endif
                 </div>
               </div>
               <div class="dashboard-card">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
                   <h3 class="text-[#1a4d38] font-bold text-sm">Upcoming Events</h3>
+                  <span id="upcomingCount" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">0</span>
                 </div>
-                @php
-                  $upcoming = $calendarBookings;
-                @endphp
-                @if (!empty($upcoming))
-                  <ul class="p-4 space-y-3 text-sm">
-                    @foreach ($upcoming as $booking)
-                      @php
-                        $date = isset($booking['date']) ? \Carbon\Carbon::parse($booking['date']) : null;
-                        $day = $date ? $date->format('d') : '--';
-                        $monthShort = $date ? $date->format('M') : '';
-                        $time = isset($booking['start_time']) && $booking['start_time']
-                          ? (\Carbon\Carbon::createFromFormat('H:i', $booking['start_time'])->format('g:i A'))
-                          : '';
-                        $title = $booking['name'] ?? ($booking['title'] ?? 'Booking');
-                        $status = strtolower($booking['status'] ?? 'pending');
-                        $statusClass = [
-                          'pending' => 'bg-yellow-100 text-yellow-800',
-                          'approved' => 'bg-green-100 text-green-800',
-                          'rejected' => 'bg-red-100 text-red-800',
-                        ][$status] ?? 'bg-gray-100 text-gray-800';
-                      @endphp
-                      <li class="activity-item flex space-x-3">
-                        <div class="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-700">
-                          <span class="text-xs font-bold">{{ $day }}</span>
-                        </div>
-                        <div class="flex-grow">
-                          <p class="font-semibold text-gray-800 flex items-center gap-2">
-                            <span>{{ $title }}</span>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $statusClass }}">{{ ucfirst($status) }}</span>
-                          </p>
-                          <p class="text-gray-500 text-xs">{{ $day }} {{ $monthShort }} @if($time) · {{ $time }} @endif</p>
-                        </div>
-                      </li>
-                    @endforeach
-                  </ul>
-                @else
-                  <div class="p-6 text-sm text-gray-500">
-                    <p class="text-center">No upcoming events.</p>
-                  </div>
-                @endif
+                <div id="upcomingEventsList" class="max-h-80 overflow-y-auto">
+                  @php
+                    $upcoming = $calendarBookings;
+                  @endphp
+                  @if (!empty($upcoming))
+                    <ul class="p-4 space-y-3 text-sm">
+                      @foreach ($upcoming as $booking)
+                        @php
+                          $date = isset($booking['date']) ? \Carbon\Carbon::parse($booking['date']) : null;
+                          $day = $date ? $date->format('d') : '--';
+                          $monthShort = $date ? $date->format('M') : '';
+                          $time = isset($booking['start_time']) && $booking['start_time']
+                            ? (\Carbon\Carbon::createFromFormat('H:i', $booking['start_time'])->format('g:i A'))
+                            : '';
+                          $title = $booking['name'] ?? ($booking['title'] ?? 'Booking');
+                          $status = strtolower($booking['status'] ?? 'pending');
+                          $statusClass = [
+                            'pending' => 'bg-yellow-100 text-yellow-800',
+                            'approved' => 'bg-green-100 text-green-800',
+                            'rejected' => 'bg-red-100 text-red-800',
+                          ][$status] ?? 'bg-gray-100 text-gray-800';
+                        @endphp
+                        <li class="activity-item flex space-x-3 hover:bg-gray-50 rounded-lg p-2 transition-colors cursor-pointer" onclick="showEventDetails({{ json_encode($booking) }})">
+                          <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-green-100 text-green-700">
+                            <span class="text-xs font-bold">{{ $day }}</span>
+                          </div>
+                          <div class="flex-grow">
+                            <p class="font-semibold text-gray-800 flex items-center gap-2">
+                              <span>{{ Str::limit($title, 25) }}</span>
+                              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {{ $statusClass }}">{{ ucfirst($status) }}</span>
+                            </p>
+                            <p class="text-gray-500 text-xs">{{ $day }} {{ $monthShort }} @if($time) · {{ $time }} @endif</p>
+                          </div>
+                        </li>
+                      @endforeach
+                    </ul>
+                  @else
+                    <div class="p-6 text-sm text-gray-500">
+                      <p class="text-center">No upcoming events.</p>
+                    </div>
+                  @endif
+                </div>
               </div>
               <div class="dashboard-card">
                 <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
@@ -431,6 +564,55 @@ $calendarBookings = $calendarBookings ?? [];
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Event Details Modal -->
+  <div id="eventDetailsModal" class="modal hidden" aria-modal="true" role="dialog">
+    <div class="bg-white rounded-lg w-full max-w-md mx-4">
+      <div class="flex justify-between items-center border-b px-6 py-4">
+        <h3 class="text-xl font-semibold text-gray-900">Event Details</h3>
+        <button onclick="closeEventDetails()" class="text-gray-400 hover:text-gray-500">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div id="eventDetailsContent" class="p-6">
+        <!-- Content will be loaded by JavaScript -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Lock Reservations Confirmation Modal -->
+  <div id="lockConfirmModal" class="modal hidden" aria-modal="true" role="dialog">
+    <div class="bg-white rounded-lg w-full max-w-md mx-4">
+      <div class="flex justify-between items-center border-b px-6 py-4">
+        <h3 class="text-xl font-semibold text-gray-900">Lock All Reservations</h3>
+        <button onclick="closeLockConfirmModal()" class="text-gray-400 hover:text-gray-500">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="flex items-center mb-4">
+          <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+            <i class="fas fa-lock text-orange-600 text-xl"></i>
+          </div>
+          <div>
+            <p class="text-gray-900 font-medium">Confirm Lock Action</p>
+            <p class="text-gray-600 text-sm">This will secure all reservations for confidential data handling.</p>
+          </div>
+        </div>
+        <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+          <p class="text-orange-800 text-sm"><strong>Warning:</strong> This action will restrict access to all reservation data and may affect ongoing bookings.</p>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button onclick="closeLockConfirmModal()" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">
+            Cancel
+          </button>
+          <button onclick="confirmLockReservations()" class="bg-orange-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-sm transition-all duration-200">
+            <i class="fas fa-lock mr-2"></i>Lock All Reservations
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Modals -->
@@ -832,6 +1014,15 @@ $calendarBookings = $calendarBookings ?? [];
         if (!signOutModal.contains(e.target)) {
           signOutModal.classList.remove("active");
         }
+        // Close event details modal when clicking outside
+        const eventDetailsModal = document.getElementById('eventDetailsModal');
+        const lockConfirmModal = document.getElementById('lockConfirmModal');
+        if (eventDetailsModal && !eventDetailsModal.contains(e.target) && !e.target.closest('[onclick*="showEventDetails"]')) {
+          closeEventDetails();
+        }
+        if (lockConfirmModal && !lockConfirmModal.contains(e.target) && !e.target.closest('[onclick*="lockAllReservations"]')) {
+          closeLockConfirmModal();
+        }
       });
 
       profileModal.querySelector("div").addEventListener("click", (e) => {
@@ -882,6 +1073,10 @@ $calendarBookings = $calendarBookings ?? [];
       const monthLabel = document.getElementById('monthLabel');
       const prevMonthBtn = document.getElementById('prevMonthBtn');
       const nextMonthBtn = document.getElementById('nextMonthBtn');
+      const todayBtn = document.getElementById('todayBtn');
+      const eventCount = document.getElementById('eventCount');
+      const upcomingCount = document.getElementById('upcomingCount');
+      const exportBtn = document.getElementById('exportBtn');
 
       let currentDate = new Date();
       // Database bookings passed from backend
@@ -891,9 +1086,22 @@ $calendarBookings = $calendarBookings ?? [];
         return new Date(year, monthIndex + 1, 0).getDate();
       }
 
+      function updateEventCount() {
+        const year = currentDate.getFullYear();
+        const monthIndex = currentDate.getMonth();
+        const monthEvents = sessionBookings.filter(b => {
+          if (!b.date) return false;
+          const d = new Date(b.date);
+          return d.getFullYear() === year && d.getMonth() === monthIndex;
+        });
+        eventCount.textContent = `${monthEvents.length} event${monthEvents.length !== 1 ? 's' : ''} this month`;
+        upcomingCount.textContent = monthEvents.length;
+      }
+
       function renderCalendar() {
         const year = currentDate.getFullYear();
         const monthIndex = currentDate.getMonth(); // 0-11
+        const today = new Date();
 
         // Update month label
         const monthName = currentDate.toLocaleString('default', { month: 'long' });
@@ -919,10 +1127,11 @@ $calendarBookings = $calendarBookings ?? [];
         // Day cells
         for (let day = 1; day <= totalDays; day++) {
           const cell = document.createElement('div');
-          cell.className = 'h-24 border border-gray-100 rounded-md p-1 relative bg-white hover:bg-gray-50';
+          const isToday = today.getFullYear() === year && today.getMonth() === monthIndex && today.getDate() === day;
+          cell.className = `h-24 border border-gray-100 rounded-md p-1 relative bg-white hover:bg-gray-50 ${isToday ? 'ring-2 ring-[#28644c]' : ''}`;
 
           const badge = document.createElement('span');
-          badge.className = 'absolute top-1 right-1 text-[10px] text-gray-400';
+          badge.className = `absolute top-1 right-1 text-[10px] ${isToday ? 'text-[#28644c] font-bold' : 'text-gray-400'}`;
           badge.textContent = day;
           cell.appendChild(badge);
 
@@ -948,11 +1157,11 @@ $calendarBookings = $calendarBookings ?? [];
               const start = ev.start_time ? ev.start_time.substring(0,5) : '';
               const end = ev.end_time ? ev.end_time.substring(0,5) : '';
               const timeStr = start && end ? ` (${start}-${end})` : (start ? ` (${start})` : '');
-              const statusTag = status ? ` [${status.charAt(0).toUpperCase() + status.slice(1)}]` : '';
 
-              pill.className = `text-[10px] px-2 py-1 rounded truncate ${color}`;
-              pill.title = (ev.purpose || ev.title || ev.name || 'Booking') + statusTag;
+              pill.className = `text-[10px] px-2 py-1 rounded truncate ${color} cursor-pointer hover:opacity-80`;
+              pill.title = (ev.purpose || ev.title || ev.name || 'Booking') + (status ? ` [${status.charAt(0).toUpperCase() + status.slice(1)}]` : '');
               pill.textContent = `${ev.name || ev.title || 'Booking'}${timeStr}`;
+              pill.onclick = () => showEventDetails(ev);
               container.appendChild(pill);
             });
             cell.appendChild(container);
@@ -968,8 +1177,12 @@ $calendarBookings = $calendarBookings ?? [];
           cell.className = 'h-24 border border-gray-100 rounded-md p-1 bg-gray-50';
           calendarGrid.appendChild(cell);
         }
+
+        // Update event count
+        updateEventCount();
       }
 
+      // Navigation buttons
       prevMonthBtn?.addEventListener('click', (e) => {
         e.preventDefault();
         currentDate.setMonth(currentDate.getMonth() - 1);
@@ -982,10 +1195,657 @@ $calendarBookings = $calendarBookings ?? [];
         renderCalendar();
       });
 
+      todayBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentDate = new Date();
+        renderCalendar();
+      });
+
+      // Export functionality
+      exportBtn?.addEventListener('click', () => {
+        const icsContent = generateICSFile(sessionBookings);
+        downloadICSFile(icsContent, 'calendar.ics');
+      });
+
+      function generateICSFile(bookings) {
+        let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Administrative Department//Calendar//EN\n';
+        
+        bookings.forEach(booking => {
+          if (!booking.date) return;
+          
+          const start = new Date(booking.date);
+          const end = new Date(booking.date);
+          
+          if (booking.start_time) {
+            const [hours, minutes] = booking.start_time.split(':');
+            start.setHours(parseInt(hours), parseInt(minutes), 0);
+          }
+          
+          if (booking.end_time) {
+            const [hours, minutes] = booking.end_time.split(':');
+            end.setHours(parseInt(hours), parseInt(minutes), 0);
+          } else {
+            end.setDate(end.getDate() + 1); // All day event
+          }
+          
+          const status = booking.status || 'pending';
+          const title = booking.name || booking.title || 'Booking';
+          const description = booking.purpose || '';
+          
+          ics += 'BEGIN:VEVENT\n';
+          ics += `DTSTART:${formatDateForICS(start)}\n`;
+          ics += `DTEND:${formatDateForICS(end)}\n`;
+          ics += `SUMMARY:${title}\n`;
+          ics += `DESCRIPTION:${description}\n`;
+          ics += `STATUS:${status.toUpperCase()}\n`;
+          ics += 'END:VEVENT\n';
+        });
+        
+        ics += 'END:VCALENDAR';
+        return ics;
+      }
+
+      function formatDateForICS(date) {
+        return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      }
+
+      function downloadICSFile(content, filename) {
+        const blob = new Blob([content], { type: 'text/calendar' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
       // Initial render
       renderCalendar();
+
+      // Event details modal functions
+      window.showEventDetails = function(event) {
+        const modal = document.getElementById('eventDetailsModal');
+        const content = document.getElementById('eventDetailsContent');
+        
+        const status = (event.status || '').toLowerCase();
+        const statusClass = {
+          'pending': 'bg-yellow-100 text-yellow-800',
+          'approved': 'bg-green-100 text-green-800',
+          'rejected' : 'bg-red-100 text-red-800',
+        }[status] || 'bg-gray-100 text-gray-800';
+        
+        const date = event.date ? new Date(event.date).toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }) : 'No date specified';
+        
+        const time = event.start_time && event.end_time ? 
+          `${event.start_time} - ${event.end_time}` : 
+          event.start_time || 'All day';
+        
+        content.innerHTML = `
+          <div class="space-y-4">
+            <div>
+              <h4 class="font-semibold text-gray-700">Title</h4>
+              <p class="text-sm text-gray-900">${event.name || event.title || 'Booking'}</p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-700">Status</h4>
+              <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
+                ${status.charAt(0).toUpperCase() + status.slice(1)}
+              </span>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-700">Date</h4>
+              <p class="text-sm text-gray-900">${date}</p>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-700">Time</h4>
+              <p class="text-sm text-gray-900">${time}</p>
+            </div>
+            ${event.room ? `
+            <div>
+              <h4 class="font-semibold text-gray-700">Room</h4>
+              <p class="text-sm text-gray-900">${event.room}</p>
+            </div>
+            ` : ''}
+            ${event.equipment ? `
+            <div>
+              <h4 class="font-semibold text-gray-700">Equipment</h4>
+              <p class="text-sm text-gray-900">${event.equipment}</p>
+            </div>
+            ` : ''}
+            ${event.purpose ? `
+            <div>
+              <h4 class="font-semibold text-gray-700">Purpose</h4>
+              <p class="text-sm text-gray-900">${event.purpose}</p>
+            </div>
+            ` : ''}
+          </div>
+        `;
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+      };
+
+      window.closeEventDetails = function() {
+        const modal = document.getElementById('eventDetailsModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      };
+
+      // Check and restore lock state on page load
+      function restoreLockState() {
+        const isLocked = localStorage.getItem('reservationsLocked') === 'true';
+        const lockBtn = document.getElementById('lockAllBtn');
+        if (lockBtn) {
+          if (isLocked) {
+            lockBtn.innerHTML = '<i class="bx bx-lock-open"></i> Unlock Reservations';
+            lockBtn.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+            lockBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            lockBtn.setAttribute('onclick', 'unlockAllReservations()');
+          } else {
+            lockBtn.innerHTML = '<i class="bx bx-lock"></i> Lock All Reservations';
+            lockBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            lockBtn.classList.add('bg-orange-600', 'hover:bg-orange-700');
+            lockBtn.setAttribute('onclick', 'lockAllReservations()');
+          }
+        }
+        // Update upcoming events display based on lock state
+        updateUpcomingEventsLockState(isLocked);
+        // Update calendar events display based on lock state
+        updateCalendarEventsLockState(isLocked);
+      }
+
+      // Update calendar events to show locked/unlocked state
+      function updateCalendarEventsLockState(isLocked) {
+        const calendarGrid = document.getElementById('calendarGrid');
+        if (!calendarGrid) return;
+        
+        const eventPills = calendarGrid.querySelectorAll('.text-xs.px-2.py-1.rounded');
+        
+        eventPills.forEach(pill => {
+          if (isLocked) {
+            // Store original data if not already stored
+            if (!pill.dataset.originalText) {
+              pill.dataset.originalText = pill.textContent;
+              pill.dataset.originalClasses = pill.className;
+            }
+            
+            // Mask the event content
+            pill.textContent = '****';
+            pill.className = 'text-[10px] px-2 py-1 rounded bg-gray-100 text-gray-800 cursor-pointer hover:opacity-80';
+            pill.title = 'Confidential data protected';
+            
+            // Disable click events
+            const originalOnclick = pill.onclick;
+            if (originalOnclick && !pill.dataset.originalOnclick) {
+              pill.dataset.originalOnclick = originalOnclick.toString();
+              pill.onclick = null;
+              pill.style.pointerEvents = 'none';
+            }
+          } else {
+            // Restore original data
+            if (pill.dataset.originalText) {
+              pill.textContent = pill.dataset.originalText;
+              pill.className = pill.dataset.originalClasses;
+              pill.title = '';
+              
+              // Restore click functionality
+              if (pill.dataset.originalOnclick) {
+                try {
+                  // Restore the original onclick function
+                  const originalFunction = new Function('return ' + pill.dataset.originalOnclick)();
+                  pill.onclick = originalFunction;
+                  pill.style.pointerEvents = 'auto';
+                } catch (e) {
+                  console.error('Error restoring onclick:', e);
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Update upcoming events to show locked/unlocked state
+      function updateUpcomingEventsLockState(isLocked) {
+        const upcomingEventsList = document.getElementById('upcomingEventsList');
+        const upcomingCard = upcomingEventsList?.closest('.dashboard-card');
+        
+        if (!upcomingEventsList || !upcomingCard) return;
+        
+        const eventItems = upcomingEventsList.querySelectorAll('.activity-item');
+        
+        if (isLocked) {
+          // Show upcoming events when locked
+          upcomingCard.classList.add('locked-visible');
+          
+          eventItems.forEach(item => {
+            const statusElement = item.querySelector('.px-2.py-0.rounded-full');
+            const titleElement = item.querySelector('.font-semibold');
+            const dateElement = item.querySelector('.text-gray-500');
+            
+            // Store original data if not already stored
+            if (!item.dataset.originalData) {
+              const originalTitle = titleElement?.textContent || '';
+              const originalDate = dateElement?.textContent || '';
+              const originalStatus = statusElement?.textContent || '';
+              item.dataset.originalData = JSON.stringify({
+                title: originalTitle,
+                date: originalDate,
+                status: originalStatus
+              });
+            }
+            
+            // Add lock indicator to events
+            if (!item.querySelector('.lock-indicator')) {
+              const lockIndicator = document.createElement('i');
+              lockIndicator.className = 'fas fa-lock text-red-500 text-xs lock-indicator ml-2';
+              lockIndicator.title = 'Confidential data protected';
+              
+              if (titleElement) {
+                titleElement.innerHTML = '****<span class="lock-indicator-container"></span>';
+                titleElement.appendChild(lockIndicator);
+              }
+              
+              // Mask the date information
+              if (dateElement) {
+                dateElement.textContent = '** ** ****';
+              }
+              
+              // Mask the status
+              if (statusElement) {
+                statusElement.textContent = '****';
+                statusElement.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-gray-100 text-gray-800';
+              }
+              
+              // Dim the event item to show it's locked
+              item.style.opacity = '0.7';
+              item.style.cursor = 'not-allowed';
+              
+              // Add locked class for styling
+              item.classList.add('locked-event');
+              
+              // Disable click events
+              item.onclick = null;
+              item.style.pointerEvents = 'none';
+            }
+          });
+        } else {
+          // Hide upcoming events when unlocked
+          upcomingCard.classList.remove('locked-visible');
+          
+          // Restore original data if it exists
+          eventItems.forEach(item => {
+            const lockIndicator = item.querySelector('.lock-indicator');
+            if (lockIndicator) {
+              lockIndicator.remove();
+            }
+            
+            // Restore original data
+            if (item.dataset.originalData) {
+              try {
+                const originalData = JSON.parse(item.dataset.originalData);
+                const titleElement = item.querySelector('.font-semibold');
+                const dateElement = item.querySelector('.text-gray-500');
+                const statusElement = item.querySelector('.px-2.py-0.rounded-full');
+                
+                if (titleElement) {
+                  titleElement.textContent = originalData.title;
+                }
+                if (dateElement) {
+                  dateElement.textContent = originalData.date;
+                }
+                if (statusElement) {
+                  statusElement.textContent = originalData.status;
+                  // Restore original status color classes
+                  const status = originalData.status.toLowerCase();
+                  if (status === 'pending') {
+                    statusElement.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-yellow-100 text-yellow-800';
+                  } else if (status === 'approved') {
+                    statusElement.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800';
+                  } else if (status === 'rejected') {
+                    statusElement.className = 'px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-800';
+                  }
+                }
+              } catch (e) {
+                console.error('Error restoring original data:', e);
+              }
+            }
+            
+            // Reset appearance
+            item.style.opacity = '1';
+            item.style.cursor = 'pointer';
+            item.classList.remove('locked-event');
+            item.style.pointerEvents = 'auto';
+            
+            // Restore click functionality
+            const bookingData = item.getAttribute('onclick')?.match(/showEventDetails\(([^)]+)\)/);
+            if (bookingData) {
+              try {
+                const booking = JSON.parse(bookingData[1]);
+                item.onclick = () => showEventDetails(booking);
+              } catch (e) {
+                // Fallback if parsing fails
+                item.onclick = null;
+              }
+            }
+          });
+        }
+      }
+
+      // Call restore function when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', restoreLockState);
+      } else {
+        restoreLockState();
+      }
+
+      // Lock all reservations function for confidential data - moved outside DOMContentLoaded for global access
+      window.lockAllReservations = function() {
+        const modal = document.getElementById('lockConfirmModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+      };
+
+      window.closeLockConfirmModal = function() {
+        const modal = document.getElementById('lockConfirmModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+      };
+
+      window.confirmLockReservations = function() {
+        // Close the confirmation modal
+        closeLockConfirmModal();
+        
+        // Show loading modal
+        const loadingModal = document.createElement('div');
+        loadingModal.id = 'loadingModal';
+        loadingModal.className = 'modal active';
+        loadingModal.style.display = 'flex';
+        loadingModal.innerHTML = `
+          <div class="bg-white rounded-lg w-full max-w-sm mx-4 p-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-spinner fa-spin text-orange-600 text-2xl"></i>
+            </div>
+            <p class="text-gray-900 font-medium mb-2">Locking Reservations</p>
+            <p class="text-gray-600 text-sm">Securing all reservations for confidential data...</p>
+          </div>
+        `;
+        document.body.appendChild(loadingModal);
+
+        // Simulate API call or backend processing
+        setTimeout(() => {
+          // Remove loading modal
+          document.body.removeChild(loadingModal);
+          
+          // Show success modal
+          const successModal = document.createElement('div');
+          successModal.id = 'successModal';
+          successModal.className = 'modal active';
+          successModal.style.display = 'flex';
+          successModal.innerHTML = `
+            <div class="bg-white rounded-lg w-full max-w-sm mx-4 p-6 text-center">
+              <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+              </div>
+              <p class="text-gray-900 font-medium mb-2">Reservations Locked</p>
+              <p class="text-gray-600 text-sm mb-4">All reservations have been successfully locked for confidential data handling.</p>
+              <button onclick="closeSuccessModal(this)" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">
+                OK
+              </button>
+            </div>
+          `;
+          document.body.appendChild(successModal);
+          
+          // Update button to unlock state
+          const lockBtn = document.getElementById('lockAllBtn');
+          if (lockBtn) {
+            lockBtn.innerHTML = '<i class="bx bx-lock-open"></i> Unlock Reservations';
+            lockBtn.classList.remove('bg-orange-600', 'hover:bg-orange-700');
+            lockBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+            lockBtn.setAttribute('onclick', 'unlockAllReservations()');
+            // Save lock state to localStorage
+            localStorage.setItem('reservationsLocked', 'true');
+            // Update upcoming events to show locked state
+            updateUpcomingEventsLockState(true);
+            // Update calendar events to show locked state
+            updateCalendarEventsLockState(true);
+          }
+        }, 2000);
+      };
+
+      // Unlock all reservations function
+      window.unlockAllReservations = function() {
+        const otpModal = document.createElement('div');
+        otpModal.id = 'otpConfirmModal';
+        otpModal.className = 'modal active';
+        otpModal.style.display = 'flex';
+        otpModal.innerHTML = `
+          <div class="bg-white rounded-lg w-full max-w-md mx-4">
+            <div class="flex justify-between items-center border-b px-6 py-4">
+              <h3 class="text-xl font-semibold text-gray-900">Security Verification</h3>
+              <button onclick="closeOtpModal()" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times text-xl"></i>
+              </button>
+            </div>
+            <div class="p-6">
+              <div class="flex items-center mb-4">
+                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mr-4">
+                  <i class="fas fa-shield-alt text-red-600 text-xl"></i>
+                </div>
+                <div>
+                  <p class="text-gray-900 font-medium">OTP Required</p>
+                  <p class="text-gray-600 text-sm">Enter the 6-digit code sent to your registered device</p>
+                </div>
+              </div>
+              <div class="mb-4">
+                <label for="otpInput" class="block text-sm font-medium text-gray-700 mb-2">One-Time Password</label>
+                <input type="text" id="otpInput" maxlength="6" placeholder="000000" 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg text-center text-lg font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                <p class="text-xs text-gray-500 mt-1">Enter the 6-digit code</p>
+              </div>
+              <div class="flex justify-between items-center mb-4">
+                <button onclick="resendOtp()" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                  <i class="fas fa-redo mr-1"></i>Resend Code
+                </button>
+                <span id="otpTimer" class="text-sm text-gray-500">Code expires in 2:00</span>
+              </div>
+              <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                <p class="text-red-800 text-sm"><strong>Security Notice:</strong> This action will remove confidential data protection from all reservations.</p>
+              </div>
+              <div class="flex justify-end space-x-3">
+                <button onclick="closeOtpModal()" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">
+                  Cancel
+                </button>
+                <button onclick="verifyOtpAndUnlock()" class="bg-blue-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all duration-200">
+                  <i class="fas fa-lock-open mr-2"></i>Verify & Unlock
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(otpModal);
+        
+        // Start OTP timer
+        startOtpTimer();
+        
+        // Focus on OTP input
+        setTimeout(() => {
+          document.getElementById('otpInput')?.focus();
+        }, 100);
+      };
+
+      window.closeOtpModal = function() {
+        const modal = document.getElementById('otpConfirmModal');
+        if (modal) {
+          document.body.removeChild(modal);
+        }
+        stopOtpTimer();
+      };
+
+      let otpTimerInterval;
+      let otpTimeLeft = 120; // 2 minutes
+
+      function startOtpTimer() {
+        otpTimeLeft = 120;
+        updateOtpTimerDisplay();
+        otpTimerInterval = setInterval(() => {
+          otpTimeLeft--;
+          updateOtpTimerDisplay();
+          if (otpTimeLeft <= 0) {
+            stopOtpTimer();
+            const timerElement = document.getElementById('otpTimer');
+            if (timerElement) {
+              timerElement.textContent = 'Code expired';
+              timerElement.classList.add('text-red-500');
+            }
+          }
+        }, 1000);
+      }
+
+      function stopOtpTimer() {
+        if (otpTimerInterval) {
+          clearInterval(otpTimerInterval);
+          otpTimerInterval = null;
+        }
+      }
+
+      function updateOtpTimerDisplay() {
+        const timerElement = document.getElementById('otpTimer');
+        if (timerElement && otpTimeLeft > 0) {
+          const minutes = Math.floor(otpTimeLeft / 60);
+          const seconds = otpTimeLeft % 60;
+          timerElement.textContent = `Code expires in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+      }
+
+      window.resendOtp = function() {
+        // Reset timer
+        stopOtpTimer();
+        startOtpTimer();
+        
+        // Show success message
+        const timerElement = document.getElementById('otpTimer');
+        if (timerElement) {
+          timerElement.classList.remove('text-red-500');
+          timerElement.classList.add('text-green-500');
+          timerElement.textContent = 'Code sent!';
+        }
+        
+        // Clear input
+        const otpInput = document.getElementById('otpInput');
+        if (otpInput) {
+          otpInput.value = '';
+          otpInput.focus();
+        }
+        
+        // Reset timer display after 2 seconds
+        setTimeout(() => {
+          if (timerElement) {
+            timerElement.classList.remove('text-green-500');
+          }
+        }, 2000);
+      };
+
+      window.verifyOtpAndUnlock = function() {
+        const otpInput = document.getElementById('otpInput');
+        const otp = otpInput?.value || '';
+        
+        // Validate OTP (6 digits)
+        if (otp.length !== 6) {
+          if (otpInput) {
+            otpInput.classList.add('border-red-500');
+            otpInput.placeholder = 'Enter 6 digits';
+          }
+          return;
+        }
+        
+        // For demo purposes, accept any 6-digit code
+        // In production, this would verify against a real OTP system
+        closeOtpModal();
+        
+        // Show loading modal
+        const loadingModal = document.createElement('div');
+        loadingModal.id = 'unlockLoadingModal';
+        loadingModal.className = 'modal active';
+        loadingModal.style.display = 'flex';
+        loadingModal.innerHTML = `
+          <div class="bg-white rounded-lg w-full max-w-sm mx-4 p-6 text-center">
+            <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-spinner fa-spin text-blue-600 text-2xl"></i>
+            </div>
+            <p class="text-gray-900 font-medium mb-2">Unlocking Reservations</p>
+            <p class="text-gray-600 text-sm">Restoring normal access to reservations...</p>
+          </div>
+        `;
+        document.body.appendChild(loadingModal);
+
+        // Simulate API call or backend processing
+        setTimeout(() => {
+          // Remove loading modal
+          document.body.removeChild(loadingModal);
+          
+          // Show success modal
+          const successModal = document.createElement('div');
+          successModal.id = 'unlockSuccessModal';
+          successModal.className = 'modal active';
+          successModal.style.display = 'flex';
+          successModal.innerHTML = `
+            <div class="bg-white rounded-lg w-full max-w-sm mx-4 p-6 text-center">
+              <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-blue-600 text-2xl"></i>
+              </div>
+              <p class="text-gray-900 font-medium mb-2">Reservations Unlocked</p>
+              <p class="text-gray-600 text-sm mb-4">All reservations have been successfully unlocked and normal access has been restored.</p>
+              <button onclick="closeUnlockSuccessModal(this)" class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">
+                OK
+              </button>
+            </div>
+          `;
+          document.body.appendChild(successModal);
+          
+          // Update button back to lock state
+          const lockBtn = document.getElementById('lockAllBtn');
+          if (lockBtn) {
+            lockBtn.innerHTML = '<i class="bx bx-lock"></i> Lock All Reservations';
+            lockBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            lockBtn.classList.add('bg-orange-600', 'hover:bg-orange-700');
+            lockBtn.setAttribute('onclick', 'lockAllReservations()');
+            // Save unlock state to localStorage
+            localStorage.setItem('reservationsLocked', 'false');
+            // Update upcoming events to show unlocked state
+            updateUpcomingEventsLockState(false);
+            // Update calendar events to show unlocked state
+            updateCalendarEventsLockState(false);
+          }
+        }, 2000);
+      };
+
+      window.closeUnlockSuccessModal = function(button) {
+        const modal = button.closest('.modal');
+        if (modal && modal.id === 'unlockSuccessModal') {
+          document.body.removeChild(modal);
+        }
+      };
+
+      window.closeSuccessModal = function(button) {
+        const modal = button.closest('.modal');
+        if (modal && modal.id === 'successModal') {
+          document.body.removeChild(modal);
+        }
+      };
     });
-  </div>
+  </script>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

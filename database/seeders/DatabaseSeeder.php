@@ -26,9 +26,12 @@ class DatabaseSeeder extends Seeder
         // Uncomment to create test users
         // User::factory(10)->create();
         
-        // Call the AdminUserSeeder
+        // Call the seeders
         $this->call([
             AdminUserSeeder::class,
+            DocumentSeeder::class,
+            CaseFileSeeder::class,
+            ComplianceTrackingSeeder::class,
         ]);
     }
 }

@@ -180,6 +180,17 @@ $user = auth()->user();
             </div>
         </div>
     </nav>
+    <script>
+      (function(){
+        if (typeof window.openCaseWithConfGate !== 'function'){
+          window.openCaseWithConfGate = function(href){
+            try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+            if (href){ window.location.href = href; }
+            return false;
+          };
+        }
+      })();
+    </script>
 
     <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
         <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
@@ -262,16 +273,15 @@ $user = auth()->user();
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Reservations</span>
+                                <i class="bx bx-group"></i>
+                                <span>Visitor Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown">
@@ -289,6 +299,21 @@ $user = auth()->user();
                             <li><a href="{{ route('document.archival.retention.policy') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-archive mr-2"></i>Archival & Retention Policy</a></li>
                         </ul>
                     </li>
+                    <li class="has-dropdown">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                            <div class="flex items-center space-x-2">
+                                <i class="bx bx-calendar-check"></i>
+                                <span>Facilities Management</span>
+                            </div>
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+                        </div>
+                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                        </ul>
+                    </li>
                     <li class="has-dropdown active">
                         <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
@@ -298,24 +323,10 @@ $user = auth()->user();
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300 rotate-180"></i>
                         </div>
                         <ul class="dropdown-menu bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
                             <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
                             <li><a href="{{ route('document.compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
                             <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li>
@@ -367,6 +378,7 @@ $user = auth()->user();
                                 <div>
                                     <p class="text-sm font-semibold text-gray-800">Upcoming Hearings</p>
                                     <p id="countUpcoming" class="font-extrabold text-2xl mt-1 text-gray-900">{{ $counts['upcoming'] ?? 0 }}</p>
+                                    <p class="text-xs text-gray-500 mt-0.5">[{{ $counts['upcoming'] ?? 0 }}]</p>
                                 </div>
                                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                                     <i class="fas fa-gavel text-xl"></i>

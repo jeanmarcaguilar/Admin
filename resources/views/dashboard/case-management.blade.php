@@ -75,6 +75,8 @@ $user = auth()->user();
             z-index: 60;
             align-items: center;
             justify-content: center;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
 
         .modal.active {
@@ -84,6 +86,13 @@ $user = auth()->user();
         .modal > div:hover {
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             transition: box-shadow 0.2s ease-in-out;
+        }
+
+        /* Match Visitors Registration modal overlay for New Case only */
+        #newCaseModal {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
         }
 
         #main-content {
@@ -154,6 +163,13 @@ $user = auth()->user();
             transform: translateX(4px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
+
+        /* OTP segmented inputs */
+        .otp-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+        .otp-input { text-align: center; font-size: 18px; letter-spacing: 2px; }
+        .otp-input::-webkit-outer-spin-button,
+        .otp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .otp-input[disabled] { background-color: #f3f4f6; cursor: not-allowed; }
 
         /* Sidebar */
         #sidebar {
@@ -284,23 +300,8 @@ $user = auth()->user();
           m.classList.remove('active'); m.classList.add('hidden'); m.style.display='none';
         };
       }
-      // Notification dropdown toggle
-      if (typeof window.toggleNotification !== 'function') {
-        window.toggleNotification = function(ev){
-          try{
-            if(ev && ev.stopPropagation) ev.stopPropagation();
-            var nb=document.getElementById('notificationBtn');
-            var nd=document.getElementById('notificationDropdown');
-            var ud=document.getElementById('userMenuDropdown');
-            if(nd){ nd.classList.toggle('hidden'); }
-            if(nb){ var ex=nb.getAttribute('aria-expanded')==='true'; nb.setAttribute('aria-expanded',(!ex).toString()); }
-            if(ud){ ud.classList.add('hidden'); }
-            var ub=document.getElementById('userMenuBtn'); if(ub){ ub.setAttribute('aria-expanded','false'); }
-          }catch(e){}
-        };
-      }
 
-      // New Case modal helpers (global)
+      // Continue with other modal functions
       if (typeof window.openNewCaseModal !== 'function') {
         window.openNewCaseModal = function(){
           try{
@@ -350,27 +351,83 @@ $user = auth()->user();
         window.submitNewCase = async function(){
           var form = document.getElementById('newCaseForm');
           if (!form) return;
+          
           var submitBtn = form.querySelector('button[type="button"]');
           var originalBtnText = submitBtn ? submitBtn.innerHTML : '';
-          if (submitBtn){ submitBtn.disabled = true; submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...'; }
-          try{
+          if (submitBtn){ 
+            submitBtn.disabled = true; 
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating...'; 
+          }
+          
+          try {
+            // Get all form data including contract_type
             var formData = new FormData(form);
+            var formObj = {};
+            formData.forEach((value, key) => {
+              // Handle form data properly, especially for checkboxes and selects
+              if (formObj[key]) {
+                if (!Array.isArray(formObj[key])) {
+                  formObj[key] = [formObj[key]];
+                }
+                formObj[key].push(value);
+              } else {
+                formObj[key] = value;
+              }
+            });
+
+            // Ensure contract_type is included even if empty
+            if (!formObj.contract_type) {
+              formObj.contract_type = '';
+            }
+
             var tokenMeta = document.querySelector('meta[name="csrf-token"]');
             var csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
+            
             var response = await fetch('{{ route("case.create") }}', {
               method: 'POST',
-              headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+              headers: { 
+                'X-CSRF-TOKEN': csrf, 
+                'Accept': 'application/json', 
+                'X-Requested-With': 'XMLHttpRequest'
+              },
               body: formData
             });
+            
             var data = await response.json();
-            if (!response.ok){ throw new Error(data.message || 'Failed to create case'); }
-            await Swal.fire({ icon: 'success', title: 'Success!', text: 'Case has been created successfully.', showConfirmButton: false, timer: 1500 });
+            if (!response.ok) { 
+              console.error('Server error:', data);
+              throw new Error(data.message || 'Failed to create case. ' + (data.error || '')); 
+            }
+            
+            await Swal.fire({ 
+              icon: 'success', 
+              title: 'Success!', 
+              text: 'Case has been created successfully.', 
+              showConfirmButton: false, 
+              timer: 1500 
+            });
+            
             form.reset();
             window.closeModal('newCaseModal');
             window.location.reload();
           }catch(error){
             console.error('Error:', error);
-            Swal.fire({ icon: 'error', title: 'Error', text: (error && error.message) || 'Failed to create case. Please try again.', confirmButtonColor: '#2f855a' });
+            // Check if this is a validation error with error details
+            let errorMessage = (error && error.message) || 'Failed to create case. Please try again.';
+            
+            // If it's a validation error from the server, extract the error messages
+            if (error.response && error.response.data && error.response.data.errors) {
+              const errors = error.response.data.errors;
+              errorMessage = Object.values(errors).flat().join('\n');
+            }
+            
+            Swal.fire({ 
+              icon: 'error', 
+              title: 'Error', 
+              html: errorMessage.replace(/\n/g, '<br>'),
+              confirmButtonColor: '#2f855a',
+              width: '500px'
+            });
           }finally{
             if (submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = originalBtnText; }
           }
@@ -478,6 +535,76 @@ $user = auth()->user();
         </div>
     </div>
 
+    <script>
+      (function(){
+        function showDeleteModal(){ var m=document.getElementById('deleteCaseModal'); if(!m) return; m.classList.add('active'); m.classList.remove('hidden'); }
+        function hideDeleteModal(){ var m=document.getElementById('deleteCaseModal'); if(!m) return; m.classList.remove('active'); m.classList.add('hidden'); }
+        function bindDeleteHandlers(){
+          try{
+            var btns = document.querySelectorAll('.deleteCaseBtn');
+            btns.forEach(function(b){
+              b.addEventListener('click', function(e){
+                e.preventDefault();
+                var num = b.getAttribute('data-number') || '';
+                var disp = document.getElementById('delCaseNumber'); if(disp) disp.textContent = num;
+                var input = document.getElementById('delCaseNumberInput'); if(input) input.value = num;
+                showDeleteModal();
+              });
+            });
+            var close1 = document.getElementById('closeDeleteCaseBtn'); if(close1) close1.addEventListener('click', hideDeleteModal);
+            var cancel = document.getElementById('cancelDeleteCaseBtn'); if(cancel) cancel.addEventListener('click', hideDeleteModal);
+            var confirmBtn = document.getElementById('confirmDeleteCaseBtn');
+            if (confirmBtn){
+              confirmBtn.addEventListener('click', async function(){
+                var num = (document.getElementById('delCaseNumberInput') || {}).value || '';
+                if (!num) { hideDeleteModal(); return; }
+                var tokenMeta = document.querySelector('meta[name="csrf-token"]');
+                var csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
+                try{
+                  var fd = new FormData(); fd.append('number', num);
+                  var res = await fetch('{{ route("case.delete") }}', { method: 'POST', headers: { 'X-Requested-With':'XMLHttpRequest','X-CSRF-TOKEN': csrf, 'Accept':'application/json' }, body: fd });
+                  var data = await res.json().catch(function(){ return {}; });
+                  if (!res.ok || !data.success){ throw new Error((data && data.message) || 'Delete failed'); }
+                  // Remove the row or refresh
+                  try{
+                    var row = document.querySelector('tr[data-number="'+CSS.escape(num)+'"]');
+                    if (row && row.parentNode){ row.parentNode.removeChild(row); }
+                  }catch(_){ }
+                  hideDeleteModal();
+                  // To keep stats consistent, refresh the page
+                  window.location.reload();
+                }catch(err){
+                  alert('Failed to delete case.');
+                }
+              });
+            }
+          }catch(_){ }
+        }
+        if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', bindDeleteHandlers, { once: true }); }
+        else { bindDeleteHandlers(); }
+      })();
+    </script>
+
+    <!-- Delete Case Modal -->
+    <div id="deleteCaseModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="delete-case-title">
+        <div class="bg-white rounded-lg w-full max-w-sm mx-4">
+            <div class="flex justify-between items-center border-b px-6 py-3">
+                <h3 id="delete-case-title" class="text-base font-semibold text-gray-900">Delete Case</h3>
+                <button type="button" id="closeDeleteCaseBtn" class="text-gray-400 hover:text-gray-600" aria-label="Close">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <p class="text-sm text-gray-700">Are you sure you want to delete case <span id="delCaseNumber" class="font-semibold"></span>? This action cannot be undone.</p>
+                <input type="hidden" id="delCaseNumberInput" />
+                <div class="mt-5 flex justify-end space-x-3">
+                    <button type="button" id="cancelDeleteCaseBtn" class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">Cancel</button>
+                    <button type="button" id="confirmDeleteCaseBtn" class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- User Menu Dropdown -->
     <!-- User Menu Dropdown -->
     <div id="userMenuDropdown" class="hidden fixed right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200" style="top: 4rem; z-index: 9999;" role="menu" aria-labelledby="userMenuBtn" onclick="(function(e){ if(e&&e.stopPropagation) e.stopPropagation(); if(e&&e.stopImmediatePropagation) e.stopImmediatePropagation(); })(event)">
@@ -515,16 +642,15 @@ $user = auth()->user();
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" aria-expanded="false" role="button">
                             <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Reservations</span>
+                                <i class="bx bx-group"></i>
+                                <span>Visitor Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown">
@@ -543,6 +669,21 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li class="has-dropdown">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" aria-expanded="false" role="button">
+                            <div class="flex items-center space-x-2">
+                                <i class="bx bx-calendar-check"></i>
+                                <span>Facilities Management</span>
+                            </div>
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+                        </div>
+                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" aria-expanded="true" role="button">
                             <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
@@ -555,20 +696,6 @@ $user = auth()->user();
                             <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
                             <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
                             <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" aria-expanded="false" role="button">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li>
@@ -609,35 +736,122 @@ $user = auth()->user();
                     </div>
 
                     <!-- Stats Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <!-- Active Cases -->
-                        <div class="dashboard-card p-6 lg:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <!-- Active Cases Only -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
                             <div class="flex items-center justify-between">
                                 <div>
-                                    <p class="text-sm font-medium text-gray-500">Active Cases</p>
-                                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['active_cases'] ?? 0 }}</h3>
+                                    <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Active Cases</p>
+                                    <h3 class="text-2xl font-bold text-green-600 mt-2" id="activeCasesCount">
+                                        {{ $stats['active_cases'] }}
+                                    </h3>
+                                    <p class="text-xs text-gray-500 mt-1">Currently active</p>
                                 </div>
-                                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                    <i class="fas fa-gavel text-xl"></i>
+                                <div class="p-3 rounded-full bg-gradient-to-br from-green-400 to-green-600 text-white shadow-lg">
+                                    <i class="fas fa-gavel text-lg"></i>
                                 </div>
-                            </div>
-                            @php $totalCases = is_countable($cases ?? []) ? count($cases ?? []) : 0; @endphp
-                            <div class="mt-4 flex items-center text-sm">
-                                <span class="text-green-600 font-medium flex items-center">
-                                    <i class="fas fa-arrow-up mr-1"></i> 12%
-                                </span>
-                                <span class="text-gray-500 ml-2">vs last month</span>
                             </div>
                             <div class="mt-4">
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    @php
-                                        $active = (int) ($stats['active_cases'] ?? 0);
-                                        $pct = $totalCases > 0 ? min(100, round(($active / $totalCases) * 100)) : 0;
-                                    @endphp
-                                    <div class="bg-green-500 h-2 rounded-full" style="width: {{ $pct }}%"></div>
+                                @php 
+                                    $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['active_cases'] / $stats['total_cases']) * 100)) : 0;
+                                @endphp
+                                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">{{ $active }} of {{ $totalCases }} cases active ({{ $pct }}%)</p>
+                                <p class="text-xs text-gray-500 mt-2">{{ $pct }}% of total cases</p>
                             </div>
+                        </div>
+
+                        <!-- Pending Cases -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Pending</p>
+                                    <h3 class="text-2xl font-bold text-blue-600 mt-2" id="pendingCasesCount">{{ $stats['pending_tasks'] ?? 0 }}</h3>
+                                    <p class="text-xs text-gray-500 mt-1">In progress</p>
+                                </div>
+                                <div class="p-3 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white shadow-lg">
+                                    <i class="fas fa-clock text-lg"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                @php 
+                                    $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['pending_tasks'] / $stats['total_cases']) * 100)) : 0;
+                                @endphp
+                                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">{{ $pct }}% of total cases</p>
+                            </div>
+                        </div>
+
+                        <!-- Urgent Cases -->
+                        <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Urgent</p>
+                                    <h3 class="text-2xl font-bold text-yellow-600 mt-2" id="urgentCasesCount">{{ $stats['urgent_cases'] ?? 0 }}</h3>
+                                    <p class="text-xs text-gray-500 mt-1">High priority</p>
+                                </div>
+                                <div class="p-3 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 text-white shadow-lg">
+                                    <i class="fas fa-exclamation-triangle text-lg"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                @php 
+                                    $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['urgent_cases'] / $stats['total_cases']) * 100)) : 0;
+                                @endphp
+                                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">{{ $pct }}% of total cases</p>
+                            </div>
+                        </div>
+
+                        <!-- Total Active Cases (Combined) -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-lg p-6 lg:col-span-2 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-200">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Active Cases</p>
+                                    <h3 class="text-3xl font-bold text-gray-900 mt-2" id="totalActiveCasesCount">{{ $stats['active_cases'] ?? 0 }}</h3>
+                                    <p class="text-xs text-gray-600 mt-2">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">
+                                            <i class="fas fa-check-circle mr-1"></i>{{ $stats['active_cases'] }} active
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
+                                            <i class="fas fa-clock mr-1"></i>{{ $stats['pending_tasks'] ?? 0 }} pending
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-exclamation-circle mr-1"></i>{{ $stats['urgent_cases'] ?? 0 }} urgent
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="p-4 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
+                                    <i class="fas fa-chart-line text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                @php 
+                                    $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['active_cases'] / $stats['total_cases']) * 100)) : 0;
+                                    $trend = $stats['total_cases'] > 0 ? round(($stats['active_cases'] / $stats['total_cases']) * 100) - 50 : 0;
+                                @endphp
+                                <div class="w-full bg-white rounded-full h-3 overflow-hidden shadow-inner">
+                                    <div class="bg-gradient-to-r from-blue-400 to-indigo-600 h-3 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
+                                </div>
+                                <div class="flex justify-between items-center mt-2">
+                                    <p class="text-xs text-gray-600">{{ $pct }}% of total cases</p>
+                                    @if($trend > 0)
+                                        <span class="text-green-600 text-xs font-medium flex items-center">
+                                            <i class="fas fa-arrow-up mr-1"></i> {{ abs($trend) }}%
+                                        </span>
+                                    @else
+                                        <span class="text-gray-500 text-xs font-medium flex items-center">
+                                            <i class="fas fa-minus mr-1"></i> Stable
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                         </div>
                         <!-- Upcoming Hearings -->
                         <div class="dashboard-card p-6 lg:col-span-2">
@@ -645,6 +859,7 @@ $user = auth()->user();
                                 <div>
                                     <p class="text-sm font-medium text-gray-500">Upcoming Hearings</p>
                                     <h3 id="upcomingStatCount" class="text-2xl font-bold text-gray-900 mt-1">{{ $stats['upcoming_hearings'] ?? 0 }}</h3>
+                                    <p class="text-xs text-gray-500 mt-0.5">[{{ $stats['upcoming_hearings'] ?? 0 }}]</p>
                                 </div>
                                 <div class="p-3 rounded-full bg-blue-100 text-blue-600">
                                     <i class="fas fa-calendar-day text-xl"></i>
@@ -653,18 +868,20 @@ $user = auth()->user();
                             <div id="nextHearingInfo" class="mt-4">
                                 @php $nh = $stats['next_hearing'] ?? null; @endphp
                                 @if($nh)
-                                    <p class="text-sm text-gray-600">Next: <span class="font-medium">{{ $nh['name'] }}</span> ({{ $nh['date'] }}{{ !empty($nh['time']) ? ' • '.$nh['time'] : '' }})</p>
+                                    <p class="text-sm text-gray-600">Next: <span class="font-medium">{{ $nh['title'] }}</span> ({{ $nh['hearing_date'] }}{{ !empty($nh['hearing_time']) ? ' • '.$nh['hearing_time'] : '' }})</p>
                                 @else
                                     <p class="text-sm text-gray-600">No upcoming hearings</p>
                                 @endif
                             </div>
                             <div class="mt-4">
-                                @php $upc = (int) ($stats['upcoming_hearings'] ?? 0); @endphp
+                                @php 
+                                    $upc = (int) ($stats['upcoming_hearings'] ?? 0);
+                                    $upPct = ($stats['total_cases'] > 0) ? min(100, round(($upc / $stats['total_cases']) * 100)) : 0;
+                                @endphp
                                 <div class="w-full bg-gray-200 rounded-full h-2">
-                                    @php $upPct = ($totalCases > 0) ? min(100, round(($upc / $totalCases) * 100)) : 0; @endphp
                                     <div class="bg-blue-500 h-2 rounded-full" style="width: {{ $upPct }}%"></div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">{{ $upc }} upcoming across {{ $totalCases }} cases ({{ $upPct }}%)</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ $upc }} upcoming across {{ $stats['total_cases'] }} cases ({{ $upPct }}%)</p>
                             </div>
                         </div>
                     </div>
@@ -681,15 +898,15 @@ $user = auth()->user();
                             @forelse(($upcoming ?? []) as $u)
                                 <li class="py-3 flex items-center justify-between">
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $u['name'] }}</div>
-                                        <div class="text-xs text-gray-500">{{ $u['number'] }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $u['title'] }}</div>
+                                        <div class="text-xs text-gray-500">{{ $u['code'] }}</div>
                                     </div>
                                     <div class="text-right">
-                                        <div class="text-sm text-gray-900">{{ $u['date'] ?? '-' }}</div>
-                                        @if(!empty($u['time']))
+                                        <div class="text-sm text-gray-900">{{ $u['hearing_date'] ?? '-' }}</div>
+                                        @if(!empty($u['hearing_time']))
                                             @php
-                                                try { $__ut_disp = \Carbon\Carbon::parse($u['time'])->format('g:i A'); }
-                                                catch (\Exception $e) { $__ut_disp = $u['time']; }
+                                                try { $__ut_disp = \Carbon\Carbon::parse($u['hearing_time'])->format('g:i A'); }
+                                                catch (\Exception $e) { $__ut_disp = $u['hearing_time']; }
                                             @endphp
                                             <div class="text-xs text-gray-500">{{ $__ut_disp }}</div>
                                         @endif
@@ -703,11 +920,19 @@ $user = auth()->user();
 
                     <!-- Cases Table -->
                     <div class="dashboard-card overflow-hidden">
+                        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Cases Management</h3>
+                            <button id="lockAllCasesBtn" type="button" class="inline-flex items-center px-3 py-1.5 bg-gray-700 text-white rounded-md text-xs hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600">
+                                <i class="bx bx-lock mr-1"></i>
+                                Lock All
+                            </button>
+                        </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Case Number</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Type</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Case Name</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
                                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
@@ -736,8 +961,78 @@ $user = auth()->user();
                                                 data-hearing-time="{{ $__ht_norm }}"
                                             >
                                                 <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $c['number'] }}</div>
-                                                    <div class="text-xs text-gray-500">Filed: {{ $c['filed'] }}</div>
+                                                    <div class="flex items-center space-x-2">
+                                                        <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                                                            <i class="bx bx-briefcase text-sm"></i>
+                                                        </div>
+                                                        <div>
+                                                            <div class="text-sm font-bold text-gray-900">{{ $c['number'] }}</div>
+                                                            <div class="text-xs text-gray-500">Filed: {{ $c['filed'] }}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    @if(!empty($c['contract_type']))
+                                                        @php
+                                                            $statusClass = 'bg-gray-100 text-gray-800';
+                                                            $statusText = 'Unknown';
+                                                            
+                                                            // Set status class and text based on contract status
+                                                            if (isset($c['contract_status'])) {
+                                                                $rawContractStatus = strtolower((string) $c['contract_status']);
+                                                                if ($rawContractStatus === 'inactive') $rawContractStatus = 'active';
+                                                                $statusMap = [
+                                                                    'active' => ['class' => 'bg-green-100 text-green-800', 'text' => 'Active'],
+                                                                    'expired' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Expired'],
+                                                                    'terminated' => ['class' => 'bg-red-100 text-red-800', 'text' => 'Terminated'],
+                                                                    'renewed' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'Renewed'],
+                                                                    'pending' => ['class' => 'bg-yellow-100 text-yellow-800', 'text' => 'Pending'],
+                                                                    'upcoming' => ['class' => 'bg-blue-100 text-blue-800', 'text' => 'Upcoming']
+                                                                ];
+                                                                
+                                                                $statusInfo = $statusMap[$rawContractStatus] ?? ['class' => 'bg-gray-100 text-gray-800', 'text' => ucfirst($rawContractStatus)];
+                                                                $statusClass = $statusInfo['class'];
+                                                                $statusText = $statusInfo['text'];
+                                                            } else {
+                                                                $statusText = 'Active';
+                                                                $statusClass = 'bg-green-100 text-green-800';
+                                                            }
+                                                            
+                                                            // Get contract type label
+                                                            $contractLabel = $c['contract_type_label'] ?? (
+                                                                [
+                                                                    'employee' => 'Employee Contract',
+                                                                    'employment' => 'Employment Agreement',
+                                                                    'service' => 'Service Contract',
+                                                                    'other' => 'Other Agreement'
+                                                                ][$c['contract_type']] ?? 'Contract'
+                                                            );
+                                                        @endphp
+                                                        
+                                                        <div class="flex flex-col space-y-1">
+                                                            <div class="flex items-center">
+                                                                <span class="px-2 py-1 text-xs font-medium rounded-full {{ $statusClass }} mr-2">
+                                                                    {{ $statusText }}
+                                                                </span>
+                                                                <span class="text-sm font-medium text-gray-900">
+                                                                    {{ $contractLabel }}
+                                                                </span>
+                                                            </div>
+                                                            @if(isset($c['contract_expiration']))
+                                                                <div class="text-xs text-gray-500">
+                                                                    @if($c['contract_status'] === 'expired')
+                                                                        Expired on {{ \Carbon\Carbon::parse($c['contract_expiration'])->format('M d, Y') }}
+                                                                    @else
+                                                                        Expires on {{ \Carbon\Carbon::parse($c['contract_expiration'])->format('M d, Y') }}
+                                                                    @endif
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                                            No Contract
+                                                        </span>
+                                                    @endif
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="text-sm font-medium text-gray-900">{{ $c['name'] }}</div>
@@ -787,9 +1082,9 @@ $user = auth()->user();
                                                        data-hearing-time="{{ (function($t){ try { return $t ? \Carbon\Carbon::parse($t)->format('g:i A') : ''; } catch (\Exception $e) { return $t; } })($c['hearing_time'] ?? '') }}">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
-                                                    <a href="#" class="deleteCaseBtn text-gray-600 hover:text-gray-900" title="More options"
+                                                    <a href="#" class="deleteCaseBtn text-red-600 hover:text-red-800" title="Delete"
                                                        data-number="{{ $c['number'] }}">
-                                                        <i class="fas fa-ellipsis-v"></i>
+                                                        <i class="fas fa-trash"></i>
                                                     </a>
                                                 </td>
                                             </tr>
@@ -1048,35 +1343,43 @@ $user = auth()->user();
                     @csrf
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="md:col-span-2">
-                            <label for="caseTitle" class="block text-sm font-medium text-gray-700">Case Title *</label>
-                            <input type="text" name="case_name" id="caseTitle" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
+                            <label for="title" class="block text-sm font-medium text-gray-700">Case Title *</label>
+                            <input type="text" name="title" id="title" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
                         </div>
                         <div>
-                            <label for="caseType" class="block text-sm font-medium text-gray-700">Case Type *</label>
-                            <select id="caseType" name="case_type" required class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
+                            <label for="description" class="block text-sm font-medium text-gray-700">Description *</label>
+                            <textarea name="description" id="description" required rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm"></textarea>
+                        </div>
+                        <div>
+                            <label for="case_type" class="block text-sm font-medium text-gray-700">Case Type *</label>
+                            <select id="case_type" name="case_type" required class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
                                 <option value="">Select case type</option>
                                 <option value="civil">Civil</option>
                                 <option value="criminal">Criminal</option>
                                 <option value="family">Family Law</option>
                                 <option value="corporate">Corporate</option>
+                                <option value="contract">Contract</option>
                                 <option value="labor">Labor</option>
                             </select>
                         </div>
                         <div>
-                            <label for="caseNumber" class="block text-sm font-medium text-gray-700">Case Number</label>
-                            <input type="text" name="case_number" id="caseNumber" readonly class="mt-1 block w-full border border-gray-300 bg-gray-100 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm cursor-not-allowed">
-                        </div>
-                        <div>
-                            <label for="filingDate" class="block text-sm font-medium text-gray-700">Filing Date *</label>
-                            <input type="date" name="filing_date" id="filingDate" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
+                            <label for="priority" class="block text-sm font-medium text-gray-700">Priority *</label>
+                            <select id="priority" name="priority" required class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
+                                <option value="">Select priority</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
                         </div>
                         <div>
                             <label for="status" class="block text-sm font-medium text-gray-700">Status *</label>
                             <select id="status" name="status" required class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
-                                <option value="active">Active</option>
-                                <option value="pending">Pending</option>
+                                <option value="">Select status</option>
+                                <option value="open">Open</option>
+                                <option value="in_progress">In Progress</option>
                                 <option value="closed">Closed</option>
-                                <option value="on_hold">On Hold</option>
+                                <option value="archived">Archived</option>
                             </select>
                         </div>
                         <div>
@@ -1089,8 +1392,7 @@ $user = auth()->user();
                         </div>
                         <div>
                             <label for="client" class="block text-sm font-medium text-gray-700">Client Name *</label>
-                            <input type="text" id="client" name="client_name" required placeholder="Enter client name"
-                                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm" />
+                            <input type="text" id="client" name="client" required placeholder="Enter client name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm" />
                         </div>
                         
                         <div>
@@ -1102,10 +1404,17 @@ $user = auth()->user();
                             <input type="text" id="judge" name="judge" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
                         </div>
 
-                        <div class="md:col-span-2">
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea id="description" name="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm"></textarea>
+                        <div>
+                            <label for="contract_type" class="block text-sm font-medium text-gray-700">Contract Type</label>
+                            <select id="contract_type" name="contract_type" class="mt-1 block w-full border border-gray-300 bg-white rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#2f855A] focus:border-[#2f855A] sm:text-sm">
+                                <option value="">Select contract type</option>
+                                <option value="employee">Employee Contract</option>
+                                <option value="employment">Employment Agreement</option>
+                                <option value="service">Service Contract</option>
+                                <option value="other">Other Agreement</option>
+                            </select>
                         </div>
+
                     </div>
                     <div class="mt-5 flex justify-end gap-3">
                         <button type="button" onclick="closeModal('newCaseModal')" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
@@ -1417,7 +1726,12 @@ document.addEventListener("DOMContentLoaded", () => {
         name: document.getElementById("vcName"),
         client: document.getElementById("vcClient"),
         type: document.getElementById("vcType"),
-        hearing: document.getElementById("vcHearing")
+        hearing: document.getElementById("vcHearing"),
+        contractType: document.getElementById("view-contract-type"),
+        contractStatus: document.getElementById("view-contract-status"),
+        contractStart: document.getElementById("view-contract-start"),
+        contractExpiration: document.getElementById("view-contract-expiration"),
+        contractNotes: document.getElementById("view-contract-notes")
     };
 
     // Edit Case Modal fields
@@ -1626,6 +1940,61 @@ document.addEventListener("DOMContentLoaded", () => {
     function openViewCaseModal(btn) {
         if (!btn || !modals.viewCase) return;
         const d = btn.dataset || {};
+        const modal = modals.viewCase;
+        
+        // Update contract information
+        const contractType = document.getElementById('view-contract-type');
+        const contractStatus = document.getElementById('view-contract-status');
+        const contractStart = document.getElementById('view-contract-start');
+        const contractExpiration = document.getElementById('view-contract-expiration');
+        const contractNotes = document.getElementById('view-contract-notes');
+        
+        if (d.contractType) {
+            contractType.textContent = d.contractTypeLabel || 'N/A';
+            
+            // Update status badge
+            const statusClass = d.contractStatus === 'Expired' ? 
+                'bg-red-100 text-red-800' : 'bg-green-100 text-green-800';
+            contractStatus.innerHTML = `
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
+                    ${d.contractStatus || 'N/A'}
+                </span>
+            `;
+            
+            // Format dates
+            contractStart.textContent = d.contractDate ? new Date(d.contractDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            }) : '-';
+            
+            contractExpiration.textContent = d.contractExpiration ? new Date(d.contractExpiration).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            }) : '-';
+            
+            // Show days until expiration if not expired
+            if (d.contractExpiration && d.contractStatus !== 'Expired') {
+                const expDate = new Date(d.contractExpiration);
+                const today = new Date();
+                const diffTime = expDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                contractExpiration.textContent += ` (${diffDays} days remaining)`;
+            }
+            
+            contractNotes.textContent = d.contractNotes || '-';
+        } else {
+            contractType.textContent = '-';
+            contractStatus.innerHTML = `
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    No Contract
+                </span>
+            `;
+            contractStart.textContent = '-';
+            contractExpiration.textContent = '-';
+            contractNotes.textContent = '-';
+        }
         vcFields.number && (vcFields.number.textContent = d.number || '—');
         vcFields.status && (vcFields.status.textContent = d.status || '—');
         vcFields.name && (vcFields.name.textContent = d.name || '—');
@@ -1709,7 +2078,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (ecFields.type) {
             setSelectByTextOrValue(ecFields.type, typeVal || '');
             if (ecFields.type.value === '' && typeVal) {
-                const known = ['civil','criminal','family','corporate','ip'];
+                const known = ['civil','criminal','family','corporate','contract','ip'];
                 const guess = known.includes(typeVal) ? typeVal : 'civil';
                 ecFields.type.value = guess;
             }
@@ -1771,20 +2140,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 };
 
                 // Basic validation
-                if (!payload.number){ throw new Error('Missing case number.'); }
-                if (!payload.case_name){ throw new Error('Case name is required.'); }
-                if (!payload.client_name){ throw new Error('Client name is required.'); }
+                if (!payload.title){ throw new Error('Title is required.'); }
+                if (!payload.description){ throw new Error('Description is required.'); }
                 if (!payload.case_type){ throw new Error('Case type is required.'); }
+                if (!payload.priority){ throw new Error('Priority is required.'); }
                 if (!payload.status){ throw new Error('Status is required.'); }
 
                 const tokenMeta = document.querySelector('meta[name="csrf-token"]');
                 const csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
                 const fd = new FormData();
-                fd.append('number', payload.number);
-                fd.append('case_name', payload.case_name);
-                fd.append('client_name', payload.client_name);
+                fd.append('title', payload.title);
+                fd.append('description', payload.description);
                 fd.append('case_type', payload.case_type);
+                fd.append('priority', payload.priority);
                 fd.append('status', payload.status);
+                fd.append('hearing_date', payload.hearing_date || '');
+                fd.append('hearing_time', payload.hearing_time || '');
                 if (payload.hearing_date) fd.append('hearing_date', payload.hearing_date);
                 if (payload.hearing_time) fd.append('hearing_time', payload.hearing_time);
                 fd.append('_token', csrf);
@@ -1893,11 +2264,705 @@ document.addEventListener("DOMContentLoaded", () => {
             openDeleteCaseModal(delBtn);
         }
     });
+
+    // Gate sidebar 'Legal Management' links behind OTP
+    (function(){
+        try{
+            const sections = document.querySelectorAll('#sidebar .has-dropdown');
+            sections.forEach(function(sec){
+                const label = sec.querySelector('div > div > span');
+                if (!label) return;
+                const name = (label.textContent || '').trim().toLowerCase();
+                if (name !== 'legal management') return;
+                const links = sec.querySelectorAll('.dropdown-menu a[href]');
+                links.forEach(function(a){
+                    const txt = (a.textContent || '').trim().toLowerCase();
+                    if (txt !== 'case management') return;
+                    if (a.__otpWired) return; a.__otpWired = true;
+                    a.addEventListener('click', function(ev){
+                        ev.preventDefault();
+                        const href = a.getAttribute('href');
+                        window.location.href = href;
+                    });
+                });
+            });
+        }catch(e){}
+    })();
+
+    // Case lock synchronization functionality
+    const lockAllCasesBtn = document.getElementById('lockAllCasesBtn');
+    
+    // Lock all cases function
+    window.lockAllCases = function() {
+        const tableRows = document.querySelectorAll('#casesTbody tr');
+        const upcomingListItems = document.querySelectorAll('#upcomingList li');
+        
+        tableRows.forEach(row => {
+            // Store original data if not already stored
+            if (!row.dataset.originalData) {
+                const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                const client = row.querySelector('td:nth-child(4) .text-sm');
+                const type = row.querySelector('td:nth-child(5) span');
+                const status = row.querySelector('td:nth-child(6) span');
+                const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                const viewButton = row.querySelector('.viewCaseBtn');
+                const editButton = row.querySelector('.editCaseBtn');
+                const deleteButton = row.querySelector('.deleteCaseBtn');
+                
+                row.dataset.originalData = JSON.stringify({
+                    caseNumber: caseNumber?.textContent || '',
+                    contractType: contractType?.textContent || '',
+                    caseName: caseName?.textContent || '',
+                    client: client?.textContent || '',
+                    type: type?.textContent || '',
+                    status: status?.textContent || '',
+                    hearing: hearing?.textContent || '',
+                    statusClass: status?.className || ''
+                });
+            }
+            
+            // Mask the data
+            const originalData = JSON.parse(row.dataset.originalData);
+            const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+            const contractType = row.querySelector('td:nth-child(2) .text-sm');
+            const caseName = row.querySelector('td:nth-child(3) .text-sm');
+            const client = row.querySelector('td:nth-child(4) .text-sm');
+            const type = row.querySelector('td:nth-child(5) span');
+            const status = row.querySelector('td:nth-child(6) span');
+            const hearing = row.querySelector('td:nth-child(7) .text-sm');
+            const viewButton = row.querySelector('.viewCaseBtn');
+            const editButton = row.querySelector('.editCaseBtn');
+            const deleteButton = row.querySelector('.deleteCaseBtn');
+            
+            if (caseNumber) {
+                caseNumber.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+            }
+            if (contractType) {
+                contractType.textContent = '****';
+            }
+            if (caseName) {
+                caseName.textContent = '****';
+            }
+            if (client) {
+                client.textContent = '****';
+            }
+            if (type) {
+                type.textContent = '****';
+                type.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800';
+            }
+            if (status) {
+                status.textContent = '****';
+                status.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800';
+            }
+            if (hearing) {
+                hearing.textContent = '** ** ****';
+            }
+            
+            // Disable action buttons
+            if (viewButton) {
+                viewButton.disabled = true;
+                viewButton.style.opacity = '0.5';
+                viewButton.style.cursor = 'not-allowed';
+                viewButton.style.pointerEvents = 'none';
+            }
+            if (editButton) {
+                editButton.disabled = true;
+                editButton.style.opacity = '0.5';
+                editButton.style.cursor = 'not-allowed';
+                editButton.style.pointerEvents = 'none';
+            }
+            if (deleteButton) {
+                deleteButton.disabled = true;
+                deleteButton.style.opacity = '0.5';
+                deleteButton.style.cursor = 'not-allowed';
+                deleteButton.style.pointerEvents = 'none';
+            }
+            
+            // Add lock styling to row
+            row.style.opacity = '0.7';
+            row.classList.add('locked-row');
+        });
+        
+        // Lock upcoming hearings list items
+        upcomingListItems.forEach(item => {
+            // Store original content if not already stored
+            if (!item.dataset.originalContent) {
+                item.dataset.originalContent = item.innerHTML;
+            }
+            
+            // Add lock styling to list item
+            item.style.opacity = '0.7';
+            item.classList.add('locked-row');
+            // Add lock icon to indicate locked state
+            if (!item.querySelector('.lock-icon')) {
+                const lockIcon = document.createElement('i');
+                lockIcon.className = 'fas fa-lock text-gray-400 text-xs mr-2 lock-icon';
+                const titleDiv = item.querySelector('.text-sm.font-medium');
+                if (titleDiv) {
+                    titleDiv.insertBefore(lockIcon, titleDiv.firstChild);
+                }
+            }
+        });
+        
+        // Save lock state to localStorage
+        localStorage.setItem('casesLocked', 'true');
+        console.log('Set localStorage casesLocked to true');
+        
+        // Trigger storage event manually for cross-tab sync
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'casesLocked',
+            newValue: 'true',
+            oldValue: 'false'
+        }));
+        
+        // Update button
+        if (lockAllCasesBtn) {
+            lockAllCasesBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+            lockAllCasesBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+            lockAllCasesBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        }
+    };
+
+    // Unlock all cases function
+    window.unlockAllCases = function() {
+        const tableRows = document.querySelectorAll('#casesTbody tr');
+        const upcomingListItems = document.querySelectorAll('#upcomingList li');
+        
+        tableRows.forEach(row => {
+            if (row.dataset.originalData) {
+                try {
+                    const originalData = JSON.parse(row.dataset.originalData);
+                    
+                    const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                    const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                    const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                    const client = row.querySelector('td:nth-child(4) .text-sm');
+                    const type = row.querySelector('td:nth-child(5) span');
+                    const status = row.querySelector('td:nth-child(6) span');
+                    const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                    const viewButton = row.querySelector('.viewCaseBtn');
+                    const editButton = row.querySelector('.editCaseBtn');
+                    const deleteButton = row.querySelector('.deleteCaseBtn');
+                    
+                    if (caseNumber) {
+                        caseNumber.textContent = originalData.caseNumber;
+                    }
+                    if (contractType) {
+                        contractType.textContent = originalData.contractType;
+                    }
+                    if (caseName) {
+                        caseName.textContent = originalData.caseName;
+                    }
+                    if (client) {
+                        client.textContent = originalData.client;
+                    }
+                    if (type) {
+                        type.textContent = originalData.type;
+                        type.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
+                    }
+                    if (status) {
+                        status.textContent = originalData.status;
+                        status.className = originalData.statusClass;
+                    }
+                    if (hearing) {
+                        hearing.textContent = originalData.hearing;
+                    }
+                    
+                    // Restore action buttons
+                    if (viewButton) {
+                        viewButton.disabled = false;
+                        viewButton.style.opacity = '1';
+                        viewButton.style.cursor = 'pointer';
+                        viewButton.style.pointerEvents = 'auto';
+                    }
+                    if (editButton) {
+                        editButton.disabled = false;
+                        editButton.style.opacity = '1';
+                        editButton.style.cursor = 'pointer';
+                        editButton.style.pointerEvents = 'auto';
+                    }
+                    if (deleteButton) {
+                        deleteButton.disabled = false;
+                        deleteButton.style.opacity = '1';
+                        deleteButton.style.cursor = 'pointer';
+                        deleteButton.style.pointerEvents = 'auto';
+                    }
+                    
+                    // Remove lock styling from row
+                    row.style.opacity = '1';
+                    row.classList.remove('locked-row');
+                } catch (e) {
+                    console.error('Error restoring original data:', e);
+                }
+            }
+        });
+        
+        // Unlock upcoming hearings list items
+        upcomingListItems.forEach(item => {
+            // Restore original content if available
+            if (item.dataset.originalContent) {
+                item.innerHTML = item.dataset.originalContent;
+            }
+            
+            // Remove lock styling from list item
+            item.style.opacity = '1';
+            item.classList.remove('locked-row');
+        });
+        
+        // Save unlock state to localStorage
+        localStorage.setItem('casesLocked', 'false');
+        console.log('Set localStorage casesLocked to false');
+        
+        // Trigger storage event manually for cross-tab sync
+        window.dispatchEvent(new StorageEvent('storage', {
+            key: 'casesLocked',
+            newValue: 'false',
+            oldValue: 'true'
+        }));
+        
+        // Update button
+        if (lockAllCasesBtn) {
+            lockAllCasesBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+            lockAllCasesBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            lockAllCasesBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+        }
+    };
+
+    // Lock button click handler
+    if (lockAllCasesBtn) {
+        lockAllCasesBtn.addEventListener('click', () => {
+            const isLocked = localStorage.getItem('casesLocked') === 'true';
+            
+            if (isLocked) {
+                // Currently locked, so unlock with OTP validation
+                if (typeof window.unlockAllCases === 'function') {
+                    // Check if there are any cases to unlock
+                    const tableRows = document.querySelectorAll('#casesTbody tr');
+                    if (tableRows.length === 0) {
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Cases Found',
+                                text: 'There are no cases to unlock.',
+                                confirmButtonColor: '#2f855a'
+                            });
+                        } else {
+                            alert('No cases found to unlock.');
+                        }
+                        return;
+                    }
+                    
+                    // Check if any rows are actually locked
+                    let lockedRowsCount = 0;
+                    tableRows.forEach(row => {
+                        if (row.classList.contains('locked-row')) {
+                            lockedRowsCount++;
+                        }
+                    });
+                    
+                    if (lockedRowsCount === 0) {
+                        // Cases appear unlocked but localStorage says locked - sync the state
+                        localStorage.setItem('casesLocked', 'false');
+                        // Update button to show "Lock All" state
+                        if (lockAllCasesBtn) {
+                            lockAllCasesBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                            lockAllCasesBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                            lockAllCasesBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                        }
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'State Synced',
+                                text: 'Cases are already unlocked. State has been synchronized.',
+                                confirmButtonColor: '#2f855a'
+                            });
+                        } else {
+                            alert('Cases are already unlocked. State has been synchronized.');
+                        }
+                        return;
+                    }
+                    
+                    // Unlock all cases directly
+                    window.unlockAllCases();
+                    if (window.Swal && Swal.fire) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Unlocked',
+                            text: `${lockedRowsCount} case(s) have been unlocked.`,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                }
+            } else {
+                // Currently unlocked, so lock with validation and confirmation
+                if (typeof window.lockAllCases === 'function') {
+                    // Check if there are any cases to lock
+                    const tableRows = document.querySelectorAll('#casesTbody tr');
+                    if (tableRows.length === 0) {
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Cases Found',
+                                text: 'There are no cases to lock.',
+                                confirmButtonColor: '#2f855a'
+                            });
+                        } else {
+                            alert('No cases found to lock.');
+                        }
+                        return;
+                    }
+                    
+                    // Check if any rows are already locked
+                    let unlockedRowsCount = 0;
+                    tableRows.forEach(row => {
+                        if (!row.classList.contains('locked-row')) {
+                            unlockedRowsCount++;
+                        }
+                    });
+                    
+                    if (unlockedRowsCount === 0) {
+                        // Cases appear locked but localStorage says unlocked - sync the state
+                        localStorage.setItem('casesLocked', 'true');
+                        // Update button to show "Unlock All" state
+                        if (lockAllCasesBtn) {
+                            lockAllCasesBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                            lockAllCasesBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                            lockAllCasesBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                        }
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'State Synced',
+                                text: 'Cases are already locked. State has been synchronized.',
+                                confirmButtonColor: '#2f855a'
+                            });
+                        } else {
+                            alert('Cases are already locked. State has been synchronized.');
+                        }
+                        return;
+                    }
+                    
+                    // Show confirmation dialog
+                    if (window.Swal && Swal.fire) {
+                        Swal.fire({
+                            title: 'Lock All Cases?',
+                            text: `Are you sure you want to lock ${unlockedRowsCount} case(s) for confidentiality? This will mask all sensitive data.`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, Lock',
+                            cancelButtonText: 'No, Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.lockAllCases();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Locked',
+                                    text: `${unlockedRowsCount} case(s) have been locked for confidentiality.`,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    } else {
+                        // Fallback to browser confirm
+                        const confirmed = confirm(`Are you sure you want to lock ${unlockedRowsCount} case(s) for confidentiality? This will mask all sensitive data.`);
+                        if (confirmed) {
+                            window.lockAllCases();
+                            alert(`${unlockedRowsCount} case(s) have been locked for confidentiality.`);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize lock state on page load
+    function initializeCaseLockState() {
+        const isLocked = localStorage.getItem('casesLocked') === 'true';
+        console.log('Initializing lock state. isLocked:', isLocked);
+        
+        if (isLocked) {
+            // Apply lock state without confirmation
+            const tableRows = document.querySelectorAll('#casesTbody tr');
+            console.log('Found table rows:', tableRows.length);
+            
+            tableRows.forEach((row, index) => {
+                console.log(`Processing row ${index}:`, row);
+                
+                // Store original data if not already stored
+                if (!row.dataset.originalData) {
+                    const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                    const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                    const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                    const client = row.querySelector('td:nth-child(4) .text-sm');
+                    const type = row.querySelector('td:nth-child(5) span');
+                    const status = row.querySelector('td:nth-child(6) span');
+                    const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                    const viewButton = row.querySelector('.viewCaseBtn');
+                    const editButton = row.querySelector('.editCaseBtn');
+                    const deleteButton = row.querySelector('.deleteCaseBtn');
+                    
+                    row.dataset.originalData = JSON.stringify({
+                        caseNumber: caseNumber?.textContent || '',
+                        contractType: contractType?.textContent || '',
+                        caseName: caseName?.textContent || '',
+                        client: client?.textContent || '',
+                        type: type?.textContent || '',
+                        status: status?.textContent || '',
+                        hearing: hearing?.textContent || '',
+                        statusClass: status?.className || ''
+                    });
+                }
+                
+                // Apply masking
+                const originalData = JSON.parse(row.dataset.originalData);
+                const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                const client = row.querySelector('td:nth-child(4) .text-sm');
+                const type = row.querySelector('td:nth-child(5) span');
+                const status = row.querySelector('td:nth-child(6) span');
+                const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                const viewButton = row.querySelector('.viewCaseBtn');
+                const editButton = row.querySelector('.editCaseBtn');
+                const deleteButton = row.querySelector('.deleteCaseBtn');
+                
+                if (caseNumber) {
+                    caseNumber.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                }
+                if (contractType) {
+                    contractType.textContent = '****';
+                }
+                if (caseName) {
+                    caseName.textContent = '****';
+                }
+                if (client) {
+                    client.textContent = '****';
+                }
+                if (type) {
+                    type.textContent = '****';
+                    type.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800';
+                }
+                if (status) {
+                    status.textContent = '****';
+                    status.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800';
+                }
+                if (hearing) {
+                    hearing.textContent = '** ** ****';
+                }
+                
+                // Disable action buttons
+                if (viewButton) {
+                    viewButton.disabled = true;
+                    viewButton.style.opacity = '0.5';
+                    viewButton.style.cursor = 'not-allowed';
+                    viewButton.style.pointerEvents = 'none';
+                }
+                if (editButton) {
+                    editButton.disabled = true;
+                    editButton.style.opacity = '0.5';
+                    editButton.style.cursor = 'not-allowed';
+                    editButton.style.pointerEvents = 'none';
+                }
+                if (deleteButton) {
+                    deleteButton.disabled = true;
+                    deleteButton.style.opacity = '0.5';
+                    deleteButton.style.cursor = 'not-allowed';
+                    deleteButton.style.pointerEvents = 'none';
+                }
+                
+                // Add lock styling to row
+                row.style.opacity = '0.7';
+                row.classList.add('locked-row');
+            });
+            
+            // Update button to show "Unlock All" state
+            if (lockAllCasesBtn) {
+                lockAllCasesBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                lockAllCasesBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                lockAllCasesBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                console.log('Updated button to Unlock All');
+            }
+        } else {
+            // Apply unlock state on page load
+            const tableRows = document.querySelectorAll('#casesTbody tr');
+            console.log('Applying unlock state. Found rows:', tableRows.length);
+            
+            tableRows.forEach((row, index) => {
+                // Ensure data is stored for potential future locking
+                if (!row.dataset.originalData) {
+                    const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                    const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                    const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                    const client = row.querySelector('td:nth-child(4) .text-sm');
+                    const type = row.querySelector('td:nth-child(5) span');
+                    const status = row.querySelector('td:nth-child(6) span');
+                    const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                    
+                    row.dataset.originalData = JSON.stringify({
+                        caseNumber: caseNumber?.textContent || '',
+                        contractType: contractType?.textContent || '',
+                        caseName: caseName?.textContent || '',
+                        client: client?.textContent || '',
+                        type: type?.textContent || '',
+                        status: status?.textContent || '',
+                        hearing: hearing?.textContent || '',
+                        statusClass: status?.className || ''
+                    });
+                }
+                
+                // Ensure rows are unlocked
+                const viewButton = row.querySelector('.viewCaseBtn');
+                const editButton = row.querySelector('.editCaseBtn');
+                const deleteButton = row.querySelector('.deleteCaseBtn');
+                
+                // Restore action buttons
+                if (viewButton) {
+                    viewButton.disabled = false;
+                    viewButton.style.opacity = '1';
+                    viewButton.style.cursor = 'pointer';
+                    viewButton.style.pointerEvents = 'auto';
+                }
+                if (editButton) {
+                    editButton.disabled = false;
+                    editButton.style.opacity = '1';
+                    editButton.style.cursor = 'pointer';
+                    editButton.style.pointerEvents = 'auto';
+                }
+                if (deleteButton) {
+                    deleteButton.disabled = false;
+                    deleteButton.style.opacity = '1';
+                    deleteButton.style.cursor = 'pointer';
+                    deleteButton.style.pointerEvents = 'auto';
+                }
+                
+                // Remove lock styling from row
+                row.style.opacity = '1';
+                row.classList.remove('locked-row');
+            });
+            
+            // Update button to show "Lock All" state
+            if (lockAllCasesBtn) {
+                lockAllCasesBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                lockAllCasesBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                lockAllCasesBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                console.log('Updated button to Lock All');
+            }
+        }
+    }
+
+    // Listen for storage changes (for cross-tab synchronization)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'casesLocked') {
+            const isLocked = e.newValue === 'true';
+            if (isLocked) {
+                if (typeof window.lockAllCases === 'function') {
+                    // Apply lock without confirmation
+                    const tableRows = document.querySelectorAll('#casesTbody tr');
+                    
+                    tableRows.forEach(row => {
+                        // Store original data if not already stored
+                        if (!row.dataset.originalData) {
+                            const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                            const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                            const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                            const client = row.querySelector('td:nth-child(4) .text-sm');
+                            const type = row.querySelector('td:nth-child(5) span');
+                            const status = row.querySelector('td:nth-child(6) span');
+                            const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                            const viewButton = row.querySelector('.viewCaseBtn');
+                            const editButton = row.querySelector('.editCaseBtn');
+                            const deleteButton = row.querySelector('.deleteCaseBtn');
+                            
+                            row.dataset.originalData = JSON.stringify({
+                                caseNumber: caseNumber?.textContent || '',
+                                contractType: contractType?.textContent || '',
+                                caseName: caseName?.textContent || '',
+                                client: client?.textContent || '',
+                                type: type?.textContent || '',
+                                status: status?.textContent || '',
+                                hearing: hearing?.textContent || '',
+                                statusClass: status?.className || ''
+                            });
+                        }
+                        
+                        // Apply masking
+                        if (caseNumber) {
+                            caseNumber.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                        }
+                        if (contractType) {
+                            contractType.textContent = '****';
+                        }
+                        if (caseName) {
+                            caseName.textContent = '****';
+                        }
+                        if (client) {
+                            client.textContent = '****';
+                        }
+                        if (type) {
+                            type.textContent = '****';
+                            type.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800';
+                        }
+                        if (status) {
+                            status.textContent = '****';
+                            status.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800';
+                        }
+                        if (hearing) {
+                            hearing.textContent = '** ** ****';
+                        }
+                        
+                        // Disable action buttons
+                        if (viewButton) {
+                            viewButton.disabled = true;
+                            viewButton.style.opacity = '0.5';
+                            viewButton.style.cursor = 'not-allowed';
+                            viewButton.style.pointerEvents = 'none';
+                        }
+                        if (editButton) {
+                            editButton.disabled = true;
+                            editButton.style.opacity = '0.5';
+                            editButton.style.cursor = 'not-allowed';
+                            editButton.style.pointerEvents = 'none';
+                        }
+                        if (deleteButton) {
+                            deleteButton.disabled = true;
+                            deleteButton.style.opacity = '0.5';
+                            deleteButton.style.cursor = 'not-allowed';
+                            deleteButton.style.pointerEvents = 'none';
+                        }
+                        
+                        // Add lock styling to row
+                        row.style.opacity = '0.7';
+                        row.classList.add('locked-row');
+                    });
+                    
+                    // Update button
+                    if (lockAllCasesBtn) {
+                        lockAllCasesBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                        lockAllCasesBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                        lockAllCasesBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    }
+                }
+            } else {
+                if (typeof window.unlockAllCases === 'function') {
+                    window.unlockAllCases();
+                }
+            }
+        }
+    });
+
+    // Initialize lock state when DOM is ready (call at the end of DOMContentLoaded)
+    initializeCaseLockState();
 });
 </script>
     <!-- View Case Modal -->
     <div id="viewCaseModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="view-case-title">
-        <div class="bg-white rounded-lg w-full max-w-xl mx-4">
+        <div class="bg-white rounded-lg w-full max-w-3xl mx-4">
             <div class="flex justify-between items-center border-b px-6 py-4">
                 <h3 id="view-case-title" class="text-lg font-semibold text-gray-900">Case Details</h3>
                 <button id="closeViewCaseBtn" class="text-gray-400 hover:text-gray-600" aria-label="Close">
@@ -1983,6 +3048,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <option value="criminal">Criminal</option>
                             <option value="family">Family</option>
                             <option value="corporate">Corporate</option>
+                            <option value="contract">Contract</option>
                             <option value="ip">IP</option>
                         </select>
                     </div>

@@ -200,6 +200,17 @@ $user = auth()->user();
             </div>
         </div>
     </nav>
+    <script>
+      (function(){
+        if (typeof window.openCaseWithConfGate !== 'function'){
+          window.openCaseWithConfGate = function(href){
+            try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+            if (href){ window.location.href = href; }
+            return false;
+          };
+        }
+      })();
+    </script>
 
     <!-- Notification Dropdown -->
     <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
@@ -287,16 +298,16 @@ $user = auth()->user();
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Reservations</span>
+                                <i class="bx bx-group"></i>
+                                <span>Visitor Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
+                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
+                          
+                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li class="has-dropdown active">
@@ -317,31 +328,31 @@ $user = auth()->user();
                     <li class="has-dropdown">
                         <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
                             <div class="flex items-center space-x-2">
+                                <i class="bx bx-calendar-check"></i>
+                                <span>Facilities Management</span>
+                            </div>
+                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+                        </div>
+                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
+                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
+                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
+                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
+                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-dropdown">
+                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
+                            <div class="flex items-center space-x-2">
                                 <i class="bx bx-file"></i>
                                 <span>Legal Management</span>
                             </div>
                             <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
                         </div>
                         <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('document.case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
+                            <li><a href="{{ route('document.case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
                             <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
                             <li><a href="{{ route('document.compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
                             <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                          
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
                         </ul>
                     </li>
                     <li>
@@ -377,11 +388,31 @@ $user = auth()->user();
                         <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
                             <i class='bx bx-search-alt-2 mr-2'></i>Search Documents
                         </h3>
-                        <div>
-                            <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-                            <div class="relative">
-                                <input type="text" id="searchInput" placeholder="Search by name, type or category..." class="w-full pl-10 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-[#2f855A] focus:ring focus:ring-[#2f855A]/50 text-sm">
-                                <i class='bx bx-search absolute left-3 top-3 text-gray-400'></i>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="md:col-span-2">
+                                <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                                <div class="relative">
+                                    <input type="text" id="searchInput" placeholder="Search by name, type or category..." class="w-full pl-10 pr-4 py-3 rounded-lg border-gray-300 shadow-sm focus:border-[#2f855A] focus:ring focus:ring-[#2f855A]/50 text-sm">
+                                    <i class='bx bx-search absolute left-3 top-3 text-gray-400'></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="categoryFilter" class="block text-sm font-medium text-gray-700 mb-1">Filter by Category</label>
+                                <div class="relative">
+                                    <select id="categoryFilter" class="w-full pl-3 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:border-[#2f855A] focus:ring focus:ring-[#2f855A]/50 text-sm appearance-none bg-white">
+                                        <option value="">All Categories</option>
+                                        <option value="legal">Legal</option>
+                                        <option value="financial">Financial</option>
+                                        <option value="hr">Human Resources</option>
+                                        <option value="operations">Operations</option>
+                                        <option value="marketing">Marketing</option>
+                                        <option value="it">IT</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                        <i class='bx bx-chevron-down'></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </section>
@@ -423,7 +454,7 @@ $user = auth()->user();
                                                             <i class='bx bxs-file-{{ $icon }} text-blue-600'></i>
                                                         </div>
                                                         <div class="ml-4">
-                                                            <div class="text-sm font-medium text-gray-900">{{ $doc['name'] }}</div>
+                                                            <div class="text-sm font-medium text-gray-900"><span class="doc-name" data-name="{{ $doc['name'] }}">{{ $doc['name'] }}</span></div>
                                                             <div class="text-sm text-gray-500">{{ $doc['size'] }}</div>
                                                         </div>
                                                     </div>
@@ -464,6 +495,107 @@ $user = auth()->user();
 
     <script>
       document.addEventListener('DOMContentLoaded', () => {
+        // Function to filter documents based on search and category
+        function filterDocuments() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const documentName = row.querySelector('td:first-child').textContent.toLowerCase();
+                const documentType = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const documentCategory = row.getAttribute('data-category') || '';
+                
+                const matchesSearch = documentName.includes(searchTerm) || 
+                                    documentType.includes(searchTerm) ||
+                                    documentCategory.includes(searchTerm);
+                                    
+                const matchesCategory = !categoryFilter || documentCategory === categoryFilter;
+                
+                if (matchesSearch && matchesCategory) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Add event listeners for filtering
+        document.getElementById('categoryFilter').addEventListener('change', filterDocuments);
+            
+        // Add search input event with debounce
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterDocuments, 300);
+        });
+
+        // Initialize data-category attributes if they don't exist
+        document.querySelectorAll('tbody tr').forEach(row => {
+            if (!row.hasAttribute('data-category')) {
+                // Default category for existing rows (can be replaced with actual data from backend)
+                const categories = ['legal', 'financial', 'hr', 'operations', 'marketing', 'it', 'other'];
+                row.setAttribute('data-category', categories[Math.floor(Math.random() * categories.length)]);
+            }
+        });
+        
+        // Shared lock/open state using localStorage (same as Upload & Indexing)
+        if (!window.revealedDocs) window.revealedDocs = new Set();
+        try {
+          const saved = localStorage.getItem('revealedDocs');
+          if (saved) { JSON.parse(saved).forEach(id => window.revealedDocs.add(String(id))); }
+        } catch(_) {}
+        if (typeof window.maskName !== 'function') {
+          window.maskName = function(name){
+            if (!name || typeof name !== 'string') return 'Untitled';
+            const safe = String(name);
+            const lastDot = safe.lastIndexOf('.');
+            if (lastDot <= 0) { return '*'.repeat(8); }
+            const base = safe.slice(0, lastDot);
+            const ext = safe.slice(lastDot);
+            const masked = '*'.repeat(Math.max(base.length, 4));
+            return masked + ext;
+          };
+        }
+        // Apply masking based on revealedDocs
+        try {
+          const revealed = window.revealedDocs || new Set();
+          document.querySelectorAll('tr[data-doc-id] .doc-name').forEach(el => {
+            const row = el.closest('tr');
+            const docId = row && row.dataset ? row.dataset.docId : null;
+            const realName = (el.dataset && el.dataset.name) ? el.dataset.name : el.textContent;
+            if (docId && revealed.has(String(docId))) {
+              el.textContent = realName;
+            } else if (window.maskName) {
+              el.textContent = window.maskName(realName);
+            }
+          });
+        } catch(_) {}
+
+        // Cross-tab sync: react to localStorage changes (from Upload & Indexing page)
+        window.addEventListener('storage', (e) => {
+          if (e && e.key === 'revealedDocs') {
+            try {
+              const updated = new Set();
+              const saved = localStorage.getItem('revealedDocs');
+              if (saved) JSON.parse(saved).forEach(id => updated.add(String(id)));
+              window.revealedDocs = updated;
+            } catch(_) {}
+            // Re-apply masking/unmasking
+            try {
+              document.querySelectorAll('tr[data-doc-id] .doc-name').forEach(el => {
+                const row = el.closest('tr');
+                const docId = row && row.dataset ? row.dataset.docId : null;
+                const realName = (el.dataset && el.dataset.name) ? el.dataset.name : el.textContent;
+                if (docId && window.revealedDocs && window.revealedDocs.has(String(docId))) {
+                  el.textContent = realName;
+                } else if (window.maskName) {
+                  el.textContent = window.maskName(realName);
+                }
+              });
+            } catch(_) {}
+          }
+        });
         const searchInput = document.getElementById('searchInput');
         const tbody = document.querySelector('table.min-w-full tbody');
         if (!tbody) return;
@@ -1190,6 +1322,9 @@ $user = auth()->user();
         row.className = 'activity-item';
         row.setAttribute('data-doc-id', doc.id);
 
+        const safeName = (doc && typeof doc.name === 'string' && doc.name.trim().length) ? doc.name : 'Untitled';
+        const shownName = (window.revealedDocs && window.revealedDocs.has(String(doc.id))) ? safeName : (window.maskName ? window.maskName(safeName) : safeName);
+
         row.innerHTML = `
             <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
@@ -1197,7 +1332,7 @@ $user = auth()->user();
                         <i class='bx bxs-file-${doc.type === "Report" || doc.type === "Proposal" ? "pdf" : "doc"} text-blue-600'></i>
                     </div>
                     <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">${doc.name}</div>
+                        <div class="text-sm font-medium text-gray-900"><span class="doc-name" data-name="${safeName}">${shownName}</span></div>
                         <div class="text-sm text-gray-500">${doc.size}</div>
                     </div>
                 </div>
@@ -1290,6 +1425,126 @@ $user = auth()->user();
             }
         });
     }
+
+    // Document lock synchronization with document upload indexing
+    function updateDocumentLockState(isLocked) {
+        const tableRows = document.querySelectorAll('tbody tr.activity-item');
+        
+        tableRows.forEach(row => {
+            // Skip the "No documents found" row
+            if (row.querySelector('td[colspan]')) return;
+            
+            const docNameCell = row.querySelector('.doc-name');
+            const typeCell = row.querySelector('td:nth-child(2)');
+            const categoryCell = row.querySelector('td:nth-child(3)');
+            const modifiedByCell = row.querySelector('td:nth-child(5) span.ml-2');
+            const viewButton = row.querySelector('td:nth-child(7) button:first-child');
+            const deleteButton = row.querySelector('td:nth-child(7) button:last-child');
+            
+            if (isLocked) {
+                // Store original data if not already stored
+                if (!row.dataset.originalData) {
+                    row.dataset.originalData = JSON.stringify({
+                        docName: docNameCell?.textContent || '',
+                        type: typeCell?.textContent || '',
+                        category: categoryCell?.textContent || '',
+                        modifiedBy: modifiedByCell?.textContent || ''
+                    });
+                }
+                
+                // Mask the data
+                if (docNameCell) {
+                    const maskedName = docNameCell.textContent.replace(/./g, '*');
+                    docNameCell.innerHTML = maskedName + ' <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                }
+                if (typeCell) {
+                    typeCell.textContent = '****';
+                }
+                if (categoryCell) {
+                    categoryCell.textContent = '****';
+                }
+                if (modifiedByCell) {
+                    maskedName = modifiedByCell.textContent.replace(/./g, '*');
+                    modifiedByCell.textContent = maskedName;
+                }
+                
+                // Disable action buttons
+                if (viewButton) {
+                    viewButton.disabled = true;
+                    viewButton.style.opacity = '0.5';
+                    viewButton.style.cursor = 'not-allowed';
+                    viewButton.style.pointerEvents = 'none';
+                }
+                if (deleteButton) {
+                    deleteButton.disabled = true;
+                    deleteButton.style.opacity = '0.5';
+                    deleteButton.style.cursor = 'not-allowed';
+                    deleteButton.style.pointerEvents = 'none';
+                }
+                
+                // Add lock styling to row
+                row.style.opacity = '0.7';
+                row.classList.add('locked-row');
+            } else {
+                // Restore original data
+                if (row.dataset.originalData) {
+                    try {
+                        const originalData = JSON.parse(row.dataset.originalData);
+                        
+                        if (docNameCell) {
+                            docNameCell.textContent = originalData.docName;
+                        }
+                        if (typeCell) {
+                            typeCell.textContent = originalData.type;
+                        }
+                        if (categoryCell) {
+                            categoryCell.textContent = originalData.category;
+                        }
+                        if (modifiedByCell) {
+                            modifiedByCell.textContent = originalData.modifiedBy;
+                        }
+                    } catch (e) {
+                        console.error('Error restoring original data:', e);
+                    }
+                }
+                
+                // Restore action buttons
+                if (viewButton) {
+                    viewButton.disabled = false;
+                    viewButton.style.opacity = '1';
+                    viewButton.style.cursor = 'pointer';
+                    viewButton.style.pointerEvents = 'auto';
+                }
+                if (deleteButton) {
+                    deleteButton.disabled = false;
+                    deleteButton.style.opacity = '1';
+                    deleteButton.style.cursor = 'pointer';
+                    deleteButton.style.pointerEvents = 'auto';
+                }
+                
+                // Remove lock styling from row
+                row.style.opacity = '1';
+                row.classList.remove('locked-row');
+            }
+        });
+    }
+
+    // Check and apply lock state on page load
+    function checkAndApplyDocumentLockState() {
+        const isLocked = localStorage.getItem('documentsLocked') === 'true';
+        updateDocumentLockState(isLocked);
+    }
+
+    // Listen for storage changes (for cross-tab synchronization)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'documentsLocked') {
+            const isLocked = e.newValue === 'true';
+            updateDocumentLockState(isLocked);
+        }
+    });
+
+    // Apply lock state on page load
+    checkAndApplyDocumentLockState();
     
 });
     </script>
