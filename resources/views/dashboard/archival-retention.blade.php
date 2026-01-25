@@ -491,7 +491,7 @@ $settings = isset($settings) ? $settings : [
                         <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
                             <i class='bx bx-stats mr-2'></i>Document Retention Overview
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 mb-6">
                             <!-- Total Documents -->
                             <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                                 <div class="flex items-center justify-between">
@@ -556,34 +556,6 @@ $settings = isset($settings) ? $settings : [
                                 </div>
                                 <p class="mt-2 text-xs text-gray-500">Past retention period</p>
                             </div>
-
-                            <!-- Storage Usage -->
-                            <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-500">Storage Used</p>
-                                        <h3 class="text-2xl font-bold text-gray-900">
-                                            @php
-                                                $totalSize = array_sum(array_map(function($doc) {
-                                                    return $doc['size'] ?? 0;
-                                                }, array_merge($documents, $archivedDocuments ?? [])));
-                                                echo round($totalSize / (1024 * 1024), 2) . ' MB';
-                                            @endphp
-                                        </h3>
-                                    </div>
-                                    <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                        <i class='bx bx-hdd text-xl'></i>
-                                    </div>
-                                </div>
-                                <div class="mt-2">
-                                    <div class="w-full bg-gray-200 rounded-full h-2">
-                                        <div class="bg-green-600 h-2 rounded-full" style="width: {{ min(100, ($totalSize / (100 * 1024 * 1024)) * 100) }}%"></div>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-1">
-                                        {{ round(($totalSize / (100 * 1024 * 1024)) * 100, 1) }}% of 100MB used
-                                    </p>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Document Stats Overview -->
@@ -591,9 +563,9 @@ $settings = isset($settings) ? $settings : [
                             <h3 class="font-semibold text-lg text-[#1a4d38] mb-4">
                                 <i class='bx bx-stats mr-2'></i>Document Statistics
                             </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                                 <!-- Total Documents -->
-                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                                <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm font-medium text-gray-500">Total Documents</p>
@@ -603,7 +575,7 @@ $settings = isset($settings) ? $settings : [
                                             <i class='bx bx-file text-blue-500 text-xl'></i>
                                         </div>
                                     </div>
-                                    <div class="mt-4">
+                                    <div class="mt-3">
                                         <div class="flex items-center text-xs text-gray-500">
                                             <span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
                                             <span>Active: {{ count(array_filter($documents, function($doc) { return ($doc['status'] ?? '') === 'active'; })) }}</span>
@@ -615,31 +587,8 @@ $settings = isset($settings) ? $settings : [
                                     </div>
                                 </div>
 
-                                <!-- Storage Usage -->
-                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <p class="text-sm font-medium text-gray-500">Storage Used</p>
-                                            <p class="text-2xl font-semibold text-gray-900">
-                                                @php
-                                                    $totalSize = array_sum(array_map(function($doc) { return $doc['size'] ?? 0; }, $documents));
-                                                    echo round($totalSize / (1024 * 1024), 2) . ' MB';
-                                                @endphp
-                                            </p>
-                                        </div>
-                                        <div class="p-3 rounded-full bg-green-50">
-                                            <i class='bx bx-hdd text-green-500 text-xl'></i>
-                                        </div>
-                                    </div>
-                                    <div class="mt-4">
-                                        <div class="text-xs text-gray-500">
-                                            <span>Last 30 days: +{{ rand(5, 15) }}%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Upcoming Archivals -->
-                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                                <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm font-medium text-gray-500">Upcoming Archivals</p>
@@ -655,7 +604,7 @@ $settings = isset($settings) ? $settings : [
                                             <i class='bx bx-time-five text-amber-500 text-xl'></i>
                                         </div>
                                     </div>
-                                    <div class="mt-4">
+                                    <div class="mt-3">
                                         <div class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full inline-flex items-center">
                                             <i class='bx bx-time mr-1'></i>
                                             <span>Next 30 days</span>
@@ -664,7 +613,7 @@ $settings = isset($settings) ? $settings : [
                                 </div>
 
                                 <!-- Document Categories -->
-                                <div class="bg-white rounded-lg shadow p-6 border border-gray-100">
+                                <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
                                     <div class="flex items-center justify-between">
                                         <div>
                                             <p class="text-sm font-medium text-gray-500">Categories</p>
@@ -674,7 +623,7 @@ $settings = isset($settings) ? $settings : [
                                             <i class='bx bx-category-alt text-purple-500 text-xl'></i>
                                         </div>
                                     </div>
-                                    <div class="mt-4">
+                                    <div class="mt-3">
                                         <div class="flex flex-wrap gap-1">
                                             @php
                                                 $categories = array_count_values(array_column($documents, 'category'));
@@ -913,7 +862,24 @@ $settings = isset($settings) ? $settings : [
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        @forelse($documents as $doc)
+                                        @php
+                                            // Pagination logic for upcoming archivals
+                                            $upcomingDocuments = array_filter($documents, function($doc) {
+                                                $expiryDate = $doc['expiry_date'] ?? null;
+                                                return $expiryDate && 
+                                                       strtotime($expiryDate) > time() && 
+                                                       strtotime($expiryDate) < strtotime('+30 days');
+                                            });
+                                            
+                                            $perPage = 10;
+                                            $currentPage = request()->get('page', 1);
+                                            $totalUpcoming = count($upcomingDocuments);
+                                            $totalPages = ceil($totalUpcoming / $perPage);
+                                            $offset = ($currentPage - 1) * $perPage;
+                                            $upcomingPaginated = array_slice($upcomingDocuments, $offset, $perPage);
+                                        @endphp
+                                        
+                                        @forelse($upcomingPaginated as $doc)
                                             @php
                                                 $dtype = strtoupper($doc['type'] ?? '');
                                                 $icon = in_array($dtype, ['PDF']) ? 'bxs-file-pdf text-red-500' : (in_array($dtype, ['WORD','DOC','DOCX']) ? 'bxs-file-doc text-blue-500' : (in_array($dtype, ['EXCEL','XLS','XLSX']) ? 'bxs-file-txt text-green-500' : 'bxs-file text-gray-500'));
@@ -971,6 +937,36 @@ $settings = isset($settings) ? $settings : [
                                     </tbody>
                                 </table>
                             </div>
+                            
+                            <!-- Pagination Controls -->
+                            @if($totalUpcoming > $perPage)
+                            <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                                <div class="text-sm text-gray-700">
+                                    Showing {{ $offset + 1 }} to {{ min($offset + $perPage, $totalUpcoming) }} of {{ $totalUpcoming }} results
+                                </div>
+                                <div class="flex space-x-2">
+                                    @if($currentPage > 1)
+                                        <a href="{{ request()->url() }}?page={{ $currentPage - 1 }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A]">
+                                            Previous
+                                        </a>
+                                    @else
+                                        <button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A] disabled:opacity-50" disabled>
+                                            Previous
+                                        </button>
+                                    @endif
+                                    
+                                    @if($currentPage < $totalPages)
+                                        <a href="{{ request()->url() }}?page={{ $currentPage + 1 }}" class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A]">
+                                            Next
+                                        </a>
+                                    @else
+                                        <button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#2f855A] disabled:opacity-50" disabled>
+                                            Next
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </section>
 

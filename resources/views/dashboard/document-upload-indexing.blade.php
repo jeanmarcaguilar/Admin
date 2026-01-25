@@ -416,15 +416,6 @@
                             <option value="receipt">Receipt</option>
                         </select>
                     </div>
-                    <div>
-                        <label for="docStatus" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select id="docStatus" name="docStatus"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
-                            <option value="Indexed">Indexed</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Archived">Archived</option>
-                        </select>
-                    </div>
                 </div>
 
                 <div>
@@ -595,11 +586,7 @@
 
                     <div class="flex items-center justify-between bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg px-4 py-3">
                 <div class="text-sm font-medium">Confidential: Authorized personnel only. OTP required for sensitive actions.</div>
-                <button id="openOtpModalBtn" type="button" class="ml-4 inline-flex items-center px-3 py-1.5 bg-[#2f855A] text-white rounded-md text-xs hover:bg-[#276749] focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
-                    <i class="bx bx-shield mr-1"></i>
-                    Open OTP
-                </button>
-                <button id="lockAllDocsBtn" type="button" class="ml-2 inline-flex items-center px-3 py-1.5 bg-gray-700 text-white rounded-md text-xs hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600">
+                <button id="lockAllDocsBtn" type="button" class="ml-4 inline-flex items-center px-3 py-1.5 bg-gray-700 text-white rounded-md text-xs hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-600">
                     <i class="bx bx-lock mr-1"></i>
                     Lock All
                 </button>
@@ -740,7 +727,6 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
@@ -1103,7 +1089,6 @@
             const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
             const openSignOutBtn = document.getElementById("openSignOutBtn");
             const otpModal = document.getElementById("otpModal");
-            const openOtpModalBtn = document.getElementById("openOtpModalBtn");
             const closeOtpModalBtn = document.getElementById("closeOtpModalBtn");
             const cancelOtpBtn = document.getElementById("cancelOtpBtn");
             const verifyOtpBtn = document.getElementById("verifyOtpBtn");
@@ -1316,17 +1301,6 @@
                 otpTimerHandle = setInterval(update, 1000);
             }
 
-            if (openOtpModalBtn) {
-                openOtpModalBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    otpModal.classList.add("active");
-                    notificationDropdown.classList.add("hidden");
-                    userMenuDropdown.classList.add("hidden");
-                    resetOtpState();
-                    startOtpTimer(60);
-                    if (otpInput) setTimeout(() => otpInput.focus(), 80);
-                });
-            }
             if (lockAllDocsBtn) {
                 lockAllDocsBtn.addEventListener("click", () => {
                     const isLocked = localStorage.getItem('documentsLocked') === 'true';
@@ -1484,6 +1458,16 @@
                                     button.classList.add('text-green-600');
                                 }
                             });
+                            
+                            // Update the main Unlock All button to show Lock All state
+                            if (lockAllDocsBtn) {
+                                lockAllDocsBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                                lockAllDocsBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                                lockAllDocsBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                            }
+                            
+                            // Save lock state to localStorage
+                            localStorage.setItem('documentsLocked', 'false');
                         }, 100);
                     }
                 });
@@ -1556,13 +1540,15 @@
                 // Show OTP modal for verification
                 pendingDocForOtp = null; // Clear any pending specific document
                 if (otpModal) {
-                    otpModal.classList.add('active');
+                    otpModal.classList.add("active");
+                    resetOtpState();
+                    startOtpTimer(60);
                     if (otpInput) setTimeout(() => otpInput.focus(), 50);
                     // Update modal title to indicate unlock operation
                     const modalTitle = document.getElementById('otp-modal-title');
                     const modalSubtitle = otpModal.querySelector('p.text-xs.text-gray-500');
                     if (modalTitle) modalTitle.textContent = 'Unlock All Documents';
-                    if (modalSubtitle) modalSubtitle.textContent = 'Enter the 6-digit code to unlock all confidential document names.';
+                    if (modalSubtitle) modalSubtitle.textContent = 'Enter the 6-digit code to unlock all confidential document names and categories.';
                 }
             };
 
@@ -1731,6 +1717,33 @@
             cancelSignOutBtn2.addEventListener("click", () => {
                 signOutModal.classList.remove("active");
             });
+
+            // Make closeModal globally available
+            window.closeModal = closeModal;
+
+            // Download modal event listeners
+            const downloadModalCloseBtn = document.querySelector('#downloadDocumentModal button[onclick*="closeModal"]');
+            const downloadModalCancelBtn = document.querySelector('#downloadDocumentModal button[type="button"][onclick*="closeModal"]');
+            
+            // Fallback: get cancel button by text content
+            const downloadModalCancelBtnFallback = Array.from(document.querySelectorAll('#downloadDocumentModal button[type="button"]'))
+                .find(btn => btn.textContent.trim() === 'Cancel');
+            
+            if (downloadModalCloseBtn) {
+                downloadModalCloseBtn.addEventListener("click", () => {
+                    closeModal('downloadDocumentModal');
+                });
+            }
+            
+            if (downloadModalCancelBtn) {
+                downloadModalCancelBtn.addEventListener("click", () => {
+                    closeModal('downloadDocumentModal');
+                });
+            } else if (downloadModalCancelBtnFallback) {
+                downloadModalCancelBtnFallback.addEventListener("click", () => {
+                    closeModal('downloadDocumentModal');
+                });
+            }
 
             window.addEventListener("click", (e) => {
                 if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
@@ -2088,17 +2101,11 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.type}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedDate}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${doc.status}</span>
-                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick='requireOtpForDoc(${JSON.stringify(doc)})' class="text-blue-600 hover:text-blue-900 mr-3 bg-transparent border-none p-0 cursor-pointer" title="View (OTP required)">View</button>
-                        ${(window.revealedDocs && window.revealedDocs.has(String(doc.id))) ? `<button onclick='lockDoc(${JSON.stringify(doc.id)})' class="text-gray-600 hover:text-gray-900 mr-3 bg-transparent border-none p-0 cursor-pointer" title="Lock"><i class="bx bx-lock-alt"></i></button>` : ''}
                         <button onclick='showDownloadDocumentModal(${JSON.stringify(doc)})' class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs font-medium mr-2 transition-colors" title="Download Document">
                             <i class="bx bx-download mr-1"></i>Download
                         </button>
-                        <button onclick='showShareDocumentModal(${JSON.stringify(doc)})' class="text-gray-600 hover:text-gray-900 mr-3 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-share-alt"></i></button>
-                        <button onclick="showDeleteDocumentConfirmation('${doc.id}')" class="text-red-600 hover:text-red-900 bg-transparent border-none p-0 cursor-pointer"><i class="bx bx-trash"></i></button>
+                        <button onclick="showDeleteDocumentConfirmation('${doc.id}')" class="text-red-600 hover:text-red-900 bg-transparent border-none p-0 cursor-pointer" title="Delete Document"><i class="bx bx-trash"></i></button>
                     </td>
                 `;
 
@@ -2167,9 +2174,6 @@
                     <div class="space-y-6">
                         <div class="flex items-center justify-between">
                             <h3 class="text-lg font-medium leading-6 text-gray-900">${safeName}</h3>
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium ${doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                                ${doc.status}
-                            </span>
                         </div>
                         <div class="border-t border-b border-gray-200 py-6">
                             <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
@@ -2408,6 +2412,7 @@
 
             // Function to toggle lock/unlock for a document
             function toggleDocumentLock(docId, button) {
+                docId = String(docId); // Ensure docId is a string for consistency
                 if (revealedDocs.has(docId)) {
                     // Document is currently unlocked, so lock it
                     revealedDocs.delete(docId);
@@ -2423,7 +2428,7 @@
                     } catch(_) {}
                 } else {
                     // Document is currently locked, so unlock it - require OTP for security
-                    requireOtpForDoc({ id: docId, name: documents.find(d => d.id === docId)?.name });
+                    requireOtpForDoc({ id: docId, name: documents.find(d => String(d.id) === docId)?.name });
                     // Button will be updated after OTP verification
                 }
                 
@@ -2469,7 +2474,7 @@
                         row.setAttribute('data-doc-id', doc.id); // Important for OTP system
                         
                         const safeName = (doc && typeof doc.name === 'string' && doc.name.trim().length) ? doc.name : 'Untitled';
-                        const isRevealed = revealedDocs.has(doc.id);
+                        const isRevealed = revealedDocs.has(String(doc.id));
                         const displayName = isRevealed ? safeName : maskDocumentName(safeName);
                         
                         console.log('Document:', doc.id, '-', safeName, 'Revealed:', isRevealed, 'Display:', displayName); // Debug log
@@ -2499,27 +2504,9 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 ${formatDate(doc.uploaded)}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    doc.status === 'Indexed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                                }">
-                                    ${doc.status}
-                                </span>
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="requireOtpForDoc(${JSON.stringify(doc)})" class="text-blue-600 hover:text-blue-900 mr-3" title="View (OTP required)">
-                                    <i class="bx bx-show"></i>
-                                </button>
-                                <button onclick="toggleDocumentLock('${doc.id}', this)" 
-                                        class="${revealedDocs.has(doc.id) ? 'text-green-600' : 'text-gray-600'} hover:text-gray-900 mr-3" 
-                                        title="${revealedDocs.has(doc.id) ? 'Lock' : 'Unlock'}">
-                                    <i class="bx ${revealedDocs.has(doc.id) ? 'bx-lock' : 'bx-lock-open-alt'}"></i>
-                                </button>
-                                <button onclick='showDownloadDocumentModal(${JSON.stringify(doc)})' class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs font-medium mr-2 transition-colors" title="Download Document">
+                                <button onclick='showDownloadDocumentModal(${JSON.stringify(doc)})' class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-xs font-medium transition-colors" title="Download Document">
                                     <i class="bx bx-download mr-1"></i>Download
-                                </button>
-                                <button onclick='showShareDocumentModal(${JSON.stringify(doc)})' class="text-gray-600 hover:text-gray-900 mr-3" title="Share Document">
-                                    <i class="bx bx-share-alt"></i>
                                 </button>
                             </td>
                         `;

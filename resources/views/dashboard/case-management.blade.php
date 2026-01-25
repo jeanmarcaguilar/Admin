@@ -171,6 +171,17 @@ $user = auth()->user();
         .otp-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .otp-input[disabled] { background-color: #f3f4f6; cursor: not-allowed; }
 
+        /* OTP modal specific animation */
+        .otp-modal-panel {
+            transform: translateY(8px) scale(0.97);
+            opacity: 0;
+            transition: all 0.2s ease-out;
+        }
+        .modal.active .otp-modal-panel {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
         /* Sidebar */
         #sidebar {
             transition: margin-left 0.3s ease-in-out;
@@ -623,6 +634,71 @@ $user = auth()->user();
         </ul>
     </div>
 
+    <!-- OTP Modal -->
+    <div id="otpModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="otp-modal-title">
+        <div class="otp-modal-panel bg-gradient-to-br from-emerald-50/80 via-white to-sky-50/80 rounded-3xl w-full max-w-md shadow-2xl border border-emerald-100/70">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-emerald-50/80 bg-white/80 rounded-t-3xl backdrop-blur-sm">
+                <div class="flex items-center space-x-3">
+                    <div class="h-9 w-9 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <i class="bx bx-shield text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 id="otp-modal-title" class="text-sm font-semibold text-gray-900">Security Verification</h3>
+                        <p class="text-xs text-gray-500">Enter the 6-digit code to unlock confidential case information.</p>
+                    </div>
+                </div>
+                <button id="closeOtpModalBtn" class="text-gray-400 hover:text-gray-600 focus:outline-none rounded-full p-1 hover:bg-gray-100">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            <div class="px-6 pt-5 pb-6 bg-white/80 rounded-b-3xl backdrop-blur-sm">
+                <label for="otpInput" class="block text-xs font-medium text-gray-600 mb-2">One-Time Password (OTP)</label>
+                <div class="relative">
+                    <i class="bx bx-lock-alt absolute left-3 top-2.5 text-gray-400"></i>
+                    <input
+                        id="otpInput"
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="6"
+                        class="w-full border border-gray-300 rounded-lg pl-10 pr-3 py-2.5 text-sm tracking-[0.4em] text-center focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder-gray-300"
+                        placeholder="••••••"
+                    >
+                </div>
+                <div class="mt-4 grid grid-cols-1 gap-2 text-[11px] text-gray-500 bg-emerald-50/60 border border-emerald-100 rounded-lg px-3 py-2">
+                    <div class="flex items-center">
+                        <i class="bx bx-check-shield text-emerald-500 mr-1 text-sm"></i>
+                        <span>Only authorized admins should use this OTP.</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="bx bx-timer text-emerald-500 mr-1 text-sm"></i>
+                        <span>Codes expire shortly for your protection.</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-emerald-700">
+                        <span>Time remaining:</span>
+                        <span id="otpTimerLabel" class="font-semibold">&nbsp;</span>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button
+                        type="button"
+                        id="cancelOtpBtn"
+                        class="px-4 py-2.5 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        id="verifyOtpBtn"
+                        class="inline-flex items-center px-4 py-2.5 rounded-lg text-xs font-semibold text-white bg-[#2f855A] hover:bg-[#276749] shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-1 hidden"
+                    >
+                        <i class="bx bx-check-shield mr-1 text-sm"></i>
+                        Verify OTP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="flex w-full min-h-screen pt-16">
         <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
 
@@ -892,23 +968,28 @@ $user = auth()->user();
                     <div class="dashboard-card p-6 mt-6">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="font-semibold text-lg text-[#1a4d38]"><i class="fas fa-calendar-day mr-2"></i>Upcoming Hearings</h3>
-                            <span id="upcomingTotal" class="text-xs text-gray-500">{{ isset($stats['upcoming_hearings']) ? $stats['upcoming_hearings'] : 0 }} total</span>
+                            <div class="flex items-center space-x-3">
+                                <span id="upcomingTotal" class="text-xs text-gray-500">{{ isset($stats['upcoming_hearings']) ? $stats['upcoming_hearings'] : 0 }} total</span>
+                                <button id="lockAllHearingsBtn" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-700 hover:bg-gray-800 text-white transition-colors duration-200 flex items-center">
+                                    <i class="bx bx-lock mr-1"></i>Lock All
+                                </button>
+                            </div>
                         </div>
                         <ul id="upcomingList" class="divide-y divide-gray-200">
                             @forelse(($upcoming ?? []) as $u)
-                                <li class="py-3 flex items-center justify-between">
+                                <li class="py-3 flex items-center justify-between hearing-item" data-hearing-id="{{ $u['id'] ?? 'unknown' }}">
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">{{ $u['title'] }}</div>
-                                        <div class="text-xs text-gray-500">{{ $u['code'] }}</div>
+                                        <div class="text-sm font-medium text-gray-900 hearing-title">{{ $u['title'] }}</div>
+                                        <div class="text-xs text-gray-500 hearing-code">{{ $u['code'] }}</div>
                                     </div>
                                     <div class="text-right">
-                                        <div class="text-sm text-gray-900">{{ $u['hearing_date'] ?? '-' }}</div>
+                                        <div class="text-sm text-gray-900 hearing-date">{{ $u['hearing_date'] ?? '-' }}</div>
                                         @if(!empty($u['hearing_time']))
                                             @php
                                                 try { $__ut_disp = \Carbon\Carbon::parse($u['hearing_time'])->format('g:i A'); }
                                                 catch (\Exception $e) { $__ut_disp = $u['hearing_time']; }
                                             @endphp
-                                            <div class="text-xs text-gray-500">{{ $__ut_disp }}</div>
+                                            <div class="text-xs text-gray-500 hearing-time">{{ $__ut_disp }}</div>
                                         @endif
                                     </div>
                                 </li>
@@ -1688,8 +1769,22 @@ document.addEventListener("DOMContentLoaded", () => {
         newCase: document.getElementById("newCaseModal"),
         viewCase: document.getElementById("viewCaseModal"),
         editCase: document.getElementById("editCaseModal"),
-        deleteCase: document.getElementById("deleteCaseModal")
+        deleteCase: document.getElementById("deleteCaseModal"),
+        otp: document.getElementById("otpModal")
     };
+
+    // OTP elements
+    const otpModal = document.getElementById("otpModal");
+    const closeOtpModalBtn = document.getElementById("closeOtpModalBtn");
+    const cancelOtpBtn = document.getElementById("cancelOtpBtn");
+    const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+    const otpInput = document.getElementById("otpInput");
+    const otpTimerLabel = document.getElementById("otpTimerLabel");
+
+    // OTP state
+    let otpTimerHandle = null;
+    let pendingCaseForOtp = null;
+    let pendingHearingForOtp = null;
 
     const modalButtons = {
         profile: {
@@ -1832,6 +1927,346 @@ document.addEventListener("DOMContentLoaded", () => {
             icon.classList.add("fa-bars");
             icon.classList.remove("fa-times");
             toggleBtn.setAttribute("aria-expanded", "false");
+        });
+    }
+
+    // OTP Functions
+    function resetOtpState() {
+        if (otpInput) otpInput.value = '';
+        if (otpTimerLabel) otpTimerLabel.textContent = '';
+        if (otpTimerHandle) {
+            clearInterval(otpTimerHandle);
+            otpTimerHandle = null;
+        }
+        // Reset button states
+        if (verifyOtpBtn) {
+            verifyOtpBtn.classList.remove('hidden');
+            verifyOtpBtn.disabled = false;
+        }
+        if (otpInput) {
+            otpInput.disabled = false;
+            otpInput.classList.remove('bg-gray-50');
+        }
+        pendingUnlockAction = null;
+    }
+
+    function startOtpTimer(seconds = 180) {
+        if (otpTimerHandle) clearInterval(otpTimerHandle);
+        let remaining = seconds;
+        
+        function update() {
+            if (remaining > 0) {
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                if (otpTimerLabel) otpTimerLabel.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                remaining--;
+            } else {
+                if (otpTimerHandle) clearInterval(otpTimerHandle);
+                if (otpTimerLabel) otpTimerLabel.textContent = 'Expired';
+                if (verifyOtpBtn) verifyOtpBtn.disabled = true;
+            }
+        }
+        update();
+        otpTimerHandle = setInterval(update, 1000);
+    }
+
+    // OTP Modal event listeners
+    if (closeOtpModalBtn) {
+        closeOtpModalBtn.addEventListener("click", () => {
+            if (otpModal) otpModal.classList.remove("active");
+            resetOtpState();
+        });
+    }
+
+    if (cancelOtpBtn) {
+        cancelOtpBtn.addEventListener("click", () => {
+            if (otpModal) otpModal.classList.remove("active");
+            resetOtpState();
+        });
+    }
+
+    if (verifyOtpBtn) {
+        verifyOtpBtn.addEventListener("click", async () => {
+            const otp = otpInput ? otpInput.value.trim() : '';
+            if (!otp || otp.length !== 6) {
+                if (window.Swal) await Swal.fire({ icon: 'error', title: 'Invalid OTP', text: 'Please enter a valid 6-digit OTP.' });
+                return;
+            }
+            
+            // Simple OTP validation (accept any 6-digit code for demo)
+            if (/^\d{6}$/.test(otp)) {
+                // Update button to show lock state during verification
+                if (verifyOtpBtn) {
+                    verifyOtpBtn.disabled = true;
+                    verifyOtpBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin mr-1 text-sm"></i>Verifying...';
+                }
+                
+                // Simulate verification delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (window.Swal) await Swal.fire({ icon: 'success', title: 'Verified', timer: 800, showConfirmButton: false });
+                if (otpModal) otpModal.classList.remove("active");
+                
+                // Change button to lock state after successful OTP verification
+                if (verifyOtpBtn) {
+                    verifyOtpBtn.innerHTML = '<i class="bx bx-lock mr-1 text-sm"></i>Locked';
+                    verifyOtpBtn.classList.remove('bg-[#2f855A]', 'hover:bg-[#276749]');
+                    verifyOtpBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+                }
+                
+                // After successful OTP, process the pending case, hearing, or unlock all
+                if (pendingCaseForOtp) {
+                    // Specific case unlock logic would go here
+                    console.log('Revealing specific case:', pendingCaseForOtp.id);
+                    // For now, just unlock all since specific case logic isn't implemented
+                    performUnlockAllCases();
+                } else if (pendingHearingForOtp) {
+                    // Specific hearing unlock logic would go here
+                    console.log('Revealing specific hearing:', pendingHearingForOtp.id);
+                    // For now, just unlock all since specific hearing logic isn't implemented
+                    performUnlockAllHearings();
+                } else {
+                    // Check which unlock was triggered by checking the modal title
+                    const modalTitle = document.getElementById('otp-modal-title');
+                    if (modalTitle && modalTitle.textContent.includes('Hearings')) {
+                        // No specific hearing targeted: unlock all hearings
+                        console.log('Revealing all hearings');
+                        performUnlockAllHearings();
+                    } else {
+                        // No specific case targeted: unlock all cases
+                        console.log('Revealing all cases');
+                        performUnlockAllCases();
+                    }
+                }
+                
+                pendingCaseForOtp = null;
+                pendingHearingForOtp = null;
+                
+                resetOtpState();
+            } else {
+                if (window.Swal) await Swal.fire({ icon: 'error', title: 'Invalid OTP', text: 'The OTP you entered is incorrect.' });
+            }
+        });
+    }
+
+    // Perform the actual unlock operation (inline function like document management)
+    function performUnlockAllCases() {
+        console.log('Performing unlock all cases operation');
+        const tableRows = document.querySelectorAll('#casesTbody tr');
+        console.log('Found table rows to unlock:', tableRows.length);
+        
+        tableRows.forEach((row, index) => {
+            console.log(`Processing row ${index}:`, row.dataset.originalData ? 'Has original data' : 'No original data');
+            console.log('Row dataset:', row.dataset);
+            
+            if (row.dataset.originalData) {
+                try {
+                    const originalData = JSON.parse(row.dataset.originalData);
+                    console.log('Restoring data for row:', index, originalData);
+                    
+                    const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                    const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                    const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                    const client = row.querySelector('td:nth-child(4) .text-sm');
+                    const type = row.querySelector('td:nth-child(5) span');
+                    const status = row.querySelector('td:nth-child(6) span');
+                    const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                    const viewButton = row.querySelector('.viewCaseBtn');
+                    const editButton = row.querySelector('.editCaseBtn');
+                    const deleteButton = row.querySelector('.deleteCaseBtn');
+                    
+                    if (caseNumber) {
+                        caseNumber.textContent = originalData.caseNumber;
+                        console.log('Restored case number:', originalData.caseNumber);
+                    }
+                    if (contractType) {
+                        contractType.textContent = originalData.contractType;
+                        console.log('Restored contract type:', originalData.contractType);
+                    }
+                    if (caseName) {
+                        caseName.textContent = originalData.caseName;
+                        console.log('Restored case name:', originalData.caseName);
+                    }
+                    if (client) {
+                        client.textContent = originalData.client;
+                        console.log('Restored client:', originalData.client);
+                    }
+                    if (type) {
+                        type.textContent = originalData.type;
+                        // Restore original type styling if available
+                        if (originalData.typeClass) {
+                            type.className = originalData.typeClass;
+                        }
+                        console.log('Restored type:', originalData.type);
+                    }
+                    if (status) {
+                        status.textContent = originalData.status;
+                        if (originalData.statusClass) {
+                            status.className = originalData.statusClass;
+                        }
+                        console.log('Restored status:', originalData.status);
+                    }
+                    if (hearing) {
+                        hearing.textContent = originalData.hearing;
+                        console.log('Restored hearing:', originalData.hearing);
+                    }
+                    
+                    // Restore buttons
+                    if (viewButton) {
+                        viewButton.disabled = false;
+                        viewButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                        viewButton.classList.add('hover:bg-blue-50', 'text-blue-600');
+                    }
+                    if (editButton) {
+                        editButton.disabled = false;
+                        editButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                        editButton.classList.add('hover:bg-green-50', 'text-green-600');
+                    }
+                    if (deleteButton) {
+                        deleteButton.disabled = false;
+                        deleteButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                        deleteButton.classList.add('hover:bg-red-50', 'text-red-600');
+                    }
+                    
+                    // Remove locked styling
+                    row.classList.remove('locked-row');
+                    row.classList.remove('bg-gray-50');
+                    
+                    console.log('Successfully unlocked row:', index);
+                } catch (error) {
+                    console.error('Error parsing original data for row:', index, error);
+                }
+            } else {
+                console.warn('No original data found for row:', index);
+            }
+        });
+        
+        // Update button
+        if (lockAllCasesBtn) {
+            lockAllCasesBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+            lockAllCasesBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            lockAllCasesBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+        }
+        
+        // Save state to localStorage
+        localStorage.setItem('casesLocked', 'false');
+        console.log('Unlock operation completed, localStorage updated');
+        
+        // Update button with delay to ensure proper state change
+        setTimeout(() => {
+            if (lockAllCasesBtn) {
+                lockAllCasesBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                lockAllCasesBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                lockAllCasesBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                console.log('Updated button to Lock All after unlock');
+            }
+            
+            // Show success message
+            if (window.Swal && Swal.fire) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Unlocked',
+                    text: 'All cases have been unlocked.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } else {
+                alert('All cases have been unlocked.');
+            }
+        }, 100);
+    }
+
+    // Perform the actual unlock operation for hearings (inline function like document management)
+    function performUnlockAllHearings() {
+        console.log('Performing unlock all hearings operation');
+        const hearingItems = document.querySelectorAll('.hearing-item');
+        console.log('Found hearing items to unlock:', hearingItems.length);
+        
+        hearingItems.forEach((item, index) => {
+            console.log(`Processing hearing item ${index}:`, item.dataset.originalData ? 'Has original data' : 'No original data');
+            
+            if (item.dataset.originalData) {
+                try {
+                    const originalData = JSON.parse(item.dataset.originalData);
+                    console.log('Restoring hearing data for item:', index, originalData);
+                    
+                    const title = item.querySelector('.hearing-title');
+                    const code = item.querySelector('.hearing-code');
+                    const date = item.querySelector('.hearing-date');
+                    const time = item.querySelector('.hearing-time');
+                    
+                    if (title) {
+                        title.textContent = originalData.title;
+                        console.log('Restored hearing title:', originalData.title);
+                    }
+                    if (code) {
+                        code.textContent = originalData.code;
+                        console.log('Restored hearing code:', originalData.code);
+                    }
+                    if (date) {
+                        date.textContent = originalData.date;
+                        console.log('Restored hearing date:', originalData.date);
+                    }
+                    if (time) {
+                        time.textContent = originalData.time;
+                        console.log('Restored hearing time:', originalData.time);
+                    }
+                    
+                    // Remove locked styling
+                    item.classList.remove('locked-hearing');
+                    item.style.opacity = '1';
+                    
+                    console.log('Successfully unlocked hearing item:', index);
+                } catch (error) {
+                    console.error('Error parsing original data for hearing item:', index, error);
+                }
+            } else {
+                console.warn('No original data found for hearing item:', index);
+            }
+        });
+        
+        // Update button
+        if (lockAllHearingsBtn) {
+            lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+            lockAllHearingsBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            lockAllHearingsBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+        }
+        
+        // Save state to localStorage
+        localStorage.setItem('hearingsLocked', 'false');
+        console.log('Hearings unlock operation completed, localStorage updated');
+        
+        // Update button with delay to ensure proper state change
+        setTimeout(() => {
+            if (lockAllHearingsBtn) {
+                lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                lockAllHearingsBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                lockAllHearingsBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                console.log('Updated hearings button to Lock All after unlock');
+            }
+            
+            // Show success message
+            if (window.Swal && Swal.fire) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Unlocked',
+                    text: 'All hearings have been unlocked.',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+            } else {
+                alert('All hearings have been unlocked.');
+            }
+        }, 100);
+    }
+
+    // Handle overlay click for OTP modal
+    if (overlay) {
+        overlay.addEventListener("click", () => {
+            if (otpModal && !otpModal.contains(event.target)) {
+                otpModal.classList.remove("active");
+                resetOtpState();
+            }
         });
     }
 
@@ -2291,15 +2726,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Case lock synchronization functionality
     const lockAllCasesBtn = document.getElementById('lockAllCasesBtn');
+    const lockAllHearingsBtn = document.getElementById('lockAllHearingsBtn');
     
     // Lock all cases function
     window.lockAllCases = function() {
+        console.log('Lock all cases function called');
         const tableRows = document.querySelectorAll('#casesTbody tr');
-        const upcomingListItems = document.querySelectorAll('#upcomingList li');
         
-        tableRows.forEach(row => {
+        console.log('Found table rows:', tableRows.length);
+        
+        tableRows.forEach((row, index) => {
             // Store original data if not already stored
             if (!row.dataset.originalData) {
+                console.log(`Storing original data for row ${index}`);
                 const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
                 const contractType = row.querySelector('td:nth-child(2) .text-sm');
                 const caseName = row.querySelector('td:nth-child(3) .text-sm');
@@ -2311,20 +2750,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 const editButton = row.querySelector('.editCaseBtn');
                 const deleteButton = row.querySelector('.deleteCaseBtn');
                 
-                row.dataset.originalData = JSON.stringify({
+                const originalData = {
                     caseNumber: caseNumber?.textContent || '',
                     contractType: contractType?.textContent || '',
                     caseName: caseName?.textContent || '',
                     client: client?.textContent || '',
                     type: type?.textContent || '',
+                    typeClass: type?.className || '',
                     status: status?.textContent || '',
                     hearing: hearing?.textContent || '',
                     statusClass: status?.className || ''
-                });
+                };
+                
+                console.log('Original data to store:', originalData);
+                row.dataset.originalData = JSON.stringify(originalData);
+            } else {
+                console.log(`Row ${index} already has original data stored`);
             }
             
             // Mask the data
-            const originalData = JSON.parse(row.dataset.originalData);
             const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
             const contractType = row.querySelector('td:nth-child(2) .text-sm');
             const caseName = row.querySelector('td:nth-child(3) .text-sm');
@@ -2385,27 +2829,6 @@ document.addEventListener("DOMContentLoaded", () => {
             row.classList.add('locked-row');
         });
         
-        // Lock upcoming hearings list items
-        upcomingListItems.forEach(item => {
-            // Store original content if not already stored
-            if (!item.dataset.originalContent) {
-                item.dataset.originalContent = item.innerHTML;
-            }
-            
-            // Add lock styling to list item
-            item.style.opacity = '0.7';
-            item.classList.add('locked-row');
-            // Add lock icon to indicate locked state
-            if (!item.querySelector('.lock-icon')) {
-                const lockIcon = document.createElement('i');
-                lockIcon.className = 'fas fa-lock text-gray-400 text-xs mr-2 lock-icon';
-                const titleDiv = item.querySelector('.text-sm.font-medium');
-                if (titleDiv) {
-                    titleDiv.insertBefore(lockIcon, titleDiv.firstChild);
-                }
-            }
-        });
-        
         // Save lock state to localStorage
         localStorage.setItem('casesLocked', 'true');
         console.log('Set localStorage casesLocked to true');
@@ -2425,108 +2848,101 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Unlock all cases function
+    // Unlock all cases (reveal all information) - requires OTP verification
     window.unlockAllCases = function() {
-        const tableRows = document.querySelectorAll('#casesTbody tr');
-        const upcomingListItems = document.querySelectorAll('#upcomingList li');
+        // Show OTP modal for verification
+        pendingCaseForOtp = null; // Clear any pending specific case
+        if (otpModal) {
+            otpModal.classList.add("active");
+            resetOtpState();
+            startOtpTimer(60);
+            if (otpInput) setTimeout(() => otpInput.focus(), 50);
+            // Update modal title to indicate unlock operation
+            const modalTitle = document.getElementById('otp-modal-title');
+            const modalSubtitle = otpModal.querySelector('p.text-xs.text-gray-500');
+            if (modalTitle) modalTitle.textContent = 'Unlock All Cases';
+            if (modalSubtitle) modalSubtitle.textContent = 'Enter the 6-digit code to unlock all confidential case information.';
+        }
+    };
+
+    // Lock all hearings function
+    window.lockAllHearings = function() {
+        console.log('Lock all hearings function called');
+        const hearingItems = document.querySelectorAll('.hearing-item');
         
-        tableRows.forEach(row => {
-            if (row.dataset.originalData) {
-                try {
-                    const originalData = JSON.parse(row.dataset.originalData);
-                    
-                    const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
-                    const contractType = row.querySelector('td:nth-child(2) .text-sm');
-                    const caseName = row.querySelector('td:nth-child(3) .text-sm');
-                    const client = row.querySelector('td:nth-child(4) .text-sm');
-                    const type = row.querySelector('td:nth-child(5) span');
-                    const status = row.querySelector('td:nth-child(6) span');
-                    const hearing = row.querySelector('td:nth-child(7) .text-sm');
-                    const viewButton = row.querySelector('.viewCaseBtn');
-                    const editButton = row.querySelector('.editCaseBtn');
-                    const deleteButton = row.querySelector('.deleteCaseBtn');
-                    
-                    if (caseNumber) {
-                        caseNumber.textContent = originalData.caseNumber;
-                    }
-                    if (contractType) {
-                        contractType.textContent = originalData.contractType;
-                    }
-                    if (caseName) {
-                        caseName.textContent = originalData.caseName;
-                    }
-                    if (client) {
-                        client.textContent = originalData.client;
-                    }
-                    if (type) {
-                        type.textContent = originalData.type;
-                        type.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800';
-                    }
-                    if (status) {
-                        status.textContent = originalData.status;
-                        status.className = originalData.statusClass;
-                    }
-                    if (hearing) {
-                        hearing.textContent = originalData.hearing;
-                    }
-                    
-                    // Restore action buttons
-                    if (viewButton) {
-                        viewButton.disabled = false;
-                        viewButton.style.opacity = '1';
-                        viewButton.style.cursor = 'pointer';
-                        viewButton.style.pointerEvents = 'auto';
-                    }
-                    if (editButton) {
-                        editButton.disabled = false;
-                        editButton.style.opacity = '1';
-                        editButton.style.cursor = 'pointer';
-                        editButton.style.pointerEvents = 'auto';
-                    }
-                    if (deleteButton) {
-                        deleteButton.disabled = false;
-                        deleteButton.style.opacity = '1';
-                        deleteButton.style.cursor = 'pointer';
-                        deleteButton.style.pointerEvents = 'auto';
-                    }
-                    
-                    // Remove lock styling from row
-                    row.style.opacity = '1';
-                    row.classList.remove('locked-row');
-                } catch (e) {
-                    console.error('Error restoring original data:', e);
-                }
-            }
-        });
+        console.log('Found hearing items:', hearingItems.length);
         
-        // Unlock upcoming hearings list items
-        upcomingListItems.forEach(item => {
-            // Restore original content if available
-            if (item.dataset.originalContent) {
-                item.innerHTML = item.dataset.originalContent;
+        hearingItems.forEach((item, index) => {
+            // Store original data if not already stored
+            if (!item.dataset.originalData) {
+                const title = item.querySelector('.hearing-title');
+                const code = item.querySelector('.hearing-code');
+                const date = item.querySelector('.hearing-date');
+                const time = item.querySelector('.hearing-time');
+                
+                const originalData = {
+                    title: title?.textContent || '',
+                    code: code?.textContent || '',
+                    date: date?.textContent || '',
+                    time: time?.textContent || ''
+                };
+                
+                console.log('Original hearing data to store:', originalData);
+                item.dataset.originalData = JSON.stringify(originalData);
+            } else {
+                console.log(`Hearing item ${index} already has original data stored`);
             }
             
-            // Remove lock styling from list item
-            item.style.opacity = '1';
-            item.classList.remove('locked-row');
+            // Mask the data
+            const title = item.querySelector('.hearing-title');
+            const code = item.querySelector('.hearing-code');
+            const date = item.querySelector('.hearing-date');
+            const time = item.querySelector('.hearing-time');
+            
+            if (title) {
+                title.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+            }
+            if (code) {
+                code.textContent = '****';
+            }
+            if (date) {
+                date.textContent = '**-**-****';
+            }
+            if (time) {
+                time.textContent = '**:** **';
+            }
+            
+            // Add lock styling to item
+            item.style.opacity = '0.7';
+            item.classList.add('locked-hearing');
         });
         
-        // Save unlock state to localStorage
-        localStorage.setItem('casesLocked', 'false');
-        console.log('Set localStorage casesLocked to false');
-        
-        // Trigger storage event manually for cross-tab sync
-        window.dispatchEvent(new StorageEvent('storage', {
-            key: 'casesLocked',
-            newValue: 'false',
-            oldValue: 'true'
-        }));
+        // Save lock state to localStorage
+        localStorage.setItem('hearingsLocked', 'true');
+        console.log('Set localStorage hearingsLocked to true');
         
         // Update button
-        if (lockAllCasesBtn) {
-            lockAllCasesBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
-            lockAllCasesBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-            lockAllCasesBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+        if (lockAllHearingsBtn) {
+            lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+            lockAllHearingsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+            lockAllHearingsBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        }
+    };
+
+    // Unlock all hearings (reveal all information) - requires OTP verification
+    window.unlockAllHearings = function() {
+        // Show OTP modal for verification
+        pendingHearingForOtp = null; // Clear any pending specific hearing
+        if (otpModal) {
+            otpModal.classList.add("active");
+            resetOtpState();
+            startOtpTimer(60);
+            if (otpInput) setTimeout(() => otpInput.focus(), 50);
+            // Update modal title to indicate unlock operation
+            const modalTitle = document.getElementById('otp-modal-title');
+            const modalSubtitle = otpModal.querySelector('p.text-xs.text-gray-500');
+            if (modalTitle) modalTitle.textContent = 'Unlock All Hearings';
+            if (modalSubtitle) modalSubtitle.textContent = 'Enter the 6-digit code to unlock all confidential hearing information.';
         }
     };
 
@@ -2554,13 +2970,19 @@ document.addEventListener("DOMContentLoaded", () => {
                         return;
                     }
                     
-                    // Check if any rows are actually locked
+                    // Check if any rows are actually locked and have original data
                     let lockedRowsCount = 0;
+                    let rowsWithoutData = 0;
                     tableRows.forEach(row => {
                         if (row.classList.contains('locked-row')) {
                             lockedRowsCount++;
+                            if (!row.dataset.originalData) {
+                                rowsWithoutData++;
+                            }
                         }
                     });
+                    
+                    console.log('Locked rows:', lockedRowsCount, 'Rows without original data:', rowsWithoutData);
                     
                     if (lockedRowsCount === 0) {
                         // Cases appear unlocked but localStorage says locked - sync the state
@@ -2584,16 +3006,39 @@ document.addEventListener("DOMContentLoaded", () => {
                         return;
                     }
                     
-                    // Unlock all cases directly
-                    window.unlockAllCases();
-                    if (window.Swal && Swal.fire) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Unlocked',
-                            text: `${lockedRowsCount} case(s) have been unlocked.`,
-                            timer: 1500,
-                            showConfirmButton: false
+                    // If rows are locked but missing original data, store it first
+                    if (rowsWithoutData > 0) {
+                        console.log('Storing missing original data for', rowsWithoutData, 'rows');
+                        tableRows.forEach(row => {
+                            if (row.classList.contains('locked-row') && !row.dataset.originalData) {
+                                // Store current masked data as fallback (better than nothing)
+                                const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
+                                const contractType = row.querySelector('td:nth-child(2) .text-sm');
+                                const caseName = row.querySelector('td:nth-child(3) .text-sm');
+                                const client = row.querySelector('td:nth-child(4) .text-sm');
+                                const type = row.querySelector('td:nth-child(5) span');
+                                const status = row.querySelector('td:nth-child(6) span');
+                                const hearing = row.querySelector('td:nth-child(7) .text-sm');
+                                
+                                row.dataset.originalData = JSON.stringify({
+                                    caseNumber: caseNumber?.textContent?.replace('****', 'CASE-') || 'CASE-',
+                                    contractType: contractType?.textContent?.replace('****', 'Contract') || 'Contract',
+                                    caseName: caseName?.textContent?.replace('****', 'Case Name') || 'Case Name',
+                                    client: client?.textContent?.replace('****', 'Client') || 'Client',
+                                    type: type?.textContent?.replace('****', 'Type') || 'Type',
+                                    typeClass: type?.className || '',
+                                    status: status?.textContent?.replace('****', 'Status') || 'Status',
+                                    statusClass: status?.className || '',
+                                    hearing: hearing?.textContent?.replace('****', 'Hearing') || 'Hearing'
+                                });
+                            }
                         });
+                    }
+                    
+                    // Show OTP modal for unlock verification
+                    console.log('Showing OTP modal for unlock verification');
+                    if (typeof window.unlockAllCases === 'function') {
+                        window.unlockAllCases();
                     }
                 }
             } else {
@@ -2681,6 +3126,120 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // Hearings lock button click handler
+    if (lockAllHearingsBtn) {
+        lockAllHearingsBtn.addEventListener('click', () => {
+            const isLocked = localStorage.getItem('hearingsLocked') === 'true';
+            
+            if (isLocked) {
+                // Currently locked, so unlock with OTP validation
+                if (typeof window.unlockAllHearings === 'function') {
+                    // Check if there are any hearings to unlock
+                    const hearingItems = document.querySelectorAll('.hearing-item');
+                    if (hearingItems.length === 0) {
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Hearings Found',
+                                text: 'There are no hearings to unlock.',
+                                confirmButtonColor: '#2f855a'
+                            });
+                        } else {
+                            alert('No hearings found to unlock.');
+                        }
+                        return;
+                    }
+                    
+                    // Check if any items are actually locked
+                    let lockedItemsCount = 0;
+                    hearingItems.forEach(item => {
+                        if (item.classList.contains('locked-hearing')) {
+                            lockedItemsCount++;
+                        }
+                    });
+                    
+                    if (lockedItemsCount === 0) {
+                        // Hearings appear unlocked but localStorage says locked - sync the state
+                        localStorage.setItem('hearingsLocked', 'false');
+                        // Update button to show "Lock All" state
+                        if (lockAllHearingsBtn) {
+                            lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                            lockAllHearingsBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                            lockAllHearingsBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                        }
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'State Synced',
+                                text: 'Hearings are already unlocked. State has been synchronized.',
+                                confirmButtonColor: '#2f855a'
+                            });
+                        } else {
+                            alert('Hearings are already unlocked. State has been synchronized.');
+                        }
+                        return;
+                    }
+                    
+                    // Show OTP modal for unlock verification
+                    if (typeof window.unlockAllHearings === 'function') {
+                        window.unlockAllHearings();
+                    }
+                }
+            } else {
+                // Currently unlocked, so lock with validation and confirmation
+                if (typeof window.lockAllHearings === 'function') {
+                    // Check if there are any hearings to lock
+                    const hearingItems = document.querySelectorAll('.hearing-item');
+                    if (hearingItems.length === 0) {
+                        if (window.Swal && Swal.fire) {
+                            Swal.fire({
+                                icon: 'info',
+                                title: 'No Hearings Found',
+                                text: 'There are no hearings to lock.',
+                                confirmButtonColor: '#2f855a'
+                            });
+                        } else {
+                            alert('No hearings found to lock.');
+                        }
+                        return;
+                    }
+                    
+                    // Show confirmation dialog
+                    if (window.Swal && Swal.fire) {
+                        Swal.fire({
+                            title: 'Lock All Hearings?',
+                            text: `Are you sure you want to lock ${hearingItems.length} hearing(s) for confidentiality? This will mask all sensitive data.`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, Lock',
+                            cancelButtonText: 'No, Cancel'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.lockAllHearings();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Locked',
+                                    text: `${hearingItems.length} hearing(s) have been locked for confidentiality.`,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                            }
+                        });
+                    } else {
+                        // Fallback to browser confirm
+                        const confirmed = confirm(`Are you sure you want to lock ${hearingItems.length} hearing(s) for confidentiality? This will mask all sensitive data.`);
+                        if (confirmed) {
+                            window.lockAllHearings();
+                            alert(`${hearingItems.length} hearing(s) have been locked for confidentiality.`);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     // Initialize lock state on page load
     function initializeCaseLockState() {
         const isLocked = localStorage.getItem('casesLocked') === 'true';
@@ -2694,33 +3253,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tableRows.forEach((row, index) => {
                 console.log(`Processing row ${index}:`, row);
                 
-                // Store original data if not already stored
-                if (!row.dataset.originalData) {
-                    const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
-                    const contractType = row.querySelector('td:nth-child(2) .text-sm');
-                    const caseName = row.querySelector('td:nth-child(3) .text-sm');
-                    const client = row.querySelector('td:nth-child(4) .text-sm');
-                    const type = row.querySelector('td:nth-child(5) span');
-                    const status = row.querySelector('td:nth-child(6) span');
-                    const hearing = row.querySelector('td:nth-child(7) .text-sm');
-                    const viewButton = row.querySelector('.viewCaseBtn');
-                    const editButton = row.querySelector('.editCaseBtn');
-                    const deleteButton = row.querySelector('.deleteCaseBtn');
-                    
-                    row.dataset.originalData = JSON.stringify({
-                        caseNumber: caseNumber?.textContent || '',
-                        contractType: contractType?.textContent || '',
-                        caseName: caseName?.textContent || '',
-                        client: client?.textContent || '',
-                        type: type?.textContent || '',
-                        status: status?.textContent || '',
-                        hearing: hearing?.textContent || '',
-                        statusClass: status?.className || ''
-                    });
-                }
-                
-                // Apply masking
-                const originalData = JSON.parse(row.dataset.originalData);
+                // Store original data BEFORE applying masking
                 const caseNumber = row.querySelector('td:nth-child(1) .text-sm');
                 const contractType = row.querySelector('td:nth-child(2) .text-sm');
                 const caseName = row.querySelector('td:nth-child(3) .text-sm');
@@ -2732,6 +3265,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 const editButton = row.querySelector('.editCaseBtn');
                 const deleteButton = row.querySelector('.deleteCaseBtn');
                 
+                // Store original data if not already stored
+                if (!row.dataset.originalData) {
+                    row.dataset.originalData = JSON.stringify({
+                        caseNumber: caseNumber?.textContent || '',
+                        contractType: contractType?.textContent || '',
+                        caseName: caseName?.textContent || '',
+                        client: client?.textContent || '',
+                        type: type?.textContent || '',
+                        typeClass: type?.className || '',
+                        status: status?.textContent || '',
+                        statusClass: status?.className || '',
+                        hearing: hearing?.textContent || ''
+                    });
+                }
+                
+                // Apply masking
                 if (caseNumber) {
                     caseNumber.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
                 }
@@ -2856,6 +3405,109 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Initialize hearings lock state on page load
+    function initializeHearingLockState() {
+        const isLocked = localStorage.getItem('hearingsLocked') === 'true';
+        console.log('Initializing hearings lock state. isLocked:', isLocked);
+        
+        if (isLocked) {
+            // Apply lock state without confirmation
+            const hearingItems = document.querySelectorAll('.hearing-item');
+            console.log('Found hearing items:', hearingItems.length);
+            
+            hearingItems.forEach((item, index) => {
+                console.log(`Processing hearing item ${index}:`, item);
+                
+                // Store original data BEFORE applying masking
+                const title = item.querySelector('.hearing-title');
+                const code = item.querySelector('.hearing-code');
+                const date = item.querySelector('.hearing-date');
+                const time = item.querySelector('.hearing-time');
+                
+                // Store original data if not already stored
+                if (!item.dataset.originalData) {
+                    item.dataset.originalData = JSON.stringify({
+                        title: title?.textContent || '',
+                        code: code?.textContent || '',
+                        date: date?.textContent || '',
+                        time: time?.textContent || ''
+                    });
+                }
+                
+                // Apply masking
+                if (title) {
+                    title.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                }
+                if (code) {
+                    code.textContent = '****';
+                }
+                if (date) {
+                    date.textContent = '**-**-****';
+                }
+                if (time) {
+                    time.textContent = '**:** **';
+                }
+                
+                // Add lock styling to item
+                item.style.opacity = '0.7';
+                item.classList.add('locked-hearing');
+            });
+            
+            // Update button to show "Unlock All" state
+            if (lockAllHearingsBtn) {
+                lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                lockAllHearingsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                lockAllHearingsBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                console.log('Updated hearings button to Unlock All');
+            }
+        } else {
+            // Apply unlock state on page load
+            const hearingItems = document.querySelectorAll('.hearing-item');
+            console.log('Applying hearings unlock state. Found items:', hearingItems.length);
+            
+            hearingItems.forEach((item, index) => {
+                // Ensure data is stored for potential future locking
+                if (!item.dataset.originalData) {
+                    const title = item.querySelector('.hearing-title');
+                    const code = item.querySelector('.hearing-code');
+                    const date = item.querySelector('.hearing-date');
+                    const time = item.querySelector('.hearing-time');
+                    
+                    item.dataset.originalData = JSON.stringify({
+                        title: title?.textContent || '',
+                        code: code?.textContent || '',
+                        date: date?.textContent || '',
+                        time: time?.textContent || ''
+                    });
+                }
+                
+                // Restore original data
+                const originalData = JSON.parse(item.dataset.originalData);
+                const title = item.querySelector('.hearing-title');
+                const code = item.querySelector('.hearing-code');
+                const date = item.querySelector('.hearing-date');
+                const time = item.querySelector('.hearing-time');
+                
+                if (title) title.textContent = originalData.title;
+                if (code) code.textContent = originalData.code;
+                if (date) date.textContent = originalData.date;
+                if (time) time.textContent = originalData.time;
+                
+                // Remove lock styling
+                item.style.opacity = '1';
+                item.classList.remove('locked-hearing');
+            });
+            
+            // Update button to show "Lock All" state
+            if (lockAllHearingsBtn) {
+                lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock mr-1"></i>Lock All';
+                lockAllHearingsBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+                lockAllHearingsBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
+                console.log('Updated hearings button to Lock All');
+            }
+        }
+    }
+
     // Listen for storage changes (for cross-tab synchronization)
     window.addEventListener('storage', (e) => {
         if (e.key === 'casesLocked') {
@@ -2885,9 +3537,10 @@ document.addEventListener("DOMContentLoaded", () => {
                                 caseName: caseName?.textContent || '',
                                 client: client?.textContent || '',
                                 type: type?.textContent || '',
+                                typeClass: type?.className || '',
                                 status: status?.textContent || '',
-                                hearing: hearing?.textContent || '',
-                                statusClass: status?.className || ''
+                                statusClass: status?.className || '',
+                                hearing: hearing?.textContent || ''
                             });
                         }
                         
@@ -2956,8 +3609,73 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    // Listen for hearings storage changes (for cross-tab synchronization)
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'hearingsLocked') {
+            const isLocked = e.newValue === 'true';
+            if (isLocked) {
+                if (typeof window.lockAllHearings === 'function') {
+                    // Apply lock without confirmation
+                    const hearingItems = document.querySelectorAll('.hearing-item');
+                    
+                    hearingItems.forEach(item => {
+                        // Store original data if not already stored
+                        if (!item.dataset.originalData) {
+                            const title = item.querySelector('.hearing-title');
+                            const code = item.querySelector('.hearing-code');
+                            const date = item.querySelector('.hearing-date');
+                            const time = item.querySelector('.hearing-time');
+                            
+                            item.dataset.originalData = JSON.stringify({
+                                title: title?.textContent || '',
+                                code: code?.textContent || '',
+                                date: date?.textContent || '',
+                                time: time?.textContent || ''
+                            });
+                        }
+                        
+                        // Apply masking
+                        const title = item.querySelector('.hearing-title');
+                        const code = item.querySelector('.hearing-code');
+                        const date = item.querySelector('.hearing-date');
+                        const time = item.querySelector('.hearing-time');
+                        
+                        if (title) {
+                            title.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
+                        }
+                        if (code) {
+                            code.textContent = '****';
+                        }
+                        if (date) {
+                            date.textContent = '**-**-****';
+                        }
+                        if (time) {
+                            time.textContent = '**:** **';
+                        }
+                        
+                        // Add lock styling to item
+                        item.style.opacity = '0.7';
+                        item.classList.add('locked-hearing');
+                    });
+                    
+                    // Update button
+                    if (lockAllHearingsBtn) {
+                        lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i>Unlock All';
+                        lockAllHearingsBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                        lockAllHearingsBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                    }
+                }
+            } else {
+                if (typeof window.unlockAllHearings === 'function') {
+                    window.unlockAllHearings();
+                }
+            }
+        }
+    });
+
     // Initialize lock state when DOM is ready (call at the end of DOMContentLoaded)
     initializeCaseLockState();
+    initializeHearingLockState();
 });
 </script>
     <!-- View Case Modal -->
