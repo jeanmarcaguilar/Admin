@@ -17,7 +17,7 @@ $settings = isset($settings) ? $settings : [
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Archival & Retention Policy | Microfinance HR3</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -297,13 +297,6 @@ $settings = isset($settings) ? $settings : [
             </div>
 
             <!-- Administrator -->
-            <a href="#"
-                class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-                    hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-                Administrator
-            </a>
 
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
@@ -342,12 +335,6 @@ $settings = isset($settings) ? $settings : [
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                     {{ now()->format('H:i:s') }}
                 </span>
-
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                </button>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
@@ -440,101 +427,102 @@ $settings = isset($settings) ? $settings : [
                     </div>
                 </div>
 
-                <!-- Document Retention Stats -->
+                <!-- Enhanced Document Retention Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Total Documents -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Documents</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ count($documents) + count($archivedDocuments ?? []) }}</h3>
+                    <!-- Total Documents Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Documents</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count($documents) + count($archivedDocuments ?? []) }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="bx bx-file mr-1"></i>
+                                        Files
+                                    </span>
+                                    <span class="text-xs text-gray-500">Total</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <i class='bx bx-file text-xl'></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-file text-white text-xl"></i>
                             </div>
-                        </div>
-                        <div class="mt-2 flex items-center text-xs text-gray-500">
-                            <span class="flex items-center">
-                                <span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-                                {{ count($documents) }} Active
-                            </span>
-                            <span class="flex items-center ml-3">
-                                <span class="w-2 h-2 bg-gray-300 rounded-full mr-1"></span>
-                                {{ count($archivedDocuments ?? []) }} Archived
-                            </span>
                         </div>
                     </div>
 
-                    <!-- Upcoming Archivals -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Upcoming Archivals</p>
-                                <h3 class="text-2xl font-bold text-amber-600">
+                    <!-- Upcoming Archivals Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Upcoming Archivals</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">
                                     {{ count(array_filter($documents, function($doc) {
                                         $expiryDate = $doc['expiry_date'] ?? null;
                                         return $expiryDate && 
                                                strtotime($expiryDate) > time() && 
                                                strtotime($expiryDate) < strtotime('+30 days');
                                     })) }}
-                                </h3>
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        <i class="bx bx-time-five mr-1"></i>
+                                        Pending
+                                    </span>
+                                    <span class="text-xs text-gray-500">30 days</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-amber-100 text-amber-600">
-                                <i class='bx bx-time-five text-xl'></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-time-five text-white text-xl"></i>
                             </div>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">Due in next 30 days</p>
                     </div>
 
-                    <!-- Expiring Soon -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Expiring Soon</p>
-                                <h3 class="text-2xl font-bold text-red-600">
+                    <!-- Expiring Soon Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Expiring Soon</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">
                                     {{ count(array_filter($documents, function($doc) {
                                         $expiryDate = $doc['expiry_date'] ?? null;
                                         return $expiryDate && 
                                                strtotime($expiryDate) < time() && 
                                                strtotime($expiryDate) > strtotime('-7 days');
                                     })) }}
-                                </h3>
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="bx bx-error mr-1"></i>
+                                        Expired
+                                    </span>
+                                    <span class="text-xs text-gray-500">Past due</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-red-100 text-red-600">
-                                <i class='bx bx-error text-xl'></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-error text-white text-xl"></i>
                             </div>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">Past retention period</p>
                     </div>
 
-                    <!-- Document Categories -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Categories</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ count(array_unique(array_column($documents, 'category'))) }}</h3>
-                            </div>
-                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                                <i class='bx bx-category-alt text-xl'></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            @php
-                                $categories = array_count_values(array_column($documents, 'category'));
-                                arsort($categories);
-                                $topCategories = array_slice($categories, 0, 3, true);
-                            @endphp
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($topCategories as $category => $count)
-                                    <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
-                                        {{ ucfirst($category) }} ({{ $count }})
+                    <!-- Categories Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Categories</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count(array_unique(array_column($documents, 'category'))) }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
+                                        <i class="bx bx-category-alt mr-1"></i>
+                                        Types
                                     </span>
-                                @endforeach
-                                @if(count($categories) > 3)
-                                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
-                                        +{{ count($categories) - 3 }} more
-                                    </span>
-                                @endif
+                                    <span class="text-xs text-gray-500">Groups</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-category-alt text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
@@ -1001,11 +989,12 @@ $settings = isset($settings) ? $settings : [
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
