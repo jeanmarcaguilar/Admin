@@ -93,6 +93,39 @@
       height: 300px;
     }
 
+    /* Illustration slideshow animation */
+    .illustration-slideshow {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    
+    .illustration-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+    }
+    
+    .illustration-slide:first-child {
+      opacity: 1;
+    }
+    
+    @keyframes slideshow {
+      0%, 16.66% { opacity: 1; }
+      20%, 83.33% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+    
+    .illustration-slide:nth-child(1) { animation: slideshow 15s infinite 0s; }
+    .illustration-slide:nth-child(2) { animation: slideshow 15s infinite 3s; }
+    .illustration-slide:nth-child(3) { animation: slideshow 15s infinite 6s; }
+    .illustration-slide:nth-child(4) { animation: slideshow 15s infinite 9s; }
+    .illustration-slide:nth-child(5) { animation: slideshow 15s infinite 12s; }
+
     /* Glassmorphism effect */
     .glass-card {
       background: rgba(255, 255, 255, 0.92);
@@ -170,23 +203,14 @@
         </div>
 
         <!-- Illustration Area -->
-        <div class="relative w-full max-w-lg h-80 my-8">
-          <svg class="illustration active w-full h-full" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
-                <stop offset="100%" style="stop-color:rgba(255,255,255,0.6);stop-opacity:1" />
-              </linearGradient>
-            </defs>
-            <!-- Simple illustration: person at computer -->
-            <ellipse cx="200" cy="260" rx="120" ry="15" fill="rgba(255,255,255,0.2)"/>
-            <rect x="140" y="180" width="120" height="80" rx="8" fill="url(#grad1)"/>
-            <rect x="155" y="195" width="90" height="50" rx="4" fill="rgba(16,185,129,0.3)"/>
-            <circle cx="200" cy="120" r="35" fill="url(#grad1)"/>
-            <rect x="175" y="155" width="50" height="25" rx="12" fill="url(#grad1)"/>
-            <path d="M 165 155 Q 140 180 130 200" stroke="url(#grad1)" stroke-width="8" fill="none" stroke-linecap="round"/>
-            <path d="M 235 155 Q 260 180 270 200" stroke="url(#grad1)" stroke-width="8" fill="none" stroke-linecap="round"/>
-          </svg>
+        <div class="relative w-full max-w-lg h-80 my-8 overflow-hidden">
+          <div class="illustration-slideshow w-full h-full">
+            <img src="{{ asset('assets/images/login/illustration-1.svg') }}" alt="Login Illustration 1" class="illustration-slide w-full h-full object-contain">
+            <img src="{{ asset('assets/images/login/illustration-2.svg') }}" alt="Login Illustration 2" class="illustration-slide w-full h-full object-contain">
+            <img src="{{ asset('assets/images/login/illustration-3.svg') }}" alt="Login Illustration 3" class="illustration-slide w-full h-full object-contain">
+            <img src="{{ asset('assets/images/login/illustration-4.svg') }}" alt="Login Illustration 4" class="illustration-slide w-full h-full object-contain">
+            <img src="{{ asset('assets/images/login/illustration-5.svg') }}" alt="Login Illustration 5" class="illustration-slide w-full h-full object-contain">
+          </div>
         </div>
 
         <!-- Quote -->
