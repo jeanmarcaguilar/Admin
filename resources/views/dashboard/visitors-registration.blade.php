@@ -317,12 +317,6 @@ $user = auth()->user();
                     {{ now()->format('H:i:s') }}
                 </span>
 
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                </button>
-
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
                 <!-- User Profile Dropdown -->
