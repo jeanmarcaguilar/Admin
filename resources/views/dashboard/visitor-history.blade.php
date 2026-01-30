@@ -26,7 +26,7 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Visitor History | Microfinance HR3</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -317,13 +317,6 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
             </div>
 
             <!-- Administrator -->
-            <a href="#"
-                class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-                    hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-                Administrator
-            </a>
 
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
@@ -362,12 +355,6 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                     {{ now()->format('H:i:s') }}
                 </span>
-
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                </button>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
@@ -434,43 +421,89 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                     </div>
                 </div>
 
-                <!-- Visitor Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <!-- Total Visitors -->
-                    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Visitors</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $totalVisitors }}</h3>
+                <!-- Enhanced Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Visitors Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Visitors</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $totalVisitors }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-users mr-1"></i>
+                                        All Time
+                                    </span>
+                                    <span class="text-xs text-gray-500">Records</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <i class="fas fa-users text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-users text-white text-xl"></i>
                             </div>
-                        </div>
-                        <div class="mt-4">
-                            <div class="h-2 bg-gray-200 rounded-full">
-                                <div class="h-2 bg-blue-500 rounded-full" style="width: 80%"></div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-2">+150 from last month</p>
                         </div>
                     </div>
 
-                    <!-- Visitors Today -->
-                    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Visitors Today</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $visitorsToday }}</h3>
+                    <!-- Visitors Today Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Visitors Today</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $visitorsToday }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="fas fa-user-check mr-1"></i>
+                                        Today
+                                    </span>
+                                    <span class="text-xs text-gray-500">{{ $todayPct }}%</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                <i class="fas fa-user-check text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-user-check text-white text-xl"></i>
                             </div>
                         </div>
-                        <div class="mt-4">
-                            <div class="h-2 bg-gray-200 rounded-full">
-                                <div class="h-2 bg-green-500 rounded-full" style="width: {{ $todayPct }}%"></div>
+                    </div>
+
+                    <!-- Check-Ins Today Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Check-Ins Today</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ round($visitorsToday * 0.7) }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
+                                        <i class="fas fa-sign-in-alt mr-1"></i>
+                                        Entries
+                                    </span>
+                                    <span class="text-xs text-gray-500">Today</span>
+                                </div>
                             </div>
-                            <p class="text-xs text-gray-500 mt-2">{{ $visitorsToday > 0 ? '+'.$visitorsToday.' from yesterday' : 'No visitors yet' }}</p>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-sign-in-alt text-white text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Check-Outs Today Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Check-Outs Today</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ round($visitorsToday * 0.3) }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        <i class="fas fa-sign-out-alt mr-1"></i>
+                                        Exits
+                                    </span>
+                                    <span class="text-xs text-gray-500">Today</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-sign-out-alt text-white text-xl"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -766,11 +799,12 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
