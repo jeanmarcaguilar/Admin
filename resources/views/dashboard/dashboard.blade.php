@@ -1137,36 +1137,58 @@ $user = auth()->user();
         const labels = ['Visitors (Checked In)', 'Total Visitors', 'Documents', 'Active Cases'];
         const total = values.reduce((a,b)=>a+b,0);
 
-        // Gradients
-        const gradGreen = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradGreen.addColorStop(0, 'rgba(16,185,129,0.95)');
-        gradGreen.addColorStop(1, 'rgba(5,150,105,0.85)');
-        const gradBlue = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradBlue.addColorStop(0, 'rgba(59,130,246,0.95)');
-        gradBlue.addColorStop(1, 'rgba(37,99,235,0.85)');
-        const gradAmber = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradAmber.addColorStop(0, 'rgba(245,158,11,0.95)');
-        gradAmber.addColorStop(1, 'rgba(217,119,6,0.85)');
-        const gradViolet = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradViolet.addColorStop(0, 'rgba(139,92,246,0.95)');
-        gradViolet.addColorStop(1, 'rgba(124,58,237,0.85)');
+        // Enhanced gradients with more vibrant colors
+        const gradGreen = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
+        gradGreen.addColorStop(0, 'rgba(16,185,129,0.9)');
+        gradGreen.addColorStop(0.5, 'rgba(5,150,105,0.85)');
+        gradGreen.addColorStop(1, 'rgba(4,120,87,0.8)');
+        
+        const gradBlue = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
+        gradBlue.addColorStop(0, 'rgba(59,130,246,0.9)');
+        gradBlue.addColorStop(0.5, 'rgba(37,99,235,0.85)');
+        gradBlue.addColorStop(1, 'rgba(29,78,216,0.8)');
+        
+        const gradAmber = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
+        gradAmber.addColorStop(0, 'rgba(245,158,11,0.9)');
+        gradAmber.addColorStop(0.5, 'rgba(217,119,6,0.85)');
+        gradAmber.addColorStop(1, 'rgba(180,83,9,0.8)');
+        
+        const gradViolet = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, canvas.width/2);
+        gradViolet.addColorStop(0, 'rgba(139,92,246,0.9)');
+        gradViolet.addColorStop(0.5, 'rgba(124,58,237,0.85)');
+        gradViolet.addColorStop(1, 'rgba(109,40,217,0.8)');
 
-        // Center text plugin
+        // Enhanced center text plugin with better styling
         const centerTextPlugin = {
           id: 'centerText',
           afterDraw(chart, args, pluginOptions) {
             const {ctx, chartArea: {width, height}} = chart;
             ctx.save();
-            ctx.font = '600 18px "Inter", sans-serif';
-            ctx.fillStyle = '#1f2937';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            
+            // Draw background circle
             const cx = chart.getDatasetMeta(0).data[0]?.x || width/2;
             const cy = chart.getDatasetMeta(0).data[0]?.y || height/2;
-            ctx.fillText('Total', cx, cy - 12);
-            ctx.font = '800 20px "Inter", sans-serif';
-            ctx.fillStyle = '#28644c';
+            
+            ctx.beginPath();
+            ctx.arc(cx, cy, 45, 0, 2 * Math.PI);
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Draw "Total" text
+            ctx.font = '500 14px "Inter", sans-serif';
+            ctx.fillStyle = '#6b7280';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('TOTAL', cx, cy - 10);
+            
+            // Draw total number
+            ctx.font = '700 24px "Inter", sans-serif';
+            ctx.fillStyle = '#059669';
             ctx.fillText(String(total), cx, cy + 12);
+            
             ctx.restore();
           }
         };
@@ -1179,10 +1201,12 @@ $user = auth()->user();
               data: values,
               backgroundColor: [gradGreen, gradBlue, gradAmber, gradViolet],
               borderColor: ['#10b981','#3b82f6','#f59e0b','#8b5cf6'],
-              borderWidth: 2,
-              hoverOffset: 10,
-              spacing: 4,
-              cutout: '65%'
+              borderWidth: 3,
+              hoverOffset: 15,
+              spacing: 6,
+              cutout: '70%',
+              borderRadius: 8,
+              hoverBorderWidth: 4
             }]
           },
           options: {
@@ -1190,22 +1214,19 @@ $user = auth()->user();
             maintainAspectRatio: false,
             plugins: {
               legend: {
-                position: 'bottom',
-                labels: {
-                  usePointStyle: true,
-                  pointStyle: 'circle',
-                  boxWidth: 8,
-                  padding: 16,
-                  font: { family: '"Inter", sans-serif', size: 12 },
-                  color: '#1f2937'
-                }
+                display: false // Using custom legend cards instead
               },
               tooltip: {
-                backgroundColor: 'rgba(17,24,39,0.9)',
+                backgroundColor: 'rgba(17,24,39,0.95)',
                 titleColor: '#fff',
                 bodyColor: '#e5e7eb',
-                cornerRadius: 8,
-                padding: 10,
+                cornerRadius: 12,
+                padding: 12,
+                titleFont: { family: '"Inter", sans-serif', size: 14, weight: 'bold' },
+                bodyFont: { family: '"Inter", sans-serif', size: 13 },
+                borderColor: 'rgba(16,185,129,0.3)',
+                borderWidth: 1,
+                displayColors: true,
                 callbacks: {
                   label: (ctx) => {
                     const val = ctx.parsed;
@@ -1213,15 +1234,18 @@ $user = auth()->user();
                     return `${ctx.label}: ${val} (${pct}%)`;
                   }
                 }
-              },
-              title: {
-                display: true,
-                text: 'Module Distribution',
-                font: { family: '"Inter", sans-serif', size: 14, weight: 'bold' },
-                color: '#1a4d38'
               }
             },
-            animation: { duration: 900, easing: 'easeOutQuart' }
+            animation: {
+              animateRotate: true,
+              animateScale: true,
+              duration: 1200,
+              easing: 'easeOutQuart'
+            },
+            interaction: {
+              intersect: false,
+              mode: 'index'
+            }
           },
           plugins: [centerTextPlugin]
         });
