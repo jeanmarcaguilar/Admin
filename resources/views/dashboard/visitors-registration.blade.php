@@ -276,9 +276,6 @@ $user = auth()->user();
                 </div>
             </div>
 
-            <!-- Administrator -->
-
-
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
