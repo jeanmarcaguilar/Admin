@@ -378,12 +378,6 @@ $user = auth()->user();
           --:--:--
         </span>
 
-        <!-- Notifications -->
-        <button id="notificationBtn" class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-          🔔
-          <span class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white"></span>
-        </button>
-
         <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
         <!-- User Profile Dropdown -->
@@ -429,54 +423,6 @@ $user = auth()->user();
       </div>
     </header>
 
-    <!-- Notification Dropdown -->
-    <div id="notificationDropdown" class="dropdown-panel hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4.5rem;">
-      <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
-        <span class="font-semibold text-sm">Notifications</span>
-        <span class="bg-red-600 text-white text-xs font-semibold rounded-full px-2 py-0.5">3 new</span>
-      </div>
-      <ul class="divide-y divide-gray-200 max-h-72 overflow-y-auto">
-        <li class="flex items-start px-4 py-3 space-x-3">
-          <div class="flex-shrink-0 mt-1">
-            <div class="bg-green-200 text-green-700 rounded-full p-2">
-              <i class="fas fa-user-plus"></i>
-            </div>
-          </div>
-          <div class="flex-grow text-sm">
-            <p class="font-semibold text-gray-900 leading-tight">Employee Onboarding</p>
-            <p class="text-gray-600 leading-tight text-xs">New employee added: {{ $user->name }}</p>
-            <p class="text-gray-400 text-xs mt-0.5">30 min ago</p>
-          </div>
-        </li>
-        <li class="flex items-start px-4 py-3 space-x-3">
-          <div class="flex-shrink-0 mt-1">
-            <div class="bg-blue-200 text-blue-700 rounded-full p-2">
-              <i class="fas fa-file-alt"></i>
-            </div>
-          </div>
-          <div class="flex-grow text-sm">
-            <p class="font-semibold text-gray-900 leading-tight">Report Generated</p>
-            <p class="text-gray-600 leading-tight text-xs">Monthly report generated</p>
-            <p class="text-gray-400 text-xs mt-0.5">2 hours ago</p>
-          </div>
-        </li>
-        <li class="flex items-start px-4 py-3 space-x-3">
-          <div class="flex-shrink-0 mt-1">
-            <div class="bg-blue-200 text-blue-700 rounded-full p-2">
-              <i class="fas fa-file-alt"></i>
-            </div>
-          </div>
-          <div class="flex-grow text-sm">
-            <p class="font-semibold text-gray-900 leading-tight">Document Uploaded</p>
-            <p class="text-gray-600 leading-tight text-xs">New document uploaded</p>
-            <p class="text-gray-400 text-xs mt-0.5">Yesterday</p>
-          </div>
-        </li>
-      </ul>
-      <div class="text-center py-2 border-t border-gray-200">
-        <a class="text-[#28644c] text-xs font-semibold hover:underline" href="#">View all notifications</a>
-      </div>
-    </div>
 
     <!-- MAIN CONTENT -->
     <main class="p-6">
