@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document Upload & Indexing | Microfinance HR3</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -294,13 +294,6 @@
             </div>
 
             <!-- Administrator -->
-            <a href="#"
-                class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-                    hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-                Administrator
-            </a>
 
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
@@ -339,12 +332,6 @@
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                     {{ now()->format('H:i:s') }}
                 </span>
-
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                </button>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
@@ -446,33 +433,36 @@
                     </div>
                 </div>
 
-                <!-- Document Stats -->
+                <!-- Enhanced Document Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Total Documents -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Documents</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ count($documents) }}</h3>
+                    <!-- Total Documents Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Documents</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count($documents) }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="bx bx-file mr-1"></i>
+                                        Indexed
+                                    </span>
+                                    <span class="text-xs text-gray-500">Files</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <i class='bx bx-file text-xl'></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-file text-white text-xl"></i>
                             </div>
-                        </div>
-                        <div class="mt-2 text-xs text-gray-500">
-                            <span class="flex items-center">
-                                <span class="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-                                {{ count($documents) }} indexed
-                            </span>
                         </div>
                     </div>
 
-                    <!-- Storage Used -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Storage Used</p>
-                                <h3 class="text-2xl font-bold text-amber-600">
+                    <!-- Storage Used Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Storage Used</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">
                                     @php
                                         $totalSize = 0;
                                         foreach ($documents as $doc) {
@@ -487,62 +477,64 @@
                                         }
                                         echo number_format($totalSize, 1) . ' MB';
                                     @endphp
-                                </h3>
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        <i class="bx bx-data mr-1"></i>
+                                        Used
+                                    </span>
+                                    <span class="text-xs text-gray-500">of 5 GB</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-amber-100 text-amber-600">
-                                <i class='bx bx-data text-xl'></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-data text-white text-xl"></i>
                             </div>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">Out of 5 GB available</p>
                     </div>
 
-                    <!-- Recent Uploads -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Recent Uploads</p>
-                                <h3 class="text-2xl font-bold text-green-600">
+                    <!-- Recent Uploads Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Recent Uploads</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">
                                     {{ count(array_filter($documents, function($doc) {
                                         $uploadDate = $doc['uploaded'] ?? null;
                                         return $uploadDate && strtotime($uploadDate) > strtotime('-7 days');
                                     })) }}
-                                </h3>
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="bx bx-upload mr-1"></i>
+                                        New
+                                    </span>
+                                    <span class="text-xs text-gray-500">7 days</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                <i class='bx bx-upload text-xl'></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-upload text-white text-xl"></i>
                             </div>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">Last 7 days</p>
                     </div>
 
-                    <!-- Document Categories -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Categories</p>
-                                <h3 class="text-2xl font-bold text-purple-600">{{ count(array_unique(array_column($documents, 'category'))) }}</h3>
-                            </div>
-                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                                <i class='bx bx-category-alt text-xl'></i>
-                            </div>
-                        </div>
-                        <div class="mt-2">
-                            @php
-                                $categories = array_count_values(array_column($documents, 'category'));
-                                arsort($categories);
-                                $topCategories = array_slice($categories, 0, 3, true);
-                            @endphp
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($topCategories as $category => $count)
-                                    <span class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
-                                        {{ ucfirst($category) }} ({{ $count }})
+                    <!-- Categories Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Categories</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count(array_unique(array_column($documents, 'category'))) }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
+                                        <i class="bx bx-category-alt mr-1"></i>
+                                        Types
                                     </span>
-                                @endforeach
-                                @if(count($categories) > 3)
-                                    <span class="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
-                                        +{{ count($categories) - 3 }} more
-                                    </span>
-                                @endif
+                                    <span class="text-xs text-gray-500">Groups</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-category-alt text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
@@ -1048,11 +1040,12 @@
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
