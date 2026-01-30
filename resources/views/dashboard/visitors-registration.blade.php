@@ -388,65 +388,113 @@ $user = auth()->user();
                     </div>
                 </div>
 
-                <!-- Stats Cards -->
+                <!-- Enhanced Stats Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Today</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $stats['total_today'] ?? 0 }}</h3>
+                    <!-- Total Today Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Today</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['total_today'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-calendar-day mr-1"></i>
+                                        Daily
+                                    </span>
+                                    <span class="text-xs text-gray-500">Visitors</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <i class="fas fa-calendar-day text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Checked In</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $stats['checked_in'] ?? 0 }}</h3>
-                            </div>
-                            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                <i class="fas fa-user-check text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-calendar-day text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Scheduled Today</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $stats['scheduled_today'] ?? 0 }}</h3>
+
+                    <!-- Checked In Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Checked In</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['checked_in'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="fas fa-user-check mr-1"></i>
+                                        Active
+                                    </span>
+                                    <span class="text-xs text-gray-500">Currently</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                <i class="fas fa-clock text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-user-check text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Checked Out</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $stats['checked_out'] ?? 0 }}</h3>
+
+                    <!-- Scheduled Today Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Scheduled Today</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['scheduled_today'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        Pending
+                                    </span>
+                                    <span class="text-xs text-gray-500">Expected</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-gray-100 text-gray-700">
-                                <i class="fas fa-door-open text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-clock text-white text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Checked Out Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Checked Out</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['checked_out'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                        <i class="fas fa-door-open mr-1"></i>
+                                        Completed
+                                    </span>
+                                    <span class="text-xs text-gray-500">Departed</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-door-open text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Content Grid -->
+                <!-- Enhanced Table with Pagination -->
                 <section class="grid grid-cols-1 gap-6">
-                    <!-- Table -->
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                            <div class="flex items-center gap-4">
-                                <button class="text-sm font-medium text-brand-primary px-3 py-1.5 rounded-lg bg-green-50 hover:bg-green-100 transition-colors">Today</button>
-                                <button class="text-sm text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors">Scheduled</button>
-                                <button class="text-sm text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-50 transition-colors">All</button>
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 border-b border-gray-100">
+                            <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                <div class="flex items-center gap-2">
+                                    <button class="text-sm font-medium text-brand-primary px-4 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-200">Today</button>
+                                    <button class="text-sm text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">Scheduled</button>
+                                    <button class="text-sm text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">All</button>
+                                </div>
+                                <div id="resultsCount" class="text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">0 results</div>
                             </div>
-                            <div id="resultsCount" class="text-xs text-gray-500">0 results</div>
+                            <div class="flex items-center gap-2">
+                                <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option>10 per page</option>
+                                    <option>25 per page</option>
+                                    <option>50 per page</option>
+                                    <option>100 per page</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="min-w-full divide-y divide-gray-200">
@@ -538,6 +586,26 @@ $user = auth()->user();
                                     @endforelse
                                 </tbody>
                             </table>
+                        </div>
+                        
+                        <!-- Pagination -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                            <div class="text-sm text-gray-700">
+                                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">{{ count($visitors ?? []) }}</span> results
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                    <i class="fas fa-chevron-left"></i>
+                                </button>
+                                <button class="px-3 py-1 text-sm text-white bg-emerald-600 border border-emerald-600 rounded-lg hover:bg-emerald-700">1</button>
+                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                                <span class="px-2 text-sm text-gray-500">...</span>
+                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">10</button>
+                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                    <i class="fas fa-chevron-right"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>

@@ -334,15 +334,6 @@ $user = auth()->user();
         </div>
       </div>
 
-      <!-- Administrator -->
-      <a href="#"
-        class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-               hover:bg-green-50 hover:text-brand-primary
-               transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-        <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-        Administrator
-      </a>
-
       <div class="mt-8 px-2">
         <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
