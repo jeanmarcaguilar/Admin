@@ -7,7 +7,7 @@ $user = auth()->user();
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Microfinance HR3 - Dashboard</title>
+  <title>Administrative</title>
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
@@ -175,10 +175,10 @@ $user = auth()->user();
         <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
         <div class="leading-tight">
           <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-            Microfinance HR
+            Microfinance Admin
           </div>
           <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-            HUMAN RESOURCE III
+            Administrative
           </div>
         </div>
       </a>
@@ -349,8 +349,8 @@ $user = auth()->user();
           SYSTEM ONLINE
         </div>
         <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-          Microfinance HR © {{ date('Y') }}<br/>
-          Human Resource III System
+          Microfinance Admin © {{ date('Y') }}<br/>
+          Adminstrative System
         </div>
       </div>
     </div>
