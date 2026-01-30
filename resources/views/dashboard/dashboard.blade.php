@@ -6,15 +6,48 @@ $user = auth()->user();
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Microfinance HR3 - Dashboard</title>
+  
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
   <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
   <link rel="apple-touch-icon" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "brand-primary": "#059669",
+            "brand-primary-hover": "#047857",
+            "brand-background-main": "#F0FDF4",
+            "brand-border": "#D1FAE5",
+            "brand-text-primary": "#1F2937",
+            "brand-text-secondary": "#4B5563",
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+        crossorigin="anonymous" 
+        referrerpolicy="no-referrer" />
+        
+  <!-- Box Icons -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  
+  <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  
   <style>
     /* Custom scrollbar */
     ::-webkit-scrollbar {
@@ -55,12 +88,6 @@ $user = auth()->user();
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes gradientBG {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
     body {
       font-family: "Inter", sans-serif;
       background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
@@ -69,6 +96,7 @@ $user = auth()->user();
       margin: 0;
       padding: 0;
     }
+    
     .modal {
       display: none;
       background: rgba(0, 0, 0, 0.5);
@@ -77,43 +105,19 @@ $user = auth()->user();
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: 60;
+      z-index: 100;
       align-items: center;
       justify-content: center;
     }
+    
     .modal.active {
       display: flex;
     }
-    .modal > div:hover {
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-      transition: box-shadow 0.2s ease-in-out;
-    }
-    #main-content {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
-      min-height: calc(100vh - 4rem);
-      margin-left: auto;
-      margin-right: auto;
-      max-width: 1200px;
-      width: 100%;
-      padding: 0 1rem;
-      transition: width 0.3s ease-in-out;
+    
+    .chart-container {
+      animation: fadeIn 0.5s ease-in-out;
     }
     
-    @media (min-width: 768px) {
-      #main-content {
-        width: calc(100% - 18rem);
-      }
-      #main-content.sidebar-closed {
-        width: calc(100% - 4rem);
-      }
-    }
-    .dashboard-container {
-      transition: max-width 0.3s ease-in-out;
-    }
-    #sidebar.md\\:ml-0 ~ #main-content .dashboard-container {
-      max-width: 1152px;
-    }
     .dashboard-card {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       background: var(--bg-card);
@@ -125,210 +129,357 @@ $user = auth()->user();
       border: 1px solid rgba(0, 0, 0, 0.05);
     }
 
-    .dashboard-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-    }
-
-    .dashboard-card:nth-child(1)::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-    .dashboard-card:nth-child(2)::before { background: linear-gradient(90deg, #10b981, #34d399); }
-    .dashboard-card:nth-child(3)::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-    .dashboard-card:nth-child(4)::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
-
     .dashboard-card:hover {
       transform: translateY(-5px);
       box-shadow: var(--shadow-lg);
       z-index: 2;
     }
-
-    .activity-item {
+    
+    .dropdown-panel {
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
       transition: all 0.2s ease-in-out;
-      border-radius: 8px;
-      margin: 4px 0;
-      padding: 12px 16px;
     }
-
-    .activity-item:hover {
-      background-color: rgba(16, 185, 129, 0.05);
-      transform: translateX(4px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    
+    .dropdown-panel:not(.hidden) {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
     }
-
-    .chart-container {
-      animation: fadeIn 0.5s ease-in-out;
+    
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+    }
+    
+    .submenu.show {
+      max-height: 500px;
     }
   </style>
 </head>
-<body class="bg-gray-100">
-  <nav class="w-full p-3 h-16 bg-[#28644c] text-white shadow-md fixed top-0 left-0 right-0 z-50">
-    <div class="flex justify-between items-center h-full max-w-7xl mx-auto">
-      <div class="flex items-center space-x-4">
-        <button id="toggle-btn" class="pl-2 focus:outline-none">
-          <i class="fa-solid fa-bars text-2xl cursor-pointer"></i>
+<body class="bg-brand-background-main min-h-screen">
+  <!-- Overlay (mobile) -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar"
+    class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+           transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+
+    <div class="h-16 flex items-center px-4 border-b border-gray-100">
+      <a href="{{ route('admin.dashboard') }}"
+        class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+               hover:bg-gray-100 active:bg-gray-200 transition group">
+        <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
+        <div class="leading-tight">
+          <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
+            Microfinance HR
+          </div>
+          <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+            HUMAN RESOURCE III
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Sidebar content -->
+    <div class="px-4 py-4 overflow-y-auto h-[calc(100%-4rem)] custom-scrollbar">
+      <div class="text-xs font-bold text-gray-400 tracking-wider px-2">ADMINISTRATIVE DEPARTMENT</div>
+
+      <!-- Dashboard -->
+      <a href="{{ route('admin.dashboard') }}"
+        class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl bg-brand-primary text-white shadow
+               transition-all duration-200 active:scale-[0.99]">
+        <span class="flex items-center gap-3 font-semibold">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-white/15 items-center justify-center">📊</span>
+          Dashboard
+        </span>
+      </a>
+
+      <!-- Visitor Management Dropdown -->
+      <button id="visitor-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
+          Visitor Management
+        </span>
+        <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="visitor-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('visitors.registration') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Visitors Registration
+          </a>
+          <a href="{{ route('checkinout.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Check In/Out Tracking
+          </a>
+          <a href="{{ route('visitor.history.records') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Visitor History Records
+          </a>
+        </div>
+      </div>
+
+      <!-- Document Management Dropdown -->
+      <button id="document-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
+          Document Management
+        </span>
+        <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="document-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('document.upload.indexing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Document Upload & Indexing
+          </a>
+          <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Version Control
+          </a>
+          <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Access Control & Permissions
+          </a>
+          <a href="{{ route('document.archival.retention.policy') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Archival & Retention Policy
+          </a>
+        </div>
+      </div>
+
+      <!-- Facilities Management Dropdown -->
+      <button id="facilities-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
+          Facilities Management
+        </span>
+        <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="facilities-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Room & Equipment Booking
+          </a>
+          <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Scheduling & Calendar Integrations
+          </a>
+          <a href="{{ route('approval.workflow') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Approval Workflow
+          </a>
+          <a href="{{ route('reservation.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Reservation History
+          </a>
+        </div>
+      </div>
+
+      <!-- Legal Management Dropdown -->
+      <button id="legal-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
+          Legal Management
+        </span>
+        <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="legal-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('case.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1" onclick="return openCaseWithConfGate(this.href)">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Case Management
+          </a>
+          <a href="{{ route('contract.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Contract Management
+          </a>
+          <a href="{{ route('compliance.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Compliance Tracking
+          </a>
+          <a href="{{ route('deadline.hearing.alerts') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Deadline & Hearing Alerts
+          </a>
+        </div>
+      </div>
+
+      <!-- Administrator -->
+      <a href="#"
+        class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
+               hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
+        <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
+        Administrator
+      </a>
+
+      <div class="mt-8 px-2">
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          SYSTEM ONLINE
+        </div>
+        <div class="text-[11px] text-gray-400 mt-2 leading-snug">
+          Microfinance HR © {{ date('Y') }}<br/>
+          Human Resource III System
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="md:pl-72">
+    <!-- TOP HEADER -->
+    <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
+                 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+      <!-- Border cover to hide sidebar line -->
+      <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
+
+      <div class="flex items-center gap-3">
+        <button id="mobile-menu-btn"
+          class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
+          ☰
         </button>
-        <h1 class="text-2xl font-bold tracking-tight"><i class="bx bx-grid-alt mr-2 align-middle"></i>Admin Dashboard</h1>
       </div>
-      <div class="flex items-center space-x-1">
-        <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn">
-          <i class="fa-solid fa-bell text-xl"></i>
-          <span class="absolute top-1 right-1 bg-red-500 text-xs text-white rounded-full px-1">3</span>
+
+      <div class="flex items-center gap-3 sm:gap-5">
+        <!-- Clock -->
+        <span id="real-time-clock"
+          class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+          --:--:--
+        </span>
+
+        <!-- Notifications -->
+        <button id="notificationBtn" class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
+          🔔
+          <span class="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-white"></span>
         </button>
-        <div class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
-          <i class="fa-solid fa-user text-[18px] bg-white text-[#28644c] px-2.5 py-2 rounded-full"></i>
-          <span class="text-white font-medium">{{ $user->name }}</span>
-          <i class="fa-solid fa-chevron-down text-sm"></i>
-        </div>
-      </div>
-    </div>
-  </nav>
 
-  <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
-    <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
-      <span class="font-semibold text-sm">Notifications</span>
-      <span class="bg-red-600 text-white text-xs font-semibold rounded-full px-2 py-0.5">3 new</span>
-    </div>
-    <ul class="divide-y divide-gray-200 max-h-72 overflow-y-auto">
-      <li class="flex items-start px-4 py-3 space-x-3">
-        <div class="flex-shrink-0 mt-1">
-          <div class="bg-green-200 text-green-700 rounded-full p-2">
-            <i class="fas fa-user-plus"></i>
-          </div>
-        </div>
-        <div class="flex-grow text-sm">
-          <p class="font-semibold text-gray-900 leading-tight">Employee Onboarding</p>
-          <p class="text-gray-600 leading-tight text-xs">New employee added: {{ $user->name }}</p>
-          <p class="text-gray-400 text-xs mt-0.5">30 min ago</p>
-        </div>
-      </li>
-      <li class="flex items-start px-4 py-3 space-x-3">
-        <div class="flex-shrink-0 mt-1">
-          <div class="bg-blue-200 text-blue-700 rounded-full p-2">
-            <i class="fas fa-file-alt"></i>
-          </div>
-        </div>
-        <div class="flex-grow text-sm">
-          <p class="font-semibold text-gray-900 leading-tight">Report Generated</p>
-          <p class="text-gray-600 leading-tight text-xs">Monthly report generated</p>
-          <p class="text-gray-400 text-xs mt-0.5">2 hours ago</p>
-        </div>
-      </li>
-      <li class="flex items-start px-4 py-3 space-x-3">
-        <div class="flex-shrink-0 mt-1">
-          <div class="bg-blue-200 text-blue-700 rounded-full p-2">
-            <i class="fas fa-file-alt"></i>
-          </div>
-        </div>
-        <div class="flex-grow text-sm">
-          <p class="font-semibold text-gray-900 leading-tight">Document Uploaded</p>
-          <p class="text-gray-600 leading-tight text-xs">New document uploaded</p>
-          <p class="text-gray-400 text-xs mt-0.5">Yesterday</p>
-        </div>
-      </li>
-    </ul>
-    <div class="text-center py-2 border-t border-gray-200">
-      <a class="text-[#28644c] text-xs font-semibold hover:underline" href="#">View all notifications</a>
-    </div>
-  </div>
+        <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
-  <div class="flex w-full min-h-screen pt-16">
-    <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
-
-    <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
-      <div class="department-header px-2 py-4 mx-2 border-b border-white/50">
-        <h1 class="text-xl font-bold">Administrative Department</h1>
-      </div>
-      <div class="px-3 py-10 flex-1">
-        <ul class="space-y-6">
-          <li>
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center font-medium space-x-2 text-lg hover:bg-white/30 px-3 py-2.5 rounded-lg whitespace-nowrap">
-              <i class="bx bx-grid-alt"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-group"></i>
-                <span>Visitor Management</span>
+        <!-- User Profile Dropdown -->
+        <div class="relative">
+          <button id="userMenuBtn"
+            class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                   hover:bg-gray-100 active:bg-gray-200 transition">
+            <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+              <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                {{ strtoupper(substr($user->name, 0, 1)) }}
               </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
             </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-              <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-              <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
-            </ul>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-file"></i>
-                <span>Document Management</span>
-              </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
+            <div class="hidden md:flex flex-col items-start text-left">
+              <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                {{ $user->name }}
+              </span>
+              <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                {{ ucfirst($user->role) }}
+              </span>
             </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('document.upload.indexing') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-upload mr-2"></i>Document Upload & Indexing</a></li>
-              <li><a href="{{ route('document.version.control') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-git-branch mr-2"></i>Version Control</a></li>
-              <li><a href="{{ route('document.access.control.permissions') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-lock mr-2"></i>Access Control & Permissions</a></li>
-              <li><a href="{{ route('document.archival.retention.policy') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-archive mr-2"></i>Archival & Retention Policy</a></li>
-            </ul>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-calendar-check"></i>
-                <span>Facilities Management</span>
-              </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-            </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-              <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-              <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-              <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
-            </ul>
-          </li>
-          <li class="has-dropdown">
-            <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer">
-              <div class="flex items-center space-x-2">
-                <i class="bx bx-file"></i>
-                <span>Legal Management</span>
-              </div>
-              <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-            </div>
-            <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-              <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
-              <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
-              <li><a href="{{ route('compliance.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
-              <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-            </ul>
-          </li>
-          <li>
-            <a href="#" class="flex items-center font-medium space-x-2 text-lg hover:bg-white/30 px-3 py-2.5 rounded-lg whitespace-nowrap">
-              <i class="bx bx-user-shield"></i>
-              <span>Administrator</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-      <div class="px-5 pb-6">
-        <div class="bg-white rounded-md p-4 text-center text-[#2f855A] text-sm font-semibold select-none">
-          Need Help?<br />
-          Contact support team at<br />
-          <button type="button" class="mt-2 bg-[#3f8a56] text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-[#28644c] focus:outline-none focus:ring-2 focus:ring-[#3f8a56] transition-all duration-200">
-            Contact Support
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
           </button>
+
+          <!-- User Dropdown Menu -->
+          <div id="userMenuDropdown" class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+            <div class="py-4 px-6 border-b border-gray-100 text-center">
+              <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                <i class="fas fa-user-circle text-3xl"></i>
+              </div>
+              <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+              <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
+            </div>
+            <ul class="text-sm text-gray-700">
+              <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+              <li><button id="openAccountSettingsBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
+              <li><button id="openPrivacySecurityBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
+              <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+            </ul>
+          </div>
         </div>
       </div>
-    </aside>
+    </header>
 
-    <main id="main-content" class="flex-1 p-6 w-full mt-16">
+    <!-- Notification Dropdown -->
+    <div id="notificationDropdown" class="dropdown-panel hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4.5rem;">
+      <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
+        <span class="font-semibold text-sm">Notifications</span>
+        <span class="bg-red-600 text-white text-xs font-semibold rounded-full px-2 py-0.5">3 new</span>
+      </div>
+      <ul class="divide-y divide-gray-200 max-h-72 overflow-y-auto">
+        <li class="flex items-start px-4 py-3 space-x-3">
+          <div class="flex-shrink-0 mt-1">
+            <div class="bg-green-200 text-green-700 rounded-full p-2">
+              <i class="fas fa-user-plus"></i>
+            </div>
+          </div>
+          <div class="flex-grow text-sm">
+            <p class="font-semibold text-gray-900 leading-tight">Employee Onboarding</p>
+            <p class="text-gray-600 leading-tight text-xs">New employee added: {{ $user->name }}</p>
+            <p class="text-gray-400 text-xs mt-0.5">30 min ago</p>
+          </div>
+        </li>
+        <li class="flex items-start px-4 py-3 space-x-3">
+          <div class="flex-shrink-0 mt-1">
+            <div class="bg-blue-200 text-blue-700 rounded-full p-2">
+              <i class="fas fa-file-alt"></i>
+            </div>
+          </div>
+          <div class="flex-grow text-sm">
+            <p class="font-semibold text-gray-900 leading-tight">Report Generated</p>
+            <p class="text-gray-600 leading-tight text-xs">Monthly report generated</p>
+            <p class="text-gray-400 text-xs mt-0.5">2 hours ago</p>
+          </div>
+        </li>
+        <li class="flex items-start px-4 py-3 space-x-3">
+          <div class="flex-shrink-0 mt-1">
+            <div class="bg-blue-200 text-blue-700 rounded-full p-2">
+              <i class="fas fa-file-alt"></i>
+            </div>
+          </div>
+          <div class="flex-grow text-sm">
+            <p class="font-semibold text-gray-900 leading-tight">Document Uploaded</p>
+            <p class="text-gray-600 leading-tight text-xs">New document uploaded</p>
+            <p class="text-gray-400 text-xs mt-0.5">Yesterday</p>
+          </div>
+        </li>
+      </ul>
+      <div class="text-center py-2 border-t border-gray-200">
+        <a class="text-[#28644c] text-xs font-semibold hover:underline" href="#">View all notifications</a>
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="p-6">
       <div class="dashboard-container max-w-7xl mx-auto">
         <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md border border-gray-100 p-8 space-y-6">
           <h2 class="text-[#1a4d38] font-bold text-xl mb-1"><i class="bx bx-grid-alt mr-2 align-middle"></i>Admin Dashboard</h2>
@@ -388,34 +539,7 @@ $user = auth()->user();
     </main>
   </div>
 
-  <!-- Modals -->
-  <script>
-    (function(){
-      if (typeof window.openCaseWithConfGate !== 'function'){
-        window.openCaseWithConfGate = function(href){
-          try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
-          if (href){ window.location.href = href; }
-          return false;
-        };
-      }
-    })();
-  </script>
-  <div id="userMenuDropdown" class="hidden absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50" style="top: 4rem;" role="menu" aria-labelledby="userMenuBtn">
-    <div class="py-4 px-6 border-b border-gray-100 text-center">
-      <div class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
-        <i class="fas fa-user-circle text-3xl"></i>
-      </div>
-      <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
-      <p class="text-xs text-gray-400">Administrator</p>
-    </div>
-    <ul class="text-sm text-gray-700">
-      <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-      <li><button id="openAccountSettingsBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-cog mr-2"></i> Account Settings</button></li>
-      <li><button id="openPrivacySecurityBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
-      <li><button id="openSignOutBtn" class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
-    </ul>
-  </div>
-
+  <!-- MODALS (Keep your existing modals - just styled to match new design) -->
   <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
     <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4" role="document">
       <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
@@ -430,7 +554,7 @@ $user = auth()->user();
             <i class="fas fa-user text-white text-3xl"></i>
           </div>
           <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
-          <p class="text-xs text-gray-500 leading-4">Administrator</p>
+          <p class="text-xs text-gray-500 leading-4">{{ ucfirst($user->role) }}</p>
         </div>
         <form class="space-y-4" action="{{ route('profile.update') }}" method="POST">
           @csrf
@@ -613,207 +737,259 @@ $user = auth()->user();
   </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const sidebar = document.getElementById("sidebar");
-      const mainContent = document.getElementById("main-content");
-      const toggleBtn = document.getElementById("toggle-btn");
-      const overlay = document.getElementById("overlay");
-      const dropdownToggles = document.querySelectorAll(".has-dropdown > div");
-      const notificationBtn = document.getElementById("notificationBtn");
-      const notificationDropdown = document.getElementById("notificationDropdown");
-      const userMenuBtn = document.getElementById("userMenuBtn");
-      const userMenuDropdown = document.getElementById("userMenuDropdown");
-      const profileModal = document.getElementById("profileModal");
-      const openProfileBtn = document.getElementById("openProfileBtn");
-      const closeProfileBtn = document.getElementById("closeProfileBtn");
-      const closeProfileBtn2 = document.getElementById("closeProfileBtn2");
-      const openAccountSettingsBtn = document.getElementById("openAccountSettingsBtn");
-      const accountSettingsModal = document.getElementById("accountSettingsModal");
-      const closeAccountSettingsBtn = document.getElementById("closeAccountSettingsBtn");
-      const cancelAccountSettingsBtn = document.getElementById("cancelAccountSettingsBtn");
-      const openPrivacySecurityBtn = document.getElementById("openPrivacySecurityBtn");
-      const privacySecurityModal = document.getElementById("privacySecurityModal");
-      const closePrivacySecurityBtn = document.getElementById("closePrivacySecurityBtn");
-      const cancelPrivacySecurityBtn = document.getElementById("cancelPrivacySecurityBtn");
-      const signOutModal = document.getElementById("signOutModal");
-      const cancelSignOutBtn = document.getElementById("cancelSignOutBtn");
-      const cancelSignOutBtn2 = document.getElementById("cancelSignOutBtn2");
-      const openSignOutBtn = document.getElementById("openSignOutBtn");
-
-      // Initialize sidebar state based on screen size
-      if (window.innerWidth >= 768) {
-        sidebar.classList.remove("-ml-72");
-        mainContent.classList.add("md:ml-72", "sidebar-open");
-      } else {
-        sidebar.classList.add("-ml-72");
-        mainContent.classList.remove("md:ml-72", "sidebar-open");
-        mainContent.classList.add("sidebar-closed");
-      }
+    document.addEventListener('DOMContentLoaded', function() {
+      // Mobile menu toggle
+      const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+      const sidebar = document.getElementById('sidebar');
+      const sidebarOverlay = document.getElementById('sidebar-overlay');
 
       function toggleSidebar() {
-        if (window.innerWidth >= 768) {
-          sidebar.classList.toggle("md:-ml-72");
-          mainContent.classList.toggle("md:ml-72");
-          mainContent.classList.toggle("sidebar-open");
-          mainContent.classList.toggle("sidebar-closed");
-        } else {
-          sidebar.classList.toggle("-ml-72");
-          overlay.classList.toggle("hidden");
-          document.body.style.overflow = sidebar.classList.contains("-ml-72") ? "" : "hidden";
-          mainContent.classList.toggle("sidebar-open", !sidebar.classList.contains("-ml-72"));
-          mainContent.classList.toggle("sidebar-closed", sidebar.classList.contains("-ml-72"));
+        sidebar.classList.toggle('-translate-x-full');
+        sidebarOverlay.classList.toggle('hidden');
+        sidebarOverlay.classList.toggle('opacity-0');
+        document.body.style.overflow = document.body.style.overflow === 'hidden' ? '' : 'hidden';
+      }
+
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', toggleSidebar);
+      }
+
+      if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+      }
+
+      // User dropdown menu
+      const userMenuBtn = document.getElementById('userMenuBtn');
+      const userMenuDropdown = document.getElementById('userMenuDropdown');
+      const notificationBtn = document.getElementById('notificationBtn');
+      const notificationDropdown = document.getElementById('notificationDropdown');
+
+      // Toggle user dropdown
+      if (userMenuBtn && userMenuDropdown) {
+        userMenuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          userMenuDropdown.classList.toggle('hidden');
+          notificationDropdown.classList.add('hidden');
+        });
+      }
+
+      // Toggle notification dropdown
+      if (notificationBtn && notificationDropdown) {
+        notificationBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          notificationDropdown.classList.toggle('hidden');
+          userMenuDropdown.classList.add('hidden');
+        });
+      }
+
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', (e) => {
+        if (userMenuDropdown && !userMenuDropdown.contains(e.target) && userMenuBtn && !userMenuBtn.contains(e.target)) {
+          userMenuDropdown.classList.add('hidden');
+        }
+        if (notificationDropdown && !notificationDropdown.contains(e.target) && notificationBtn && !notificationBtn.contains(e.target)) {
+          notificationDropdown.classList.add('hidden');
+        }
+      });
+
+      // Real-time clock
+      function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+        const clockElement = document.getElementById('real-time-clock');
+        if (clockElement) {
+          clockElement.textContent = timeString;
         }
       }
 
-      function closeAllDropdowns() {
-        dropdownToggles.forEach((toggle) => {
-          const dropdown = toggle.nextElementSibling;
-          const chevron = toggle.querySelector(".bx-chevron-down");
-          if (!dropdown.classList.contains("hidden")) {
-            dropdown.classList.add("hidden");
-            chevron.classList.remove("rotate-180");
-          }
+      // Update clock immediately and then every second
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // Sidebar dropdown toggles
+      const dropdownButtons = [
+        { btn: 'visitor-management-btn', submenu: 'visitor-submenu', arrow: 'visitor-arrow' },
+        { btn: 'document-management-btn', submenu: 'document-submenu', arrow: 'document-arrow' },
+        { btn: 'facilities-management-btn', submenu: 'facilities-submenu', arrow: 'facilities-arrow' },
+        { btn: 'legal-management-btn', submenu: 'legal-submenu', arrow: 'legal-arrow' }
+      ];
+
+      dropdownButtons.forEach(({ btn, submenu, arrow }) => {
+        const button = document.getElementById(btn);
+        const menu = document.getElementById(submenu);
+        const arrowIcon = document.getElementById(arrow);
+        
+        if (button && menu && arrowIcon) {
+          let isOpen = false;
+          
+          button.addEventListener('click', () => {
+            isOpen = !isOpen;
+            
+            if (isOpen) {
+              menu.classList.add('show');
+              arrowIcon.classList.add('rotate-180');
+            } else {
+              menu.classList.remove('show');
+              arrowIcon.classList.remove('rotate-180');
+            }
+          });
+        }
+      });
+
+      // Modal functionality (keep your existing modal logic)
+      const openProfileBtn = document.getElementById('openProfileBtn');
+      const closeProfileBtn = document.getElementById('closeProfileBtn');
+      const closeProfileBtn2 = document.getElementById('closeProfileBtn2');
+      const profileModal = document.getElementById('profileModal');
+      
+      const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
+      const closeAccountSettingsBtn = document.getElementById('closeAccountSettingsBtn');
+      const cancelAccountSettingsBtn = document.getElementById('cancelAccountSettingsBtn');
+      const accountSettingsModal = document.getElementById('accountSettingsModal');
+      
+      const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
+      const closePrivacySecurityBtn = document.getElementById('closePrivacySecurityBtn');
+      const cancelPrivacySecurityBtn = document.getElementById('cancelPrivacySecurityBtn');
+      const privacySecurityModal = document.getElementById('privacySecurityModal');
+      
+      const openSignOutBtn = document.getElementById('openSignOutBtn');
+      const cancelSignOutBtn = document.getElementById('cancelSignOutBtn');
+      const cancelSignOutBtn2 = document.getElementById('cancelSignOutBtn2');
+      const signOutModal = document.getElementById('signOutModal');
+
+      // Profile modal
+      if (openProfileBtn) {
+        openProfileBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          profileModal.classList.add('active');
+          userMenuDropdown.classList.add('hidden');
         });
       }
 
-      dropdownToggles.forEach((toggle) => {
-        toggle.addEventListener("click", () => {
-          const dropdown = toggle.nextElementSibling;
-          const chevron = toggle.querySelector(".bx-chevron-down");
-          dropdownToggles.forEach((otherToggle) => {
-            if (otherToggle !== toggle) {
-              otherToggle.nextElementSibling.classList.add("hidden");
-              otherToggle.querySelector(".bx-chevron-down").classList.remove("rotate-180");
-            }
-          });
-          dropdown.classList.toggle("hidden");
-          chevron.classList.toggle("rotate-180");
+      if (closeProfileBtn) {
+        closeProfileBtn.addEventListener('click', () => {
+          profileModal.classList.remove('active');
         });
+      }
+
+      if (closeProfileBtn2) {
+        closeProfileBtn2.addEventListener('click', () => {
+          profileModal.classList.remove('active');
+        });
+      }
+
+      // Account settings modal
+      if (openAccountSettingsBtn) {
+        openAccountSettingsBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          accountSettingsModal.classList.add('active');
+          userMenuDropdown.classList.add('hidden');
+        });
+      }
+
+      if (closeAccountSettingsBtn) {
+        closeAccountSettingsBtn.addEventListener('click', () => {
+          accountSettingsModal.classList.remove('active');
+        });
+      }
+
+      if (cancelAccountSettingsBtn) {
+        cancelAccountSettingsBtn.addEventListener('click', () => {
+          accountSettingsModal.classList.remove('active');
+        });
+      }
+
+      // Privacy & security modal
+      if (openPrivacySecurityBtn) {
+        openPrivacySecurityBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          privacySecurityModal.classList.add('active');
+          userMenuDropdown.classList.add('hidden');
+        });
+      }
+
+      if (closePrivacySecurityBtn) {
+        closePrivacySecurityBtn.addEventListener('click', () => {
+          privacySecurityModal.classList.remove('active');
+        });
+      }
+
+      if (cancelPrivacySecurityBtn) {
+        cancelPrivacySecurityBtn.addEventListener('click', () => {
+          privacySecurityModal.classList.remove('active');
+        });
+      }
+
+      // Sign out modal
+      if (openSignOutBtn) {
+        openSignOutBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          signOutModal.classList.add('active');
+          userMenuDropdown.classList.add('hidden');
+        });
+      }
+
+      if (cancelSignOutBtn) {
+        cancelSignOutBtn.addEventListener('click', () => {
+          signOutModal.classList.remove('active');
+        });
+      }
+
+      if (cancelSignOutBtn2) {
+        cancelSignOutBtn2.addEventListener('click', () => {
+          signOutModal.classList.remove('active');
+        });
+      }
+
+      // Close modals when clicking outside
+      window.addEventListener('click', (e) => {
+        if (profileModal && !profileModal.contains(e.target) && openProfileBtn && !openProfileBtn.contains(e.target)) {
+          profileModal.classList.remove('active');
+        }
+        if (accountSettingsModal && !accountSettingsModal.contains(e.target) && openAccountSettingsBtn && !openAccountSettingsBtn.contains(e.target)) {
+          accountSettingsModal.classList.remove('active');
+        }
+        if (privacySecurityModal && !privacySecurityModal.contains(e.target) && openPrivacySecurityBtn && !openPrivacySecurityBtn.contains(e.target)) {
+          privacySecurityModal.classList.remove('active');
+        }
+        if (signOutModal && !signOutModal.contains(e.target)) {
+          signOutModal.classList.remove('active');
+        }
       });
 
-      overlay.addEventListener("click", () => {
-        sidebar.classList.add("-ml-72");
-        overlay.classList.add("hidden");
-        document.body.style.overflow = "";
-        mainContent.classList.remove("sidebar-open");
-        mainContent.classList.add("sidebar-closed");
-      });
-
-      toggleBtn.addEventListener("click", toggleSidebar);
-
-      notificationBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        notificationDropdown.classList.toggle("hidden");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        signOutModal.classList.remove("active");
-      });
-
-      userMenuBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        userMenuDropdown.classList.toggle("hidden");
-        const expanded = userMenuBtn.getAttribute("aria-expanded") === "true";
-        userMenuBtn.setAttribute("aria-expanded", !expanded);
-        notificationDropdown.classList.add("hidden");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        signOutModal.classList.remove("active");
-      });
-
-      openProfileBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        profileModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        notificationDropdown.classList.add("hidden");
-        signOutModal.classList.remove("active");
-      });
-
-      closeProfileBtn.addEventListener("click", () => {
-        profileModal.classList.remove("active");
-      });
-      closeProfileBtn2.addEventListener("click", () => {
-        profileModal.classList.remove("active");
-      });
-
-      openAccountSettingsBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        accountSettingsModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        profileModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        notificationDropdown.classList.add("hidden");
-        signOutModal.classList.remove("active");
-      });
-
-      closeAccountSettingsBtn.addEventListener("click", () => {
-        accountSettingsModal.classList.remove("active");
-      });
-      cancelAccountSettingsBtn.addEventListener("click", () => {
-        accountSettingsModal.classList.remove("active");
-      });
-
-      openPrivacySecurityBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        privacySecurityModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        notificationDropdown.classList.add("hidden");
-        signOutModal.classList.remove("active");
-      });
-
-      openSignOutBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        signOutModal.classList.add("active");
-        userMenuDropdown.classList.add("hidden");
-        userMenuBtn.setAttribute("aria-expanded", "false");
-        profileModal.classList.remove("active");
-        accountSettingsModal.classList.remove("active");
-        privacySecurityModal.classList.remove("active");
-        notificationDropdown.classList.add("hidden");
-      });
-
-      closePrivacySecurityBtn.addEventListener("click", () => {
-        privacySecurityModal.classList.remove("active");
-      });
-      cancelPrivacySecurityBtn.addEventListener("click", () => {
-        privacySecurityModal.classList.remove("active");
-      });
-
-      // Change Password two-step flow
+      // Password change functionality
       const changePasswordForm = document.getElementById('changePasswordForm');
       const verifySection = document.getElementById('verifySection');
       const pwChangeMsg = document.getElementById('pwChangeMsg');
       const verifyPasswordBtn = document.getElementById('verifyPasswordBtn');
       const submitPasswordBtn = document.getElementById('submitPasswordBtn');
-      const csrfToken = changePasswordForm?.querySelector('input[name="_token"]')?.value;
-
-      function setPwMsg(text, ok = true) {
-        pwChangeMsg.textContent = text;
-        pwChangeMsg.className = `text-xs mt-1 ${ok ? 'text-green-700' : 'text-red-600'}`;
-      }
-
+      
       if (changePasswordForm) {
+        const csrfToken = changePasswordForm.querySelector('input[name="_token"]')?.value;
+
+        function setPwMsg(text, ok = true) {
+          pwChangeMsg.textContent = text;
+          pwChangeMsg.className = `text-xs mt-1 ${ok ? 'text-green-700' : 'text-red-600'}`;
+        }
+
         changePasswordForm.addEventListener('submit', async (e) => {
           e.preventDefault();
           setPwMsg('Sending verification code...', true);
           submitPasswordBtn.disabled = true;
           const fd = new FormData(changePasswordForm);
+          
           try {
             const res = await fetch(changePasswordForm.action, {
               method: 'POST',
               headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
               body: fd,
             });
+            
             const data = await res.json();
             if (res.ok && data.ok) {
               setPwMsg('Code sent. Check your email and enter the 6-digit code below.', true);
@@ -837,14 +1013,17 @@ $user = auth()->user();
               setPwMsg('Please enter the 6-digit verification code.', false);
               return;
             }
+            
             setPwMsg('Verifying code...', true);
             verifyPasswordBtn.disabled = true;
+            
             try {
               const res = await fetch(verifyPasswordBtn.dataset.verifyAction, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                 body: JSON.stringify({ code })
               });
+              
               const data = await res.json();
               if (res.ok && data.ok) {
                 setPwMsg('Password changed successfully.', true);
@@ -861,184 +1040,117 @@ $user = auth()->user();
         }
       }
 
-      cancelSignOutBtn.addEventListener("click", () => {
-        signOutModal.classList.remove("active");
-      });
-      cancelSignOutBtn2.addEventListener("click", () => {
-        signOutModal.classList.remove("active");
-      });
-
-      window.addEventListener("click", (e) => {
-        if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-          notificationDropdown.classList.add("hidden");
-        }
-        if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-          userMenuDropdown.classList.add("hidden");
-          userMenuBtn.setAttribute("aria-expanded", "false");
-        }
-        if (!profileModal.contains(e.target) && !openProfileBtn.contains(e.target)) {
-          profileModal.classList.remove("active");
-        }
-        if (!accountSettingsModal.contains(e.target) && !openAccountSettingsBtn.contains(e.target)) {
-          accountSettingsModal.classList.remove("active");
-        }
-        if (!privacySecurityModal.contains(e.target) && !openPrivacySecurityBtn.contains(e.target)) {
-          privacySecurityModal.classList.remove("active");
-        }
-        if (!signOutModal.contains(e.target)) {
-          signOutModal.classList.remove("active");
-        }
-      });
-
-      profileModal.querySelector("div").addEventListener("click", (e) => {
-        e.stopPropagation();
-      });
-      accountSettingsModal.querySelector("div").addEventListener("click", (e) => {
-        e.stopPropagation();
-      });
-      privacySecurityModal.querySelector("div").addEventListener("click", (e) => {
-        e.stopPropagation();
-      });
-      signOutModal.querySelector("div").addEventListener("click", (e) => {
-        e.stopPropagation();
-      });
-
-      window.addEventListener("resize", () => {
-        if (window.innerWidth >= 768) {
-          sidebar.classList.remove("-ml-72");
-          overlay.classList.add("hidden");
-          document.body.style.overflow = "";
-          if (!mainContent.classList.contains("md:ml-72")) {
-            mainContent.classList.add("md:ml-72", "sidebar-open");
-            mainContent.classList.remove("sidebar-closed");
-          }
-        } else {
-          sidebar.classList.add("-ml-72");
-          mainContent.classList.remove("md:ml-72", "sidebar-open");
-          mainContent.classList.add("sidebar-closed");
-          overlay.classList.add("hidden");
-          document.body.style.overflow = "";
-        }
-        closeAllDropdowns();
-      });
-
-      // Initialize Chart.js (Doughnut for module distribution) with aesthetic upgrades
+      // Initialize Chart.js
       const canvas = document.getElementById('dashboardChart');
-      const ctx = canvas.getContext('2d');
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        const values = [
+          {{ $checkedInCount }},
+          {{ $totalVisitors }},
+          {{ $documentsCount }},
+          {{ $activeCases }}
+        ];
+        const labels = ['Visitors (Checked In)', 'Total Visitors', 'Documents', 'Active Cases'];
+        const total = values.reduce((a,b)=>a+b,0);
 
-      const values = [
-        {{ $checkedInCount }},
-        {{ $totalVisitors }},
-        {{ $documentsCount }},
-        {{ $activeCases }}
-      ];
-      const labels = ['Visitors (Checked In)', 'Total Visitors', 'Documents', 'Active Cases'];
-      const total = values.reduce((a,b)=>a+b,0);
+        // Gradients
+        const gradGreen = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradGreen.addColorStop(0, 'rgba(16,185,129,0.95)');
+        gradGreen.addColorStop(1, 'rgba(5,150,105,0.85)');
+        const gradBlue = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradBlue.addColorStop(0, 'rgba(59,130,246,0.95)');
+        gradBlue.addColorStop(1, 'rgba(37,99,235,0.85)');
+        const gradAmber = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradAmber.addColorStop(0, 'rgba(245,158,11,0.95)');
+        gradAmber.addColorStop(1, 'rgba(217,119,6,0.85)');
+        const gradViolet = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradViolet.addColorStop(0, 'rgba(139,92,246,0.95)');
+        gradViolet.addColorStop(1, 'rgba(124,58,237,0.85)');
 
-      // Gradients
-      const gradGreen = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradGreen.addColorStop(0, 'rgba(16,185,129,0.95)');
-      gradGreen.addColorStop(1, 'rgba(5,150,105,0.85)');
-      const gradBlue = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradBlue.addColorStop(0, 'rgba(59,130,246,0.95)');
-      gradBlue.addColorStop(1, 'rgba(37,99,235,0.85)');
-      const gradAmber = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradAmber.addColorStop(0, 'rgba(245,158,11,0.95)');
-      gradAmber.addColorStop(1, 'rgba(217,119,6,0.85)');
-      const gradViolet = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradViolet.addColorStop(0, 'rgba(139,92,246,0.95)');
-      gradViolet.addColorStop(1, 'rgba(124,58,237,0.85)');
+        // Center text plugin
+        const centerTextPlugin = {
+          id: 'centerText',
+          afterDraw(chart, args, pluginOptions) {
+            const {ctx, chartArea: {width, height}} = chart;
+            ctx.save();
+            ctx.font = '600 18px "Inter", sans-serif';
+            ctx.fillStyle = '#1f2937';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const cx = chart.getDatasetMeta(0).data[0]?.x || width/2;
+            const cy = chart.getDatasetMeta(0).data[0]?.y || height/2;
+            ctx.fillText('Total', cx, cy - 12);
+            ctx.font = '800 20px "Inter", sans-serif';
+            ctx.fillStyle = '#28644c';
+            ctx.fillText(String(total), cx, cy + 12);
+            ctx.restore();
+          }
+        };
 
-      // Center text plugin
-      const centerTextPlugin = {
-        id: 'centerText',
-        afterDraw(chart, args, pluginOptions) {
-          const {ctx, chartArea: {width, height}} = chart;
-          ctx.save();
-          ctx.font = '600 18px "Inter", sans-serif';
-          ctx.fillStyle = '#1f2937';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          const cx = chart.getDatasetMeta(0).data[0]?.x || width/2;
-          const cy = chart.getDatasetMeta(0).data[0]?.y || height/2;
-          ctx.fillText('Total', cx, cy - 12);
-          ctx.font = '800 20px "Inter", sans-serif';
-          ctx.fillStyle = '#28644c';
-          ctx.fillText(String(total), cx, cy + 12);
-          ctx.restore();
-        }
-      };
-
-      // Soft shadow plugin for arcs
-      const softShadowPlugin = {
-        id: 'softShadow',
-        beforeDatasetsDraw(chart, args, pluginOptions) {
-          const {ctx} = chart;
-          ctx.save();
-          ctx.shadowColor = 'rgba(0,0,0,0.15)';
-          ctx.shadowBlur = 12;
-          ctx.shadowOffsetX = 0;
-          ctx.shadowOffsetY = 6;
-        },
-        afterDatasetsDraw(chart, args, pluginOptions){
-          chart.ctx.restore();
-        }
-      };
-
-      new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels,
-          datasets: [{
-            data: values,
-            backgroundColor: [gradGreen, gradBlue, gradAmber, gradViolet],
-            borderColor: ['#10b981','#3b82f6','#f59e0b','#8b5cf6'],
-            borderWidth: 2,
-            hoverOffset: 10,
-            spacing: 4,
-            cutout: '65%'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom',
-              labels: {
-                usePointStyle: true,
-                pointStyle: 'circle',
-                boxWidth: 8,
-                padding: 16,
-                font: { family: '"Inter", sans-serif', size: 12 },
-                color: '#1f2937'
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(17,24,39,0.9)',
-              titleColor: '#fff',
-              bodyColor: '#e5e7eb',
-              cornerRadius: 8,
-              padding: 10,
-              callbacks: {
-                label: (ctx) => {
-                  const val = ctx.parsed;
-                  const pct = total ? ((val/total)*100).toFixed(1) : 0;
-                  return `${ctx.label}: ${val} (${pct}%)`;
-                }
-              }
-            },
-            title: {
-              display: true,
-              text: 'Module Distribution',
-              font: { family: '"Inter", sans-serif', size: 14, weight: 'bold' },
-              color: '#1a4d38'
-            }
+        new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels,
+            datasets: [{
+              data: values,
+              backgroundColor: [gradGreen, gradBlue, gradAmber, gradViolet],
+              borderColor: ['#10b981','#3b82f6','#f59e0b','#8b5cf6'],
+              borderWidth: 2,
+              hoverOffset: 10,
+              spacing: 4,
+              cutout: '65%'
+            }]
           },
-          animation: { duration: 900, easing: 'easeOutQuart' }
-        },
-        plugins: [centerTextPlugin, softShadowPlugin]
-      });
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: {
+                  usePointStyle: true,
+                  pointStyle: 'circle',
+                  boxWidth: 8,
+                  padding: 16,
+                  font: { family: '"Inter", sans-serif', size: 12 },
+                  color: '#1f2937'
+                }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(17,24,39,0.9)',
+                titleColor: '#fff',
+                bodyColor: '#e5e7eb',
+                cornerRadius: 8,
+                padding: 10,
+                callbacks: {
+                  label: (ctx) => {
+                    const val = ctx.parsed;
+                    const pct = total ? ((val/total)*100).toFixed(1) : 0;
+                    return `${ctx.label}: ${val} (${pct}%)`;
+                  }
+                }
+              },
+              title: {
+                display: true,
+                text: 'Module Distribution',
+                font: { family: '"Inter", sans-serif', size: 14, weight: 'bold' },
+                color: '#1a4d38'
+              }
+            },
+            animation: { duration: 900, easing: 'easeOutQuart' }
+          },
+          plugins: [centerTextPlugin]
+        });
+      }
+
+      // openCaseWithConfGate function
+      if (typeof window.openCaseWithConfGate !== 'function'){
+        window.openCaseWithConfGate = function(href){
+          try{ if (window.sessionStorage) sessionStorage.setItem('confOtpPending','1'); }catch(_){ }
+          if (href){ window.location.href = href; }
+          return false;
+        };
+      }
     });
   </script>
 </body>
