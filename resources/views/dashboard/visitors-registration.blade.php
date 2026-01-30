@@ -963,11 +963,12 @@ $user = auth()->user();
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
@@ -990,44 +991,196 @@ $user = auth()->user();
                 if (visitorArrow) visitorArrow.classList.add('rotate-180');
             }
 
-            // Search functionality
+            // Enhanced Search functionality with pagination support
             const searchVisitors = document.getElementById('searchVisitors');
             const resultsCount = document.getElementById('resultsCount');
-            
-            function updateResultsCount() {
+            const itemsPerPageSelect = document.querySelector('select');
+            let currentPage = 1;
+            let itemsPerPage = 10;
+            let allVisitors = [];
+            let filteredVisitors = [];
+
+            // Initialize visitors data
+            function initializeVisitorsData() {
                 const tbody = document.getElementById('visitorsTbody');
-                if (!tbody || !resultsCount) return;
+                if (!tbody) return;
+                
                 const rows = Array.from(tbody.querySelectorAll('tr'));
-                const visitorRows = rows.filter(r => !r.querySelector('td[colspan]'));
-                const visible = visitorRows.filter(r => !r.classList.contains('hidden')).length;
+                allVisitors = rows.map((row, index) => {
+                    const emptyCell = row.querySelector('td[colspan]');
+                    if (emptyCell) return null;
+                    
+                    return {
+                        element: row,
+                        index: index,
+                        name: row.querySelector('td:nth-child(1) .text-sm')?.textContent || '',
+                        id: row.querySelector('td:nth-child(1) .text-xs')?.textContent || '',
+                        company: row.querySelector('td:nth-child(3) .text-sm')?.textContent || '',
+                        type: row.querySelector('td:nth-child(2) .text-xs')?.textContent || '',
+                        host: row.querySelector('td:nth-child(4) .text-sm')?.textContent || '',
+                        dept: row.querySelector('td:nth-child(4) .text-xs')?.textContent || ''
+                    };
+                }).filter(v => v !== null);
+                
+                filteredVisitors = [...allVisitors];
+            }
+
+            function updateResultsCount() {
+                if (!resultsCount) return;
+                const visible = filteredVisitors.length;
                 resultsCount.textContent = visible + (visible === 1 ? ' result' : ' results');
             }
 
             function applySearchFilter(query) {
                 const q = (query || '').toString().toLowerCase().trim();
-                const tbody = document.getElementById('visitorsTbody');
-                if (!tbody) return;
-                const rows = Array.from(tbody.querySelectorAll('tr'));
-                rows.forEach(tr => {
-                    const emptyCell = tr.querySelector('td[colspan]');
-                    if (emptyCell) { tr.classList.toggle('hidden', q.length > 0); return; }
-                    const name = tr.querySelector('td:nth-child(1) .text-sm')?.textContent || '';
-                    const id = tr.querySelector('td:nth-child(1) .text-xs')?.textContent || '';
-                    const company = tr.querySelector('td:nth-child(3) .text-sm')?.textContent || '';
-                    const type = tr.querySelector('td:nth-child(2) .text-xs')?.textContent || '';
-                    const host = tr.querySelector('td:nth-child(4) .text-sm')?.textContent || '';
-                    const dept = tr.querySelector('td:nth-child(4) .text-xs')?.textContent || '';
-                    const hay = (name + ' ' + id + ' ' + company + ' ' + type + ' ' + host + ' ' + dept).toLowerCase();
-                    const match = q === '' ? true : hay.includes(q);
-                    tr.classList.toggle('hidden', !match);
-                });
+                
+                if (q === '') {
+                    filteredVisitors = [...allVisitors];
+                } else {
+                    filteredVisitors = allVisitors.filter(visitor => {
+                        const hay = (visitor.name + ' ' + visitor.id + ' ' + visitor.company + ' ' + visitor.type + ' ' + visitor.host + ' ' + visitor.dept).toLowerCase();
+                        return hay.includes(q);
+                    });
+                }
+                
+                currentPage = 1;
+                updatePagination();
+                renderVisitors();
                 updateResultsCount();
             }
 
+            function renderVisitors() {
+                const tbody = document.getElementById('visitorsTbody');
+                if (!tbody) return;
+                
+                // Hide all visitor rows initially
+                allVisitors.forEach(visitor => {
+                    visitor.element.classList.add('hidden');
+                });
+                
+                // Show only the current page's filtered visitors
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const pageVisitors = filteredVisitors.slice(startIndex, endIndex);
+                
+                pageVisitors.forEach(visitor => {
+                    visitor.element.classList.remove('hidden');
+                });
+                
+                // Handle empty state
+                const emptyRow = tbody.querySelector('td[colspan]');
+                if (emptyRow) {
+                    const emptyRowParent = emptyRow.parentElement;
+                    emptyRowParent.classList.toggle('hidden', filteredVisitors.length > 0);
+                }
+            }
+
+            function updatePagination() {
+                const totalPages = Math.ceil(filteredVisitors.length / itemsPerPage);
+                const paginationContainer = document.querySelector('.flex.items-center.gap-2');
+                if (!paginationContainer) return;
+                
+                // Clear existing pagination buttons
+                paginationContainer.innerHTML = '';
+                
+                // Previous button
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed';
+                prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                prevBtn.disabled = currentPage === 1;
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderVisitors();
+                        updatePagination();
+                    }
+                });
+                paginationContainer.appendChild(prevBtn);
+                
+                // Page numbers
+                const maxVisiblePages = 5;
+                let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                
+                if (endPage - startPage < maxVisiblePages - 1) {
+                    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = i === currentPage 
+                        ? 'px-3 py-1 text-sm text-white bg-emerald-600 border border-emerald-600 rounded-lg hover:bg-emerald-700'
+                        : 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50';
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        renderVisitors();
+                        updatePagination();
+                    });
+                    paginationContainer.appendChild(pageBtn);
+                }
+                
+                // Ellipsis if needed
+                if (endPage < totalPages) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'px-2 text-sm text-gray-500';
+                    ellipsis.textContent = '...';
+                    paginationContainer.appendChild(ellipsis);
+                    
+                    const lastPageBtn = document.createElement('button');
+                    lastPageBtn.className = 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50';
+                    lastPageBtn.textContent = totalPages;
+                    lastPageBtn.addEventListener('click', () => {
+                        currentPage = totalPages;
+                        renderVisitors();
+                        updatePagination();
+                    });
+                    paginationContainer.appendChild(lastPageBtn);
+                }
+                
+                // Next button
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed';
+                nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderVisitors();
+                        updatePagination();
+                    }
+                });
+                paginationContainer.appendChild(nextBtn);
+                
+                // Update results summary
+                const summaryElement = document.querySelector('.text-sm.text-gray-700');
+                if (summaryElement && filteredVisitors.length > 0) {
+                    const start = (currentPage - 1) * itemsPerPage + 1;
+                    const end = Math.min(currentPage * itemsPerPage, filteredVisitors.length);
+                    summaryElement.innerHTML = `Showing <span class="font-medium">${start}</span> to <span class="font-medium">${end}</span> of <span class="font-medium">${filteredVisitors.length}</span> results`;
+                }
+            }
+
+            // Items per page change handler
+            if (itemsPerPageSelect) {
+                itemsPerPageSelect.addEventListener('change', (e) => {
+                    itemsPerPage = parseInt(e.target.value);
+                    currentPage = 1;
+                    renderVisitors();
+                    updatePagination();
+                });
+            }
+
+            // Search input handler
             if (searchVisitors) {
                 searchVisitors.addEventListener('input', (e) => applySearchFilter(e.target.value));
-                applySearchFilter('');
             }
+
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', () => {
+                initializeVisitorsData();
+                applySearchFilter('');
+            });
 
             // Modal Management
             const addVisitorModal = document.getElementById("addVisitorModal");
