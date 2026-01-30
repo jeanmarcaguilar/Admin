@@ -490,47 +490,131 @@ $user = auth()->user();
             $documentsCount = $stats['uploaded_documents'] ?? 0;
             $activeCases = $stats['active_cases'] ?? 0;
           @endphp
-          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A]">
-              <div class="flex justify-between items-start">
-                <p class="text-gray-800 font-semibold text-sm">Visitors Checked In</p>
-                <i class="bx bx-log-in text-[#2f855A] text-2xl"></i>
-              </div>
-              <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $checkedInCount }}</p>
-              <p class="text-xs text-gray-500 mt-1">From total {{ $totalVisitors }} visitors</p>
-            </div>
-            <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A]">
-              <div class="flex justify-between items-start">
-                <p class="text-gray-800 font-semibold text-sm">Total Visitors</p>
-                <i class="bx bx-group text-[#2f855A] text-2xl"></i>
-              </div>
-              <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $totalVisitors }}</p>
-              <p class="text-xs text-gray-500 mt-1">Session data</p>
-            </div>
-            <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A]">
-              <div class="flex justify-between items-start">
-                <p class="text-gray-800 font-semibold text-sm">Uploaded Documents</p>
-                <i class="bx bx-file text-[#2f855A] text-2xl"></i>
-              </div>
-              <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $documentsCount }}</p>
-              <p class="text-xs text-gray-500 mt-1">Document Management</p>
-            </div>
-            <a href="{{ route('case.management') }}" class="block focus:outline-none" aria-label="View Case Management" onclick="return openCaseWithConfGate(this.href)">
-              <div class="dashboard-card bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 shadow-sm border-l-4 border-[#2f855A] cursor-pointer hover:shadow-md">
-                <div class="flex justify-between items-start">
-                  <p class="text-gray-800 font-semibold text-sm">Active Cases</p>
-                  <i class="bx bx-briefcase text-[#2f855A] text-2xl"></i>
+          <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Visitors Checked In Card -->
+            <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+              <div class="relative flex justify-between items-start">
+                <div class="flex-1">
+                  <p class="text-gray-600 font-semibold text-sm mb-2">Visitors Checked In</p>
+                  <p class="font-bold text-3xl text-gray-900 mb-1">{{ $checkedInCount }}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                      <i class="bx bx-trending-up mr-1"></i>
+                      {{ $totalVisitors > 0 ? round(($checkedInCount / $totalVisitors) * 100, 1) : 0 }}%
+                    </span>
+                    <span class="text-xs text-gray-500">of {{ $totalVisitors }} total</span>
+                  </div>
                 </div>
-                <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $activeCases }}</p>
-                <p class="text-xs text-gray-500 mt-1">Legal Management</p>
+                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <i class="bx bx-log-in text-white text-xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Visitors Card -->
+            <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+              <div class="relative flex justify-between items-start">
+                <div class="flex-1">
+                  <p class="text-gray-600 font-semibold text-sm mb-2">Total Visitors</p>
+                  <p class="font-bold text-3xl text-gray-900 mb-1">{{ $totalVisitors }}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <i class="bx bx-user-plus mr-1"></i>
+                      All Time
+                    </span>
+                    <span class="text-xs text-gray-500">Session data</span>
+                  </div>
+                </div>
+                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <i class="bx bx-group text-white text-xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Uploaded Documents Card -->
+            <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+              <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+              <div class="relative flex justify-between items-start">
+                <div class="flex-1">
+                  <p class="text-gray-600 font-semibold text-sm mb-2">Uploaded Documents</p>
+                  <p class="font-bold text-3xl text-gray-900 mb-1">{{ $documentsCount }}</p>
+                  <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                      <i class="bx bx-file mr-1"></i>
+                      Files
+                    </span>
+                    <span class="text-xs text-gray-500">Document Management</span>
+                  </div>
+                </div>
+                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                  <i class="bx bx-file text-white text-xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Active Cases Card -->
+            <a href="{{ route('case.management') }}" class="block focus:outline-none" aria-label="View Case Management" onclick="return openCaseWithConfGate(this.href)">
+              <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden cursor-pointer">
+                <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                <div class="relative flex justify-between items-start">
+                  <div class="flex-1">
+                    <p class="text-gray-600 font-semibold text-sm mb-2">Active Cases</p>
+                    <p class="font-bold text-3xl text-gray-900 mb-1">{{ $activeCases }}</p>
+                    <div class="flex items-center gap-2">
+                      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
+                        <i class="bx bx-briefcase mr-1"></i>
+                        Legal
+                      </span>
+                      <span class="text-xs text-gray-500">Legal Management</span>
+                    </div>
+                  </div>
+                  <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                    <i class="bx bx-briefcase text-white text-xl"></i>
+                  </div>
+                </div>
               </div>
             </a>
           </section>
-          <section class="grid grid-cols-1 gap-4 chart-container">
-            <div class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100 flex flex-col w-full">
-              <h3 class="font-bold text-sm text-[#1a4d38] mb-4">Module Overview</h3>
-              <div class="relative" style="height: 380px;">
+          <section class="grid grid-cols-1 gap-6 chart-container">
+            <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 flex flex-col w-full">
+              <div class="flex items-center justify-between mb-6">
+                <div>
+                  <h3 class="font-bold text-xl text-gray-900 mb-1">Module Overview</h3>
+                  <p class="text-sm text-gray-600">Comprehensive statistics across all system modules</p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full mr-2 animate-pulse"></span>
+                    Live Data
+                  </span>
+                </div>
+              </div>
+              <div class="relative" style="height: 400px;">
                 <canvas id="dashboardChart"></canvas>
+              </div>
+              <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="text-center p-3 bg-emerald-50 rounded-lg">
+                  <div class="w-3 h-3 bg-emerald-500 rounded-full mx-auto mb-2"></div>
+                  <p class="text-xs font-medium text-gray-600">Visitors</p>
+                  <p class="text-sm font-bold text-gray-900">{{ $checkedInCount }}</p>
+                </div>
+                <div class="text-center p-3 bg-blue-50 rounded-lg">
+                  <div class="w-3 h-3 bg-blue-500 rounded-full mx-auto mb-2"></div>
+                  <p class="text-xs font-medium text-gray-600">Total</p>
+                  <p class="text-sm font-bold text-gray-900">{{ $totalVisitors }}</p>
+                </div>
+                <div class="text-center p-3 bg-amber-50 rounded-lg">
+                  <div class="w-3 h-3 bg-amber-500 rounded-full mx-auto mb-2"></div>
+                  <p class="text-xs font-medium text-gray-600">Documents</p>
+                  <p class="text-sm font-bold text-gray-900">{{ $documentsCount }}</p>
+                </div>
+                <div class="text-center p-3 bg-violet-50 rounded-lg">
+                  <div class="w-3 h-3 bg-violet-500 rounded-full mx-auto mb-2"></div>
+                  <p class="text-xs font-medium text-gray-600">Cases</p>
+                  <p class="text-sm font-bold text-gray-900">{{ $activeCases }}</p>
+                </div>
               </div>
             </div>
           </section>
