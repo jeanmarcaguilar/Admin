@@ -441,7 +441,9 @@ $calendarBookings = $calendarBookings ?? [];
                             <div class="text-center text-xs font-medium text-gray-500 py-2">Sat</div>
                         </div>
 
-                        <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+                        <div id="calendarGrid" class="grid grid-cols-7 gap-2" style="background-color: #f0f0f0; min-height: 400px;">
+    <div class="col-span-7 text-center text-gray-500 py-8">Calendar will be rendered here...</div>
+</div>
 
                         <!-- Calendar Legend -->
                         <div class="mt-6 pt-6 border-t border-gray-100">
