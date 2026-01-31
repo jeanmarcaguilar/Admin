@@ -399,11 +399,6 @@
                             </button>
                         </div>
                     </div>
-
-                    <!-- Confidential Banner -->
-                    <div class="mt-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-4 py-3">
-                        <div class="text-sm font-medium">Confidential: Authorized personnel only. OTP required for sensitive actions.</div>
-                    </div>
                 </div>
 
                 <!-- Search and Filters -->
