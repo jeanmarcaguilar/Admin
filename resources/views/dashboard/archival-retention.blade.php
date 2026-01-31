@@ -395,7 +395,7 @@ $user = auth()->user();
         <main class="p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Archival & Retention Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <!-- Total Documents Card -->
                     <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
@@ -417,7 +417,7 @@ $user = auth()->user();
                         </div>
                     </div>
 
-                    <!-- Retention Policies Card -->
+                    <!-- Active Categories Card -->
                     <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
@@ -439,6 +439,27 @@ $user = auth()->user();
                             </div>
                         </div>
                     </div>
+
+                    <!-- Archive Notes Card -->
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-50 to-purple-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-base mb-3">Archive Notes</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">10</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                                        <i class="bx bx-info-circle mr-2"></i>
+                                        Policies
+                                    </span>
+                                    <span class="text-sm text-gray-500">Active</span>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-info-circle text-white text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Page Header -->
@@ -452,6 +473,119 @@ $user = auth()->user();
                             <button class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors">
                                 <i class="fas fa-archive mr-2"></i>Create Archive Policy
                             </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Archive Policy Notes -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            <i class="bx bx-info-circle text-purple-600 mr-2"></i>
+                            Archive Policy Notes
+                        </h2>
+                        <span class="text-sm text-gray-500">Category-specific retention guidelines</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-lg font-bold">₱</span>
+                                <h4 class="font-semibold text-green-800">Financial</h4>
+                            </div>
+                            <p class="text-sm text-green-700"><strong>Archive:</strong> After 6 months of creation</p>
+                            <p class="text-sm text-green-700"><strong>Retention:</strong> 7 years for compliance</p>
+                            <p class="text-xs text-green-600 mt-1">Includes budgets, invoices, financial reports</p>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-id-card text-blue-600"></i>
+                                <h4 class="font-semibold text-blue-800">HR</h4>
+                            </div>
+                            <p class="text-sm text-blue-700"><strong>Archive:</strong> After 1 year of employee departure</p>
+                            <p class="text-sm text-blue-700"><strong>Retention:</strong> 5 years for legal requirements</p>
+                            <p class="text-xs text-blue-600 mt-1">Employee files, policies, records</p>
+                        </div>
+                        
+                        <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-gavel text-yellow-600"></i>
+                                <h4 class="font-semibold text-yellow-800">Legal</h4>
+                            </div>
+                            <p class="text-sm text-yellow-700"><strong>Archive:</strong> After 3 months of case resolution</p>
+                            <p class="text-sm text-yellow-700"><strong>Retention:</strong> 10 years for statute of limitations</p>
+                            <p class="text-xs text-yellow-600 mt-1">Contracts, case files, legal documents</p>
+                        </div>
+                        
+                        <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-cog text-purple-600"></i>
+                                <h4 class="font-semibold text-purple-800">Operations</h4>
+                            </div>
+                            <p class="text-sm text-purple-700"><strong>Archive:</strong> After 3 months of process update</p>
+                            <p class="text-sm text-purple-700"><strong>Retention:</strong> 3 years for operational reference</p>
+                            <p class="text-xs text-purple-600 mt-1">Processes, procedures, workflows</p>
+                        </div>
+                        
+                        <div class="bg-red-50 rounded-lg p-4 border border-red-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-file text-red-600"></i>
+                                <h4 class="font-semibold text-red-800">Contracts</h4>
+                            </div>
+                            <p class="text-sm text-red-700"><strong>Archive:</strong> After 6 months of contract completion</p>
+                            <p class="text-sm text-red-700"><strong>Retention:</strong> 7 years for legal protection</p>
+                            <p class="text-xs text-red-600 mt-1">Agreements, NDAs, vendor contracts</p>
+                        </div>
+                        
+                        <div class="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-bolt text-orange-600"></i>
+                                <h4 class="font-semibold text-orange-800">Utilities</h4>
+                            </div>
+                            <p class="text-sm text-orange-700"><strong>Archive:</strong> After 1 year of billing period</p>
+                            <p class="text-sm text-orange-700"><strong>Retention:</strong> 3 years for audit purposes</p>
+                            <p class="text-xs text-orange-600 mt-1">Electricity, water, gas bills</p>
+                        </div>
+                        
+                        <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-folder text-indigo-600"></i>
+                                <h4 class="font-semibold text-indigo-800">Projects</h4>
+                            </div>
+                            <p class="text-sm text-indigo-700"><strong>Archive:</strong> After project completion</p>
+                            <p class="text-sm text-indigo-700"><strong>Retention:</strong> 5 years for reference</p>
+                            <p class="text-xs text-indigo-600 mt-1">Project plans, reports, documentation</p>
+                        </div>
+                        
+                        <div class="bg-lime-50 rounded-lg p-4 border border-lime-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-shopping-bag text-lime-600"></i>
+                                <h4 class="font-semibold text-lime-800">Procurement</h4>
+                            </div>
+                            <p class="text-sm text-lime-700"><strong>Archive:</strong> After 6 months of purchase</p>
+                            <p class="text-sm text-lime-700"><strong>Retention:</strong> 5 years for warranty tracking</p>
+                            <p class="text-xs text-lime-600 mt-1">Vendors, purchases, procurement records</p>
+                        </div>
+                        
+                        <div class="bg-cyan-50 rounded-lg p-4 border border-cyan-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="bx bx-laptop text-cyan-600"></i>
+                                <h4 class="font-semibold text-cyan-800">IT</h4>
+                            </div>
+                            <p class="text-sm text-cyan-700"><strong>Archive:</strong> After 1 year of implementation</p>
+                            <p class="text-sm text-cyan-700"><strong>Retention:</strong> 3 years for technical reference</p>
+                            <p class="text-xs text-cyan-600 mt-1">Software, hardware, IT documentation</p>
+                        </div>
+                        
+                        <div class="bg-pink-50 rounded-lg p-4 border border-pink-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="text-lg font-bold">₱</span>
+                                <h4 class="font-semibold text-pink-800">Payroll</h4>
+                            </div>
+                            <p class="text-sm text-pink-700"><strong>Archive:</strong> After 2 years of tax filing</p>
+                            <p class="text-sm text-pink-700"><strong>Retention:</strong> 7 years for tax compliance</p>
+                            <p class="text-xs text-pink-600 mt-1">Employee compensation, payroll records</p>
                         </div>
                     </div>
                 </div>
