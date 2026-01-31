@@ -515,6 +515,51 @@ $user = auth()->user();
                                 <div class="text-xs text-gray-500">Agreements, NDAs</div>
                             </div>
                         </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="utilities">
+                            <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
+                                <i class="bx bx-bolt text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Utilities</div>
+                                <div class="text-xs text-gray-500">Electricity, water, gas</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="projects">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                                <i class="bx bx-folder text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Projects</div>
+                                <div class="text-xs text-gray-500">Project plans, reports</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="procurement">
+                            <div class="w-10 h-10 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center">
+                                <i class="bx bx-shopping-bag text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Procurement</div>
+                                <div class="text-xs text-gray-500">Vendors, purchases</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="it">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+                                <i class="bx bx-laptop text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">IT</div>
+                                <div class="text-xs text-gray-500">Software, hardware</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="payroll">
+                            <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
+                                <i class="bx bx-money text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Payroll</div>
+                                <div class="text-xs text-gray-500">Employee compensation</div>
+                            </div>
+                        </button>
                     </div>
                 </div>
 
