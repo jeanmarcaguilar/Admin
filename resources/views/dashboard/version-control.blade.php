@@ -395,95 +395,45 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                 </div>
 
                 <!-- Enhanced Document Version Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <!-- Total Documents Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Documents</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count($documents) }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="bx bx-file mr-1"></i>
+                                <p class="text-gray-600 font-semibold text-base mb-3">Total Documents</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ count($documents) }}</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        <i class="bx bx-file mr-2"></i>
                                         Files
                                     </span>
-                                    <span class="text-xs text-gray-500">Total</span>
+                                    <span class="text-sm text-gray-500">Total</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-file text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Active Versions Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Active Versions</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    {{ count(array_filter($documents, function($doc) { 
-                                        return !empty($doc['version']) && $doc['version'] > 1; 
-                                    })) }}
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                        <i class="bx bx-git-branch mr-1"></i>
-                                        Versions
-                                    </span>
-                                    <span class="text-xs text-gray-500">Active</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-git-branch text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pending Review Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Pending Review</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    {{ count(array_filter($documents, function($doc) { 
-                                        return ($doc['status'] ?? '') != 'Approved'; 
-                                    })) }}
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                        <i class="bx bx-error mr-1"></i>
-                                        Pending
-                                    </span>
-                                    <span class="text-xs text-gray-500">Review</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-error text-white text-xl"></i>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-file text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Categories Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Categories</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count(array_unique(array_column($documents, 'category'))) }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="bx bx-category-alt mr-1"></i>
+                                <p class="text-gray-600 font-semibold text-base mb-3">Categories</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ count(array_unique(array_column($documents, 'category'))) }}</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
+                                        <i class="bx bx-category-alt mr-2"></i>
                                         Types
                                     </span>
-                                    <span class="text-xs text-gray-500">Groups</span>
+                                    <span class="text-sm text-gray-500">Groups</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-category-alt text-white text-xl"></i>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-category-alt text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
