@@ -401,6 +401,27 @@ $user = auth()->user();
                             <form id="combinedBookingForm" class="space-y-4" action="{{ route('booking.combined') }}" method="POST" novalidate>
                                 @csrf
                                 
+                                <!-- Booking Type and Name -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="form-group">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Booking Type <span class="text-red-500">*</span></label>
+                                        <select name="booking_type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" required>
+                                            <option value="">-- Select booking type --</option>
+                                            <option value="meeting">Meeting</option>
+                                            <option value="presentation">Presentation</option>
+                                            <option value="training">Training</option>
+                                            <option value="workshop">Workshop</option>
+                                            <option value="conference">Conference</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Your Name <span class="text-red-500">*</span></label>
+                                        <input type="text" name="name" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" placeholder="Enter your full name" required>
+                                    </div>
+                                </div>
+                                
                                 <!-- What to Book -->
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="form-group">
