@@ -129,7 +129,7 @@ $user = auth()->user();
                transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
         <div class="h-16 flex items-center px-4 border-b border-gray-100">
-            <a href="{{ route('dashboard') }}"
+            <a href="/dashboard"
                 class="flex items-center gap-3 w-full rounded-xl px-2 py-2
                        hover:bg-gray-100 active:bg-gray-200 transition group">
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
