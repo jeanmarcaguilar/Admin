@@ -602,12 +602,12 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             <p class="text-sm text-gray-500">Track all document versions and their status</p>
                         </div>
                         <div class="text-sm text-gray-500">
-                            {{ count($documents) }} documents
+                            <span id="visibleCount">{{ count($documents) }}</span> documents
                         </div>
                     </div>
                     
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
+                        <table id="documentsTable" class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
