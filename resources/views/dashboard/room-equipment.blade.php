@@ -405,12 +405,11 @@ $user = auth()->user();
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="form-group">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Booking Type <span class="text-red-500">*</span></label>
-                                        <select name="type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" required>
+                                        <select name="booking_type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" required>
                                             <option value="">-- Select booking type --</option>
                                             <option value="room">Room</option>
                                             <option value="equipment">Equipment</option>
-                                            <option value="meeting">Meeting</option>
-                                            <option value="event">Event</option>
+                                            <option value="both">Both</option>
                                         </select>
                                     </div>
                                     
@@ -667,7 +666,7 @@ $user = auth()->user();
                     e.preventDefault();
                     
                     // Client-side validation
-                    const bookingType = this.querySelector('select[name="type"]').value;
+                    const bookingType = this.querySelector('select[name="booking_type"]').value;
                     const name = this.querySelector('input[name="name"]').value.trim();
                     const room = this.querySelector('select[name="room"]').value;
                     const date = this.querySelector('input[name="date"]').value;
@@ -744,7 +743,7 @@ $user = auth()->user();
                         }
                         
                         // Build the form object with proper structure
-                        formObject.type = formData.get('type') || null;
+                        formObject.booking_type = formData.get('booking_type') || null;
                         formObject.name = formData.get('name') || null;
                         formObject.room = formData.get('room') || null;
                         formObject.purpose = formData.get('purpose') || 'Not specified';
