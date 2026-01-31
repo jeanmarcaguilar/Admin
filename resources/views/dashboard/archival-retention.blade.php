@@ -597,10 +597,17 @@ $user = auth()->user();
                                         $icon = in_array($dtype, ['PDF']) ? 'bxs-file-pdf text-red-500' : (in_array($dtype, ['WORD','DOC','DOCX']) ? 'bxs-file-doc text-blue-500' : (in_array($dtype, ['EXCEL','XLS','XLSX']) ? 'bxs-file-txt text-green-500' : 'bxs-file text-gray-500'));
                                         $category = $doc['category'] ?? 'General';
                                         $retention = match($category) {
-                                            'Financial' => '7 Years',
-                                            'HR' => '5 Years', 
-                                            'Legal' => '10 Years',
-                                            default => '3 Years'
+                                            'Financial' => 'Archive after 6 months - Retain 7 Years',
+                                            'HR' => 'Archive after 1 year - Retain 5 Years', 
+                                            'Legal' => 'Archive after 3 months - Retain 10 Years',
+                                            'Operations' => 'Archive after 3 months - Retain 3 Years',
+                                            'Contracts' => 'Archive after 6 months - Retain 7 Years',
+                                            'Utilities' => 'Archive after 1 year - Retain 3 Years',
+                                            'Projects' => 'Archive after project completion - Retain 5 Years',
+                                            'Procurement' => 'Archive after 6 months - Retain 5 Years',
+                                            'IT' => 'Archive after 1 year - Retain 3 Years',
+                                            'Payroll' => 'Archive after 2 years - Retain 7 Years',
+                                            default => 'Archive after 6 months - Retain 3 Years'
                                         };
                                     @endphp
                                     <tr class="hover:bg-gray-50">
