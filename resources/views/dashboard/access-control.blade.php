@@ -377,87 +377,66 @@ $user = auth()->user();
         <main class="p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Access Control Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <!-- Total Users Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Users</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">68</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="bx bx-user mr-1"></i>
+                                <p class="text-gray-600 font-semibold text-base mb-3">Total Users</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">68</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        <i class="bx bx-user mr-2"></i>
                                         Active
                                     </span>
-                                    <span class="text-xs text-gray-500">Users</span>
+                                    <span class="text-sm text-gray-500">Users</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-user text-white text-xl"></i>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-user text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- User Roles Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">User Roles</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">4</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                        <i class="bx bx-shield mr-1"></i>
+                                <p class="text-gray-600 font-semibold text-base mb-3">User Roles</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">4</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="bx bx-shield mr-2"></i>
                                         Types
                                     </span>
-                                    <span class="text-xs text-gray-500">Roles</span>
+                                    <span class="text-sm text-gray-500">Roles</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-shield text-white text-xl"></i>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-shield text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Active Permissions Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Active Permissions</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">24</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                        <i class="bx bx-key mr-1"></i>
+                                <p class="text-gray-600 font-semibold text-base mb-3">Active Permissions</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">24</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                                        <i class="bx bx-key mr-2"></i>
                                         Enabled
                                     </span>
-                                    <span class="text-xs text-gray-500">Rules</span>
+                                    <span class="text-sm text-gray-500">Rules</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-key text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Security Level Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Security Level</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">High</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="bx bx-lock-alt mr-1"></i>
-                                        Secure
-                                    </span>
-                                    <span class="text-xs text-gray-500">Status</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-lock-alt text-white text-xl"></i>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="bx bx-key text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
@@ -480,192 +459,71 @@ $user = auth()->user();
 
                 <!-- Access Control Content -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <!-- Roles Section -->
-                        <div>
-                            <h2 class="text-lg font-semibold text-gray-900 mb-4">User Roles</h2>
-                            <div class="space-y-3">
-                                <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h3 class="font-medium text-gray-900">Administrator</h3>
-                                            <p class="text-sm text-gray-500">Full system access</p>
-                                        </div>
-                                        <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Super Admin</span>
-                                    </div>
-                                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                                        <span class="text-xs text-gray-500">5 users</span>
-                                        <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
-                                            Manage
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h3 class="font-medium text-gray-900">Manager</h3>
-                                            <p class="text-sm text-gray-500">Department management</p>
-                                        </div>
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Management</span>
-                                    </div>
-                                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                                        <span class="text-xs text-gray-500">12 users</span>
-                                        <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
-                                            Manage
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h3 class="font-medium text-gray-900">Employee</h3>
-                                            <p class="text-sm text-gray-500">Basic access</p>
-                                        </div>
-                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Standard</span>
-                                    </div>
-                                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                                        <span class="text-xs text-gray-500">48 users</span>
-                                        <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
-                                            Manage
-                                        </button>
-                                    </div>
-                                </div>
-                                
-                                <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
-                                    <div class="flex items-center justify-between">
-                                        <div>
-                                            <h3 class="font-medium text-gray-900">Guest</h3>
-                                            <p class="text-sm text-gray-500">Limited view-only access</p>
-                                        </div>
-                                        <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">Restricted</span>
-                                    </div>
-                                    <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                                        <span class="text-xs text-gray-500">3 users</span>
-                                        <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
-                                            Manage
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Permissions Section -->
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <h2 class="text-lg font-semibold text-gray-900">Permissions</h2>
-                                <button class="text-sm text-brand-primary hover:text-brand-primary-hover font-medium">
-                                    Edit Permissions
-                                </button>
-                            </div>
-                            
-                            <div class="space-y-3">
-                                <!-- Document Management Permissions -->
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h3 class="font-medium text-gray-800 mb-3 text-sm">Document Management</h3>
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Create Documents</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox" checked>
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Edit Documents</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox" checked>
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Delete Documents</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox">
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Share Documents</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox" checked>
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- User Management Permissions -->
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h3 class="font-medium text-gray-800 mb-3 text-sm">User Management</h3>
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Create Users</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox" checked>
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Edit User Roles</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox">
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Delete Users</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox">
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Facilities Management Permissions -->
-                                <div class="bg-gray-50 rounded-lg p-4">
-                                    <h3 class="font-medium text-gray-800 mb-3 text-sm">Facilities Management</h3>
-                                    <div class="space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Book Rooms</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox" checked>
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Approve Bookings</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox">
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-700">Manage Equipment</span>
-                                            <label class="permission-toggle">
-                                                <input type="checkbox">
-                                                <span class="permission-toggle-slider"></span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Permission Summary -->
-                            <div class="mt-6 pt-6 border-t border-gray-200">
+                    <!-- User Roles Section -->
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">User Roles</h2>
+                        <div class="space-y-3">
+                            <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <h4 class="font-medium text-gray-800 text-sm">Permission Summary</h4>
-                                        <p class="text-xs text-gray-500 mt-1">Total permissions: 24 | Enabled: 18</p>
+                                        <h3 class="font-medium text-gray-900">Administrator</h3>
+                                        <p class="text-sm text-gray-500">Full system access</p>
                                     </div>
-                                    <div class="text-right">
-                                        <div class="text-sm font-medium text-green-600">75% Enabled</div>
-                                        <div class="w-32 h-2 bg-gray-200 rounded-full overflow-hidden mt-1">
-                                            <div class="h-full bg-green-500 rounded-full" style="width: 75%"></div>
-                                        </div>
+                                    <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Super Admin</span>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">5 users</span>
+                                    <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
+                                        Manage
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Manager</h3>
+                                        <p class="text-sm text-gray-500">Department management</p>
                                     </div>
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Management</span>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">12 users</span>
+                                    <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
+                                        Manage
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Employee</h3>
+                                        <p class="text-sm text-gray-500">Basic access</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Standard</span>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">48 users</span>
+                                    <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
+                                        Manage
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="role-card p-4 border border-gray-200 rounded-lg hover:border-brand-primary transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="font-medium text-gray-900">Guest</h3>
+                                        <p class="text-sm text-gray-500">Limited view-only access</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">Restricted</span>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
+                                    <span class="text-xs text-gray-500">3 users</span>
+                                    <button class="text-xs text-brand-primary hover:text-brand-primary-hover font-medium">
+                                        Manage
+                                    </button>
                                 </div>
                             </div>
                         </div>
