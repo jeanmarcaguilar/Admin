@@ -454,7 +454,7 @@ $user = auth()->user();
                 </div>
 
                 <!-- Enhanced Case Statistics -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <!-- Active Cases Card -->
                     <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
@@ -545,47 +545,33 @@ $user = auth()->user();
                         </div>
                     </div>
 
-                    <!-- Upcoming Hearings Card -->
+                    <!-- Completed Cases Card -->
                     <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Upcoming Hearings</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['upcoming_hearings'] ?? 0 }}</p>
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Completed</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['completed_cases'] ?? 0 }}</p>
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="fas fa-calendar-alt mr-1"></i>
-                                        Scheduled
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Done
                                     </span>
-                                    <span class="text-xs text-gray-500">30 days</span>
+                                    <span class="text-xs text-gray-500">Closed</span>
                                 </div>
                             </div>
                             <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-calendar-alt text-white text-xl"></i>
-                            <div class="p-4 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
-                                <i class="fas fa-chart-line text-xl"></i>
+                                <i class="fas fa-check-circle text-white text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
                             @php 
-                                $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['active_cases'] / $stats['total_cases']) * 100)) : 0;
-                                $trend = $stats['total_cases'] > 0 ? round(($stats['active_cases'] / $stats['total_cases']) * 100) - 50 : 0;
+                                $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['completed_cases'] / $stats['total_cases']) * 100)) : 0;
                             @endphp
-                            <div class="w-full bg-white rounded-full h-3 overflow-hidden shadow-inner">
-                                <div class="bg-gradient-to-r from-blue-400 to-indigo-600 h-3 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div class="bg-gradient-to-r from-violet-400 to-violet-600 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
                             </div>
-                            <div class="flex justify-between items-center mt-2">
-                                <p class="text-xs text-gray-600">{{ $pct }}% of total cases</p>
-                                @if($trend > 0)
-                                    <span class="text-green-600 text-xs font-medium flex items-center">
-                                        <i class="fas fa-arrow-up mr-1"></i> {{ abs($trend) }}%
-                                    </span>
-                                @else
-                                    <span class="text-gray-500 text-xs font-medium flex items-center">
-                                        <i class="fas fa-minus mr-1"></i> Stable
-                                    </span>
-                                @endif
-                            </div>
+                            <p class="text-xs text-gray-500 mt-2">{{ $pct }}% of total cases</p>
                         </div>
                     </div>
                 </div>
@@ -617,58 +603,50 @@ $user = auth()->user();
                 </div>
 
                 <!-- Upcoming Hearings -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-6">
                     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                         <div>
                             <h3 class="font-semibold text-lg text-gray-900">
-                                <i class="fas fa-calendar-day mr-2"></i>Upcoming Hearings
+                                <i class="fas fa-calendar-day mr-2 text-indigo-600"></i>Upcoming Hearings
                             </h3>
                             <p class="text-sm text-gray-500">Hearings scheduled in the next 30 days</p>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <span class="text-xs text-gray-500">{{ isset($stats['upcoming_hearings']) ? $stats['upcoming_hearings'] : 0 }} total</span>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ isset($stats['upcoming_hearings']) ? $stats['upcoming_hearings'] : 0 }} total</span>
                             <button id="lockAllHearingsBtn" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-700 hover:bg-gray-800 text-white transition-colors duration-200 flex items-center">
                                 <i class='bx bx-lock mr-1'></i>Lock All
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Case</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="upcomingList" class="bg-white divide-y divide-gray-200">
-                                @forelse(($upcoming ?? []) as $u)
-                                    <li class="py-3 flex items-center justify-between hearing-item px-6" data-hearing-id="{{ $u['id'] ?? 'unknown' }}">
-                                        <div>
-                                            <div class="text-sm font-medium text-gray-900 hearing-title">{{ $u['title'] }}</div>
-                                            <div class="text-xs text-gray-500 hearing-code">{{ $u['code'] }}</div>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-sm text-gray-900 hearing-date">{{ $u['hearing_date'] ?? '-' }}</div>
-                                            @if(!empty($u['hearing_time']))
-                                                @php
-                                                    try { $__ut_disp = \Carbon\Carbon::parse($u['hearing_time'])->format('g:i A'); }
-                                                    catch (\Exception $e) { $__ut_disp = $u['hearing_time']; }
-                                                @endphp
-                                                <div class="text-xs text-gray-500 hearing-time">{{ $__ut_disp }}</div>
-                                            @endif
-                                        </div>
-                                    </li>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="px-6 py-6 text-center text-sm text-gray-500">No upcoming hearings</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                    <div class="p-6">
+                        @forelse(($upcoming ?? []) as $u)
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-3 hover:bg-gray-100 transition-colors">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-gavel text-indigo-600"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $u['title'] }}</div>
+                                        <div class="text-xs text-gray-500">{{ $u['code'] }}</div>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-medium text-gray-900">{{ $u['hearing_date'] ?? '-' }}</div>
+                                    @if(!empty($u['hearing_time']))
+                                        @php
+                                            try { $__ut_disp = \Carbon\Carbon::parse($u['hearing_time'])->format('g:i A'); }
+                                            catch (\Exception $e) { $__ut_disp = $u['hearing_time']; }
+                                        @endphp
+                                        <div class="text-xs text-gray-500">{{ $__ut_disp }}</div>
+                                    @endif
+                                </div>
+                            </div>
+                        @empty
+                            <div class="text-center py-8">
+                                <i class="fas fa-calendar-times text-4xl text-gray-300 mb-4"></i>
+                                <p class="text-gray-500">No upcoming hearings scheduled</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
 
