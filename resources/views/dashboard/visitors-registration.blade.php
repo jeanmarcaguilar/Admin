@@ -1199,7 +1199,7 @@ $user = auth()->user();
             }
 
             function closeAllModals() {
-                [addVisitorModal, viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal].forEach(modal => {
+                [viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal].forEach(modal => { // Removed addVisitorModal
                     if (modal) {
                         closeModal(modal);
                     }
@@ -1213,8 +1213,13 @@ $user = auth()->user();
 
             if (addVisitorBtn) {
                 addVisitorBtn.addEventListener("click", () => {
+                    // Close other modals but not add visitor modal
                     closeAllModals();
-                    openModal(addVisitorModal);
+                    // Explicitly open add visitor modal
+                    if (addVisitorModal) {
+                        addVisitorModal.classList.add("active");
+                        addVisitorModal.style.display = "flex";
+                    }
                 });
             }
 
