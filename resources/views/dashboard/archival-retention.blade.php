@@ -473,7 +473,7 @@ $user = auth()->user();
                         </button>
                         <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="financial">
                             <div class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
-                                <i class="bx bx-dollar text-xl"></i>
+                                <i class="bx bx-peso text-xl"></i>
                             </div>
                             <div>
                                 <div class="font-semibold text-gray-900">Financial</div>
