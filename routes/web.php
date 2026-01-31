@@ -823,7 +823,11 @@ Route::middleware('auth')->group(function () {
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Booking submitted successfully! Your booking code is: ' . $booking->code);
+        return response()->json([
+            'success' => true,
+            'message' => 'Booking submitted successfully! Your booking code is: ' . $booking->code,
+            'booking' => $booking
+        ]);
     })->name('booking.combined');
     
     Route::get('/approval-workflow', function () {
