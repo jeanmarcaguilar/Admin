@@ -394,53 +394,6 @@ $user = auth()->user();
         <!-- Main Content Area -->
         <main class="p-6">
             <div class="max-w-7xl mx-auto">
-                <!-- Archival & Retention Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <!-- Active Categories Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-base mb-3">Active Categories</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">
-                                    {{ count(array_unique(array_column($documents ?? [], 'category'))) }}
-                                </p>
-                                <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
-                                        <i class="bx bx-shield mr-2"></i>
-                                        Active
-                                    </span>
-                                    <span class="text-sm text-gray-500">Categories</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-shield text-white text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Archive Notes Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-50 to-purple-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-base mb-3">Archive Notes</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">10</p>
-                                <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
-                                        <i class="bx bx-info-circle mr-2"></i>
-                                        Policies
-                                    </span>
-                                    <span class="text-sm text-gray-500">Active</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-info-circle text-white text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Page Header -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
                     <div class="flex flex-col md:flex-row md:items-center justify-between">
