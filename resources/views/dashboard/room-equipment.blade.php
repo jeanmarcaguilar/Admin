@@ -8,7 +8,7 @@ $user = auth()->user();
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Room & Equipment Booking | Microfinance HR3</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -288,13 +288,6 @@ $user = auth()->user();
             </div>
 
             <!-- Administrator -->
-            <a href="#"
-                class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-                    hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-                Administrator
-            </a>
 
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
@@ -333,12 +326,6 @@ $user = auth()->user();
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                     {{ now()->format('H:i:s') }}
                 </span>
-
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                </button>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
@@ -475,44 +462,59 @@ $user = auth()->user();
                         </div>
                     </div>
 
-                    <!-- Quick Stats -->
+                    <!-- Enhanced Quick Stats -->
                     <div class="lg:col-span-1">
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                             <h3 class="font-semibold text-lg text-gray-900 mb-4">
                                 <i class='bx bx-stats mr-2'></i> Quick Stats
                             </h3>
                             <div class="space-y-4">
-                                <!-- Room Availability -->
-                                <div class="p-4 bg-blue-50 rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <h4 class="font-medium text-gray-900">Room Availability</h4>
-                                        <span class="text-xs font-bold text-blue-600">80%</span>
+                                <!-- Room Availability Card -->
+                                <div class="group relative bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                                <i class='bx bx-door-open text-white text-sm'></i>
+                                            </div>
+                                            <h4 class="font-medium text-gray-900">Room Availability</h4>
+                                        </div>
+                                        <span class="text-xs font-bold text-blue-600 bg-blue-200 px-2 py-1 rounded-full">80%</span>
                                     </div>
                                     <div class="w-full bg-blue-200 rounded-full h-2">
-                                        <div class="bg-blue-600 h-2 rounded-full" style="width: 80%"></div>
+                                        <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 80%"></div>
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-2">3 of 4 rooms available today</p>
+                                    <p class="text-xs text-gray-600 mt-2">3 of 4 rooms available today</p>
                                 </div>
 
-                                <!-- Equipment Status -->
-                                <div class="p-4 bg-green-50 rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <h4 class="font-medium text-gray-900">Equipment Status</h4>
-                                        <span class="text-xs font-bold text-green-600">90%</span>
+                                <!-- Equipment Status Card -->
+                                <div class="group relative bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                                                <i class='bx bx-laptop text-white text-sm'></i>
+                                            </div>
+                                            <h4 class="font-medium text-gray-900">Equipment Status</h4>
+                                        </div>
+                                        <span class="text-xs font-bold text-emerald-600 bg-emerald-200 px-2 py-1 rounded-full">90%</span>
                                     </div>
-                                    <div class="w-full bg-green-200 rounded-full h-2">
-                                        <div class="bg-green-600 h-2 rounded-full" style="width: 90%"></div>
+                                    <div class="w-full bg-emerald-200 rounded-full h-2">
+                                        <div class="bg-emerald-600 h-2 rounded-full transition-all duration-500" style="width: 90%"></div>
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-2">Most equipment available</p>
+                                    <p class="text-xs text-gray-600 mt-2">Most equipment available</p>
                                 </div>
 
-                                <!-- Upcoming Bookings -->
-                                <div class="p-4 bg-amber-50 rounded-lg">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <h4 class="font-medium text-gray-900">Upcoming Bookings</h4>
-                                        <span class="text-xs font-bold text-amber-600">5</span>
+                                <!-- Upcoming Bookings Card -->
+                                <div class="group relative bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                                                <i class='bx bx-calendar text-white text-sm'></i>
+                                            </div>
+                                            <h4 class="font-medium text-gray-900">Upcoming Bookings</h4>
+                                        </div>
+                                        <span class="text-xs font-bold text-amber-600 bg-amber-200 px-2 py-1 rounded-full">5</span>
                                     </div>
-                                    <div class="text-xs text-gray-500 space-y-1">
+                                    <div class="text-xs text-gray-600 space-y-1">
                                         <div class="flex justify-between">
                                             <span>Today</span>
                                             <span class="font-medium">3 bookings</span>
@@ -528,14 +530,14 @@ $user = auth()->user();
                                 <div class="pt-4 border-t border-gray-100">
                                     <h4 class="font-medium text-gray-900 mb-3">Quick Actions</h4>
                                     <div class="space-y-2">
-                                        <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                                            <i class='bx bx-calendar-check mr-2'></i> View My Bookings
+                                        <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group">
+                                            <i class='bx bx-calendar-check mr-2 group-hover:text-brand-primary transition-colors'></i> View My Bookings
                                         </button>
-                                        <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                                            <i class='bx bx-time mr-2'></i> Check Availability
+                                        <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group">
+                                            <i class='bx bx-time mr-2 group-hover:text-brand-primary transition-colors'></i> Check Availability
                                         </button>
-                                        <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
-                                            <i class='bx bx-download mr-2'></i> Download Schedule
+                                        <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group">
+                                            <i class='bx bx-download mr-2 group-hover:text-brand-primary transition-colors'></i> Download Schedule
                                         </button>
                                     </div>
                                 </div>
@@ -744,11 +746,12 @@ $user = auth()->user();
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
