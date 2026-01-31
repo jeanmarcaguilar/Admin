@@ -377,7 +377,7 @@ $user = auth()->user();
         <main class="p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Access Control Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Total Users Card -->
                     <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
@@ -416,27 +416,6 @@ $user = auth()->user();
                             </div>
                             <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="bx bx-shield text-white text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Active Permissions Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-base mb-3">Active Permissions</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ App\Models\Permission::count() }}</p>
-                                <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
-                                        <i class="bx bx-key mr-2"></i>
-                                        Enabled
-                                    </span>
-                                    <span class="text-sm text-gray-500">Rules</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-key text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
