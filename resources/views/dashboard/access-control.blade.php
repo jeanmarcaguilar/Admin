@@ -490,7 +490,7 @@ $user = auth()->user();
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="text-sm font-medium text-gray-900">{{ $user->role }}</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ $user->roles }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->department ?? 'Not Assigned' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}</td>
