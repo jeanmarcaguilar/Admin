@@ -384,7 +384,7 @@ $user = auth()->user();
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">Total Documents</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">1,247</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ count($documents ?? []) }}</p>
                                 <div class="flex items-center gap-3">
                                     <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                         <i class="bx bx-file mr-2"></i>
@@ -404,14 +404,16 @@ $user = auth()->user();
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-base mb-3">Retention Policies</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">8</p>
+                                <p class="text-gray-600 font-semibold text-base mb-3">Active Categories</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">
+                                    {{ count(array_unique(array_column($documents ?? [], 'category'))) }}
+                                </p>
                                 <div class="flex items-center gap-3">
                                     <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
                                         <i class="bx bx-shield mr-2"></i>
                                         Active
                                     </span>
-                                    <span class="text-sm text-gray-500">Policies</span>
+                                    <span class="text-sm text-gray-500">Categories</span>
                                 </div>
                             </div>
                             <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -436,76 +438,73 @@ $user = auth()->user();
                     </div>
                 </div>
 
-                <!-- Archive Policies Section -->
+                <!-- Documents Section -->
                 <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h2 class="text-lg font-semibold text-gray-900">Archive Policies</h2>
-                        <p class="text-sm text-gray-500 mt-1">Manage document retention and archival policies</p>
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900">Archived Documents</h2>
+                            <p class="text-sm text-gray-500 mt-1">Manage and review archived documents</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="text-sm text-brand-primary hover:text-brand-primary-hover font-medium">
+                                <i class="fas fa-sync-alt mr-1"></i> Refresh
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Policy Name</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document Type</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retention Period</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Uploaded</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Retention</th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Financial Records</div>
-                                        <div class="text-xs text-gray-500">7-year retention</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Financial</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">7 Years</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
-                                        <button class="text-red-600 hover:text-red-700">Delete</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">HR Documents</div>
-                                        <div class="text-xs text-gray-500">Employee records retention</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">HR</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5 Years</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
-                                        <button class="text-red-600 hover:text-red-700">Delete</button>
-                                    </td>
-                                </tr>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">Legal Contracts</div>
-                                        <div class="text-xs text-gray-500">Contract document retention</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Legal</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">10 Years</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Active</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
-                                        <button class="text-red-600 hover:text-red-700">Delete</button>
-                                    </td>
-                                </tr>
+                                @forelse($documents ?? [] as $doc)
+                                    @php
+                                        $dtype = strtoupper($doc['type'] ?? '');
+                                        $icon = in_array($dtype, ['PDF']) ? 'bxs-file-pdf text-red-500' : (in_array($dtype, ['WORD','DOC','DOCX']) ? 'bxs-file-doc text-blue-500' : (in_array($dtype, ['EXCEL','XLS','XLSX']) ? 'bxs-file-txt text-green-500' : 'bxs-file text-gray-500'));
+                                        $category = $doc['category'] ?? 'General';
+                                        $retention = match($category) {
+                                            'Financial' => '7 Years',
+                                            'HR' => '5 Years', 
+                                            'Legal' => '10 Years',
+                                            default => '3 Years'
+                                        };
+                                    @endphp
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <i class="bx {{ $icon }} text-xl mr-3"></i>
+                                                <div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ $doc['name'] ?? 'Unknown Document' }}</div>
+                                                    <div class="text-xs text-gray-500">{{ $doc['size'] ?? 'Unknown size' }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">{{ $dtype }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 py-1 bg-{{ $category === 'Financial' ? 'blue' : ($category === 'HR' ? 'purple' : ($category === 'Legal' ? 'red' : 'gray')) }}-100 text-{{ $category === 'Financial' ? 'blue' : ($category === 'HR' ? 'purple' : ($category === 'Legal' ? 'red' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ $category }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $doc['uploaded'] ?? 'Unknown date' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $retention }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-brand-primary hover:text-brand-primary-hover mr-3">View</button>
+                                            <button class="text-red-600 hover:text-red-700">Delete</button>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-6 text-center text-sm text-gray-500">No archived documents available.</td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -513,7 +512,7 @@ $user = auth()->user();
                     <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                         <div class="flex items-center justify-between">
                             <div class="text-sm text-gray-500">
-                                Showing 8 archive policies
+                                Showing {{ count($documents ?? []) }} archived documents
                             </div>
                             <div class="flex space-x-2">
                                 <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
