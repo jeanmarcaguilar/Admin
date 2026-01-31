@@ -403,32 +403,16 @@
 
                 <!-- Search and Filters -->
                 <div class="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div class="relative flex-1 max-w-md">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                            <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5" placeholder="Search documents...">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
                         </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button class="px-3 py-1.5 text-sm font-medium bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors">
-                                All Documents
-                            </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors">
-                                <i class='bx bx-check-circle mr-1'></i> Verified
-                            </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-amber-50 text-amber-700 rounded-full hover:bg-amber-100 transition-colors">
-                                <i class='bx bx-time-five mr-1'></i> Pending
-                            </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-red-50 text-red-700 rounded-full hover:bg-red-100 transition-colors">
-                                <i class='bx bx-error mr-1'></i> Expired
-                            </button>
-                        </div>
+                        <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-12 pr-4 py-3" placeholder="Search documents...">
                     </div>
                 </div>
 
                 <!-- Enhanced Document Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <!-- Total Documents Card -->
                     <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
@@ -472,31 +456,6 @@
                             </div>
                             <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="bx bx-upload text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pending Review Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Pending Review</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    {{ count(array_filter($documents, function($doc) {
-                                        return ($doc['status'] ?? '') === 'pending';
-                                    })) }}
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="bx bx-time mr-1"></i>
-                                        Waiting
-                                    </span>
-                                    <span class="text-xs text-gray-500">Review</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-check-shield text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
