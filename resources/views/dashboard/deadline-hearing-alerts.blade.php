@@ -8,7 +8,7 @@ $user = auth()->user();
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Deadline & Hearing Alerts | Microfinance HR3</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -288,13 +288,6 @@ $user = auth()->user();
             </div>
 
             <!-- Administrator -->
-            <a href="#"
-                class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-                    hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-                Administrator
-            </a>
 
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
@@ -333,12 +326,6 @@ $user = auth()->user();
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                     {{ now()->format('H:i:s') }}
                 </span>
-
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                </button>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
@@ -405,69 +392,99 @@ $user = auth()->user();
                     </div>
                 </div>
 
-                <!-- Stats Cards -->
+                <!-- Enhanced Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Today's Deadlines -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Today's Deadlines</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $counts['today'] ?? 0 }}</h3>
+                    <!-- Today's Deadlines Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Today's Deadlines</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $counts['today'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="fas fa-calendar-day mr-1"></i>
+                                        Today
+                                    </span>
+                                    <span class="text-xs text-gray-500">Due</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                <i class="fas fa-calendar-day text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-calendar-day text-white text-xl"></i>
                             </div>
                         </div>
-                        <div class="mt-2">
-                            <div class="w-full bg-gray-200 rounded-full h-1.5">
-                                <div class="bg-green-500 h-1.5 rounded-full" style="width: {{ min(($counts['today'] ?? 0) * 20, 100) }}%"></div>
+                        <div class="mt-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-400 to-emerald-600 h-2 rounded-full transition-all duration-500" style="width: {{ min(($counts['today'] ?? 0) * 20, 100) }}%"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Upcoming Hearings -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Upcoming Hearings</p>
-                                <h3 class="text-2xl font-bold text-blue-600">{{ $counts['upcoming'] ?? 0 }}</h3>
+                    <!-- Upcoming Hearings Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Upcoming Hearings</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $counts['upcoming'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-gavel mr-1"></i>
+                                        Scheduled
+                                    </span>
+                                    <span class="text-xs text-gray-500">30 days</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <i class="fas fa-gavel text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-gavel text-white text-xl"></i>
                             </div>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">Next 30 days</p>
                     </div>
 
-                    <!-- Overdue -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Overdue</p>
-                                <h3 class="text-2xl font-bold text-red-600">{{ $counts['overdue'] ?? 0 }}</h3>
+                    <!-- Overdue Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Overdue</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $counts['overdue'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        Critical
+                                    </span>
+                                    <span class="text-xs text-gray-500">Urgent</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-red-100 text-red-600">
-                                <i class="fas fa-exclamation-triangle text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-exclamation-triangle text-white text-xl"></i>
                             </div>
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">Requires immediate attention</p>
                     </div>
 
-                    <!-- Completed -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Completed</p>
-                                <h3 class="text-2xl font-bold text-purple-600">{{ $counts['completed'] ?? 0 }}</h3>
+                    <!-- Completed Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Completed</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $counts['completed'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Done
+                                    </span>
+                                    <span class="text-xs text-gray-500">Month</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                                <i class="fas fa-check-circle text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-check-circle text-white text-xl"></i>
                             </div>
                         </div>
-                        <div class="mt-2">
+                        <div class="mt-4">
                             <div class="flex items-center text-xs text-gray-500">
                                 <span class="flex items-center">
-                                    <span class="w-2 h-2 bg-purple-500 rounded-full mr-1"></span>
+                                    <span class="w-2 h-2 bg-violet-500 rounded-full mr-1"></span>
                                     This month
                                 </span>
                             </div>
@@ -502,7 +519,7 @@ $user = auth()->user();
                 </div>
 
                 <!-- Alerts Table -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                         <div>
                             <h3 class="font-semibold text-lg text-gray-900">All Alerts</h3>
@@ -524,52 +541,63 @@ $user = auth()->user();
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse(($hearings ?? []) as $h)
-                                    @php
-                                        $status = strtolower($h['status'] ?? 'upcoming');
-                                        $statusClasses = [
-                                            'today' => 'bg-yellow-100 text-yellow-800',
-                                            'upcoming' => 'bg-blue-100 text-blue-800',
-                                            'overdue' => 'bg-red-100 text-red-800',
-                                            'completed' => 'bg-green-100 text-green-800',
-                                        ];
-                                        $priority = $h['priority'] ?? 'Normal';
-                                        $priorityKey = strtolower($priority);
-                                        $prioClasses = [
-                                            'high' => 'bg-red-100 text-red-800',
-                                            'medium' => 'bg-yellow-100 text-yellow-800',
-                                            'low' => 'bg-green-100 text-green-800',
-                                        ];
-                                    @endphp
-                                    <tr class="table-row">
+                                @forelse((isset($alerts) ? $alerts : []) as $alert)
+                                    <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900">{{ $h['title'] }}</div>
-                                            <div class="text-xs text-gray-500">Case {{ $h['number'] }}</div>
+                                            <div class="flex items-center">
+                                                <div class="flex-shrink-0 h-10 w-10">
+                                                    <div class="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                                                        <i class="fas fa-bell text-emerald-600"></i>
+                                                    </div>
+                                                </div>
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">{{ $alert['title'] ?? 'Untitled Alert' }}</div>
+                                                    <div class="text-sm text-gray-500">{{ $alert['description'] ?? 'No description' }}</div>
+                                                </div>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">{{ $h['type'] }}</span>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                {{ $alert['type'] ?? 'General' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $alert['due_date'] ?? 'N/A' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $h['date'] }}</div>
-                                            @if(!empty($h['time']))
-                                                <div class="text-xs text-gray-500">{{ $h['time'] }}</div>
-                                            @endif
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                @if(($alert['status'] ?? '') === 'completed') bg-green-100 text-green-800
+                                                @elseif(($alert['status'] ?? '') === 'pending') bg-yellow-100 text-yellow-800
+                                                @elseif(($alert['status'] ?? '') === 'overdue') bg-red-100 text-red-800
+                                                @else bg-gray-100 text-gray-800 @endif">
+                                                {{ ucfirst($alert['status'] ?? 'Unknown') }}
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $statusClasses[$status] ?? 'bg-blue-100 text-blue-800' }}">{{ ucfirst($status) }}</span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $prioClasses[$priorityKey] ?? 'bg-yellow-100 text-yellow-800' }}">{{ $priority }}</span>
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                @if(($alert['priority'] ?? '') === 'high') bg-red-100 text-red-800
+                                                @elseif(($alert['priority'] ?? '') === 'medium') bg-yellow-100 text-yellow-800
+                                                @else bg-green-100 text-green-800 @endif">
+                                                {{ ucfirst($alert['priority'] ?? 'Normal') }}
+                                            </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="#" class="text-brand-primary hover:text-brand-primary-hover mr-3" title="View"><i class="fas fa-eye"></i></a>
-                                            <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" title="Edit"><i class="fas fa-edit"></i></a>
-                                            <a href="#" class="text-red-600 hover:text-red-900" title="Delete"><i class="fas fa-trash"></i></a>
+                                            <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
+                                            <button class="text-red-600 hover:text-red-900">Delete</button>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-500">No alerts found. Add your first alert using the "Add Alert" button.</td>
+                                        <td colspan="6" class="px-6 py-12 text-center">
+                                            <div class="text-gray-500">
+                                                <i class="fas fa-inbox text-4xl mb-4 block text-gray-300"></i>
+                                                <p class="text-lg font-medium">No alerts found</p>
+                                                <p class="text-sm mt-1">Get started by creating your first alert</p>
+                                                <button class="mt-4 px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium">
+                                                    <i class="fas fa-plus mr-2"></i> Add Alert
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -736,11 +764,12 @@ $user = auth()->user();
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'
