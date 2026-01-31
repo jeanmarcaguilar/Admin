@@ -729,16 +729,6 @@
                             <option value="receipt">Receipt</option>
                         </select>
                     </div>
-                    <div>
-                        <label for="docStatus" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                        <select id="docStatus" name="docStatus"
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent">
-                            <option value="active">Active</option>
-                            <option value="pending">Pending Review</option>
-                            <option value="archived">Archived</option>
-                        </select>
-                    </div>
-                </div>
 
                 <div>
                     <label for="docDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
