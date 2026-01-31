@@ -668,6 +668,61 @@ $user = auth()->user();
                 bookingForm.addEventListener('submit', async function(e) {
                     e.preventDefault();
                     
+                    // Client-side validation
+                    const bookingType = this.querySelector('select[name="booking_type"]').value;
+                    const name = this.querySelector('input[name="name"]').value.trim();
+                    const room = this.querySelector('select[name="room"]').value;
+                    const date = this.querySelector('input[name="date"]').value;
+                    const startTime = this.querySelector('input[name="start_time"]').value;
+                    const endTime = this.querySelector('input[name="end_time"]').value;
+                    const purpose = this.querySelector('textarea[name="purpose"]').value.trim();
+                    
+                    // Validation checks
+                    const errors = [];
+                    
+                    if (!bookingType) {
+                        errors.push('Booking type is required');
+                    }
+                    
+                    if (!name) {
+                        errors.push('Name is required');
+                    }
+                    
+                    if (!room) {
+                        errors.push('Room selection is required');
+                    }
+                    
+                    if (!date) {
+                        errors.push('Date is required');
+                    }
+                    
+                    if (!startTime) {
+                        errors.push('Start time is required');
+                    }
+                    
+                    if (!endTime) {
+                        errors.push('End time is required');
+                    }
+                    
+                    if (startTime && endTime && startTime >= endTime) {
+                        errors.push('End time must be after start time');
+                    }
+                    
+                    if (!purpose) {
+                        errors.push('Purpose is required');
+                    }
+                    
+                    // Show validation errors if any
+                    if (errors.length > 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            html: `<div class="text-left">${errors.map(error => `<div class="mb-1">• ${error}</div>`).join('')}</div>`,
+                            confirmButtonColor: '#059669'
+                        });
+                        return;
+                    }
+                    
                     // Disable submit button to prevent double submission
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalBtnText = submitBtn.innerHTML;
@@ -691,6 +746,8 @@ $user = auth()->user();
                         }
                         
                         // Build the form object with proper structure
+                        formObject.booking_type = formData.get('booking_type') || null;
+                        formObject.name = formData.get('name') || null;
                         formObject.room = formData.get('room') || null;
                         formObject.purpose = formData.get('purpose') || 'Not specified';
                         formObject.date = formData.get('date') || new Date().toISOString().split('T')[0];
