@@ -194,307 +194,273 @@ $user = auth()->user();
         }
       })();
     </script>
-    <script>
-      if (typeof window.toggleSidebarDropdown !== 'function') {
-        window.toggleSidebarDropdown = function(el){
-          try{
-            var headers = document.querySelectorAll('.has-dropdown > div');
-            for (var i=0;i<headers.length;i++){
-              var h = headers[i];
-              if (h !== el){
-                var m = h.nextElementSibling;
-                var c = h.querySelector('.bx-chevron-down');
-                if (m && !m.classList.contains('hidden')) m.classList.add('hidden');
-                if (c) c.classList.remove('rotate-180');
-                h.setAttribute('aria-expanded','false');
-              }
-            }
-            if (el){
-              var menu = el.nextElementSibling;
-              var chev = el.querySelector('.bx-chevron-down');
-              if (menu) menu.classList.toggle('hidden');
-              if (chev) chev.classList.toggle('rotate-180');
-              var isOpen = menu && !menu.classList.contains('hidden');
-              el.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            }
-          }catch(e){}
-        };
-      }
-    </script>
+  </style>
+</head>
+<body class="bg-brand-background-main min-h-screen">
+  <!-- Overlay (mobile) -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
 
-    <script>
-      if (typeof window.toggleUserMenu !== 'function') {
-        window.toggleUserMenu = function(ev){
-          try{
-            if(ev && ev.stopPropagation) ev.stopPropagation();
-            if(ev && ev.stopImmediatePropagation) ev.stopImmediatePropagation();
-            var btn=document.getElementById('userMenuBtn');
-            var menu=document.getElementById('userMenuDropdown');
-            var notif=document.getElementById('notificationDropdown');
-            if(menu){
-              var isHidden = menu.classList.contains('hidden');
-              if(isHidden){
-                menu.classList.remove('hidden');
-                try{ menu.style.setProperty('display','block','important'); }catch(_){ menu.style.display = 'block'; }
-                // dynamic positioning under the button
-                if (btn) {
-                  var rect = btn.getBoundingClientRect();
-                  var top = rect.bottom + 8; // 8px gap
-                  menu.style.position = 'fixed';
-                  menu.style.top = top + 'px';
-                  // compute width and align right edge to button's right edge
-                  var width = menu.offsetWidth || 192; // fallback ~12rem
-                  var left = Math.max(8, Math.min(rect.right - width, window.innerWidth - width - 8));
-                  menu.style.left = left + 'px';
-                  menu.style.right = 'auto';
-                  menu.style.zIndex = 9999;
-                }
-                // verify it really opened; if not, force visibility
-                setTimeout(function(){
-                  try{
-                    var cs = window.getComputedStyle(menu);
-                    var stillHidden = menu.classList.contains('hidden') || cs.display === 'none' || cs.visibility === 'hidden' || cs.opacity === '0';
-                    if(stillHidden){
-                      menu.classList.remove('hidden');
-                      try{ menu.style.setProperty('display','block','important'); }catch(_){ menu.style.display = 'block'; }
-                      menu.style.visibility = 'visible';
-                      menu.style.opacity = '1';
-                    }
-                  }catch(e){}
-                }, 0);
-                window.__lastMenuOpenTs = Date.now();
-              } else {
-                menu.classList.add('hidden');
-                try{ menu.style.setProperty('display','none','important'); }catch(_){ menu.style.display = 'none'; }
-              }
-            }
-            if(btn){ var ex=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', (!ex).toString()); }
-            if(notif){ notif.classList.add('hidden'); }
-          }catch(e){}
-        };
-      }
-      if (typeof window.toggleNotification !== 'function') {
-        window.toggleNotification = function(ev){
-          try{
-            if(ev && ev.stopPropagation) ev.stopPropagation();
-            var nb=document.getElementById('notificationBtn');
-            var nd=document.getElementById('notificationDropdown');
-            var ud=document.getElementById('userMenuDropdown');
-            if(nd){ nd.classList.toggle('hidden'); }
-            if(nb){ var ex=nb.getAttribute('aria-expanded')==='true'; nb.setAttribute('aria-expanded',(!ex).toString()); }
-            if(ud){ ud.classList.add('hidden'); }
-            var ub=document.getElementById('userMenuBtn'); if(ub){ ub.setAttribute('aria-expanded','false'); }
-          }catch(e){}
-        };
-      }
-      // Utility to hide menus
-      if (typeof window.hideAllMenus !== 'function') {
-        window.hideAllMenus = function(){
-          var ud=document.getElementById('userMenuDropdown');
-          var nd=document.getElementById('notificationDropdown');
-          var ub=document.getElementById('userMenuBtn');
-          var nb=document.getElementById('notificationBtn');
-          if(ud){ ud.classList.add('hidden'); ud.style.display='none'; }
-          if(nd){ nd.classList.add('hidden'); }
-          if(ub){ ub.setAttribute('aria-expanded','false'); }
-          if(nb){ nb.setAttribute('aria-expanded','false'); }
-        };
-      }
-      if (!window.__complianceMenusBound) {
-        window.__complianceMenusBound = true;
-        // Reparent dropdown to body to avoid stacking/overflow issues
-        document.addEventListener('DOMContentLoaded', function(){
-          try{
-            var menu=document.getElementById('userMenuDropdown');
-            if(menu && menu.parentNode !== document.body){ document.body.appendChild(menu); }
-          }catch(e){}
-        });
-        document.addEventListener('click', function(e){
-          if (typeof window.__lastMenuOpenTs === 'number' && (Date.now() - window.__lastMenuOpenTs) < 120) { return; }
-          var ud=document.getElementById('userMenuDropdown');
-          var ub=document.getElementById('userMenuBtn');
-          var nd=document.getElementById('notificationDropdown');
-          var nb=document.getElementById('notificationBtn');
-          var clickInsideUser = (ub && (ub.contains(e.target) || (ud && ud.contains(e.target))));
-          var clickInsideNotif = (nb && (nb.contains(e.target) || (nd && nd.contains(e.target))));
-          if(!clickInsideUser && !clickInsideNotif){ if(window.hideAllMenus) window.hideAllMenus(); }
-        });
-        document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ if(window.hideAllMenus) window.hideAllMenus(); }});
-        var nb=document.getElementById('notificationBtn');
-        if(nb){ nb.addEventListener('click', function(e){ if(window.toggleNotification) window.toggleNotification(e); }); }
-        var ub=document.getElementById('userMenuBtn');
-        if(ub){
-          // Avoid double-binding if inline onclick exists on the element
-          var hasInline = !!ub.getAttribute('onclick');
-          if(!hasInline){ ub.addEventListener('click', function(e){ if(window.toggleUserMenu) window.toggleUserMenu(e); }); }
-        }
-        // Close on resize/scroll to avoid stale positioning
-        window.addEventListener('resize', function(){ if(window.hideAllMenus) window.hideAllMenus(); });
-        window.addEventListener('scroll', function(){ if(window.hideAllMenus) window.hideAllMenus(); }, { passive: true });
-      }
-    </script>
+  <!-- SIDEBAR -->
+  <aside id="sidebar"
+    class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+           transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
-    <div id="notificationDropdown" class="hidden absolute right-4 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 text-gray-800 z-50" style="top: 4rem;">
-        <div class="flex justify-between items-center px-4 py-2 border-b border-gray-200">
-            <span class="font-semibold text-sm">Notifications</span>
-            <span class="bg-red-600 text-white text-xs font-semibold rounded-full px-2 py-0.5">3 new</span>
+    <div class="h-16 flex items-center px-4 border-b border-gray-100">
+      <a href="{{ route('admin.dashboard') }}"
+        class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+               hover:bg-gray-100 active:bg-gray-200 transition group">
+        <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
+        <div class="leading-tight">
+          <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
+            Microfinance Admin
+          </div>
+          <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+            Administrative
+          </div>
         </div>
-        <ul class="divide-y divide-gray-200 max-h-72 overflow-y-auto">
-            <li class="flex items-start px-4 py-3 space-x-3">
-                <div class="flex-shrink-0 mt-1">
-                    <div class="bg-green-200 text-green-700 rounded-full p-2">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                </div>
-                <div class="flex-grow text-sm">
-                    <p class="font-semibold text-gray-900 leading-tight">Employee Onboarding</p>
-                    <p class="text-gray-600 leading-tight text-xs">New employee added: {{ $user->name }}</p>
-                    <p class="text-gray-400 text-xs mt-0.5">30 min ago</p>
-                </div>
-            </li>
-            <li class="flex items-start px-4 py-3 space-x-3">
-                <div class="flex-shrink-0 mt-1">
-                    <div class="bg-blue-200 text-blue-700 rounded-full p-2">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                </div>
-                <div class="flex-grow text-sm">
-                    <p class="font-semibold text-gray-900 leading-tight">Report Generated</p>
-                    <p class="text-gray-600 leading-tight text-xs">Monthly report generated</p>
-                    <p class="text-gray-400 text-xs mt-0.5">2 hours ago</p>
-                </div>
-            </li>
-        </ul>
-        <div class="text-center py-2 border-t border-gray-200">
-            <a class="text-[#28644c] text-xs font-semibold hover:underline" href="#">View all notifications</a>
-        </div>
+      </a>
     </div>
 
-    <div class="flex w-full min-h-screen pt-16">
-        <div id="overlay" class="hidden fixed inset-0 bg-black opacity-50 z-40"></div>
-         <aside id="sidebar" class="bg-[#2f855A] text-white flex flex-col z-40 fixed top-16 bottom-0 w-72 -ml-72 md:sticky md:ml-0 transition-all duration-300 ease-in-out overflow-y-auto">
+    <!-- Sidebar content -->
+    <div class="px-4 py-4 overflow-y-auto h-[calc(100%-4rem)] custom-scrollbar">
+      <div class="text-xs font-bold text-gray-400 tracking-wider px-2">ADMINISTRATIVE DEPARTMENT</div>
 
-            <div class="department-header px-2 py-4 mx-2 border-b border-white/50">
-                <h1 class="text-xl font-bold">Administrative Department</h1>
+      <!-- Dashboard -->
+      <a href="{{ route('admin.dashboard') }}"
+        class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📊</span>
+          Dashboard
+        </span>
+      </a>
+
+      <!-- Visitor Management Dropdown -->
+      <button id="visitor-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
+          Visitor Management
+        </span>
+        <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="visitor-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('visitors.registration') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Visitors Registration
+          </a>
+          <a href="{{ route('checkinout.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Check In/Out Tracking
+          </a>
+          <a href="{{ route('visitor.history.records') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Visitor History Records
+          </a>
+        </div>
+      </div>
+
+      <!-- Document Management Dropdown -->
+      <button id="document-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
+          Document Management
+        </span>
+        <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="document-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('document.upload.indexing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Document Upload & Indexing
+          </a>
+          <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Version Control
+          </a>
+          <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Access Control & Permissions
+          </a>
+          <a href="{{ route('document.archival.retention.policy') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Archival & Retention Policy
+          </a>
+        </div>
+      </div>
+
+      <!-- Facilities Management Dropdown -->
+      <button id="facilities-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
+          Facilities Management
+        </span>
+        <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="facilities-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Room & Equipment Booking
+          </a>
+          <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Scheduling & Calendar Integrations
+          </a>
+          <a href="{{ route('approval.workflow') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Approval Workflow
+          </a>
+          <a href="{{ route('reservation.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Reservation History
+          </a>
+        </div>
+      </div>
+
+      <!-- Legal Management Dropdown -->
+      <button id="legal-management-btn"
+        class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+               text-gray-700 hover:bg-green-50 hover:text-brand-primary
+               transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+        <span class="flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
+          Legal Management
+        </span>
+        <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </button>
+
+      <div id="legal-submenu" class="submenu mt-1">
+        <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+          <a href="{{ route('case.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1" onclick="return openCaseWithConfGate(this.href)">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Case Management
+          </a>
+          <a href="{{ route('contract.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Contract Management
+          </a>
+          <a href="{{ route('compliance.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Compliance Tracking
+          </a>
+          <a href="{{ route('deadline.hearing.alerts') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            Deadline & Hearing Alerts
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-8 px-2">
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          SYSTEM ONLINE
+        </div>
+        <div class="text-[11px] text-gray-400 mt-2 leading-snug">
+          Microfinance Admin © {{ date('Y') }}<br/>
+          Adminstrative System
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="md:pl-72">
+    <!-- TOP HEADER -->
+    <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
+                 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+      <!-- Border cover to hide sidebar line -->
+      <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
+
+      <div class="flex items-center gap-3">
+        <button id="mobile-menu-btn"
+          class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
+          ☰
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 sm:gap-5">
+        <!-- Clock -->
+        <span id="real-time-clock"
+          class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+          --:--:--
+        </span>
+
+        <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+        <!-- User Profile Dropdown -->
+        <div class="relative">
+          <button id="userMenuBtn"
+            class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                   hover:bg-gray-100 active:bg-gray-200 transition">
+            <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+              <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                {{ strtoupper(substr($user->name, 0, 1)) }}
+              </div>
             </div>
-            <div class="px-3 py-10 flex-1">
-                <ul class="space-y-6">
-                    <li>
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center font-medium space-x-2 text-lg hover:bg-white/30 px-3 py-2.5 rounded-lg whitespace-nowrap">
-                            <i class="bx bx-grid-alt"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-group"></i>
-                                <span>Visitor Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('visitors.registration') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-id-card mr-2"></i>Visitors Registration</a></li>
-                            <li><a href="{{ route('checkinout.tracking') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-transfer mr-2"></i>Check In/Out Tracking</a></li>
-                            <li><a href="{{ route('visitor.history.records') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Visitor History Records</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-file"></i>
-                                <span>Document Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('document.upload.indexing') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-upload mr-2"></i>Document Upload & Indexing</a></li>
-                            <li><a href="{{ route('document.version.control') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-git-branch mr-2"></i>Version Control</a></li>
-                            <li><a href="{{ route('document.access.control.permissions') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-lock mr-2"></i>Access Control & Permissions</a></li>
-                            <li><a href="{{ route('document.archival.retention.policy') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-archive mr-2"></i>Archival & Retention Policy</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown">
-                        <div class="flex items-center font-medium justify-between text-lg hover:bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-calendar-check"></i>
-                                <span>Facilities Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300"></i>
-                        </div>
-                        <ul class="dropdown-menu hidden bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('room-equipment') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-door-open mr-2"></i>Room & Equipment Booking</a></li>
-                            <li><a href="{{ route('scheduling.calendar') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-calendar mr-2"></i>Scheduling & Calendar Integrations</a></li>
-                            <li><a href="{{ route('approval.workflow') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-check-circle mr-2"></i>Approval Workflow</a></li>
-                            <li><a href="{{ route('reservation.history') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-history mr-2"></i>Reservation History</a></li>
-                        </ul>
-                    </li>
-                    <li class="has-dropdown active">
-                        <div class="flex items-center font-medium justify-between text-lg bg-white/30 px-4 py-2.5 rounded-lg whitespace-nowrap cursor-pointer" onclick="toggleSidebarDropdown(this)">
-                            <div class="flex items-center space-x-2">
-                                <i class="bx bx-file"></i>
-                                <span>Legal Management</span>
-                            </div>
-                            <i class="bx bx-chevron-down text-2xl transition-transform duration-300 rotate-180"></i>
-                        </div>
-                        <ul class="dropdown-menu bg-white/20 mt-2 rounded-lg px-2 py-2 space-y-2">
-                            <li><a href="{{ route('case.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg" onclick="return openCaseWithConfGate(this.href)"><i class="bx bx-briefcase mr-2"></i>Case Management</a></li>
-                            <li><a href="{{ route('contract.management') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-file-blank mr-2"></i>Contract Management</a></li>
-                            <li><a href="{{ route('document.compliance.tracking') }}" class="block px-3 py-2 text-sm bg-white/30 rounded-lg"><i class="bx bx-check-double mr-2"></i>Compliance Tracking</a></li>
-                            <li><a href="{{ route('deadline.hearing.alerts') }}" class="block px-3 py-2 text-sm hover:bg-white/30 rounded-lg"><i class="bx bx-alarm mr-2"></i>Deadline & Hearing Alerts</a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <!-- Administrator removed -->
-                    </li>
-                </ul>
+            <div class="hidden md:flex flex-col items-start text-left">
+              <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                {{ $user->name }}
+              </span>
+              <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                {{ ucfirst($user->role) }}
+              </span>
             </div>
-            <div class="px-5 pb-6">
-                <div class="bg-white rounded-md p-4 text-center text-[#2f855A] text-sm font-semibold select-none">
-                    Need Help?<br />
-                    Contact support team at<br />
-                    <button type="button" class="mt-2 bg-[#3f8a56] text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-sm hover:bg-[#28644c] focus:outline-none focus:ring-2 focus:ring-[#3f8a56] transition-all duration-200">
-                        Contact Support
-                    </button>
-                </div>
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+
+          <!-- User Dropdown Menu -->
+          <div id="userMenuDropdown" class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+            <div class="py-4 px-6 border-b border-gray-100 text-center">
+              <div class="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg mb-2">
+                {{ strtoupper(substr($user->name, 0, 1)) }}
+              </div>
+              <div class="text-sm font-bold text-gray-800">{{ $user->name }}</div>
+              <div class="text-xs text-gray-500">{{ ucfirst($user->role) }}</div>
             </div>
-        </aside>
-        <script>
-          // Sidebar toggle for mobile and focus management
-          (function(){
-            if (window.__complianceSidebarBound) return; window.__complianceSidebarBound = true;
-            try{
-              var toggleBtn = document.getElementById('toggle-btn');
-              var sidebar = document.getElementById('sidebar');
-              var overlay = document.getElementById('overlay');
-              var main = document.getElementById('main-content');
-              function openSidebar(){
-                if(sidebar){ sidebar.classList.remove('-ml-72'); sidebar.classList.add('ml-0'); }
-                if(overlay){ overlay.classList.remove('hidden'); }
-                document.body.style.overflow='hidden';
-              }
-              function closeSidebar(){
-                if(sidebar){ sidebar.classList.add('-ml-72'); sidebar.classList.remove('ml-0'); }
-                if(overlay){ overlay.classList.add('hidden'); }
-                document.body.style.overflow='';
-              }
-              if(toggleBtn){ toggleBtn.addEventListener('click', function(){
-                var isClosed = sidebar && sidebar.classList.contains('-ml-72');
-                if(isClosed){ openSidebar(); } else { closeSidebar(); }
-              }); }
-              if(overlay){ overlay.addEventListener('click', function(){ closeSidebar(); }); }
-              document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeSidebar(); }});
-              // Ensure proper state on resize: sidebar always visible on md+ due to md:ml-0
-              window.addEventListener('resize', function(){
-                if(window.innerWidth>=768){
-                  if(overlay){ overlay.classList.add('hidden'); }
-                  document.body.style.overflow='';
-                }
-              });
-            }catch(e){}
-          })();
-        </script>
-        <main id="main-content" class="flex-1 p-6 w-full mt-16">
+            <div class="py-2">
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors">
+                <i class="fas fa-user-circle mr-2 text-gray-400"></i> My Profile
+              </a>
+              <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors">
+                <i class="fas fa-cog mr-2 text-gray-400"></i> Settings
+              </a>
+              <form method="POST" action="{{ route('logout') }}" class="block">
+                @csrf
+                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors">
+                  <i class="fas fa-sign-out-alt mr-2 text-gray-400"></i> Logout
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
             <div class="dashboard-container">
                 <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md border border-gray-100 p-8 space-y-6">
                     <!-- Page Header -->
@@ -2544,6 +2510,103 @@ document.addEventListener("DOMContentLoaded", () => {
         initializeComplianceLockState();
     }
 })();
+
+// Sidebar and Header JavaScript from dashboard.blade.php
+document.addEventListener('DOMContentLoaded', function() {
+    // Clock functionality
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('en-US', {
+            hour12: true,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        const clockElement = document.getElementById('real-time-clock');
+        if (clockElement) {
+            clockElement.textContent = timeString;
+        }
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    if (mobileMenuBtn && sidebar && sidebarOverlay) {
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+            sidebarOverlay.classList.toggle('opacity-0');
+        });
+
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+            sidebarOverlay.classList.add('opacity-0');
+        });
+    }
+
+    // Sidebar dropdown functionality
+    const dropdownButtons = [
+        { btn: 'visitor-management-btn', submenu: 'visitor-submenu', arrow: 'visitor-arrow' },
+        { btn: 'document-management-btn', submenu: 'document-submenu', arrow: 'document-arrow' },
+        { btn: 'facilities-management-btn', submenu: 'facilities-submenu', arrow: 'facilities-arrow' },
+        { btn: 'legal-management-btn', submenu: 'legal-submenu', arrow: 'legal-arrow' }
+    ];
+
+    dropdownButtons.forEach(({ btn, submenu, arrow }) => {
+        const button = document.getElementById(btn);
+        const submenuElement = document.getElementById(submenu);
+        const arrowElement = document.getElementById(arrow);
+
+        if (button && submenuElement && arrowElement) {
+            button.addEventListener('click', function() {
+                const isOpen = submenuElement.classList.contains('show');
+                
+                // Close all other submenus
+                dropdownButtons.forEach(({ submenu: otherSubmenu, arrow: otherArrow }) => {
+                    const otherSubmenuElement = document.getElementById(otherSubmenu);
+                    const otherArrowElement = document.getElementById(otherArrow);
+                    if (otherSubmenuElement && otherArrowElement && otherSubmenuElement !== submenuElement) {
+                        otherSubmenuElement.classList.remove('show');
+                        otherArrowElement.style.transform = 'rotate(0deg)';
+                    }
+                });
+
+                // Toggle current submenu
+                if (isOpen) {
+                    submenuElement.classList.remove('show');
+                    arrowElement.style.transform = 'rotate(0deg)';
+                } else {
+                    submenuElement.classList.add('show');
+                    arrowElement.style.transform = 'rotate(180deg)';
+                }
+            });
+        }
+    });
+
+    // User menu dropdown
+    const userMenuBtn = document.getElementById('userMenuBtn');
+    const userMenuDropdown = document.getElementById('userMenuDropdown');
+
+    if (userMenuBtn && userMenuDropdown) {
+        userMenuBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userMenuDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', function() {
+            userMenuDropdown.classList.add('hidden');
+        });
+
+        userMenuDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+});
 </script>
 </body>
 </html>
