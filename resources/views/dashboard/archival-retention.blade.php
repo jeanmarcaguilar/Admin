@@ -394,21 +394,6 @@ $user = auth()->user();
         <!-- Main Content Area -->
         <main class="p-6">
             <div class="max-w-7xl mx-auto">
-                <!-- Page Header -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between">
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Archival & Retention</h1>
-                            <p class="text-gray-600 mt-1">Manage document archival and retention policies</p>
-                        </div>
-                        <div class="mt-4 md:mt-0">
-                            <button class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors">
-                                <i class="fas fa-archive mr-2"></i>Create Archive Policy
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Archive Policy Notes -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
                     <div class="flex items-center justify-between mb-4">
