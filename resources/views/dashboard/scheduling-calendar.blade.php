@@ -695,6 +695,7 @@ $calendarBookings = $calendarBookings ?? [];
             }
 
             function renderCalendar() {
+                console.log('Rendering calendar...');
                 const year = currentDate.getFullYear();
                 const monthIndex = currentDate.getMonth();
                 const today = new Date();
@@ -705,6 +706,7 @@ $calendarBookings = $calendarBookings ?? [];
 
                 // Prepare grid
                 calendarGrid.innerHTML = '';
+                console.log('Calendar grid cleared');
 
                 const firstDayOfMonth = new Date(year, monthIndex, 1);
                 const startWeekday = firstDayOfMonth.getDay();
@@ -719,6 +721,7 @@ $calendarBookings = $calendarBookings ?? [];
                 }
 
                 // Day cells
+                console.log(`Creating ${totalDays} day cells`);
                 for (let day = 1; day <= totalDays; day++) {
                     const cell = document.createElement('div');
                     const isToday = today.getFullYear() === year && today.getMonth() === monthIndex && today.getDate() === day;
