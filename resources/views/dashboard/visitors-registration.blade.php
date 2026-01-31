@@ -1242,8 +1242,8 @@ $user = auth()->user();
             document.getElementById("closeCheckIn")?.addEventListener("click", () => closeModal(checkInModal));
             document.getElementById("cancelCheckIn")?.addEventListener("click", () => closeModal(checkInModal));
 
-            // Close modals when clicking outside
-            const modals = [addVisitorModal, viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal];
+            // Close modals when clicking outside (excluding add visitor modal)
+            const modals = [viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal]; // Removed addVisitorModal
             modals.forEach(modal => {
                 if (modal) {
                     modal.addEventListener('click', function(e) {
@@ -1328,6 +1328,15 @@ $user = auth()->user();
             if (addVisitorForm) {
                 addVisitorForm.addEventListener("submit", async (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Prevent any modal closing
+                    const submitButton = e.target.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registering...';
+                    }
+                    
                     const formData = new FormData(addVisitorForm);
                     const payload = Object.fromEntries(formData);
                     
@@ -1344,7 +1353,7 @@ $user = auth()->user();
                         
                         if (res.ok) {
                             // Show success message but keep modal open
-                            Swal.fire({
+                            await Swal.fire({
                                 icon: "success",
                                 title: "Visitor Registered Successfully!",
                                 text: "The visitor has been registered successfully.",
@@ -1357,12 +1366,24 @@ $user = auth()->user();
                             // Clear form but keep modal open
                             addVisitorForm.reset();
                             
+                            // Re-enable button
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                                submitButton.innerHTML = 'Register Visitor';
+                            }
+                            
                             // Optionally update the visitor list without reload
                             // location.reload(); // Commented out to keep modal open
                         } else {
                             throw new Error("Failed to register visitor");
                         }
                     } catch (err) {
+                        // Re-enable button on error
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = 'Register Visitor';
+                        }
+                        
                         Swal.fire({
                             icon: "error",
                             title: "Registration failed",
