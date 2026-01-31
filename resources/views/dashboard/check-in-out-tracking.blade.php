@@ -437,87 +437,45 @@
                 </div>
 
                 <!-- Enhanced Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <!-- Currently Checked In Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Currently Checked In</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['currently_checked_in'] ?? 0 }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="fas fa-user-check mr-1"></i>
+                                <p class="text-gray-600 font-semibold text-base mb-3">Currently Checked In</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ $stats['currently_checked_in'] ?? 0 }}</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-user-check mr-2"></i>
                                         Active
                                     </span>
-                                    <span class="text-xs text-gray-500">Visitors</span>
+                                    <span class="text-sm text-gray-500">Visitors</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-user-check text-white text-xl"></i>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-user-check text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Today's Check-Ins Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Today's Check-Ins</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['todays_checkins'] ?? 0 }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                        <i class="fas fa-sign-in-alt mr-1"></i>
+                                <p class="text-gray-600 font-semibold text-base mb-3">Today's Check-Ins</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ $stats['todays_checkins'] ?? 0 }}</p>
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="fas fa-sign-in-alt mr-2"></i>
                                         Today
                                     </span>
-                                    <span class="text-xs text-gray-500">Entries</span>
+                                    <span class="text-sm text-gray-500">Entries</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-sign-in-alt text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Average Duration Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Avg. Visit Duration</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">45 min</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="fas fa-clock mr-1"></i>
-                                        Average
-                                    </span>
-                                    <span class="text-xs text-gray-500">Duration</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-clock text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Visitors Today Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Visitors Today</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ ($stats['currently_checked_in'] ?? 0) + ($stats['todays_checkouts'] ?? 0) }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                        <i class="fas fa-users mr-1"></i>
-                                        Total
-                                    </span>
-                                    <span class="text-xs text-gray-500">Visitors</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="fas fa-users text-white text-xl"></i>
+                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-sign-in-alt text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
@@ -967,21 +925,60 @@
 
             // Filter buttons
             const filterButtons = document.querySelectorAll('.bg-white button:not(#searchInput)');
+            const tableRows = document.querySelectorAll('#checkinsTable tbody tr');
+            
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     // Remove active class from all buttons
                     filterButtons.forEach(btn => {
                         btn.classList.remove('bg-brand-primary', 'text-white');
-                        btn.classList.add('bg-white', 'text-gray-700');
+                        // Reset to original colors based on button type
+                        if (btn.textContent.toLowerCase().includes('all visitors')) {
+                            btn.classList.add('bg-blue-50', 'text-blue-700');
+                        } else if (btn.textContent.toLowerCase().includes('checked in')) {
+                            btn.classList.add('bg-green-50', 'text-green-700');
+                        } else if (btn.textContent.toLowerCase().includes('overdue')) {
+                            btn.classList.add('bg-amber-50', 'text-amber-700');
+                        } else if (btn.textContent.toLowerCase().includes('checked out')) {
+                            btn.classList.add('bg-gray-100', 'text-gray-700');
+                        }
                     });
                     
                     // Add active class to clicked button
-                    this.classList.remove('bg-white', 'text-gray-700');
+                    this.classList.remove('bg-blue-50', 'text-blue-700', 'bg-green-50', 'text-green-700', 'bg-amber-50', 'text-amber-700', 'bg-gray-100', 'text-gray-700');
                     this.classList.add('bg-brand-primary', 'text-white');
                     
-                    // Apply filter logic (simplified for example)
+                    // Apply filter logic
                     const filterType = this.textContent.toLowerCase();
-                    // In a real app, this would filter the table data
+                    let filterValue = '';
+                    
+                    if (filterType.includes('checked in')) {
+                        filterValue = 'checked_in';
+                    } else if (filterType.includes('checked out')) {
+                        filterValue = 'checked_out';
+                    } else if (filterType.includes('overdue')) {
+                        filterValue = 'overdue';
+                    } else if (filterType.includes('all visitors')) {
+                        filterValue = 'all';
+                    }
+                    
+                    // Filter table rows
+                    tableRows.forEach(row => {
+                        if (filterValue === 'all') {
+                            row.style.display = '';
+                        } else {
+                            const statusCell = row.querySelector('td:nth-child(6)'); // Status column
+                            if (statusCell) {
+                                const statusText = statusCell.textContent.toLowerCase().trim();
+                                if (filterValue === 'overdue') {
+                                    // Show overdue and checked_in (since checked_in might be overdue)
+                                    row.style.display = (statusText.includes('overdue') || statusText.includes('checked_in')) ? '' : 'none';
+                                } else {
+                                    row.style.display = statusText.includes(filterValue) ? '' : 'none';
+                                }
+                            }
+                        }
+                    });
                 });
             });
 
