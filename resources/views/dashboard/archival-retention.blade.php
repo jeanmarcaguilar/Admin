@@ -395,28 +395,7 @@ $user = auth()->user();
         <main class="p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Archival & Retention Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <!-- Total Documents Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-base mb-3">Total Documents</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ count($documents ?? []) }}</p>
-                                <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                        <i class="bx bx-file mr-2"></i>
-                                        Archived
-                                    </span>
-                                    <span class="text-sm text-gray-500">Files</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-file text-white text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Active Categories Card -->
                     <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
