@@ -697,11 +697,21 @@ $user = auth()->user();
                     const searchTerm = this.value.toLowerCase();
                     const userRows = document.querySelectorAll('tbody tr');
                     
-                    userRows.forEach(row => {
+                    console.log('Search term:', searchTerm);
+                    console.log('Found rows:', userRows.length);
+                    
+                    userRows.forEach((row, index) => {
                         const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                        const shouldShow = text.includes(searchTerm);
+                        row.style.display = shouldShow ? '' : 'none';
+                        
+                        if (searchTerm.length > 0) {
+                            console.log(`Row ${index}: ${shouldShow ? 'SHOW' : 'HIDE'} - "${text.substring(0, 50)}..."`);
+                        }
                     });
                 });
+            } else {
+                console.log('Search input not found');
             }
         });
     </script>
