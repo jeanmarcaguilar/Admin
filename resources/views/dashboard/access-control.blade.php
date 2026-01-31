@@ -475,8 +475,7 @@ $user = auth()->user();
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->department ?? 'Not Assigned' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
-                                        <button class="text-red-600 hover:text-red-700">Revoke</button>
+                                        <button class="text-brand-primary hover:text-brand-primary-hover">View</button>
                                     </td>
                                 </tr>
                                 @endforeach
