@@ -475,7 +475,7 @@ $user = auth()->user();
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->department ?? 'Not Assigned' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-brand-primary hover:text-brand-primary-hover">View</button>
+                                        <button class="view-user-btn text-brand-primary hover:text-brand-primary-hover" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-email="{{ $user->email }}" data-user-role="{{ $user->role }}" data-user-department="{{ $user->department ?? 'Not Assigned' }}" data-user-last-login="{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}">View</button>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -691,7 +691,89 @@ $user = auth()->user();
             } else {
                 console.log('Search input not found');
             }
+
+            // User modal functionality
+            const userModal = document.getElementById('userModal');
+            const closeUserModal = document.getElementById('closeUserModal');
+            const closeUserModalBtn = document.getElementById('closeUserModalBtn');
+            
+            // View button click handlers
+            document.querySelectorAll('.view-user-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const userId = this.dataset.userId;
+                    const userName = this.dataset.userName;
+                    const userEmail = this.dataset.userEmail;
+                    const userRole = this.dataset.userRole;
+                    const userDepartment = this.dataset.userDepartment;
+                    const userLastLogin = this.dataset.userLastLogin;
+                    
+                    // Populate modal with user data
+                    document.getElementById('modalUserName').textContent = userName;
+                    document.getElementById('modalUserEmail').textContent = userEmail;
+                    document.getElementById('modalUserRole').textContent = userRole;
+                    document.getElementById('modalUserDepartment').textContent = userDepartment;
+                    document.getElementById('modalUserLastLogin').textContent = userLastLogin;
+                    
+                    // Show modal
+                    userModal.classList.remove('hidden');
+                });
+            });
+            
+            // Close modal handlers
+            closeUserModal.addEventListener('click', () => {
+                userModal.classList.add('hidden');
+            });
+            
+            closeUserModalBtn.addEventListener('click', () => {
+                userModal.classList.add('hidden');
+            });
+            
+            // Close modal when clicking outside
+            userModal.addEventListener('click', (e) => {
+                if (e.target === userModal) {
+                    userModal.classList.add('hidden');
+                }
+            });
         });
     </script>
+
+    <!-- User Details Modal -->
+    <div id="userModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">User Details</h3>
+                <button id="closeUserModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Name</label>
+                    <p id="modalUserName" class="text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Email</label>
+                    <p id="modalUserEmail" class="text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Role</label>
+                    <p id="modalUserRole" class="text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Department</label>
+                    <p id="modalUserDepartment" class="text-gray-900"></p>
+                </div>
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Last Login</label>
+                    <p id="modalUserLastLogin" class="text-gray-900"></p>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button id="closeUserModalBtn" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
