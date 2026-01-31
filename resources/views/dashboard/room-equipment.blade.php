@@ -407,11 +407,10 @@ $user = auth()->user();
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Booking Type <span class="text-red-500">*</span></label>
                                         <select name="booking_type" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" required>
                                             <option value="">-- Select booking type --</option>
-                                            <option value="1">Room Booking</option>
-                                            <option value="2">Equipment Booking</option>
-                                            <option value="3">Meeting</option>
-                                            <option value="4">Event</option>
-                                            <option value="5">Training</option>
+                                            <option value="room">Room</option>
+                                            <option value="equipment">Equipment</option>
+                                            <option value="meeting">Meeting</option>
+                                            <option value="event">Event</option>
                                         </select>
                                     </div>
                                     
