@@ -441,7 +441,7 @@ $calendarBookings = $calendarBookings ?? [];
                             <div class="text-center text-xs font-medium text-gray-500 py-2">Sat</div>
                         </div>
 
-                        <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+                        <div id="calendarGrid" class="grid grid-cols-7 gap-2 border border-gray-200 rounded-lg p-2" style="min-height: 500px;"></div>
 
                         <!-- Calendar Legend -->
                         <div class="mt-6 pt-6 border-t border-gray-100">
@@ -734,7 +734,7 @@ $calendarBookings = $calendarBookings ?? [];
                     const cell = document.createElement('div');
                     const isToday = today.getFullYear() === year && today.getMonth() === monthIndex && today.getDate() === day;
                     cell.className = `h-24 border border-gray-200 rounded-lg p-2 calendar-day ${
-                        isToday ? 'ring-2 ring-brand-primary bg-brand-primary/5' : 'bg-white'
+                        isToday ? 'ring-2 ring-brand-primary bg-brand-primary/5' : 'bg-white hover:bg-gray-50'
                     }`;
 
                     const badge = document.createElement('span');
