@@ -395,114 +395,104 @@ $user = auth()->user();
         <main class="p-6">
             <div class="max-w-7xl mx-auto">
                 <!-- Archive Policy Notes -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-gray-900">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h2 class="text-base font-semibold text-gray-900">
                             <i class="bx bx-info-circle text-purple-600 mr-2"></i>
                             Archive Policy Notes
                         </h2>
-                        <span class="text-sm text-gray-500">Category-specific retention guidelines</span>
+                        <span class="text-xs text-gray-500">Category-specific retention guidelines</span>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-lg font-bold">₱</span>
-                                <h4 class="font-semibold text-green-800">Financial</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+                        <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm font-bold">₱</span>
+                                <h4 class="font-semibold text-green-800 text-sm">Financial</h4>
                             </div>
-                            <p class="text-sm text-green-700"><strong>Archive:</strong> After 6 months of creation</p>
-                            <p class="text-sm text-green-700"><strong>Retention:</strong> 7 years for compliance</p>
-                            <p class="text-xs text-green-600 mt-1">Includes budgets, invoices, financial reports</p>
+                            <p class="text-xs text-green-700"><strong>Archive:</strong> 6 months</p>
+                            <p class="text-xs text-green-700"><strong>Retention:</strong> 7 years</p>
                         </div>
                         
-                        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-id-card text-blue-600"></i>
-                                <h4 class="font-semibold text-blue-800">HR</h4>
+                        <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-id-card text-blue-600 text-sm"></i>
+                                <h4 class="font-semibold text-blue-800 text-sm">HR</h4>
                             </div>
-                            <p class="text-sm text-blue-700"><strong>Archive:</strong> After 1 year of employee departure</p>
-                            <p class="text-sm text-blue-700"><strong>Retention:</strong> 5 years for legal requirements</p>
-                            <p class="text-xs text-blue-600 mt-1">Employee files, policies, records</p>
+                            <p class="text-xs text-blue-700"><strong>Archive:</strong> 1 year</p>
+                            <p class="text-xs text-blue-700"><strong>Retention:</strong> 5 years</p>
                         </div>
                         
-                        <div class="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-gavel text-yellow-600"></i>
-                                <h4 class="font-semibold text-yellow-800">Legal</h4>
+                        <div class="bg-yellow-50 rounded-lg p-3 border border-yellow-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-gavel text-yellow-600 text-sm"></i>
+                                <h4 class="font-semibold text-yellow-800 text-sm">Legal</h4>
                             </div>
-                            <p class="text-sm text-yellow-700"><strong>Archive:</strong> After 3 months of case resolution</p>
-                            <p class="text-sm text-yellow-700"><strong>Retention:</strong> 10 years for statute of limitations</p>
-                            <p class="text-xs text-yellow-600 mt-1">Contracts, case files, legal documents</p>
+                            <p class="text-xs text-yellow-700"><strong>Archive:</strong> 3 months</p>
+                            <p class="text-xs text-yellow-700"><strong>Retention:</strong> 10 years</p>
                         </div>
                         
-                        <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-cog text-purple-600"></i>
-                                <h4 class="font-semibold text-purple-800">Operations</h4>
+                        <div class="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-cog text-purple-600 text-sm"></i>
+                                <h4 class="font-semibold text-purple-800 text-sm">Operations</h4>
                             </div>
-                            <p class="text-sm text-purple-700"><strong>Archive:</strong> After 3 months of process update</p>
-                            <p class="text-sm text-purple-700"><strong>Retention:</strong> 3 years for operational reference</p>
-                            <p class="text-xs text-purple-600 mt-1">Processes, procedures, workflows</p>
+                            <p class="text-xs text-purple-700"><strong>Archive:</strong> 3 months</p>
+                            <p class="text-xs text-purple-700"><strong>Retention:</strong> 3 years</p>
                         </div>
                         
-                        <div class="bg-red-50 rounded-lg p-4 border border-red-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-file text-red-600"></i>
-                                <h4 class="font-semibold text-red-800">Contracts</h4>
+                        <div class="bg-red-50 rounded-lg p-3 border border-red-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-file text-red-600 text-sm"></i>
+                                <h4 class="font-semibold text-red-800 text-sm">Contracts</h4>
                             </div>
-                            <p class="text-sm text-red-700"><strong>Archive:</strong> After 6 months of contract completion</p>
-                            <p class="text-sm text-red-700"><strong>Retention:</strong> 7 years for legal protection</p>
-                            <p class="text-xs text-red-600 mt-1">Agreements, NDAs, vendor contracts</p>
+                            <p class="text-xs text-red-700"><strong>Archive:</strong> 6 months</p>
+                            <p class="text-xs text-red-700"><strong>Retention:</strong> 7 years</p>
                         </div>
                         
-                        <div class="bg-orange-50 rounded-lg p-4 border border-orange-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-bolt text-orange-600"></i>
-                                <h4 class="font-semibold text-orange-800">Utilities</h4>
+                        <div class="bg-orange-50 rounded-lg p-3 border border-orange-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-bolt text-orange-600 text-sm"></i>
+                                <h4 class="font-semibold text-orange-800 text-sm">Utilities</h4>
                             </div>
-                            <p class="text-sm text-orange-700"><strong>Archive:</strong> After 1 year of billing period</p>
-                            <p class="text-sm text-orange-700"><strong>Retention:</strong> 3 years for audit purposes</p>
-                            <p class="text-xs text-orange-600 mt-1">Electricity, water, gas bills</p>
+                            <p class="text-xs text-orange-700"><strong>Archive:</strong> 1 year</p>
+                            <p class="text-xs text-orange-700"><strong>Retention:</strong> 3 years</p>
                         </div>
                         
-                        <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-folder text-indigo-600"></i>
-                                <h4 class="font-semibold text-indigo-800">Projects</h4>
+                        <div class="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-folder text-indigo-600 text-sm"></i>
+                                <h4 class="font-semibold text-indigo-800 text-sm">Projects</h4>
                             </div>
-                            <p class="text-sm text-indigo-700"><strong>Archive:</strong> After project completion</p>
-                            <p class="text-sm text-indigo-700"><strong>Retention:</strong> 5 years for reference</p>
-                            <p class="text-xs text-indigo-600 mt-1">Project plans, reports, documentation</p>
+                            <p class="text-xs text-indigo-700"><strong>Archive:</strong> Completion</p>
+                            <p class="text-xs text-indigo-700"><strong>Retention:</strong> 5 years</p>
                         </div>
                         
-                        <div class="bg-lime-50 rounded-lg p-4 border border-lime-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-shopping-bag text-lime-600"></i>
-                                <h4 class="font-semibold text-lime-800">Procurement</h4>
+                        <div class="bg-lime-50 rounded-lg p-3 border border-lime-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-shopping-bag text-lime-600 text-sm"></i>
+                                <h4 class="font-semibold text-lime-800 text-sm">Procurement</h4>
                             </div>
-                            <p class="text-sm text-lime-700"><strong>Archive:</strong> After 6 months of purchase</p>
-                            <p class="text-sm text-lime-700"><strong>Retention:</strong> 5 years for warranty tracking</p>
-                            <p class="text-xs text-lime-600 mt-1">Vendors, purchases, procurement records</p>
+                            <p class="text-xs text-lime-700"><strong>Archive:</strong> 6 months</p>
+                            <p class="text-xs text-lime-700"><strong>Retention:</strong> 5 years</p>
                         </div>
                         
-                        <div class="bg-cyan-50 rounded-lg p-4 border border-cyan-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <i class="bx bx-laptop text-cyan-600"></i>
-                                <h4 class="font-semibold text-cyan-800">IT</h4>
+                        <div class="bg-cyan-50 rounded-lg p-3 border border-cyan-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <i class="bx bx-laptop text-cyan-600 text-sm"></i>
+                                <h4 class="font-semibold text-cyan-800 text-sm">IT</h4>
                             </div>
-                            <p class="text-sm text-cyan-700"><strong>Archive:</strong> After 1 year of implementation</p>
-                            <p class="text-sm text-cyan-700"><strong>Retention:</strong> 3 years for technical reference</p>
-                            <p class="text-xs text-cyan-600 mt-1">Software, hardware, IT documentation</p>
+                            <p class="text-xs text-cyan-700"><strong>Archive:</strong> 1 year</p>
+                            <p class="text-xs text-cyan-700"><strong>Retention:</strong> 3 years</p>
                         </div>
                         
-                        <div class="bg-pink-50 rounded-lg p-4 border border-pink-200">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-lg font-bold">₱</span>
-                                <h4 class="font-semibold text-pink-800">Payroll</h4>
+                        <div class="bg-pink-50 rounded-lg p-3 border border-pink-200">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-sm font-bold">₱</span>
+                                <h4 class="font-semibold text-pink-800 text-sm">Payroll</h4>
                             </div>
-                            <p class="text-sm text-pink-700"><strong>Archive:</strong> After 2 years of tax filing</p>
-                            <p class="text-sm text-pink-700"><strong>Retention:</strong> 7 years for tax compliance</p>
-                            <p class="text-xs text-pink-600 mt-1">Employee compensation, payroll records</p>
+                            <p class="text-xs text-pink-700"><strong>Archive:</strong> 2 years</p>
+                            <p class="text-xs text-pink-700"><strong>Retention:</strong> 7 years</p>
                         </div>
                     </div>
                 </div>
