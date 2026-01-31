@@ -8,7 +8,7 @@ $user = auth()->user();
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Case Management | Microfinance HR3</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -301,13 +301,6 @@ $user = auth()->user();
             </div>
 
             <!-- Administrator -->
-            <a href="#"
-                class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-                    hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-                Administrator
-            </a>
 
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
@@ -346,13 +339,6 @@ $user = auth()->user();
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                     {{ now()->format('H:i:s') }}
                 </span>
-
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-5 h-5 flex items-center justify-center">3</span>
-                </button>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
@@ -467,44 +453,58 @@ $user = auth()->user();
                     </div>
                 </div>
 
-                <!-- Case Statistics -->
+                <!-- Enhanced Case Statistics -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-                    <!-- Active Cases -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Active Cases</p>
-                                <h3 class="text-2xl font-bold text-green-600">{{ $stats['active_cases'] }}</h3>
-                                <p class="text-xs text-gray-500 mt-1">Currently active</p>
+                    <!-- Active Cases Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Active Cases</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['active_cases'] }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="fas fa-gavel mr-1"></i>
+                                        Open
+                                    </span>
+                                    <span class="text-xs text-gray-500">Active</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                <i class="fas fa-gavel text-lg"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-gavel text-white text-xl"></i>
                             </div>
                         </div>
-                        <div class="mt-2">
+                        <div class="mt-4">
                             @php 
                                 $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['active_cases'] / $stats['total_cases']) * 100)) : 0;
                             @endphp
                             <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                <div class="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
+                                <div class="bg-gradient-to-r from-emerald-400 to-emerald-600 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
                             </div>
                             <p class="text-xs text-gray-500 mt-2">{{ $pct }}% of total cases</p>
                         </div>
                     </div>
 
-                    <!-- Pending Cases -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Pending</p>
-                                <h3 class="text-2xl font-bold text-blue-600">{{ $stats['pending_tasks'] ?? 0 }}</h3>
-                                <p class="text-xs text-gray-500 mt-1">In progress</p>
+                    <!-- Pending Cases Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Pending</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['pending_tasks'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        Waiting
+                                    </span>
+                                    <span class="text-xs text-gray-500">Progress</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <i class="fas fa-clock text-lg"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-clock text-white text-xl"></i>
                             </div>
                         </div>
-                        <div class="mt-2">
+                        <div class="mt-4">
                             @php 
                                 $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['pending_tasks'] / $stats['total_cases']) * 100)) : 0;
                             @endphp
@@ -515,69 +515,53 @@ $user = auth()->user();
                         </div>
                     </div>
 
-                    <!-- Urgent Cases -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Urgent</p>
-                                <h3 class="text-2xl font-bold text-yellow-600">{{ $stats['urgent_cases'] ?? 0 }}</h3>
-                                <p class="text-xs text-gray-500 mt-1">High priority</p>
+                    <!-- Urgent Cases Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Urgent</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['urgent_cases'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        Priority
+                                    </span>
+                                    <span class="text-xs text-gray-500">High</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                <i class="fas fa-exclamation-triangle text-lg"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-exclamation-triangle text-white text-xl"></i>
                             </div>
                         </div>
-                        <div class="mt-2">
+                        <div class="mt-4">
                             @php 
                                 $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['urgent_cases'] / $stats['total_cases']) * 100)) : 0;
                             @endphp
                             <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                <div class="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
+                                <div class="bg-gradient-to-r from-amber-400 to-orange-500 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">{{ $pct }}% of total cases</p>
                         </div>
                     </div>
 
-                    <!-- Upcoming Hearings -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Upcoming Hearings</p>
-                                <h3 class="text-2xl font-bold text-purple-600">{{ $stats['upcoming_hearings'] ?? 0 }}</h3>
-                                <p class="text-xs text-gray-500 mt-1">Next 30 days</p>
-                            </div>
-                            <div class="p-3 rounded-full bg-purple-100 text-purple-600">
-                                <i class="fas fa-calendar-day text-lg"></i>
-                            </div>
-                        </div>
-                        <div id="nextHearingInfo" class="mt-2">
-                            @php $nh = $stats['next_hearing'] ?? null; @endphp
-                            @if($nh)
-                                <p class="text-xs text-gray-600">Next: <span class="font-medium">{{ $nh['title'] }}</span></p>
-                            @else
-                                <p class="text-xs text-gray-600">No upcoming hearings</p>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Total Active Cases -->
-                    <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-sm p-6 lg:col-span-2 hover:shadow-md transition-all duration-300 border border-blue-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Active Cases</p>
-                                <h3 class="text-3xl font-bold text-gray-900 mt-2">{{ $stats['active_cases'] ?? 0 }}</h3>
-                                <p class="text-xs text-gray-600 mt-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">
-                                        <i class="fas fa-check-circle mr-1"></i>{{ $stats['active_cases'] }} active
+                    <!-- Upcoming Hearings Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Upcoming Hearings</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['upcoming_hearings'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
+                                        <i class="fas fa-calendar-alt mr-1"></i>
+                                        Scheduled
                                     </span>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">
-                                        <i class="fas fa-clock mr-1"></i>{{ $stats['pending_tasks'] ?? 0 }} pending
-                                    </span>
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                        <i class="fas fa-exclamation-circle mr-1"></i>{{ $stats['urgent_cases'] ?? 0 }} urgent
-                                    </span>
-                                </p>
+                                    <span class="text-xs text-gray-500">30 days</span>
+                                </div>
                             </div>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-calendar-alt text-white text-xl"></i>
                             <div class="p-4 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg">
                                 <i class="fas fa-chart-line text-xl"></i>
                             </div>
@@ -1291,11 +1275,12 @@ $user = auth()->user();
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'

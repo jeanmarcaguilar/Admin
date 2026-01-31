@@ -8,7 +8,7 @@ $user = auth()->user();
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Contract Management | Microfinance HR3</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -288,13 +288,6 @@ $user = auth()->user();
             </div>
 
             <!-- Administrator -->
-            <a href="#"
-                class="mt-3 flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700
-                    hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:scale-[0.99] font-semibold">
-                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👤</span>
-                Administrator
-            </a>
 
             <div class="mt-8 px-2">
                 <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
@@ -333,13 +326,6 @@ $user = auth()->user();
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
                     {{ now()->format('H:i:s') }}
                 </span>
-
-                <!-- Notification Bell -->
-                <button id="notificationBtn"
-                    class="w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center relative">
-                    <i class="fas fa-bell text-gray-600"></i>
-                    <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">3</span>
-                </button>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
 
@@ -400,30 +386,46 @@ $user = auth()->user();
                     </div>
                 </div>
 
-                <!-- Contract Stats Cards -->
+                <!-- Enhanced Contract Stats Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Total Contracts -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Contracts</p>
-                                <h3 class="text-2xl font-bold text-gray-900">{{ $stats['total'] ?? 0 }}</h3>
+                    <!-- Total Contracts Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Contracts</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['total'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <i class="fas fa-file-contract mr-1"></i>
+                                        All
+                                    </span>
+                                    <span class="text-xs text-gray-500">Contracts</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                <i class="fas fa-file-contract text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-file-contract text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Active Contracts -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Active</p>
-                                <h3 class="text-2xl font-bold text-green-600">{{ $stats['active'] ?? 0 }}</h3>
+                    <!-- Active Contracts Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Active</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['active'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Live
+                                    </span>
+                                    <span class="text-xs text-gray-500">Running</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                <i class="fas fa-check-circle text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-check-circle text-white text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
@@ -431,21 +433,29 @@ $user = auth()->user();
                                 $activePercent = $stats['total'] > 0 ? round(($stats['active'] / $stats['total']) * 100) : 0;
                             @endphp
                             <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-green-500 rounded-full" style="width: {{ $activePercent }}%"></div>
+                                <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-500" style="width: {{ $activePercent }}%"></div>
                             </div>
                             <p class="text-xs text-gray-500 mt-1 text-right">{{ $activePercent }}% of total</p>
                         </div>
                     </div>
 
-                    <!-- Pending Review -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Pending Review</p>
-                                <h3 class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] ?? 0 }}</h3>
+                    <!-- Pending Review Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Pending Review</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['pending'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        Waiting
+                                    </span>
+                                    <span class="text-xs text-gray-500">Review</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                                <i class="fas fa-clock text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-clock text-white text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
@@ -453,21 +463,29 @@ $user = auth()->user();
                                 $pendingPercent = $stats['total'] > 0 ? round(($stats['pending'] / $stats['total']) * 100) : 0;
                             @endphp
                             <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-yellow-500 rounded-full" style="width: {{ $pendingPercent }}%"></div>
+                                <div class="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full transition-all duration-500" style="width: {{ $pendingPercent }}%"></div>
                             </div>
                             <p class="text-xs text-gray-500 mt-1 text-right">{{ $pendingPercent }}% of total</p>
                         </div>
                     </div>
 
-                    <!-- Expiring Soon -->
-                    <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Expiring Soon</p>
-                                <h3 class="text-2xl font-bold text-red-600">{{ $stats['expiring'] ?? 0 }}</h3>
+                    <!-- Expiring Soon Card -->
+                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                        <div class="relative flex justify-between items-start">
+                            <div class="flex-1">
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Expiring Soon</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['expiring'] ?? 0 }}</p>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                        Alert
+                                    </span>
+                                    <span class="text-xs text-gray-500">Urgent</span>
+                                </div>
                             </div>
-                            <div class="p-3 rounded-full bg-red-100 text-red-600">
-                                <i class="fas fa-exclamation-triangle text-xl"></i>
+                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i class="fas fa-exclamation-triangle text-white text-xl"></i>
                             </div>
                         </div>
                         <div class="mt-4">
@@ -475,7 +493,7 @@ $user = auth()->user();
                                 $expiringPercent = $stats['total'] > 0 ? round(($stats['expiring'] / $stats['total']) * 100) : 0;
                             @endphp
                             <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                                <div class="h-full bg-red-500 rounded-full" style="width: {{ $expiringPercent }}%"></div>
+                                <div class="h-full bg-gradient-to-r from-red-400 to-red-600 rounded-full transition-all duration-500" style="width: {{ $expiringPercent }}%"></div>
                             </div>
                             <p class="text-xs text-gray-500 mt-1 text-right">{{ $expiringPercent }}% of total</p>
                         </div>
@@ -1083,11 +1101,12 @@ $user = auth()->user();
                 });
             }
 
-            // Real-time clock
+            // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
+                // Use local time with proper formatting
                 const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: false,
+                    hour12: true,
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit'

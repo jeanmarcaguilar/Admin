@@ -8,7 +8,7 @@ $user = auth()->user();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compliance Tracking | Administrative Dashboard</title>
+    <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -174,10 +174,7 @@ $user = auth()->user();
                 <h1 class="text-2xl font-bold tracking-tight">Compliance Tracking</h1>
             </div>
             <div class="flex items-center space-x-1">
-                <button class="relative p-2 transition duration-200 focus:outline-none" id="notificationBtn" aria-label="Notifications">
-                    <i class="fa-solid fa-bell text-xl"></i>
-                    <span class="absolute top-1 right-1 bg-red-500 text-xs text-white rounded-full px-1">3</span>
-                </button>
+                <!-- Notification bell removed -->
                 <div onclick="toggleUserMenu(event)" class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
                     <i class="fa-solid fa-user text-[18px] bg-white text-[#28644c] px-2.5 py-2 rounded-full"></i>
                     <span class="text-white font-medium">{{ $user->name }}</span>
@@ -448,10 +445,7 @@ $user = auth()->user();
                         </ul>
                     </li>
                     <li>
-                        <a href="#" class="flex items-center font-medium space-x-2 text-lg hover:bg-white/30 px-3 py-2.5 rounded-lg whitespace-nowrap">
-                            <i class="bx bx-user-shield"></i>
-                            <span>Administrator</span>
-                        </a>
+                        <!-- Administrator removed -->
                     </li>
                 </ul>
             </div>
@@ -515,31 +509,88 @@ $user = auth()->user();
                             </button>
                         </div>
                     </div>
-                    <!-- Stats Cards -->
-                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-800">Active Compliances</p>
-
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $stats['active'] ?? 0 }}</p>
-
+                    <!-- Enhanced Stats Cards -->
+                    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Active Compliances Card -->
+                        <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Active Compliances</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['active'] ?? 0 }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                            <i class="fas fa-clipboard-check mr-1"></i>
+                                            Live
+                                        </span>
+                                        <span class="text-xs text-gray-500">Active</span>
+                                    </div>
                                 </div>
-                                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
-                                    <i class="fas fa-clipboard-check text-xl"></i>
+                                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-clipboard-check text-white text-xl"></i>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="dashboard-card p-4">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-800">Pending Review</p>
 
-                                    <p class="font-extrabold text-2xl mt-1 text-gray-900">{{ $stats['pending'] ?? 0 }}</p>
+                        <!-- Pending Review Card -->
+                        <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Pending Review</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['pending'] ?? 0 }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            <i class="fas fa-search mr-1"></i>
+                                            Waiting
+                                        </span>
+                                        <span class="text-xs text-gray-500">Review</span>
+                                    </div>
                                 </div>
-                                <div class="p-3 rounded-full bg-green-100 text-green-600">
-                                    <i class="fas fa-search text-xl"></i>
+                                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-search text-white text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Overdue Card -->
+                        <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-50 to-red-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Overdue</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['overdue'] ?? 0 }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            Late
+                                        </span>
+                                        <span class="text-xs text-gray-500">Urgent</span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Completed Card -->
+                        <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Completed</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['completed'] ?? 0 }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            Done
+                                        </span>
+                                        <span class="text-xs text-gray-500">Finished</span>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-check-circle text-white text-xl"></i>
                                 </div>
                             </div>
                         </div>
