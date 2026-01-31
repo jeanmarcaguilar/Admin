@@ -165,24 +165,6 @@ $user = auth()->user();
     </style>
 </head>
 <body>
-    <nav class="w-full p-3 h-16 bg-[#28644c] text-white shadow-md fixed top-0 left-0 right-0 z-50">
-        <div class="flex justify-between items-center h-full max-w-7xl mx-auto">
-            <div class="flex items-center space-x-4">
-                <button id="toggle-btn" class="pl-2 focus:outline-none" aria-label="Toggle Sidebar">
-                    <i class="fa-solid fa-bars text-2xl cursor-pointer"></i>
-                </button>
-                <h1 class="text-2xl font-bold tracking-tight">Compliance Tracking</h1>
-            </div>
-            <div class="flex items-center space-x-1">
-                <!-- Notification bell removed -->
-                <div onclick="toggleUserMenu(event)" class="flex items-center space-x-2 cursor-pointer px-3 py-2 transition duration-200" id="userMenuBtn" aria-label="User menu" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa-solid fa-user text-[18px] bg-white text-[#28644c] px-2.5 py-2 rounded-full"></i>
-                    <span class="text-white font-medium">{{ $user->name }}</span>
-                    <i class="fa-solid fa-chevron-down text-sm"></i>
-                </div>
-            </div>
-        </div>
-    </nav>
     <script>
       (function(){
         if (typeof window.openCaseWithConfGate !== 'function'){
@@ -194,10 +176,7 @@ $user = auth()->user();
         }
       })();
     </script>
-  </style>
-</head>
-<body class="bg-brand-background-main min-h-screen">
-  <!-- Overlay (mobile) -->
+      <!-- Overlay (mobile) -->
   <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
 
   <!-- SIDEBAR -->
