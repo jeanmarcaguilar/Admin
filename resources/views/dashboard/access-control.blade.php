@@ -442,17 +442,18 @@ $user = auth()->user();
                     </div>
                 </div>
 
-                <!-- Page Header -->
+                <!-- Page Header with Search -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900">Access Control</h1>
                             <p class="text-gray-600 mt-1">Manage user permissions and access levels</p>
                         </div>
-                        <div class="mt-4 md:mt-0">
-                            <button class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors">
-                                <i class="fas fa-plus mr-2"></i>Add New Role
-                            </button>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="userSearch" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 pr-3 py-2.5" placeholder="Search users...">
                         </div>
                     </div>
                 </div>
@@ -688,6 +689,20 @@ $user = auth()->user();
 
             // Initialize permission summary
             updatePermissionSummary();
+
+            // User search functionality
+            const userSearchInput = document.getElementById('userSearch');
+            if (userSearchInput) {
+                userSearchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const userRows = document.querySelectorAll('tbody tr');
+                    
+                    userRows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
+                });
+            }
         });
     </script>
 </body>
