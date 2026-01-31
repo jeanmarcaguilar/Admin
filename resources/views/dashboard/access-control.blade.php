@@ -804,12 +804,9 @@ $user = auth()->user();
             
             <!-- Modal Footer -->
             <div class="bg-gray-50 px-6 py-4 rounded-b-2xl">
-                <div class="flex justify-end gap-3">
+                <div class="flex justify-end">
                     <button id="closeUserModalBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
                         Cancel
-                    </button>
-                    <button class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium">
-                        Edit User
                     </button>
                 </div>
             </div>
