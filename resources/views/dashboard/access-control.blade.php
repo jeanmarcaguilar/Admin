@@ -384,7 +384,7 @@ $user = auth()->user();
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">Total Users</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">68</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ App\Models\User::count() }}</p>
                                 <div class="flex items-center gap-3">
                                     <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                         <i class="bx bx-user mr-2"></i>
@@ -405,7 +405,7 @@ $user = auth()->user();
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">User Roles</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">4</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ App\Models\Role::count() }}</p>
                                 <div class="flex items-center gap-3">
                                     <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
                                         <i class="bx bx-shield mr-2"></i>
@@ -426,7 +426,7 @@ $user = auth()->user();
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">Active Permissions</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">24</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ App\Models\Permission::count() }}</p>
                                 <div class="flex items-center gap-3">
                                     <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
                                         <i class="bx bx-key mr-2"></i>
@@ -476,74 +476,36 @@ $user = auth()->user();
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach(App\Models\User::with('roles')->get() as $user)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
                                             <div class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                                <span class="text-blue-600 text-sm font-medium">JS</span>
+                                                <span class="text-blue-600 text-sm font-medium">{{ strtoupper(substr($user->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $user->name)[1] ?? '', 0, 1)) }}</span>
                                             </div>
                                             <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900">John Smith</div>
-                                                <div class="text-xs text-gray-500">john.smith@company.com</div>
+                                                <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                                                <div class="text-xs text-gray-500">{{ $user->email }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-medium rounded-full">Administrator</span>
+                                        @if($user->roles->isNotEmpty())
+                                            @foreach($user->roles as $role)
+                                                <span class="px-2 py-1 bg-{{ $role->name === 'Administrator' ? 'red' : ($role->name === 'Manager' ? 'blue' : ($role->name === 'Employee' ? 'green' : 'gray')) }}-100 text-{{ $role->name === 'Administrator' ? 'red' : ($role->name === 'Manager' ? 'blue' : ($role->name === 'Employee' ? 'green' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ $role->name }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">No Role</span>
+                                        @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">IT Department</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->department ?? 'Not Assigned' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
                                         <button class="text-red-600 hover:text-red-700">Revoke</button>
                                     </td>
                                 </tr>
-                                
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                                                <span class="text-green-600 text-sm font-medium">SJ</span>
-                                            </div>
-                                            <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900">Sarah Johnson</div>
-                                                <div class="text-xs text-gray-500">sarah.j@company.com</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">Manager</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Administration</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Yesterday</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
-                                        <button class="text-red-600 hover:text-red-700">Revoke</button>
-                                    </td>
-                                </tr>
-                                
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-purple-100 flex items-center justify-center">
-                                                <span class="text-purple-600 text-sm font-medium">MW</span>
-                                            </div>
-                                            <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900">Mike Wilson</div>
-                                                <div class="text-xs text-gray-500">mike.w@company.com</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Employee</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Finance</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3 days ago</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
-                                        <button class="text-red-600 hover:text-red-700">Revoke</button>
-                                    </td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -551,7 +513,7 @@ $user = auth()->user();
                     <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                         <div class="flex items-center justify-between">
                             <div class="text-sm text-gray-500">
-                                Showing 3 of 68 users
+                                Showing {{ App\Models\User::count() }} users
                             </div>
                             <div class="flex space-x-2">
                                 <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
