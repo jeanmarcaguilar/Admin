@@ -51,11 +51,19 @@ class User extends Authenticatable
     }
     
     /**
-     * Get the roles that belong to the user.
+     * Get the user's role attribute with default fallback.
      */
-    public function roles()
+    public function getRoleAttribute($value)
     {
-        return $this->belongsToMany(Role::class);
+        return $value ?? 'Employee';
+    }
+    
+    /**
+     * Check if user has specific role.
+     */
+    public function hasRole($role)
+    {
+        return $this->role === $role;
     }
     
     /**
