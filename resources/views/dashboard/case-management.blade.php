@@ -566,7 +566,7 @@ $user = auth()->user();
                         </div>
                         <div class="mt-4">
                             @php 
-                                $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['completed_cases'] / $stats['total_cases']) * 100)) : 0;
+                                $pct = $stats['total_cases'] > 0 ? min(100, round(($stats['completed_cases'] ?? 0) / $stats['total_cases']) * 100) : 0;
                             @endphp
                             <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                                 <div class="bg-gradient-to-r from-violet-400 to-violet-600 h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%"></div>
