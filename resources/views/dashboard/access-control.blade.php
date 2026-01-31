@@ -707,71 +707,111 @@ $user = auth()->user();
                     const userDepartment = this.dataset.userDepartment;
                     const userLastLogin = this.dataset.userLastLogin;
                     
+                    // Generate user initials for avatar
+                    const nameParts = userName.split(' ');
+                    const initials = nameParts.length > 1 
+                        ? nameParts[0][0].toUpperCase() + nameParts[1][0].toUpperCase()
+                        : userName.substring(0, 2).toUpperCase();
+                    
                     // Populate modal with user data
                     document.getElementById('modalUserName').textContent = userName;
-                    document.getElementById('modalUserEmail').textContent = userEmail;
                     document.getElementById('modalUserRole').textContent = userRole;
+                    document.getElementById('modalUserEmail').textContent = userEmail;
                     document.getElementById('modalUserDepartment').textContent = userDepartment;
                     document.getElementById('modalUserLastLogin').textContent = userLastLogin;
+                    document.getElementById('modalUserAvatar').textContent = initials;
                     
-                    // Show modal
+                    // Show modal with animation
                     userModal.classList.remove('hidden');
+                    setTimeout(() => {
+                        const modalContent = document.getElementById('modalContent');
+                        modalContent.classList.remove('scale-95', 'opacity-0');
+                        modalContent.classList.add('scale-100', 'opacity-100');
+                    }, 10);
                 });
             });
             
-            // Close modal handlers
-            closeUserModal.addEventListener('click', () => {
-                userModal.classList.add('hidden');
-            });
+            // Close modal handlers with animation
+            function closeModal() {
+                const modalContent = document.getElementById('modalContent');
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                modalContent.classList.add('scale-95', 'opacity-0');
+                
+                setTimeout(() => {
+                    userModal.classList.add('hidden');
+                }, 300);
+            }
             
-            closeUserModalBtn.addEventListener('click', () => {
-                userModal.classList.add('hidden');
-            });
+            closeUserModal.addEventListener('click', closeModal);
+            closeUserModalBtn.addEventListener('click', closeModal);
             
             // Close modal when clicking outside
             userModal.addEventListener('click', (e) => {
                 if (e.target === userModal) {
-                    userModal.classList.add('hidden');
+                    closeModal();
                 }
             });
         });
     </script>
 
     <!-- User Details Modal -->
-    <div id="userModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-xl bg-white">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">User Details</h3>
-                <button id="closeUserModal" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="space-y-3">
-                <div>
-                    <label class="text-sm font-medium text-gray-500">Name</label>
-                    <p id="modalUserName" class="text-gray-900"></p>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-500">Email</label>
-                    <p id="modalUserEmail" class="text-gray-900"></p>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-500">Role</label>
-                    <p id="modalUserRole" class="text-gray-900"></p>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-500">Department</label>
-                    <p id="modalUserDepartment" class="text-gray-900"></p>
-                </div>
-                <div>
-                    <label class="text-sm font-medium text-gray-500">Last Login</label>
-                    <p id="modalUserLastLogin" class="text-gray-900"></p>
+    <div id="userModal" class="fixed inset-0 bg-black bg-opacity-60 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-brand-primary to-brand-primary-hover px-6 py-4 rounded-t-2xl">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-user-circle"></i>
+                        User Details
+                    </h3>
+                    <button id="closeUserModal" class="text-white hover:text-gray-200 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end">
-                <button id="closeUserModalBtn" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors">
-                    Close
-                </button>
+            
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+                <!-- User Avatar and Basic Info -->
+                <div class="flex items-center gap-4 pb-4 border-b border-gray-200">
+                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                        <span id="modalUserAvatar" class="text-white text-xl font-bold"></span>
+                    </div>
+                    <div>
+                        <h4 id="modalUserName" class="text-lg font-semibold text-gray-900"></h4>
+                        <p id="modalUserRole" class="text-sm text-gray-600 font-medium"></p>
+                    </div>
+                </div>
+                
+                <!-- User Information Grid -->
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address</label>
+                        <p id="modalUserEmail" class="text-gray-900 font-medium mt-1"></p>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</label>
+                        <p id="modalUserDepartment" class="text-gray-900 font-medium mt-1"></p>
+                    </div>
+                    
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Login</label>
+                        <p id="modalUserLastLogin" class="text-gray-900 font-medium mt-1"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 px-6 py-4 rounded-b-2xl">
+                <div class="flex justify-end gap-3">
+                    <button id="closeUserModalBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium">
+                        Edit User
+                    </button>
+                </div>
             </div>
         </div>
     </div>
