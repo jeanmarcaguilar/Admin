@@ -510,27 +510,11 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
 
                 <!-- Search and Filters -->
                 <div class="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div class="relative flex-1 max-w-md">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                            <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5" placeholder="Search visitors...">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400"></i>
                         </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button class="px-3 py-1.5 text-sm font-medium bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors">
-                                All Visitors
-                            </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors">
-                                <i class='bx bx-check-circle mr-1'></i> Checked In
-                            </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-red-50 text-red-700 rounded-full hover:bg-red-100 transition-colors">
-                                <i class='bx bx-log-out mr-1'></i> Checked Out
-                            </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-amber-50 text-amber-700 rounded-full hover:bg-amber-100 transition-colors">
-                                <i class='bx bx-time-five mr-1'></i> Expected
-                            </button>
-                        </div>
+                        <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-12 pr-4 py-3" placeholder="Search visitors...">
                     </div>
                 </div>
 
@@ -845,11 +829,46 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
             const exportBtn = document.getElementById('exportBtn');
             if (exportBtn) {
                 exportBtn.addEventListener('click', function() {
-                    // In a real app, this would make an API call
+                    // Get all visitor data from the table
+                    const table = document.getElementById('visitorTable');
+                    const rows = table.querySelectorAll('tbody tr');
+                    let csvContent = "ID,Name,Company,Type,Host,Department,Check-in Date,Check-in Time,Check-out Date,Check-out Time,Status,Purpose\n";
+                    
+                    rows.forEach(row => {
+                        const cells = row.querySelectorAll('td');
+                        const rowData = [
+                            cells[0]?.textContent?.trim() || '', // ID
+                            cells[1]?.textContent?.trim() || '', // Name
+                            cells[2]?.textContent?.trim() || '', // Company
+                            cells[3]?.textContent?.trim() || '', // Type
+                            cells[4]?.textContent?.trim() || '', // Host
+                            cells[5]?.textContent?.trim() || '', // Department
+                            cells[6]?.textContent?.trim() || '', // Check-in Date
+                            cells[7]?.textContent?.trim() || '', // Check-in Time
+                            cells[8]?.textContent?.trim() || '', // Check-out Date
+                            cells[9]?.textContent?.trim() || '', // Check-out Time
+                            cells[10]?.textContent?.trim() || '', // Status
+                            cells[11]?.textContent?.trim() || ''  // Purpose
+                        ];
+                        csvContent += rowData.map(cell => `"${cell}"`).join(',') + '\n';
+                    });
+                    
+                    // Create and download the CSV file
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', `visitor_history_${new Date().toISOString().split('T')[0]}.csv`);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    // Show success message
                     Swal.fire({
                         icon: 'success',
-                        title: 'Export Started',
-                        text: 'Your visitor history export has been queued. You will receive an email when it\'s ready.',
+                        title: 'Export Completed',
+                        text: 'Visitor history has been exported successfully.',
                         timer: 2000,
                         showConfirmButton: false
                     });
@@ -860,7 +879,55 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
             const printBtn = document.getElementById('printBtn');
             if (printBtn) {
                 printBtn.addEventListener('click', function() {
-                    window.print();
+                    // Create a new window for printing
+                    const printWindow = window.open('', '_blank');
+                    
+                    // Get the table content
+                    const table = document.getElementById('visitorTable').cloneNode(true);
+                    
+                    // Create print-friendly HTML
+                    const printHTML = `
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Visitor History Report</title>
+                            <style>
+                                body { font-family: Arial, sans-serif; margin: 20px; }
+                                h1 { color: #059669; text-align: center; margin-bottom: 30px; }
+                                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                                th { background-color: #f8f9fa; font-weight: bold; }
+                                tr:nth-child(even) { background-color: #f9f9f9; }
+                                .status-badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+                                .status-checked-in { background-color: #dcfce7; color: #166534; }
+                                .status-checked-out { background-color: #fef2f2; color: #991b1b; }
+                                .status-expected { background-color: #dbeafe; color: #1e40af; }
+                                .status-overdue { background-color: #fef3c7; color: #92400e; }
+                                .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+                                @media print { body { margin: 10px; } }
+                            </style>
+                        </head>
+                        <body>
+                            <h1>Visitor History Report</h1>
+                            <p style="text-align: center; color: #666; margin-bottom: 20px;">
+                                Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+                            </p>
+                            ${table.outerHTML}
+                            <div class="footer">
+                                <p>This report was generated from the Visitor Management System</p>
+                            </div>
+                        </body>
+                        </html>
+                    `;
+                    
+                    printWindow.document.write(printHTML);
+                    printWindow.document.close();
+                    
+                    // Wait for the content to load, then print
+                    printWindow.onload = function() {
+                        printWindow.print();
+                        printWindow.close();
+                    };
                 });
             }
 
