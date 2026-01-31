@@ -149,7 +149,7 @@ $user = auth()->user();
             <div class="text-xs font-bold text-gray-400 tracking-wider px-2">ADMINISTRATIVE DEPARTMENT</div>
 
             <!-- Dashboard -->
-            <a href="{{ route('admin.dashboard') }}"
+            <a href="/dashboard"
                 class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl bg-brand-primary text-white shadow
                        transition-all duration-200 active:scale-[0.99]">
                 <span class="flex items-center gap-3 font-semibold">
@@ -355,10 +355,10 @@ $user = auth()->user();
                         class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
                                absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
                                transition-all duration-200 z-50">
-                        <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</a>
-                        <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</a>
+                        <a href="/dashboard/profile" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</a>
+                        <a href="/dashboard/settings" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</a>
                         <div class="h-px bg-gray-100"></div>
-                        <a href="#" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</a>
+                        <a href="/logout" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</a>
                     </div>
                 </div>
             </div>
