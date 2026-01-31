@@ -1343,8 +1343,22 @@ $user = auth()->user();
                         });
                         
                         if (res.ok) {
-                            closeModal(addVisitorModal);
-                            location.reload();
+                            // Show success message but keep modal open
+                            Swal.fire({
+                                icon: "success",
+                                title: "Visitor Registered Successfully!",
+                                text: "The visitor has been registered successfully.",
+                                confirmButtonColor: "#059669",
+                                timer: 2000,
+                                timerProgressBar: true,
+                                showConfirmButton: false
+                            });
+                            
+                            // Clear form but keep modal open
+                            addVisitorForm.reset();
+                            
+                            // Optionally update the visitor list without reload
+                            // location.reload(); // Commented out to keep modal open
                         } else {
                             throw new Error("Failed to register visitor");
                         }
