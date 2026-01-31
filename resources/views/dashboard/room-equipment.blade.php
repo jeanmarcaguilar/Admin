@@ -423,21 +423,21 @@ $user = auth()->user();
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div class="form-group">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Select Room <span class="text-red-500">*</span></label>
-                                        <select name="room" id="roomSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" required>
+                                        <select name="room_id" id="roomSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" required>
                                             <option value="">-- Select a room --</option>
-                                            <option value="conference">Conference Room</option>
-                                            <option value="meeting">Meeting Room</option>
-                                            <option value="training">Training Room</option>
+                                            <option value="1">Conference Room</option>
+                                            <option value="2">Meeting Room</option>
+                                            <option value="3">Training Room</option>
                                         </select>
                                     </div>
                                     
                                     <div class="form-group">
                                         <label class="block text-sm font-medium text-gray-700 mb-1">Equipment (Optional)</label>
-                                        <select name="equipment[]" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                                        <select name="equipment_id" class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent">
                                             <option value="">No equipment needed</option>
-                                            <option value="projector">Projector</option>
-                                            <option value="laptop">Laptop</option>
-                                            <option value="audio">Audio System</option>
+                                            <option value="1">Projector</option>
+                                            <option value="2">Laptop</option>
+                                            <option value="3">Audio System</option>
                                         </select>
                                     </div>
                                 </div>
@@ -668,7 +668,8 @@ $user = auth()->user();
                     // Client-side validation
                     const bookingType = this.querySelector('select[name="booking_type"]').value;
                     const name = this.querySelector('input[name="name"]').value.trim();
-                    const room = this.querySelector('select[name="room"]').value;
+                    const roomId = this.querySelector('select[name="room_id"]').value;
+                    const equipmentId = this.querySelector('select[name="equipment_id"]').value;
                     const date = this.querySelector('input[name="date"]').value;
                     const startTime = this.querySelector('input[name="start_time"]').value;
                     const endTime = this.querySelector('input[name="end_time"]').value;
@@ -685,7 +686,7 @@ $user = auth()->user();
                         errors.push('Name is required');
                     }
                     
-                    if (!room) {
+                    if (!roomId) {
                         errors.push('Room selection is required');
                     }
                     
@@ -701,8 +702,15 @@ $user = auth()->user();
                         errors.push('End time is required');
                     }
                     
-                    if (startTime && endTime && startTime >= endTime) {
-                        errors.push('End time must be after start time');
+                    if (startTime && endTime) {
+                        // Convert times to Date objects for proper comparison
+                        const today = new Date().toDateString();
+                        const startDateTime = new Date(today + ' ' + startTime);
+                        const endDateTime = new Date(today + ' ' + endTime);
+                        
+                        if (startDateTime >= endDateTime) {
+                            errors.push('End time must be after start time');
+                        }
                     }
                     
                     if (!purpose) {
@@ -745,8 +753,8 @@ $user = auth()->user();
                         // Build the form object with proper structure
                         formObject.booking_type = formData.get('booking_type') || null;
                         formObject.name = formData.get('name') || null;
-                        formObject.room_id = formData.get('room') || null;
-                        formObject.equipment_id = equipment && equipment !== 'No equipment needed' ? equipment : null;
+                        formObject.room_id = formData.get('room_id') || null;
+                        formObject.equipment_id = formData.get('equipment_id') || null;
                         formObject.purpose = formData.get('purpose') || 'Not specified';
                         formObject.date = formData.get('date') || new Date().toISOString().split('T')[0];
                         formObject.start_time = formData.get('start_time') || null;
