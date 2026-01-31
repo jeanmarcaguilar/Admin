@@ -86,6 +86,23 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             background-color: #f9fafb;
         }
 
+        .category-card {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #e5e7eb;
+        }
+
+        .category-card:hover {
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-card.active {
+            border-color: #059669;
+            background-color: #f0fdf4;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+        }
+
         .modal {
             display: none;
             background: rgba(0, 0, 0, 0.5);
@@ -436,6 +453,114 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <i class="bx bx-category-alt text-white text-2xl"></i>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Category Browse -->
+                <div class="mb-8">
+                    <h3 class="font-semibold text-lg text-gray-900 mb-4">
+                        <i class='bx bx-category mr-2'></i>Browse by Category
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3 active" data-category="all">
+                            <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                                <i class="bx bx-grid-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">All Documents</div>
+                                <div class="text-xs text-gray-500">View all documents</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="financial">
+                            <div class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
+                                <i class="bx bx-dollar text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Financial</div>
+                                <div class="text-xs text-gray-500">Budgets, invoices, reports</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="hr">
+                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                <i class="bx bx-id-card text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Human Resources</div>
+                                <div class="text-xs text-gray-500">Employee files, policies</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="legal">
+                            <div class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center">
+                                <i class="bx bx-gavel text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Legal</div>
+                                <div class="text-xs text-gray-500">Contracts, case files</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="operations">
+                            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+                                <i class="bx bx-cog text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Operations</div>
+                                <div class="text-xs text-gray-500">Processes, procedures</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="contracts">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+                                <i class="bx bx-file text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Contracts</div>
+                                <div class="text-xs text-gray-500">Agreements, NDAs</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="utilities">
+                            <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
+                                <i class="bx bx-bolt text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Utilities</div>
+                                <div class="text-xs text-gray-500">Electricity, water, gas</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="projects">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                                <i class="bx bx-folder text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Projects</div>
+                                <div class="text-xs text-gray-500">Project plans, reports</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="procurement">
+                            <div class="w-10 h-10 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center">
+                                <i class="bx bx-shopping-bag text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Procurement</div>
+                                <div class="text-xs text-gray-500">Vendors, purchases</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="it">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+                                <i class="bx bx-laptop text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">IT</div>
+                                <div class="text-xs text-gray-500">Software, hardware</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="payroll">
+                            <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
+                                <i class="bx bx-money text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Payroll</div>
+                                <div class="text-xs text-gray-500">Salaries, compensation</div>
+                            </div>
+                        </button>
                     </div>
                 </div>
 
@@ -989,6 +1114,88 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     applyDocumentMasking();
                 }
             });
+
+            // Category filtering
+            const categoryCards = document.querySelectorAll('.category-card');
+            categoryCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const selectedCategory = this.dataset.category;
+                    
+                    // Update active state
+                    categoryCards.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Filter documents
+                    filterDocumentsByCategory(selectedCategory);
+                });
+            });
+
+            function filterDocumentsByCategory(category) {
+                const rows = document.querySelectorAll('#documentsTable tbody tr');
+                let visibleCount = 0;
+                
+                // Show loading state
+                const tableContainer = document.querySelector('#documentsTable');
+                if (tableContainer) {
+                    tableContainer.style.opacity = '0.7';
+                }
+                
+                // Small delay for visual feedback
+                setTimeout(() => {
+                    rows.forEach(row => {
+                        if (row.querySelector('td[colspan]')) {
+                            // Skip "No documents" row
+                            return;
+                        }
+                        
+                        const docCategory = row.dataset.category || '';
+                        
+                        if (category === 'all') {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            // Check for exact match or partial match for flexibility
+                            if (docCategory === category || docCategory.includes(category)) {
+                                row.style.display = '';
+                                visibleCount++;
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    });
+                    
+                    // Update count
+                    const visibleCountElement = document.getElementById('visibleCount');
+                    if (visibleCountElement) {
+                        visibleCountElement.textContent = visibleCount;
+                    }
+                    
+                    // Reset opacity
+                    if (tableContainer) {
+                        tableContainer.style.opacity = '1';
+                    }
+                    
+                    // Show no results message if needed
+                    const tbody = document.querySelector('#documentsTable tbody');
+                    const noResultsRow = tbody.querySelector('.no-results-row');
+                    
+                    if (visibleCount === 0 && !noResultsRow) {
+                        const noResultsRow = document.createElement('tr');
+                        noResultsRow.className = 'no-results-row';
+                        noResultsRow.innerHTML = `
+                            <td colspan="6" class="px-6 py-8 text-center">
+                                <div class="text-gray-500">
+                                    <i class="bx bx-folder-open text-4xl mb-2"></i>
+                                    <p class="text-sm">No documents found in this category</p>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(noResultsRow);
+                    } else if (visibleCount > 0 && noResultsRow) {
+                        noResultsRow.remove();
+                    }
+                }, 150);
+            }
         });
     </script>
 </body>
