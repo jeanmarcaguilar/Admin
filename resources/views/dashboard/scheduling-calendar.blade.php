@@ -468,9 +468,6 @@ $calendarBookings = $calendarBookings ?? [];
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                             <h3 class="font-semibold text-lg text-gray-900 mb-4">Quick Actions</h3>
                             <div class="space-y-3">
-                                <button id="lockAllBtn" onclick="lockAllReservations()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors text-sm font-medium">
-                                    <i class="fas fa-lock"></i> Lock All Reservations
-                                </button>
                                 <button id="exportCalendarBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
                                     <i class="fas fa-download"></i> Export Calendar
                                 </button>
@@ -540,147 +537,10 @@ $calendarBookings = $calendarBookings ?? [];
                             </div>
                         </div>
 
-                        <!-- Integrations -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                            <h3 class="font-semibold text-lg text-gray-900 mb-4">Integrations</h3>
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
-                                            <i class="fab fa-google text-red-500"></i>
-                                        </div>
-                                        <span class="text-sm font-medium text-gray-700">Google Calendar</span>
-                                    </div>
-                                    <button class="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                                        Connect
-                                    </button>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                            <i class="fab fa-microsoft text-blue-600"></i>
-                                        </div>
-                                        <span class="text-sm font-medium text-gray-700">Microsoft Outlook</span>
-                                    </div>
-                                    <button class="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                                        Connect
-                                    </button>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-lg bg-gray-50 flex items-center justify-center">
-                                            <i class="fas fa-link text-gray-600"></i>
-                                        </div>
-                                        <span class="text-sm font-medium text-gray-700">WebCal/iCal</span>
-                                    </div>
-                                    <button class="px-3 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
-                                        Configure
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                            </div>
                 </div>
 
-                <!-- Enhanced Statistics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <!-- Total Bookings Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Bookings</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count($calendarBookings) }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="bx bx-calendar mr-1"></i>
-                                        Events
-                                    </span>
-                                    <span class="text-xs text-gray-500">Total</span>
-                                </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-calendar text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- This Month Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">This Month</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    {{ count(array_filter($calendarBookings, function($booking) {
-                                        if (!isset($booking['date'])) return false;
-                                        $bookingDate = \Carbon\Carbon::parse($booking['date']);
-                                        return $bookingDate->month == now()->month && $bookingDate->year == now()->year;
-                                    })) }}
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                        <i class="bx bx-time-five mr-1"></i>
-                                        Current
-                                    </span>
-                                    <span class="text-xs text-gray-500">Month</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-time-five text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Upcoming Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Upcoming</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    {{ count(array_filter($calendarBookings, function($booking) {
-                                        if (!isset($booking['date'])) return false;
-                                        $bookingDate = \Carbon\Carbon::parse($booking['date']);
-                                        return $bookingDate->isFuture() && $bookingDate->diffInDays(now()) <= 7;
-                                    })) }}
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                        <i class="bx bx-up-arrow-alt mr-1"></i>
-                                        Future
-                                    </span>
-                                    <span class="text-xs text-gray-500">7 days</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-up-arrow-alt text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Room Utilization Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Room Utilization</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">68%</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="bx bx-building mr-1"></i>
-                                        Usage
-                                    </span>
-                                    <span class="text-xs text-gray-500">Rate</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-building text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 
@@ -695,40 +555,6 @@ $calendarBookings = $calendarBookings ?? [];
             </div>
             <div id="eventDetailsContent" class="p-6">
                 <!-- Content will be loaded by JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Lock Reservations Confirmation Modal -->
-    <div id="lockConfirmModal" class="modal hidden" aria-modal="true" role="dialog">
-        <div class="bg-white rounded-lg shadow-lg w-[400px] max-w-full mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 class="text-lg font-semibold text-gray-900">Lock All Reservations</h3>
-                <button onclick="closeLockConfirmModal()" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="p-6">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mr-4">
-                        <i class="fas fa-lock text-amber-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-gray-900 font-medium">Confirm Lock Action</p>
-                        <p class="text-gray-600 text-sm">This will secure all reservations for confidential data handling.</p>
-                    </div>
-                </div>
-                <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
-                    <p class="text-amber-800 text-sm"><strong>Warning:</strong> This action will restrict access to all reservation data and may affect ongoing bookings.</p>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button onclick="closeLockConfirmModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
-                        Cancel
-                    </button>
-                    <button onclick="confirmLockReservations()" class="px-4 py-2 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors">
-                        <i class="fas fa-lock mr-2"></i>Lock All Reservations
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -1067,67 +893,6 @@ $calendarBookings = $calendarBookings ?? [];
                 modal.style.display = 'none';
             };
 
-            // Lock reservations functionality
-            window.lockAllReservations = function() {
-                const modal = document.getElementById('lockConfirmModal');
-                modal.classList.remove('hidden');
-                modal.classList.add('active');
-                modal.style.display = 'flex';
-            };
-
-            window.closeLockConfirmModal = function() {
-                const modal = document.getElementById('lockConfirmModal');
-                modal.classList.add('hidden');
-                modal.classList.remove('active');
-                modal.style.display = 'none';
-            };
-
-            window.confirmLockReservations = function() {
-                closeLockConfirmModal();
-                
-                // Show loading
-                Swal.fire({
-                    title: 'Locking Reservations',
-                    text: 'Securing all reservations for confidential data...',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                setTimeout(() => {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Reservations Locked',
-                        text: 'All reservations have been successfully locked for confidential data handling.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    
-                    // Update button
-                    const lockBtn = document.getElementById('lockAllBtn');
-                    if (lockBtn) {
-                        lockBtn.innerHTML = '<i class="fas fa-lock-open"></i> Unlock Reservations';
-                        lockBtn.classList.remove('bg-amber-600', 'hover:bg-amber-700');
-                        lockBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-                        lockBtn.setAttribute('onclick', 'unlockAllReservations()');
-                        localStorage.setItem('reservationsLocked', 'true');
-                    }
-                }, 2000);
-            };
-
-            // Unlock reservations functionality
-            window.unlockAllReservations = function() {
-                Swal.fire({
-                    title: 'Enter Security Code',
-                    input: 'text',
-                    inputLabel: 'Enter 6-digit OTP sent to your registered device',
-                    inputPlaceholder: '000000',
-                    inputAttributes: {
-                        maxlength: 6,
-                        pattern: '[0-9]{6}'
-                    },
-                    showCancelButton: true,
                     confirmButtonText: 'Verify & Unlock',
                     confirmButtonColor: '#059669',
                     showLoaderOnConfirm: true,
