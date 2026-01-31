@@ -745,13 +745,14 @@ $user = auth()->user();
                         // Build the form object with proper structure
                         formObject.booking_type = formData.get('booking_type') || null;
                         formObject.name = formData.get('name') || null;
-                        formObject.room = formData.get('room') || null;
+                        formObject.room_id = formData.get('room') || null;
+                        formObject.equipment_id = equipment && equipment !== 'No equipment needed' ? equipment : null;
                         formObject.purpose = formData.get('purpose') || 'Not specified';
                         formObject.date = formData.get('date') || new Date().toISOString().split('T')[0];
                         formObject.start_time = formData.get('start_time') || null;
                         formObject.end_time = formData.get('end_time') || null;
-                        formObject.lead_time = formData.get('lead_time') || 0; // Add lead time field
-                        formObject.equipment_data = equipmentData;
+                        formObject.attendees = 1; // Default attendees
+                        formObject.notes = ''; // Default notes
                         formObject.status = 'pending'; // Default status
                         
                         // Generate a temporary ID for the new booking
@@ -776,6 +777,15 @@ $user = auth()->user();
                             },
                             body: JSON.stringify(formObject)
                         });
+                        
+                        // Check if response is JSON
+                        const contentType = response.headers.get('content-type');
+                        if (!contentType || !contentType.includes('application/json')) {
+                            // If not JSON, get the HTML response to see what's wrong
+                            const htmlText = await response.text();
+                            console.error('Server returned HTML instead of JSON:', htmlText);
+                            throw new Error('Server returned HTML instead of JSON. Check console for details.');
+                        }
                         
                         const responseData = await response.json();
                         
