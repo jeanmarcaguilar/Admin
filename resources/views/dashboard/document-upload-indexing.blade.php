@@ -679,92 +679,144 @@
 
     <!-- Upload Documents Modal -->
     <div id="uploadDocumentsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="upload-documents-title">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 id="upload-documents-title" class="text-lg font-semibold text-gray-900">Upload Documents</h3>
-                <button id="closeUploadDocumentsBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto mx-4 fade-in" role="document">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 px-8 py-8 rounded-t-3xl relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                <div class="relative flex justify-between items-center">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 bg-white/25 rounded-2xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                            <i class="bx bx-cloud-upload text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 id="upload-documents-title" class="text-2xl font-bold text-white">Upload Documents</h3>
+                            <p class="text-emerald-100 text-sm mt-1">Securely share your files with the team</p>
+                        </div>
+                    </div>
+                    <button id="closeUploadDocumentsBtn" type="button" class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-3 transition-all duration-200" aria-label="Close">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
             </div>
-            <form id="uploadForm" class="p-6 space-y-6">
-                <!-- Document Information -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="docTitle" class="block text-sm font-medium text-gray-700 mb-2">Document Title *</label>
-                        <input type="text" id="docTitle" name="docTitle" required
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                               placeholder="Enter document title">
+            
+            <!-- Modal Body -->
+            <form id="uploadForm" class="p-8">
+                <!-- Single Column Layout for Better Organization -->
+                <div class="space-y-8">
+                    <!-- Document Details -->
+                    <div class="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="bx bx-file text-white text-lg"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900">Document Details</h4>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <!-- Title Field -->
+                            <div>
+                                <label for="docTitle" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="bx bx-edit-alt text-emerald-500"></i>
+                                    Document Title <span class="text-red-500 ml-1">*</span>
+                                </label>
+                                <input type="text" id="docTitle" name="docTitle" required
+                                       class="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-gray-300"
+                                       placeholder="Enter document title">
+                            </div>
+                            
+                            <!-- Category and Type Row -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="category" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                        <i class="bx bx-category text-emerald-500"></i>
+                                        Category <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <select id="category" name="category" required
+                                            class="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-gray-300">
+                                        <option value="">Select Category</option>
+                                        <option value="financial">Financial</option>
+                                        <option value="hr">HR</option>
+                                        <option value="legal">Legal</option>
+                                        <option value="operations">Operations</option>
+                                        <option value="contracts">Contracts</option>
+                                        <option value="utilities">Utilities</option>
+                                        <option value="projects">Projects</option>
+                                        <option value="procurement">Procurement</option>
+                                        <option value="it">IT</option>
+                                        <option value="payroll">Payroll</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="docType" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                        <i class="bx bx-file-blank text-emerald-500"></i>
+                                        Document Type <span class="text-red-500 ml-1">*</span>
+                                    </label>
+                                    <select id="docType" name="docType" required
+                                            class="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white hover:border-gray-300">
+                                        <option value="">Select Document Type</option>
+                                        <option value="internal">Internal Document</option>
+                                        <option value="payment">Payment</option>
+                                        <option value="vendor">Vendor Document</option>
+                                        <option value="release_of_funds">Release of Funds</option>
+                                        <option value="purchase">Purchase Order</option>
+                                        <option value="disbursement">Disbursement</option>
+                                        <option value="receipt">Receipt</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Description -->
+                            <div>
+                                <label for="docDescription" class="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                                    <i class="bx bx-message-square-detail text-emerald-500"></i>
+                                    Description
+                                </label>
+                                <textarea id="docDescription" name="docDescription" rows="4"
+                                          class="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-white resize-none hover:border-gray-300"
+                                          placeholder="Enter document description (optional)"></textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-                        <select id="category" name="category" required
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent">
-                            <option value="">Select Category</option>
-                            <option value="financial">Financial</option>
-                            <option value="hr">HR</option>
-                            <option value="legal">Legal</option>
-                            <option value="operations">Operations</option>
-                            <option value="contracts">Contracts</option>
-                            <option value="utilities">Utilities</option>
-                            <option value="projects">Projects</option>
-                            <option value="procurement">Procurement</option>
-                            <option value="it">IT</option>
-                            <option value="payroll">Payroll</option>
-                        </select>
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="docType" class="block text-sm font-medium text-gray-700 mb-2">Document Type *</label>
-                        <select id="docType" name="docType" required
-                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent">
-                            <option value="">Select Document Type</option>
-                            <option value="internal">Internal Document</option>
-                            <option value="payment">Payment</option>
-                            <option value="vendor">Vendor Document</option>
-                            <option value="release_of_funds">Release of Funds</option>
-                            <option value="purchase">Purchase Order</option>
-                            <option value="disbursement">Disbursement</option>
-                            <option value="receipt">Receipt</option>
-                        </select>
+                    <!-- File Upload -->
+                    <div class="bg-gradient-to-br from-emerald-50 via-white to-teal-50 border-2 border-emerald-200 rounded-2xl p-8 shadow-sm">
+                        <div class="flex items-center gap-3 mb-8 pb-4 border-b border-emerald-200">
+                            <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <i class="bx bx-upload text-white text-lg"></i>
+                            </div>
+                            <h4 class="text-xl font-bold text-gray-900">Upload Files</h4>
+                        </div>
+                        
+                        <div id="dropZone" class="border-2 border-dashed border-emerald-300 rounded-2xl p-12 text-center hover:border-emerald-400 hover:bg-emerald-50 transition-all duration-200 cursor-pointer">
+                            <div class="w-20 h-20 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                                <i class="bx bx-cloud-upload text-emerald-600 text-3xl"></i>
+                            </div>
+                            <p class="text-gray-700 font-semibold text-lg mb-2">Drag and drop files here</p>
+                            <p class="text-gray-500 text-sm mb-6">or click to browse your computer</p>
+                            <input type="file" id="documentFiles" name="documentFiles[]" class="hidden" multiple 
+                                   accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+                            <label for="documentFiles" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 cursor-pointer transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-semibold">
+                                <i class="bx bx-folder-open mr-3 text-lg"></i>
+                                Choose Files
+                            </label>
+                            <p class="text-xs text-gray-500 mt-4">Supports: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX (Max 50MB per file)</p>
+                            <div id="selectedFiles" class="mt-6 text-left space-y-3"></div>
+                        </div>
                     </div>
 
-                <div>
-                    <label for="docDescription" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                    <textarea id="docDescription" name="docDescription" rows="3"
-                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                              placeholder="Enter document description (optional)"></textarea>
-                </div>
-
-                <!-- File Upload -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Select Files *</label>
-                    <div id="dropZone" class="drop-zone rounded-xl p-8 text-center hover:border-gray-400 transition-colors">
-                        <i class="bx bx-cloud-upload text-4xl text-gray-400 mb-3"></i>
-                        <p class="text-gray-600 mb-4">Drag and drop files here or click to browse</p>
-                        <input type="file" id="documentFiles" name="documentFiles[]" class="hidden" multiple 
-                               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
-                        <label for="documentFiles" class="inline-flex items-center px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2">
-                            <i class="bx bx-upload mr-2"></i>
-                            Select Files
-                        </label>
-                        <p class="text-xs text-gray-500 mt-3">Supports PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX (Max 50MB per file)</p>
-                        <div id="selectedFiles" class="mt-4 text-left space-y-2"></div>
+                    <!-- Action Buttons -->
+                    <div class="flex justify-center gap-6 pt-8 border-t border-gray-100">
+                        <button type="button" id="cancelUploadBtn" 
+                                class="group px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all duration-200 flex items-center">
+                            <i class="bx bx-x text-xl mr-3 group-hover:text-red-500 transition-colors"></i>
+                            <span class="font-semibold text-lg">Cancel</span>
+                        </button>
+                        <button type="submit" 
+                                class="group px-12 py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 flex items-center shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            <i class="bx bx-upload text-xl mr-3 group-hover:animate-bounce"></i>
+                            <span class="font-bold text-lg">Upload Documents</span>
+                        </button>
                     </div>
-                </div>
-
-                <!-- Form Actions -->
-                <div class="flex justify-end space-x-3 pt-4 border-t">
-                    <button type="button" id="cancelUploadBtn" 
-                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                        Cancel
-                    </button>
-                    <button type="submit" 
-                            class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                        <i class="bx bx-upload mr-2"></i>
-                        Upload Documents
-                    </button>
                 </div>
             </form>
         </div>
