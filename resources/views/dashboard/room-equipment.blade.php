@@ -390,10 +390,9 @@ $user = auth()->user();
                 </div>
 
                 <!-- Main Booking Form -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="mb-8">
                     <!-- Booking Form -->
-                    <div class="lg:col-span-2">
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                             <div class="flex items-center justify-between mb-6">
                                 <h3 class="font-semibold text-lg text-gray-900">
                                     <i class='bx bx-calendar-plus mr-2'></i> New Booking
@@ -459,104 +458,6 @@ $user = auth()->user();
                                     Book Now
                                 </button>
                             </form>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="lg:col-span-1">
-                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                            <h3 class="font-semibold text-lg text-gray-900 mb-4">
-                                <i class='bx bx-bolt mr-2 text-brand-primary'></i> Quick Actions
-                            </h3>
-                            <div class="grid grid-cols-2 gap-3">
-                                <!-- New Booking Action -->
-                                <button class="group relative bg-gradient-to-br from-brand-primary to-brand-primary-hover rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                                    <div class="relative flex flex-col items-center text-center">
-                                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                            <i class='bx bx-plus text-white text-lg'></i>
-                                        </div>
-                                        <span class="text-white font-medium text-sm">New Booking</span>
-                                    </div>
-                                </button>
-
-                                <!-- View Schedule Action -->
-                                <button class="group relative bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                                    <div class="relative flex flex-col items-center text-center">
-                                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                            <i class='bx bx-calendar text-white text-lg'></i>
-                                        </div>
-                                        <span class="text-white font-medium text-sm">View Schedule</span>
-                                    </div>
-                                </button>
-
-                                <!-- Check Availability Action -->
-                                <button class="group relative bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                                    <div class="relative flex flex-col items-center text-center">
-                                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                            <i class='bx bx-search text-white text-lg'></i>
-                                        </div>
-                                        <span class="text-white font-medium text-sm">Check Availability</span>
-                                    </div>
-                                </button>
-
-                                <!-- My Bookings Action -->
-                                <button class="group relative bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                                    <div class="relative flex flex-col items-center text-center">
-                                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                            <i class='bx bx-list-check text-white text-lg'></i>
-                                        </div>
-                                        <span class="text-white font-medium text-sm">My Bookings</span>
-                                    </div>
-                                </button>
-
-                                <!-- Equipment Status Action -->
-                                <button class="group relative bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                                    <div class="relative flex flex-col items-center text-center">
-                                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                            <i class='bx bx-laptop text-white text-lg'></i>
-                                        </div>
-                                        <span class="text-white font-medium text-sm">Equipment</span>
-                                    </div>
-                                </button>
-
-                                <!-- Reports Action -->
-                                <button class="group relative bg-gradient-to-br from-rose-500 to-rose-600 rounded-xl p-4 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
-                                    <div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                                    <div class="relative flex flex-col items-center text-center">
-                                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                                            <i class='bx bx-chart-line text-white text-lg'></i>
-                                        </div>
-                                        <span class="text-white font-medium text-sm">Reports</span>
-                                    </div>
-                                </button>
-                            </div>
-
-                            <!-- Additional Quick Links -->
-                            <div class="mt-6 pt-4 border-t border-gray-100">
-                                <h4 class="font-medium text-gray-900 mb-3 text-sm">Quick Links</h4>
-                                <div class="space-y-2">
-                                    <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group flex items-center justify-between">
-                                        <span class="flex items-center">
-                                            <i class='bx bx-download mr-2 group-hover:text-brand-primary transition-colors'></i> 
-                                            Download Schedule
-                                        </span>
-                                        <i class='bx bx-right-arrow-alt text-gray-400 group-hover:text-brand-primary transition-colors'></i>
-                                    </button>
-                                    <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors group flex items-center justify-between">
-                                        <span class="flex items-center">
-                                            <i class='bx bx-cog mr-2 group-hover:text-brand-primary transition-colors'></i> 
-                                            Settings
-                                        </span>
-                                        <i class='bx bx-right-arrow-alt text-gray-400 group-hover:text-brand-primary transition-colors'></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                         </div>
                     </div>
                 </div>
