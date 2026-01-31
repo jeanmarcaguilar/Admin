@@ -486,13 +486,21 @@ $user = auth()->user();
                 <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md border border-gray-100 p-8 space-y-6">
                     <!-- Page Header -->
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                        <div>
-                            <h1 class="text-2xl font-bold text-[#1a4d38]">Compliance Tracking</h1>
-                            <p class="text-gray-600 text-sm">Monitor and manage all compliance requirements and deadlines</p>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-clipboard-check text-white text-xl"></i>
+                                </div>
+                                <div>
+                                    <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Compliance Tracking</h1>
+                                    <p class="text-gray-600 text-sm font-medium">Monitor and manage all compliance requirements and deadlines</p>
+                                </div>
+                            </div>
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <button id="addComplianceBtn" type="button" onclick="if(window.__openAddCompliance){window.__openAddCompliance(event);}" class="px-4 py-2 bg-[#2f855A] text-white rounded-lg hover:bg-[#28644c] transition-colors duration-200 flex items-center text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A]">
-                                <i class="fas fa-plus mr-2"></i> Add New Compliance
+                            <button id="addComplianceBtn" type="button" onclick="if(window.__openAddCompliance){window.__openAddCompliance(event);}" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 flex items-center text-sm font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
+                                <i class="fas fa-plus mr-2"></i> 
+                                Add New Compliance
                             </button>
                         </div>
                     </div>
@@ -582,22 +590,22 @@ $user = auth()->user();
                             </div>
                         </div>
                     </section>
-                    <section class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-6 shadow-sm border border-gray-100">
-                        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                            <div class="relative flex-1 max-w-md">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <i class="fas fa-search text-gray-400"></i>
+                    <section class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                            <div class="relative flex-1 max-w-lg">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400 text-sm"></i>
                                 </div>
-                                <input type="text" id="searchInput" class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#2f855A] focus:border-[#2f855A] text-sm" placeholder="Search compliances...">
+                                <input type="text" id="searchInput" class="block w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm placeholder-gray-500 bg-gray-50 focus:bg-white transition-all duration-200" placeholder="Search compliances...">
                             </div>
-                            <div class="flex space-x-3">
-                                <select id="filterStatus" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <select id="filterStatus" class="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 focus:bg-white transition-all duration-200 min-w-[140px]">
                                     <option value="">All Status</option>
                                     <option value="active">Active</option>
                                     <option value="pending">Pending</option>
                                     <option value="overdue">Overdue</option>
                                 </select>
-                                <select id="filterType" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-[#2f855A] focus:border-[#2f855A]">
+                                <select id="filterType" class="border border-gray-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-gray-50 focus:bg-white transition-all duration-200 min-w-[140px]">
                                     <option value="">All Types</option>
                                     <option value="legal">Legal</option>
                                     <option value="financial">Financial</option>
@@ -773,7 +781,7 @@ $user = auth()->user();
                         <i class="fas fa-user-circle text-3xl"></i>
                     </div>
                     <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
-                    <p class="text-xs text-gray-400">Administrator</p>
+                    <p class="text-xs text-gray-500">{{ ucfirst($user->role) }}</p>
                 </div>
                 <ul class="text-sm text-gray-700">
                     <li><button id="openProfileBtn" class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none" role="menuitem" tabindex="-1"><i class="fas fa-user-circle mr-2"></i> My Profile</button></li>
@@ -962,7 +970,7 @@ $user = auth()->user();
                         <i class="fas fa-user text-white text-3xl"></i>
                     </div>
                     <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
-                    <p class="text-xs text-gray-500 leading-4">Administrator</p>
+                    <p class="text-xs text-gray-500 leading-4">{{ ucfirst($user->role) }}</p>
                 </div>
                 <form class="space-y-4">
                     <div>
@@ -1318,7 +1326,7 @@ $user = auth()->user();
                                 <i class="fas fa-user text-white text-3xl"></i>
                             </div>
                             <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
-                            <p class="text-xs text-gray-500 leading-4">Administrator</p>
+                            <p class="text-xs text-gray-500 leading-4">{{ ucfirst($user->role) }}</p>
                         </div>
                         <form class="space-y-4">
                             <div>
