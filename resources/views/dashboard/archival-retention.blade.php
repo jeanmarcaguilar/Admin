@@ -53,6 +53,23 @@ $user = auth()->user();
             transition: all 0.3s ease;
         }
 
+        .category-card {
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #e5e7eb;
+        }
+
+        .category-card:hover {
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-card.active {
+            border-color: #059669;
+            background-color: #f0fdf4;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+        }
+
         .rotate-180 {
             transform: rotate(180deg);
         }
@@ -438,6 +455,69 @@ $user = auth()->user();
                     </div>
                 </div>
 
+                <!-- Category Browse -->
+                <div class="mb-8">
+                    <h3 class="font-semibold text-lg text-gray-900 mb-4">
+                        <i class='bx bx-category mr-2'></i>Browse by Category
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3 active" data-category="all">
+                            <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                                <i class="bx bx-grid-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">All Documents</div>
+                                <div class="text-xs text-gray-500">View all documents</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="financial">
+                            <div class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
+                                <i class="bx bx-dollar text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Financial</div>
+                                <div class="text-xs text-gray-500">Budgets, invoices, reports</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="hr">
+                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                <i class="bx bx-id-card text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">HR</div>
+                                <div class="text-xs text-gray-500">Employee files, policies</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="legal">
+                            <div class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center">
+                                <i class="bx bx-gavel text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Legal</div>
+                                <div class="text-xs text-gray-500">Contracts, case files</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="operations">
+                            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+                                <i class="bx bx-cog text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Operations</div>
+                                <div class="text-xs text-gray-500">Processes, procedures</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="contracts">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+                                <i class="bx bx-file text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-gray-900">Contracts</div>
+                                <div class="text-xs text-gray-500">Agreements, NDAs</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Documents Section -->
                 <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
@@ -693,6 +773,45 @@ $user = auth()->user();
 
             // Initialize permission summary
             updatePermissionSummary();
+
+            // Category filtering
+            const categoryCards = document.querySelectorAll('.category-card');
+            categoryCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remove active class from all cards
+                    categoryCards.forEach(c => c.classList.remove('active'));
+                    // Add active class to clicked card
+                    this.classList.add('active');
+                    
+                    const selectedCategory = this.dataset.category;
+                    const documentRows = document.querySelectorAll('tbody tr');
+                    
+                    documentRows.forEach(row => {
+                        if (selectedCategory === 'all') {
+                            row.style.display = '';
+                        } else {
+                            const categoryCell = row.querySelector('td:nth-child(3) span');
+                            if (categoryCell) {
+                                const rowCategory = categoryCell.textContent.toLowerCase();
+                                if (rowCategory === selectedCategory.toLowerCase()) {
+                                    row.style.display = '';
+                                } else {
+                                    row.style.display = 'none';
+                                }
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    });
+                    
+                    // Update visible count
+                    const visibleRows = Array.from(documentRows).filter(row => row.style.display !== 'none');
+                    const visibleCount = document.querySelector('.text-sm.text-gray-500');
+                    if (visibleCount) {
+                        visibleCount.textContent = `Showing ${visibleRows.length} archived documents`;
+                    }
+                });
+            });
         });
     </script>
 </body>
