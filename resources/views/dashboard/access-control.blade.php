@@ -150,11 +150,22 @@ $user = auth()->user();
 
             <!-- Dashboard -->
             <a href="/dashboard"
+                class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl
+                       text-gray-700 hover:bg-green-50 hover:text-brand-primary
+                       transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+                <span class="flex items-center gap-3">
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📊</span>
+                    Dashboard
+                </span>
+            </a>
+
+            <!-- Access Control -->
+            <a href="/dashboard/access-control"
                 class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl bg-brand-primary text-white shadow
                        transition-all duration-200 active:scale-[0.99]">
                 <span class="flex items-center gap-3 font-semibold">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-white/15 items-center justify-center">📊</span>
-                    Dashboard
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-white/15 items-center justify-center">�</span>
+                    Access Control
                 </span>
             </a>
 
