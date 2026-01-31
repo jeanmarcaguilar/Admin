@@ -561,58 +561,22 @@
                                 <div class="text-xs text-gray-500">Agreements, NDAs</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="marketing">
-                            <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
-                                <i class="bx bx-megaphone text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Marketing</div>
-                                <div class="text-xs text-gray-500">Campaigns, materials</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="it">
-                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                                <i class="bx bx-laptop text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">IT & Technology</div>
-                                <div class="text-xs text-gray-500">Software, hardware, systems</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="compliance">
-                            <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
-                                <i class="bx bx-shield text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Compliance</div>
-                                <div class="text-xs text-gray-500">Regulations, audits</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="research">
-                            <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center">
-                                <i class="bx bx-search text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Research</div>
-                                <div class="text-xs text-gray-500">Studies, analysis, data</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="training">
-                            <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
-                                <i class="bx bx-book text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Training</div>
-                                <div class="text-xs text-gray-500">Manuals, guides, courses</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="safety">
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="utilities">
                             <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
-                                <i class="bx bx-shield-alt text-xl"></i>
+                                <i class="bx bx-bolt text-xl"></i>
                             </div>
                             <div>
-                                <div class="font-medium">Safety</div>
-                                <div class="text-xs text-gray-500">Procedures, incidents</div>
+                                <div class="font-medium">Utilities</div>
+                                <div class="text-xs text-gray-500">Electricity, water, gas</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="projects">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                                <i class="bx bx-folder text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Projects</div>
+                                <div class="text-xs text-gray-500">Project plans, reports</div>
                             </div>
                         </button>
                         <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="procurement">
@@ -624,49 +588,22 @@
                                 <div class="text-xs text-gray-500">Vendors, purchases</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="quality">
-                            <div class="w-10 h-10 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
-                                <i class="bx bx-award text-xl"></i>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="it">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+                                <i class="bx bx-laptop text-xl"></i>
                             </div>
                             <div>
-                                <div class="font-medium">Quality</div>
-                                <div class="text-xs text-gray-500">Standards, testing</div>
+                                <div class="font-medium">IT</div>
+                                <div class="text-xs text-gray-500">Software, hardware</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="project">
-                            <div class="w-10 h-10 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center">
-                                <i class="bx bx-folder text-xl"></i>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="payroll">
+                            <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
+                                <i class="bx bx-money text-xl"></i>
                             </div>
                             <div>
-                                <div class="font-medium">Project</div>
-                                <div class="text-xs text-gray-500">Plans, reports, deliverables</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="administrative">
-                            <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
-                                <i class="bx bx-building text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Administrative</div>
-                                <div class="text-xs text-gray-500">Forms, records, policies</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="communication">
-                            <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">
-                                <i class="bx bx-envelope text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Communication</div>
-                                <div class="text-xs text-gray-500">Letters, memos, notices</div>
-                            </div>
-                        </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="facilities">
-                            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
-                                <i class="bx bx-home text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Facilities</div>
-                                <div class="text-xs text-gray-500">Maintenance, utilities</div>
+                                <div class="font-medium">Payroll</div>
+                                <div class="text-xs text-gray-500">Salaries, compensation</div>
                             </div>
                         </button>
                     </div>
