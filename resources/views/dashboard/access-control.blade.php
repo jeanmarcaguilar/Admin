@@ -53,6 +53,10 @@ $user = auth()->user();
             transition: all 0.3s ease;
         }
 
+        .rotate-180 {
+            transform: rotate(180deg);
+        }
+
         .dropdown-panel {
             transform-origin: top right;
         }
@@ -814,10 +818,26 @@ $user = auth()->user();
                 const arrow = document.getElementById(btnId.replace('-btn', '-arrow'));
 
                 if (btn && submenu) {
-                    btn.addEventListener("click", () => {
-                        const isHidden = submenu.classList.contains("hidden");
+                    btn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        
+                        // Close all other dropdowns first
+                        Object.entries(dropdowns).forEach(([otherBtnId, otherSubmenuId]) => {
+                            if (otherBtnId !== btnId) {
+                                const otherSubmenu = document.getElementById(otherSubmenuId);
+                                const otherArrow = document.getElementById(otherBtnId.replace('-btn', '-arrow'));
+                                if (otherSubmenu) {
+                                    otherSubmenu.classList.add("hidden");
+                                }
+                                if (otherArrow) {
+                                    otherArrow.classList.remove("rotate-180");
+                                }
+                            }
+                        });
                         
                         // Toggle current dropdown
+                        const isHidden = submenu.classList.contains("hidden");
+                        
                         if (isHidden) {
                             submenu.classList.remove("hidden");
                             if (arrow) arrow.classList.add("rotate-180");
@@ -827,6 +847,20 @@ $user = auth()->user();
                         }
                     });
                 }
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener("click", (e) => {
+                Object.entries(dropdowns).forEach(([btnId, submenuId]) => {
+                    const btn = document.getElementById(btnId);
+                    const submenu = document.getElementById(submenuId);
+                    const arrow = document.getElementById(btnId.replace('-btn', '-arrow'));
+                    
+                    if (btn && submenu && !btn.contains(e.target) && !submenu.contains(e.target)) {
+                        submenu.classList.add("hidden");
+                        if (arrow) arrow.classList.remove("rotate-180");
+                    }
+                });
             });
 
             // User menu dropdown
