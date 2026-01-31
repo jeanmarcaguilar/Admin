@@ -388,9 +388,6 @@
                             <button id="uploadDocumentsBtn" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
                                 <i class="fas fa-upload mr-2"></i> Upload Documents
                             </button>
-                            <button id="lockAllDocsBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
-                                <i class="fas fa-lock mr-2"></i> Lock All
-                            </button>
                             <button id="exportBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
                                 <i class="fas fa-download mr-2"></i> Export
                             </button>
@@ -398,12 +395,8 @@
                     </div>
 
                     <!-- Confidential Banner -->
-                    <div class="mt-4 flex items-center justify-between bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-4 py-3">
+                    <div class="mt-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-4 py-3">
                         <div class="text-sm font-medium">Confidential: Authorized personnel only. OTP required for sensitive actions.</div>
-                        <button id="unlockAllBtn" type="button" class="ml-4 inline-flex items-center px-3 py-1.5 bg-green-600 text-white rounded-md text-xs hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-600">
-                            <i class="fas fa-unlock mr-1"></i>
-                            Unlock All
-                        </button>
                     </div>
                 </div>
 
@@ -434,7 +427,7 @@
                 </div>
 
                 <!-- Enhanced Document Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     <!-- Total Documents Card -->
                     <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
@@ -445,49 +438,13 @@
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                         <i class="bx bx-file mr-1"></i>
-                                        Indexed
+                                        Files
                                     </span>
-                                    <span class="text-xs text-gray-500">Files</span>
+                                    <span class="text-xs text-gray-500">Total</span>
                                 </div>
                             </div>
                             <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="bx bx-file text-white text-xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Storage Used Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Storage Used</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    @php
-                                        $totalSize = 0;
-                                        foreach ($documents as $doc) {
-                                            if (isset($doc['size'])) {
-                                                $size = preg_replace('/[^0-9\.]/', '', $doc['size']);
-                                                if (strpos(strtolower($doc['size']), 'mb') !== false) {
-                                                    $totalSize += (float)$size;
-                                                } elseif (strpos(strtolower($doc['size']), 'gb') !== false) {
-                                                    $totalSize += (float)$size * 1024;
-                                                }
-                                            }
-                                        }
-                                        echo number_format($totalSize, 1) . ' MB';
-                                    @endphp
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                        <i class="bx bx-data mr-1"></i>
-                                        Used
-                                    </span>
-                                    <span class="text-xs text-gray-500">of 5 GB</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-data text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
@@ -506,10 +463,10 @@
                                 </p>
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                        <i class="bx bx-upload mr-1"></i>
-                                        New
+                                        <i class="bx bx-time-five mr-1"></i>
+                                        This Week
                                     </span>
-                                    <span class="text-xs text-gray-500">7 days</span>
+                                    <span class="text-xs text-gray-500">New</span>
                                 </div>
                             </div>
                             <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
@@ -518,23 +475,27 @@
                         </div>
                     </div>
 
-                    <!-- Categories Card -->
+                    <!-- Pending Review Card -->
                     <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
                         <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Categories</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count(array_unique(array_column($documents, 'category'))) }}</p>
+                                <p class="text-gray-600 font-semibold text-sm mb-2">Pending Review</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">
+                                    {{ count(array_filter($documents, function($doc) {
+                                        return ($doc['status'] ?? '') === 'pending';
+                                    })) }}
+                                </p>
                                 <div class="flex items-center gap-2">
                                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="bx bx-category-alt mr-1"></i>
-                                        Types
+                                        <i class="bx bx-time mr-1"></i>
+                                        Waiting
                                     </span>
-                                    <span class="text-xs text-gray-500">Groups</span>
+                                    <span class="text-xs text-gray-500">Review</span>
                                 </div>
                             </div>
                             <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-category-alt text-white text-xl"></i>
+                                <i class="bx bx-check-shield text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
@@ -545,7 +506,7 @@
                     <h3 class="font-semibold text-lg text-gray-900 mb-4">
                         <i class='bx bx-category mr-2'></i>Browse by Category
                     </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
                         <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3 active" data-category="all">
                             <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
                                 <i class="bx bx-grid-alt text-xl"></i>
@@ -598,6 +559,114 @@
                             <div>
                                 <div class="font-medium">Contracts</div>
                                 <div class="text-xs text-gray-500">Agreements, NDAs</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="marketing">
+                            <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
+                                <i class="bx bx-megaphone text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Marketing</div>
+                                <div class="text-xs text-gray-500">Campaigns, materials</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="it">
+                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                                <i class="bx bx-laptop text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">IT & Technology</div>
+                                <div class="text-xs text-gray-500">Software, hardware, systems</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="compliance">
+                            <div class="w-10 h-10 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+                                <i class="bx bx-shield text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Compliance</div>
+                                <div class="text-xs text-gray-500">Regulations, audits</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="research">
+                            <div class="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center">
+                                <i class="bx bx-search text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Research</div>
+                                <div class="text-xs text-gray-500">Studies, analysis, data</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="training">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+                                <i class="bx bx-book text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Training</div>
+                                <div class="text-xs text-gray-500">Manuals, guides, courses</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="safety">
+                            <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
+                                <i class="bx bx-shield-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Safety</div>
+                                <div class="text-xs text-gray-500">Procedures, incidents</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="procurement">
+                            <div class="w-10 h-10 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center">
+                                <i class="bx bx-shopping-bag text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Procurement</div>
+                                <div class="text-xs text-gray-500">Vendors, purchases</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="quality">
+                            <div class="w-10 h-10 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
+                                <i class="bx bx-award text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Quality</div>
+                                <div class="text-xs text-gray-500">Standards, testing</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="project">
+                            <div class="w-10 h-10 rounded-lg bg-violet-100 text-violet-700 flex items-center justify-center">
+                                <i class="bx bx-folder text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Project</div>
+                                <div class="text-xs text-gray-500">Plans, reports, deliverables</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="administrative">
+                            <div class="w-10 h-10 rounded-lg bg-slate-100 text-slate-700 flex items-center justify-center">
+                                <i class="bx bx-building text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Administrative</div>
+                                <div class="text-xs text-gray-500">Forms, records, policies</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="communication">
+                            <div class="w-10 h-10 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center">
+                                <i class="bx bx-envelope text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Communication</div>
+                                <div class="text-xs text-gray-500">Letters, memos, notices</div>
+                            </div>
+                        </button>
+                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="facilities">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                                <i class="bx bx-home text-xl"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Facilities</div>
+                                <div class="text-xs text-gray-500">Maintenance, utilities</div>
                             </div>
                         </button>
                     </div>
