@@ -71,6 +71,12 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
+        .category-card.active {
+            border-color: #059669;
+            background-color: #f0fdf4;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
+        }
+
         .document-row {
             transition: all 0.2s ease;
         }
@@ -1264,24 +1270,67 @@
                 const rows = document.querySelectorAll('#documentsTable tbody tr');
                 let visibleCount = 0;
                 
-                rows.forEach(row => {
-                    if (row.querySelector('td[colspan]')) {
-                        // Skip "No documents" row
-                        return;
-                    }
-                    
-                    const docCategory = row.dataset.category || '';
-                    
-                    if (category === 'all' || docCategory === category) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
+                // Show loading state
+                const tableContainer = document.querySelector('#documentsTable');
+                if (tableContainer) {
+                    tableContainer.style.opacity = '0.7';
+                }
                 
-                // Update count
-                document.getElementById('visibleCount').textContent = visibleCount;
+                // Small delay for visual feedback
+                setTimeout(() => {
+                    rows.forEach(row => {
+                        if (row.querySelector('td[colspan]')) {
+                            // Skip "No documents" row
+                            return;
+                        }
+                        
+                        const docCategory = row.dataset.category || '';
+                        
+                        if (category === 'all') {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            // Check for exact match or partial match for flexibility
+                            if (docCategory === category || docCategory.includes(category)) {
+                                row.style.display = '';
+                                visibleCount++;
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        }
+                    });
+                    
+                    // Update count
+                    const visibleCountElement = document.getElementById('visibleCount');
+                    if (visibleCountElement) {
+                        visibleCountElement.textContent = visibleCount;
+                    }
+                    
+                    // Reset opacity
+                    if (tableContainer) {
+                        tableContainer.style.opacity = '1';
+                    }
+                    
+                    // Show no results message if needed
+                    const tbody = document.querySelector('#documentsTable tbody');
+                    const noResultsRow = tbody.querySelector('.no-results-row');
+                    
+                    if (visibleCount === 0 && !noResultsRow) {
+                        const noResultsRow = document.createElement('tr');
+                        noResultsRow.className = 'no-results-row';
+                        noResultsRow.innerHTML = `
+                            <td colspan="5" class="px-6 py-8 text-center">
+                                <div class="text-gray-500">
+                                    <i class="bx bx-folder-open text-4xl mb-2"></i>
+                                    <p class="text-sm">No documents found in this category</p>
+                                </div>
+                            </td>
+                        `;
+                        tbody.appendChild(noResultsRow);
+                    } else if (visibleCount > 0 && noResultsRow) {
+                        noResultsRow.remove();
+                    }
+                }, 150);
             }
 
             // Search functionality
