@@ -621,7 +621,8 @@ INSERT INTO `visitors` (`id`, `code`, `name`, `company`, `visitor_type`, `host`,
 -- Indexes for dumped tables
 --
 
---
+-- 'Employee' ? 'green' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ $user->role }}</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ $user->role }}</span>
 -- Indexes for table `activities`
 --
 ALTER TABLE `activities`
@@ -671,7 +672,8 @@ ALTER TABLE `compliance_tracking`
 
 --
 -- Indexes for table `contracts`
---
+--er->role === 'Employee' ? 'green' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ $user->role }}</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ $user->role }}</span>
 ALTER TABLE `contracts`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `contracts_code_unique` (`code`);
