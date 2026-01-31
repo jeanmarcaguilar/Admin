@@ -558,6 +558,9 @@ CREATE TABLE `users` (
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `remember_token` varchar(100) DEFAULT NULL,
+  `role` enum('Administrator','Manager','Employee','Guest') DEFAULT 'Employee',
+  `department` varchar(255) DEFAULT NULL,
+  `last_login_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -566,11 +569,11 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `username`, `email`, `phone`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'Administrator', 'admin', 'jeanmarcaguilar829@gmail.com', '+63 917 123 4567', NULL, '$2y$12$MGGgIjrpjWZdRhTnVMTs4.v2wWgb/.lJqZMGOehHonN9mrmZrvU3i', NULL, '2025-10-18 11:52:59', '2025-10-18 03:57:25'),
-(2, 'Alice Example', 'alice', 'janalbert11@gmail.com', '+63 927 234 5678', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(3, 'Bob Example', 'bob', 'emmanuel.aguilar0830@gmail.com', '+63 938 345 6789', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
-(4, 'Charlie Example', 'charlie', 'charlie@example.com', '+63 946 456 7890', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, '2025-10-18 11:52:59', '2025-10-18 11:52:59');
+INSERT INTO `users` (`id`, `name`, `username`, `email`, `phone`, `email_verified_at`, `password`, `remember_token`, `role`, `department`, `last_login_at`, `created_at`, `updated_at`) VALUES
+(1, 'Administrator', 'admin', 'jeanmarcaguilar829@gmail.com', '+63 917 123 4567', NULL, '$2y$12$MGGgIjrpjWZdRhTnVMTs4.v2wWgb/.lJqZMGOehHonN9mrmZrvU3i', NULL, 'Administrator', 'IT Department', '2025-10-18 11:52:59', '2025-10-18 11:52:59', '2025-10-18 03:57:25'),
+(2, 'Alice Example', 'alice', 'janalbert11@gmail.com', '+63 927 234 5678', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'Manager', 'HR Department', '2025-10-17 14:30:00', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
+(3, 'Bob Example', 'bob', 'emmanuel.aguilar0830@gmail.com', '+63 938 345 6789', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'Employee', 'Finance Department', '2025-10-16 09:15:00', '2025-10-18 11:52:59', '2025-10-18 11:52:59'),
+(4, 'Charlie Example', 'charlie', 'charlie@example.com', '+63 946 456 7890', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', NULL, 'Guest', 'External', NULL, '2025-10-18 11:52:59', '2025-10-18 11:52:59');
 
 -- --------------------------------------------------------
 

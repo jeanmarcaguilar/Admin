@@ -476,7 +476,7 @@ $user = auth()->user();
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach(App\Models\User::with('roles')->get() as $user)
+                                @foreach(App\Models\User::all() as $user)
                                 <tr class="hover:bg-gray-50">
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="flex items-center">
@@ -490,13 +490,7 @@ $user = auth()->user();
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
-                                        @if($user->roles->isNotEmpty())
-                                            @foreach($user->roles as $role)
-                                                <span class="px-2 py-1 bg-{{ $role->name === 'Administrator' ? 'red' : ($role->name === 'Manager' ? 'blue' : ($role->name === 'Employee' ? 'green' : 'gray')) }}-100 text-{{ $role->name === 'Administrator' ? 'red' : ($role->name === 'Manager' ? 'blue' : ($role->name === 'Employee' ? 'green' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ $role->name }}</span>
-                                            @endforeach
-                                        @else
-                                            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">No Role</span>
-                                        @endif
+                                        <span class="px-2 py-1 bg-{{ $user->role === 'Administrator' ? 'red' : ($user->role === 'Manager' ? 'blue' : ($user->role === 'Employee' ? 'green' : 'gray')) }}-100 text-{{ $user->role === 'Administrator' ? 'red' : ($user->role === 'Manager' ? 'blue' : ($user->role === 'Employee' ? 'green' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ $user->role }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->department ?? 'Not Assigned' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}</td>
