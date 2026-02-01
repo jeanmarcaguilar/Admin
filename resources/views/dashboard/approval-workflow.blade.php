@@ -5,6 +5,7 @@
     // Use the real requests data passed from the route
     $requests = $requests ?? [];
     $pendingCount = $pendingCount ?? 0;
+    $externalCount = $externalCount ?? 0;
 @endphp
 
 <!DOCTYPE html>
@@ -603,6 +604,29 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- External Bookings Card -->
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 rounded-full bg-orange-50 blur-3xl opacity-60 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">External Bookings</p>
+                                <h3 class="text-3xl font-bold text-gray-900">{{ $externalCount }}</h3>
+                                <div
+                                    class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-700">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-orange-500 mr-1.5"></span>
+                                    API Integration
+                                </div>
+                            </div>
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-500 text-white flex items-center justify-center shadow-orange-200 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                <i class="bx bx-cloud-download text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Page Header -->
@@ -683,12 +707,16 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div
-                                                    class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center {{ $request['type'] === 'room' ? 'bg-blue-50' : 'bg-purple-50' }}">
+                                                    class="flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center {{ ($request['is_external'] ?? false) ? 'bg-orange-50' : (($request['type'] === 'room') ? 'bg-blue-50' : 'bg-purple-50') }}">
                                                     <i
-                                                        class='{{ $request['type'] === 'room' ? 'bx bx-door-open text-blue-600' : 'bx bx-cube text-purple-600' }}'></i>
+                                                        class='{{ ($request['is_external'] ?? false) ? 'bx bx-cloud-download text-orange-600' : (($request['type'] === 'room') ? 'bx bx-door-open text-blue-600' : 'bx bx-cube text-purple-600') }}'></i>
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $request['title'] }}
+                                                    <div class="text-sm font-medium text-gray-900">
+                                                        {{ $request['title'] }}
+                                                        @if($request['is_external'] ?? false)
+                                                            <span class="ml-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">External</span>
+                                                        @endif
                                                     </div>
                                                     <div class="text-xs text-gray-500">#{{ $request['request_id'] ?? $request['id'] }}</div>
                                                 </div>
@@ -742,7 +770,7 @@
                                                 <i class="fas fa-eye mr-1"></i>
                                                 View
                                             </button>
-                                            @if($request['status'] === 'pending')
+                                            @if($request['status'] === 'pending' && !($request['is_external'] ?? false))
                                                 <button type="button"
                                                     onclick="showActionConfirmation('{{ $request['id'] }}', 'approve')"
                                                     class="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-xs font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
@@ -755,6 +783,11 @@
                                                     <i class="fas fa-times-circle mr-1"></i>
                                                     Reject
                                                 </button>
+                                            @elseif($request['is_external'] ?? false)
+                                                <span class="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-200">
+                                                    <i class="fas fa-external-link-alt mr-1"></i>
+                                                    External Booking
+                                                </span>
                                             @endif
                                         </td>
                                     </tr>
