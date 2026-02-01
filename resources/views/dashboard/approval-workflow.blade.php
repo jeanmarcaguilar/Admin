@@ -1382,11 +1382,9 @@
                     modalIconLarge.className = 'fas fa-check-circle text-green-600 text-3xl animate-pulse';
                     confirmBtn.className = 'px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center';
                 } else {
-                    modalTitle.textContent = isExternal ? 'Reject External Booking' : 'Reject Request';
-                    modalMessage.innerHTML = isExternal 
-                        ? `Are you sure you want to reject this external booking? This will sync the rejection status with the external system.`
-                        : `Are you sure you want to reject this request? This action cannot be undone.`;
-                    confirmBtnText.textContent = isExternal ? 'Reject External Booking' : 'Reject Request';
+                    modalTitle.textContent = 'Reject Request';
+                    modalMessage.innerHTML = `Are you sure you want to reject this request? This action cannot be undone.`;
+                    confirmBtnText.textContent = 'Reject Request';
                     
                     // Show reason input for rejection
                     document.getElementById('reasonInputContainer').classList.remove('hidden');
