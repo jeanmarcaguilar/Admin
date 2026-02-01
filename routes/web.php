@@ -932,6 +932,58 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('room-equipment')->with('info', 'Please use the booking form to submit bookings.');
     });
 
+    // API Route to fetch training room bookings
+    Route::get('/api/training-room-bookings', function () {
+        try {
+            // Make HTTP request to external API
+            $response = \Illuminate\Support\Facades\Http::get('https://hr2.microfinancial-1.com/api/training-room-bookings');
+            
+            if ($response->successful()) {
+                $bookings = $response->json();
+                
+                // Format the response data to match our expected structure
+                $formattedBookings = collect($bookings)->map(function ($booking) {
+                    return [
+                        'id' => $booking['id'] ?? null,
+                        'request_id' => $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
+                        'title' => $booking['title'] ?? $booking['name'] ?? 'Training Room Booking',
+                        'name' => $booking['name'] ?? 'Training Room',
+                        'type' => $booking['type'] ?? 'room',
+                        'date' => $booking['date'] ?? $booking['booking_date'] ?? now()->toDateString(),
+                        'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? '09:00',
+                        'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? '17:00',
+                        'purpose' => $booking['purpose'] ?? $booking['description'] ?? 'Training session',
+                        'status' => $booking['status'] ?? 'pending',
+                        'requested_by' => $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                        'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
+                        'created_at' => $booking['created_at'] ?? now()->toDateTimeString(),
+                        'updated_at' => $booking['updated_at'] ?? now()->toDateTimeString(),
+                        'source' => 'external_api', // Mark as external data
+                    ];
+                })->toArray();
+                
+                return response()->json([
+                    'success' => true,
+                    'data' => $formattedBookings,
+                    'message' => 'Training room bookings fetched successfully',
+                    'count' => count($formattedBookings)
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to fetch training room bookings',
+                    'error' => 'External API returned status: ' . $response->status()
+                ], $response->status());
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching training room bookings: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    })->name('api.training-room-bookings');
+
     Route::post('/booking/combined', function (Request $request) {
         $request->validate([
             'booking_type' => 'required|string|in:room,equipment,both',
