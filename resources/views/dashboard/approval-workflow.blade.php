@@ -689,10 +689,19 @@
                                         Request</th>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Requested By</th>
+                                        Booking Code</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Location</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Facilitator</th>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Time</th>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Status</th>
@@ -723,11 +732,22 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $request['requested_by'] }}</div>
+                                            <div class="text-sm text-gray-900">{{ $request['booking_code'] ?? 'N/A' }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ $request['location'] ?? 'N/A' }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">{{ $request['facilitator'] ?? $request['requested_by'] ?? 'N/A' }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">
                                                 {{ \Carbon\Carbon::parse($request['date'])->format('M d, Y') }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900">
+                                                {{ $request['start_time'] ?? 'N/A' }} - {{ $request['end_time'] ?? 'N/A' }}
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -788,7 +808,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-6 py-8 text-center">
+                                        <td colspan="8" class="px-6 py-8 text-center">
                                             <div class="text-gray-400">
                                                 <i class='bx bx-check-circle text-4xl mb-2'></i>
                                                 <p class="text-sm">No pending requests found.</p>
