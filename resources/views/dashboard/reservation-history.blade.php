@@ -2,66 +2,9 @@
     // Get the authenticated user
     $user = auth()->user();
 
-    // Use provided $bookings (from route) or fallback to session store
-    $bookings = $bookings ?? session('calendar_bookings', [
-        [
-            'id' => 'RES-001',
-            'name' => 'Conference Room A',
-            'type' => 'room',
-            'date' => '2025-01-25',
-            'start_time' => '09:00',
-            'end_time' => '11:00',
-            'status' => 'approved',
-            'lead_time' => '3',
-            'purpose' => 'Team meeting'
-        ],
-        [
-            'id' => 'RES-002',
-            'name' => 'Projector',
-            'type' => 'equipment',
-            'date' => '2025-01-26',
-            'start_time' => '14:00',
-            'end_time' => '16:00',
-            'status' => 'pending',
-            'lead_time' => '2',
-            'purpose' => 'Client presentation'
-        ],
-        [
-            'id' => 'RES-003',
-            'name' => 'Training Room B',
-            'type' => 'room',
-            'date' => '2025-01-28',
-            'start_time' => '10:00',
-            'end_time' => '17:00',
-            'status' => 'completed',
-            'lead_time' => '7',
-            'purpose' => 'Employee training'
-        ],
-        [
-            'id' => 'RES-004',
-            'name' => 'Audio System',
-            'type' => 'equipment',
-            'date' => '2025-01-30',
-            'start_time' => '13:00',
-            'end_time' => '15:00',
-            'status' => 'rejected',
-            'lead_time' => '1',
-            'purpose' => 'Company event'
-        ],
-        [
-            'id' => 'RES-005',
-            'name' => 'Meeting Room C',
-            'type' => 'room',
-            'date' => '2025-02-02',
-            'start_time' => '15:00',
-            'end_time' => '17:00',
-            'status' => 'pending',
-            'lead_time' => '5',
-            'purpose' => 'Board meeting'
-        ]
-    ]);
-    // Map approval requests to enrich "Requested By" when available
-    $approvalMap = collect(session('approval_requests', []))->keyBy('id');
+    // Use the combined bookings and approvals data passed from the route
+    $bookings = $bookings ?? [];
+    $approvalMap = $approvalMap ?? [];
 @endphp
 
 <!DOCTYPE html>
@@ -714,17 +657,21 @@
                                         data-type="{{ $reservation['type'] ?? '' }}"
                                         data-status="{{ $reservation['status'] ?? '' }}">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            #{{ $reservation['id'] ?? 'N/A' }}</td>
+                                            #{{ $reservation['id'] ?? 'N/A' }}
+                                            @if($reservation['is_approval'] ?? false)
+                                                <span class="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Approval</span>
+                                            @endif
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div
-                                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                    class="flex-shrink-0 h-10 w-10 rounded-full {{ ($reservation['is_approval'] ?? false) ? 'bg-purple-100' : 'bg-blue-100' }} flex items-center justify-center">
                                                     <i
-                                                        class="{{ ($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house' : 'bx bx-video-recording' }} text-blue-600"></i>
+                                                        class="{{ ($reservation['is_approval'] ?? false) ? 'bx bx-clipboard-check' : (($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house' : 'bx bx-video-recording') }} {{ ($reservation['is_approval'] ?? false) ? 'text-purple-600' : 'text-blue-600' }}"></i>
                                                 </div>
                                                 <div class="ml-4">
                                                     @php
-                                                        $title = $reservation['name'] ?? ($reservation['title'] ?? 'Booking');
+                                                        $title = $reservation['title'] ?? ($reservation['name'] ?? 'Booking');
                                                         $facilityType = $reservation['type'] ?? 'room';
                                                     @endphp
                                                     <div class="text-sm font-medium text-gray-900">{{ $title }}</div>
@@ -733,11 +680,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            @php
-                                                $req = $approvalMap[$reservation['id']] ?? null;
-                                                $requestedBy = $req['requested_by'] ?? ($user->name ?? 'User');
-                                            @endphp
-                                            <div class="text-sm text-gray-900">{{ $requestedBy }}</div>
+                                            <div class="text-sm text-gray-900">{{ $reservation['requested_by'] ?? ($user->name ?? 'User') }}</div>
                                             <div class="text-sm text-gray-500">&nbsp;</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -777,17 +720,37 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             @php
-                                                // Try to read decision notes/reasons from approval map or reservation payload
-                                                $req = $approvalMap[$reservation['id']] ?? null;
-                                                $note = $req['decision_reason'] ?? $req['reason'] ?? ($reservation['decision_note'] ?? ($reservation['reason'] ?? null));
+                                                // Handle decision notes for approval requests
+                                                $isApproval = $reservation['is_approval'] ?? false;
+                                                $note = null;
                                                 $isRejected = $status === 'rejected';
                                                 $isApproved = $status === 'approved';
-                                                // Defaults if nothing stored
-                                                if (!$note && $isApproved) {
-                                                    $note = 'Approved: meets booking qualifications';
-                                                }
-                                                if (!$note && $isRejected) {
-                                                    $note = 'Rejected';
+                                                
+                                                if ($isApproval) {
+                                                    if ($isRejected && $reservation['rejected_by']) {
+                                                        $note = 'Rejected by ' . $reservation['rejected_by'];
+                                                        if ($reservation['rejected_at']) {
+                                                            $note .= ' on ' . \Carbon\Carbon::parse($reservation['rejected_at'])->format('M d, Y \a\t g:i A');
+                                                        }
+                                                        if (($reservation['description'] ?? null) && str_contains($reservation['description'], 'Rejection reason:')) {
+                                                            $note .= '. Reason: ' . trim(explode('Rejection reason:', $reservation['description'])[1]);
+                                                        }
+                                                    } elseif ($isApproved && $reservation['approved_by']) {
+                                                        $note = 'Approved by ' . $reservation['approved_by'];
+                                                        if ($reservation['approved_at']) {
+                                                            $note .= ' on ' . \Carbon\Carbon::parse($reservation['approved_at'])->format('M d, Y \a\t g:i A');
+                                                        }
+                                                    }
+                                                } else {
+                                                    // Handle regular bookings
+                                                    $req = $approvalMap[$reservation['id']] ?? null;
+                                                    $note = $req['decision_reason'] ?? $req['reason'] ?? ($reservation['decision_note'] ?? ($reservation['reason'] ?? null));
+                                                    if (!$note && $isApproved) {
+                                                        $note = 'Approved: meets booking qualifications';
+                                                    }
+                                                    if (!$note && $isRejected) {
+                                                        $note = 'Rejected';
+                                                    }
                                                 }
                                             @endphp
                                             @if($note)
@@ -825,7 +788,8 @@
                                                 data-type="{{ $facilityType }}" data-date="{{ $reservation['date'] ?? '' }}"
                                                 data-start="{{ $start12 }}" data-end="{{ $end12 }}"
                                                 data-status="{{ strtolower($reservation['status'] ?? 'pending') }}"
-                                                data-requested-by="{{ $requestedBy }}">
+                                                data-requested-by="{{ $reservation['requested_by'] ?? ($user->name ?? 'User') }}"
+                                                data-is-approval="{{ $isApproval ? 'true' : 'false' }}">
                                                 View
                                             </button>
                                         </td>

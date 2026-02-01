@@ -971,45 +971,223 @@ Route::middleware('auth')->group(function () {
     })->name('booking.combined');
 
     Route::get('/approval-workflow', function () {
+        // Get real approval requests from database
+        $approvals = \App\Models\Approval::orderByDesc('created_at')->get()->map(function ($approval) {
+            return [
+                'id' => $approval->id, // Use numeric ID for routes
+                'request_id' => $approval->request_id, // Keep request_id for display
+                'title' => $approval->title,
+                'type' => $approval->type,
+                'requested_by' => $approval->requested_by,
+                'date' => $approval->date ? $approval->date->toDateString() : now()->toDateString(),
+                'status' => $approval->status,
+                'lead_time' => $approval->lead_time,
+                'description' => $approval->description,
+                'approved_by' => $approval->approved_by,
+                'rejected_by' => $approval->rejected_by,
+                'approved_at' => $approval->approved_at ? $approval->approved_at->toDateTimeString() : null,
+                'rejected_at' => $approval->rejected_at ? $approval->rejected_at->toDateTimeString() : null,
+            ];
+        })->toArray();
+
+        $pendingCount = collect($approvals)->where('status', 'pending')->count();
+
         return view('dashboard.approval-workflow', [
-            'user' => auth()->user()
+            'user' => auth()->user(),
+            'requests' => $approvals,
+            'pendingCount' => $pendingCount
         ]);
     })->name('approval.workflow');
 
     // Approval Workflow Actions
-    Route::post('/approval/approve/{id}', function ($id) {
-        // Find and update the approval request
-        $approval = \App\Models\Approval::find($id);
-        if ($approval) {
+    Route::post('/approval/approve/{id}', function ($id, Request $request) {
+        try {
+            // Find the approval request
+            $approval = \App\Models\Approval::find($id);
+            
+            if (!$approval) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Approval request not found'
+                ], 404);
+            }
+
+            // Validate that request is still pending
+            if ($approval->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Request has already been ' . $approval->status
+                ], 400);
+            }
+
+            // Validate date is not in the past for room/equipment bookings
+            if ($approval->date && $approval->date->isPast()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot approve requests with past dates'
+                ], 400);
+            }
+
+            // Update approval status
             $approval->status = 'approved';
+            $approval->approver_id = auth()->id();
             $approval->approved_by = auth()->user()->name;
             $approval->approved_at = now();
             $approval->save();
 
-            return back()->with('success', 'Request approved successfully.');
-        }
+            return response()->json([
+                'success' => true,
+                'message' => 'Request approved successfully'
+            ]);
 
-        return back()->with('error', 'Request not found.');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error approving request: ' . $e->getMessage()
+            ], 500);
+        }
     })->name('approval.approve');
 
-    Route::post('/approval/reject/{id}', function ($id) {
-        // Find and update the approval request
-        $approval = \App\Models\Approval::find($id);
-        if ($approval) {
+    Route::post('/approval/reject/{id}', function ($id, Request $request) {
+        try {
+            // Validate request - reason is required for rejection
+            $request->validate([
+                'reason' => 'required|string|max:500'
+            ]);
+
+            // Find the approval request
+            $approval = \App\Models\Approval::find($id);
+            
+            if (!$approval) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Approval request not found'
+                ], 404);
+            }
+
+            // Validate that request is still pending
+            if ($approval->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Request has already been ' . $approval->status
+                ], 400);
+            }
+
+            // Update approval status
             $approval->status = 'rejected';
+            $approval->approver_id = auth()->id();
             $approval->rejected_by = auth()->user()->name;
             $approval->rejected_at = now();
+            $approval->description = $approval->description . "\n\nRejection reason: " . $request->reason;
             $approval->save();
 
-            return back()->with('success', 'Request rejected successfully.');
-        }
+            return response()->json([
+                'success' => true,
+                'message' => 'Request rejected successfully'
+            ]);
 
-        return back()->with('error', 'Request not found.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . $e->getMessage()
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error rejecting request: ' . $e->getMessage()
+            ], 500);
+        }
     })->name('approval.reject');
 
     Route::get('/reservation-history', function () {
+        // Get existing bookings from session or use defaults
+        $bookings = session('calendar_bookings', [
+            [
+                'id' => 'RES-001',
+                'name' => 'Conference Room A',
+                'type' => 'room',
+                'date' => '2025-01-25',
+                'start_time' => '09:00',
+                'end_time' => '11:00',
+                'status' => 'approved',
+                'lead_time' => '3',
+                'purpose' => 'Team meeting'
+            ],
+            [
+                'id' => 'RES-002',
+                'name' => 'Projector',
+                'type' => 'equipment',
+                'date' => '2025-01-26',
+                'start_time' => '14:00',
+                'end_time' => '16:00',
+                'status' => 'pending',
+                'lead_time' => '2',
+                'purpose' => 'Client presentation'
+            ],
+            [
+                'id' => 'RES-003',
+                'name' => 'Training Room B',
+                'type' => 'room',
+                'date' => '2025-01-28',
+                'start_time' => '10:00',
+                'end_time' => '17:00',
+                'status' => 'completed',
+                'lead_time' => '7',
+                'purpose' => 'Employee training'
+            ],
+            [
+                'id' => 'RES-004',
+                'name' => 'Audio System',
+                'type' => 'equipment',
+                'date' => '2025-01-30',
+                'start_time' => '13:00',
+                'end_time' => '15:00',
+                'status' => 'rejected',
+                'lead_time' => '1',
+                'purpose' => 'Company event'
+            ],
+            [
+                'id' => 'RES-005',
+                'name' => 'Meeting Room C',
+                'type' => 'room',
+                'date' => '2025-02-02',
+                'start_time' => '15:00',
+                'end_time' => '17:00',
+                'status' => 'pending',
+                'lead_time' => '5',
+                'purpose' => 'Board meeting'
+            ]
+        ]);
+
+        // Get approval requests from database
+        $approvals = \App\Models\Approval::orderByDesc('created_at')->get()->map(function ($approval) {
+            return [
+                'id' => $approval->request_id, // Use request_id for display
+                'title' => $approval->title,
+                'type' => $approval->type,
+                'requested_by' => $approval->requested_by,
+                'date' => $approval->date ? $approval->date->toDateString() : now()->toDateString(),
+                'status' => $approval->status,
+                'lead_time' => $approval->lead_time,
+                'purpose' => $approval->description,
+                'approved_by' => $approval->approved_by,
+                'rejected_by' => $approval->rejected_by,
+                'approved_at' => $approval->approved_at ? $approval->approved_at->toDateTimeString() : null,
+                'rejected_at' => $approval->rejected_at ? $approval->rejected_at->toDateTimeString() : null,
+                'is_approval' => true, // Flag to distinguish approval requests
+            ];
+        })->toArray();
+
+        // Combine bookings and approvals
+        $allReservations = array_merge($bookings, $approvals);
+
+        // Create approval map for decision notes lookup
+        $approvalMap = collect($approvals)->keyBy('id');
+
         return view('dashboard.reservation-history', [
-            'user' => auth()->user()
+            'user' => auth()->user(),
+            'bookings' => $allReservations,
+            'approvalMap' => $approvalMap
         ]);
     })->name('reservation.history');
 

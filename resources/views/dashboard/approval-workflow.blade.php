@@ -2,60 +2,9 @@
     // Get the authenticated user
     $user = auth()->user();
 
-    // Initialize requests array if not set
-    $requests = $requests ?? [
-        [
-            'id' => 'REQ-001',
-            'title' => 'Meeting Room Booking',
-            'type' => 'room',
-            'requested_by' => 'John Smith',
-            'date' => '2025-01-25',
-            'status' => 'pending',
-            'lead_time' => '3',
-            'description' => 'Quarterly team meeting for Q1 planning'
-        ],
-        [
-            'id' => 'REQ-002',
-            'title' => 'Projector Request',
-            'type' => 'equipment',
-            'requested_by' => 'Sarah Johnson',
-            'date' => '2025-01-26',
-            'status' => 'pending',
-            'lead_time' => '2',
-            'description' => 'Need projector for client presentation'
-        ],
-        [
-            'id' => 'REQ-003',
-            'title' => 'Training Room Setup',
-            'type' => 'room',
-            'requested_by' => 'Mike Wilson',
-            'date' => '2025-01-28',
-            'status' => 'approved',
-            'lead_time' => '7',
-            'description' => 'New employee training session'
-        ],
-        [
-            'id' => 'REQ-004',
-            'title' => 'Audio System',
-            'type' => 'equipment',
-            'requested_by' => 'Emily Davis',
-            'date' => '2025-01-30',
-            'status' => 'pending',
-            'lead_time' => '1',
-            'description' => 'Audio system for company event'
-        ],
-        [
-            'id' => 'REQ-005',
-            'title' => 'Conference Room',
-            'type' => 'room',
-            'requested_by' => 'David Brown',
-            'date' => '2025-02-02',
-            'status' => 'rejected',
-            'lead_time' => '5',
-            'description' => 'Board meeting with investors'
-        ]
-    ];
-    $pendingCount = collect($requests)->where('status', 'pending')->count();
+    // Use the real requests data passed from the route
+    $requests = $requests ?? [];
+    $pendingCount = $pendingCount ?? 0;
 @endphp
 
 <!DOCTYPE html>
@@ -741,7 +690,7 @@
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-gray-900">{{ $request['title'] }}
                                                     </div>
-                                                    <div class="text-xs text-gray-500">#{{ $request['id'] }}</div>
+                                                    <div class="text-xs text-gray-500">#{{ $request['request_id'] ?? $request['id'] }}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -762,9 +711,30 @@
                                                 ];
                                                 $statusClass = $statusClasses[$request['status']] ?? 'bg-gray-100 text-gray-800';
                                             @endphp
-                                            <span class="status-badge {{ $statusClass }}">
-                                                {{ ucfirst($request['status']) }}
-                                            </span>
+                                            <div class="flex flex-col space-y-1">
+                                                <span class="status-badge {{ $statusClass }}">
+                                                    {{ ucfirst($request['status']) }}
+                                                </span>
+                                                @if($request['status'] === 'approved' && !empty($request['approved_by']))
+                                                    <div class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
+                                                        <i class="fas fa-check-circle mr-1"></i>
+                                                        Approved by {{ $request['approved_by'] }}
+                                                        @if(!empty($request['approved_at']))
+                                                            <br>
+                                                            <span class="text-green-500">{{ \Carbon\Carbon::parse($request['approved_at'])->format('M d, Y H:i') }}</span>
+                                                        @endif
+                                                    </div>
+                                                @elseif($request['status'] === 'rejected' && !empty($request['rejected_by']))
+                                                    <div class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-200">
+                                                        <i class="fas fa-times-circle mr-1"></i>
+                                                        Rejected by {{ $request['rejected_by'] }}
+                                                        @if(!empty($request['rejected_at']))
+                                                            <br>
+                                                            <span class="text-red-500">{{ \Carbon\Carbon::parse($request['rejected_at'])->format('M d, Y H:i') }}</span>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button type="button" onclick='showRequestDetails(@json($request))'
@@ -876,6 +846,17 @@
                     This action <span class="font-semibold text-red-600">cannot be undone</span>. 
                     Please review your decision carefully before proceeding.
                 </p>
+                
+                <!-- Reason Input for Rejection -->
+                <div id="reasonInputContainer" class="mb-6 hidden">
+                    <label for="rejectionReason" class="block text-sm font-medium text-gray-700 mb-2">
+                        Reason for Rejection <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="rejectionReason" name="reason" rows="3" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors resize-none"
+                        placeholder="Please provide a detailed reason for rejection..." required></textarea>
+                    <p class="text-xs text-gray-500 mt-1">This reason will be recorded and shared with the requester.</p>
+                </div>
                 
                 <!-- Action Buttons -->
                 <div class="flex justify-center space-x-4">
@@ -1251,7 +1232,53 @@
                                 </div>
                                 <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Description</label>
                             </div>
-                            <p class="text-gray-900 font-medium whitespace-pre-line">${request.description || 'No description provided'}</p>
+                            <p class="text-gray-900 font-medium whitespace-pre-line mb-4">${request.description || 'No description provided'}</p>
+                            
+                            ${request.status !== 'pending' ? `
+                                <!-- Decision Notes Section -->
+                                <div class="border-t border-gray-200 pt-4 mt-4">
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <div class="w-8 h-8 bg-${request.status === 'approved' ? 'green' : 'red'}-500 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-${request.status === 'approved' ? 'check' : 'times'}-circle text-white text-sm"></i>
+                                        </div>
+                                        <label class="text-xs font-bold text-${request.status === 'approved' ? 'green' : 'red'}-600 uppercase tracking-wider">Decision Details</label>
+                                    </div>
+                                    <div class="bg-${request.status === 'approved' ? 'green' : 'red'}-50 border border-${request.status === 'approved' ? 'green' : 'red'}-200 rounded-lg p-3">
+                                        ${request.status === 'approved' && request.approved_by ? `
+                                            <div class="flex items-center text-sm text-green-800">
+                                                <i class="fas fa-check-circle mr-2"></i>
+                                                <span class="font-medium">Approved by ${request.approved_by}</span>
+                                            </div>
+                                            ${request.approved_at ? `
+                                                <div class="text-xs text-green-600 mt-1">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    ${new Date(request.approved_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            ` : ''}
+                                        ` : ''}
+                                        ${request.status === 'rejected' && request.rejected_by ? `
+                                            <div class="flex items-center text-sm text-red-800">
+                                                <i class="fas fa-times-circle mr-2"></i>
+                                                <span class="font-medium">Rejected by ${request.rejected_by}</span>
+                                            </div>
+                                            ${request.rejected_at ? `
+                                                <div class="text-xs text-red-600 mt-1">
+                                                    <i class="fas fa-clock mr-1"></i>
+                                                    ${new Date(request.rejected_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                </div>
+                                            ` : ''}
+                                            ${request.description && request.description.includes('Rejection reason:') ? `
+                                                <div class="mt-2 pt-2 border-t border-red-200">
+                                                    <div class="text-xs text-red-700">
+                                                        <strong>Rejection Reason:</strong>
+                                                        <p class="mt-1">${request.description.split('Rejection reason:')[1] || 'No reason provided'}</p>
+                                                    </div>
+                                                </div>
+                                            ` : ''}
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
 
@@ -1288,8 +1315,8 @@
                 currentRequestId = requestId;
                 currentAction = action;
                 currentActionUrl = action === 'approve'
-                    ? `{{ url('approval') }}/${requestId}/approve`
-                    : `{{ url('approval') }}/${requestId}/reject`;
+                    ? `{{ url('/approval/approve') }}/${requestId}`
+                    : `{{ url('/approval/reject') }}/${requestId}`;
 
                 const confirmBtn = document.getElementById('confirmActionBtn');
                 const modalTitle = document.getElementById('actionModalTitle');
@@ -1306,6 +1333,9 @@
                     modalMessage.textContent = `Are you sure you want to approve this request? This action cannot be undone.`;
                     confirmBtnText.textContent = 'Approve Request';
                     
+                    // Hide reason input for approval
+                    document.getElementById('reasonInputContainer').classList.add('hidden');
+                    
                     // Green theme for approve
                     modalHeader.className = 'px-6 py-6 rounded-t-3xl relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600';
                     modalIcon.className = 'w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center';
@@ -1315,8 +1345,12 @@
                     confirmBtn.className = 'px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center';
                 } else {
                     modalTitle.textContent = 'Reject Request';
-                    modalMessage.textContent = `Are you sure you want to reject this request? This action cannot be undone.`;
+                    modalMessage.innerHTML = `Are you sure you want to reject this request? This action cannot be undone.`;
                     confirmBtnText.textContent = 'Reject Request';
+                    
+                    // Show reason input for rejection
+                    document.getElementById('reasonInputContainer').classList.remove('hidden');
+                    document.getElementById('rejectionReason').value = ''; // Clear previous reason
                     
                     // Red theme for reject
                     modalHeader.className = 'px-6 py-6 rounded-t-3xl relative overflow-hidden bg-gradient-to-r from-red-600 via-rose-600 to-pink-600';
@@ -1339,15 +1373,32 @@
                     confirmBtn.disabled = true;
                     confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
 
+                    // Prepare request data
+                    const requestData = {};
+                    
+                    // Add reason for rejection
+                    if (currentAction === 'reject') {
+                        const reason = document.getElementById('rejectionReason').value.trim();
+                        if (!reason) {
+                            // Show validation error in modal instead of alert
+                            showValidationError('Please provide a reason for rejection');
+                            confirmBtn.disabled = false;
+                            confirmBtn.innerHTML = originalText;
+                            return;
+                        }
+                        requestData.reason = reason;
+                    }
+
                     const response = await fetch(currentActionUrl, {
                         method: 'POST',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json',
+                            'Content-Type': 'application/json',
                         },
                         credentials: 'same-origin',
-                        body: null
+                        body: JSON.stringify(requestData)
                     });
 
                     let data;
@@ -1363,13 +1414,50 @@
                         const requestRow = document.querySelector(`tr[data-request-id="${currentRequestId}"]`);
 
                         if (requestRow) {
-                            const statusCell = requestRow.querySelector('.status-badge');
-                            if (statusCell) {
-                                const statusClass = currentAction === 'approve' ? 'status-approved' : 'status-rejected';
-                                statusCell.className = `status-badge ${statusClass}`;
-                                statusCell.textContent = currentAction === 'approve' ? 'Approved' : 'Rejected';
+                            const statusCell = requestRow.querySelector('td:nth-child(4)'); // Status column
+                            const statusClass = currentAction === 'approve' ? 'status-approved' : 'status-rejected';
+                            const statusText = currentAction === 'approve' ? 'Approved' : 'Rejected';
+                            const currentUser = '{{ auth()->user()->name }}';
+                            const currentTime = new Date().toLocaleString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric', 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            });
+
+                            // Create new status HTML with decision notes
+                            let newStatusHTML = `
+                                <div class="flex flex-col space-y-1">
+                                    <span class="status-badge ${statusClass}">
+                                        ${statusText}
+                                    </span>
+                            `;
+
+                            if (currentAction === 'approve') {
+                                newStatusHTML += `
+                                    <div class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Approved by ${currentUser}
+                                        <br>
+                                        <span class="text-green-500">${currentTime}</span>
+                                    </div>
+                                `;
+                            } else {
+                                newStatusHTML += `
+                                    <div class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-200">
+                                        <i class="fas fa-times-circle mr-1"></i>
+                                        Rejected by ${currentUser}
+                                        <br>
+                                        <span class="text-red-500">${currentTime}</span>
+                                    </div>
+                                `;
                             }
 
+                            newStatusHTML += '</div>';
+                            statusCell.innerHTML = newStatusHTML;
+
+                            // Remove action buttons
                             const actionButtons = requestRow.querySelectorAll('td:nth-child(5) button');
                             actionButtons.forEach(button => {
                                 if (button.textContent === 'Approve' || button.textContent === 'Reject') {
@@ -1381,15 +1469,53 @@
                         closeModal('actionConfirmationModal');
                         showSuccessMessage(data.message || `Request has been ${currentAction}d successfully`);
                     } else {
-                        throw new Error(data.message || `Failed to ${currentAction} request`);
+                        // Show error in modal instead of alert
+                        showValidationError(data.message || `Failed to ${currentAction} request`);
+                        confirmBtn.disabled = false;
+                        confirmBtn.innerHTML = originalText;
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert(error.message || `An error occurred while ${currentAction}ing the request`);
-                } finally {
+                    // Show error in modal instead of alert
+                    showValidationError(error.message || `An error occurred while ${currentAction}ing the request`);
                     confirmBtn.disabled = false;
                     confirmBtn.innerHTML = originalText;
                 }
+            }
+
+            // Function to show validation error in the modal
+            function showValidationError(message) {
+                const modalMessage = document.getElementById('actionModalMessage');
+                const originalMessage = modalMessage.innerHTML;
+                
+                // Update modal message to show error
+                modalMessage.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+                            <span class="text-red-800 font-medium">${message}</span>
+                        </div>
+                    </div>
+                    ${originalMessage}
+                `;
+                
+                // Add red border to reason input if it's a rejection validation error
+                if (currentAction === 'reject' && message.includes('reason')) {
+                    const reasonInput = document.getElementById('rejectionReason');
+                    const reasonContainer = document.getElementById('reasonInputContainer');
+                    reasonInput.classList.add('border-red-500', 'bg-red-50');
+                    reasonInput.focus();
+                    
+                    // Remove error styling after user starts typing
+                    reasonInput.addEventListener('input', function() {
+                        this.classList.remove('border-red-500', 'bg-red-50');
+                    }, { once: true });
+                }
+                
+                // Auto-hide error message after 5 seconds
+                setTimeout(() => {
+                    modalMessage.innerHTML = originalMessage;
+                }, 5000);
             }
 
             // Show success message
@@ -1419,58 +1545,7 @@
             }
 
             // Add SweetAlert2 confirmation for actions
-            document.addEventListener('DOMContentLoaded', function () {
-                // Approve button confirmation
-                document.querySelectorAll('button[onclick*="showActionConfirmation"][onclick*="approve"]').forEach(button => {
-                    button.addEventListener('click', function (e) {
-                        const requestId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-                        const row = this.closest('tr');
-                        const dateText = row.querySelector('td:nth-child(3) .text-sm').textContent;
-                        const requestDate = new Date(dateText);
-
-                        if (requestDate < new Date()) {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Cannot Approve',
-                                text: 'Booking date is in the past.',
-                            });
-                            e.preventDefault();
-                            return false;
-                        }
-                    });
-                });
-
-                // Reject button confirmation with reason
-                document.querySelectorAll('button[onclick*="showActionConfirmation"][onclick*="reject"]').forEach(button => {
-                    button.addEventListener('click', async function (e) {
-                        e.preventDefault();
-                        const requestId = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-
-                        const { value: reason } = await Swal.fire({
-                            title: 'Reject Request',
-                            input: 'textarea',
-                            inputLabel: 'Reason for rejection',
-                            inputPlaceholder: 'Enter your reason here...',
-                            inputAttributes: {
-                                'aria-label': 'Type your reason here'
-                            },
-                            showCancelButton: true,
-                            confirmButtonText: 'Reject',
-                            cancelButtonText: 'Cancel',
-                            inputValidator: (value) => {
-                                if (!value) {
-                                    return 'Please provide a reason for rejection';
-                                }
-                            }
-                        });
-
-                        if (reason) {
-                            // You can handle the rejection with reason here
-                            showActionConfirmation(requestId, 'reject');
-                        }
-                    });
-                });
-            });
+            // Note: Event listeners are already handled by onclick attributes in the HTML
 
             // Open "Facilities Management" dropdown by default since we're on Approval Workflow page
             const facilitiesBtn = document.getElementById('facilities-management-btn');
@@ -1484,24 +1559,6 @@
         });
 
         // Tab Switching Logic
-        }
-
-        // Search Functionality
-        const searchInput = document.getElementById('requestSearch');
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
-                // Trigger re-filtering based on current tab and new search term
-                // We'll just call switchTab with the currently active tab name
-                // To do this, we need to know the active tab.
-                const activeBtn = document.querySelector('button[id^="tab-"].shadow-sm.bg-white'); // Our active tab has these unique classes
-                if (activeBtn) {
-                    const tabId = activeBtn.id.replace('tab-', '');
-                    switchTab(tabId);
-                }
-            });
-        }
-
-        // Updated Tab Switching Logic (Integrated with Search)
         window.switchTab = function (tabName) {
             // 1. Update Tabs Styling
             const tabs = ['pending', 'my-requests', 'history'];
@@ -1596,7 +1653,20 @@
                 if (noRecordsRow) noRecordsRow.style.display = 'none';
             }
         }
+
+        // Search Functionality
+        const searchInput = document.getElementById('requestSearch');
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                // Get the currently active tab
+                const activeTab = document.querySelector('button[id^="tab-"].bg-white');
+                if (activeTab) {
+                    const tabName = activeTab.id.replace('tab-', '');
+                    switchTab(tabName);
+                }
+            });
+        }
     </script>
 </body>
 
-</html>
+</html> 
