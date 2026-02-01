@@ -149,7 +149,7 @@
                         Microfinance HR
                     </div>
                     <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        HUMAN RESOURCE III
+                Administrative
                     </div>
                 </div>
             </a>
@@ -313,8 +313,8 @@
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © {{ date('Y') }}<br/>
-                    Human Resource III System
+                    Microfinance Admin © {{ date('Y') }}<br/>
+                    Administrative System
                 </div>
             </div>
         </div>

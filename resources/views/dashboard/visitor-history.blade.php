@@ -157,10 +157,10 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-                        Microfinance HR
+                        Microfinance Admin
                     </div>
                     <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        HUMAN RESOURCE III
+                        Administrative
                     </div>
                 </div>
             </a>
@@ -324,8 +324,8 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © {{ date('Y') }}<br/>
-                    Human Resource III System
+                    Microfinance Admin © {{ date('Y') }}<br/>
+                    Administrative System
                 </div>
             </div>
         </div>

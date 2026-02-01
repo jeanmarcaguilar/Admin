@@ -589,19 +589,36 @@ $calendarBookings = $calendarBookings ?? [];
                 'legal-management-btn': 'legal-submenu'
             };
 
+            console.log('Setting up dropdowns:', dropdowns);
+
             Object.entries(dropdowns).forEach(([btnId, submenuId]) => {
                 const btn = document.getElementById(btnId);
                 const submenu = document.getElementById(submenuId);
-                const arrow = document.getElementById(btnId.replace('-btn', '-arrow'));
+                // Fix arrow ID to match actual HTML (visitor-arrow instead of visitor-management-arrow)
+                const arrowId = btnId.replace('-management-btn', '-arrow');
+                const arrow = document.getElementById(arrowId);
+
+                console.log(`Dropdown setup for ${btnId}:`, {
+                    btn: !!btn,
+                    submenu: !!submenu,
+                    arrow: !!arrow,
+                    arrowId: arrowId
+                });
 
                 if (btn && submenu) {
-                    btn.addEventListener("click", () => {
+                    btn.addEventListener("click", (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        console.log(`Clicked dropdown: ${btnId}`);
+                        
                         const isHidden = submenu.classList.contains("hidden");
+                        console.log(`Dropdown ${btnId} is hidden: ${isHidden}`);
                         
                         // Close all other dropdowns
                         Object.values(dropdowns).forEach(id => {
                             const otherSubmenu = document.getElementById(id);
-                            const otherArrow = document.getElementById(id.replace('-submenu', '-arrow'));
+                            const otherArrowId = id.replace('-submenu', '-arrow');
+                            const otherArrow = document.getElementById(otherArrowId);
                             if (otherSubmenu && otherSubmenu !== submenu) {
                                 otherSubmenu.classList.add("hidden");
                                 if (otherArrow) {
@@ -614,11 +631,15 @@ $calendarBookings = $calendarBookings ?? [];
                         if (isHidden) {
                             submenu.classList.remove("hidden");
                             if (arrow) arrow.classList.add("rotate-180");
+                            console.log(`Opened dropdown: ${btnId}`);
                         } else {
                             submenu.classList.add("hidden");
                             if (arrow) arrow.classList.remove("rotate-180");
+                            console.log(`Closed dropdown: ${btnId}`);
                         }
                     });
+                } else {
+                    console.warn(`Missing elements for dropdown: ${btnId}`, { btn: !!btn, submenu: !!submenu });
                 }
             });
 
@@ -653,18 +674,18 @@ $calendarBookings = $calendarBookings ?? [];
             // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
-                // Use local time with proper formatting
-                const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: true,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
+                // Use local time with proper 24-hour format
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                const timeString = `${hours}:${minutes}:${seconds}`;
+                
                 const clockElement = document.getElementById('real-time-clock');
                 if (clockElement) {
                     clockElement.textContent = timeString;
                 }
             }
+            // Update immediately and then every second
             updateClock();
             setInterval(updateClock, 1000);
 
@@ -673,9 +694,12 @@ $calendarBookings = $calendarBookings ?? [];
             const facilitiesSubmenu = document.getElementById('facilities-submenu');
             const facilitiesArrow = document.getElementById('facilities-arrow');
             
-            if (facilitiesSubmenu && !facilitiesSubmenu.classList.contains('hidden')) {
+            if (facilitiesBtn && facilitiesSubmenu) {
+                // Force open the facilities dropdown
                 facilitiesSubmenu.classList.remove('hidden');
-                if (facilitiesArrow) facilitiesArrow.classList.add('rotate-180');
+                if (facilitiesArrow) {
+                    facilitiesArrow.classList.add('rotate-180');
+                }
             }
 
             // Calendar functionality
