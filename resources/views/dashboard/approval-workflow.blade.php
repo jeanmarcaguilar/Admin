@@ -6,6 +6,26 @@
     $requests = $requests ?? [];
     $pendingCount = $pendingCount ?? 0;
     $externalCount = $externalCount ?? 0;
+
+    // Debug: Log the data we received
+    if (function_exists('logger')) {
+        logger('Blade template - Total requests: ' . count($requests));
+        logger('Blade template - External count: ' . $externalCount);
+        logger('Blade template - Pending count: ' . $pendingCount);
+        
+        // Log first few requests to see structure
+        $sampleRequests = array_slice($requests, 0, 3);
+        foreach ($sampleRequests as $index => $req) {
+            logger("Request $index: " . json_encode([
+                'id' => $req['id'] ?? 'missing',
+                'title' => $req['title'] ?? 'missing',
+                'is_external' => $req['is_external'] ?? false,
+                'booking_code' => $req['booking_code'] ?? 'missing',
+                'location' => $req['location'] ?? 'missing',
+                'facilitator' => $req['facilitator'] ?? 'missing'
+            ]));
+        }
+    }
 @endphp
 
 <!DOCTYPE html>

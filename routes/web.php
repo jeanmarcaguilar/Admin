@@ -1107,9 +1107,17 @@ Route::middleware('auth')->group(function () {
                             'is_external' => true, // Mark as external booking
                         ];
                     })->toArray();
+                    
+                    \Log::info('External API bookings loaded: ' . count($externalBookings));
+                } else {
+                    \Log::warning('No bookings data received from external API');
                 }
+            } else {
+                \Log::error('External API request failed with status: ' . $response->status());
             }
         } catch (\Exception $e) {
+            \Log::error('Failed to fetch external bookings: ' . $e->getMessage());
+            
             // Add sample external bookings for testing if API fails
             $externalBookings = [
                 [
@@ -1155,6 +1163,8 @@ Route::middleware('auth')->group(function () {
                     'is_external' => true,
                 ]
             ];
+            
+            \Log::info('Using sample external bookings for testing: ' . count($externalBookings));
         }
 
         // Combine approval requests and external bookings
@@ -1168,6 +1178,12 @@ Route::middleware('auth')->group(function () {
         $pendingCount = collect($allRequests)->where('status', 'pending')->count();
         $externalCount = collect($allRequests)->where('is_external', true)->count();
 
+        // Debug logging
+        \Log::info('Total requests: ' . count($allRequests));
+        \Log::info('External count: ' . $externalCount);
+        \Log::info('Pending count: ' . $pendingCount);
+        \Log::info('Sample request data: ' . json_encode(array_slice($allRequests, 0, 2)));
+
         return view('dashboard.approval-workflow', [
             'user' => auth()->user(),
             'requests' => $allRequests,
@@ -1175,6 +1191,74 @@ Route::middleware('auth')->group(function () {
             'externalCount' => $externalCount
         ]);
     })->name('approval.workflow');
+
+    // Debug route to test approval workflow data
+    Route::get('/debug-approval-data', function () {
+        try {
+            // Fetch training room bookings from external API
+            $externalBookings = [];
+            $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
+            
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($apiUrl);
+            
+            if ($response->successful()) {
+                $bookings = $response->json();
+                
+                if (!empty($bookings) && is_array($bookings)) {
+                    $externalBookings = collect($bookings)->map(function ($booking) {
+                        return [
+                            'id' => $booking['id'] ?? ('EXT-' . uniqid()),
+                            'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
+                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                            'status' => $booking['status'] ?? 'pending',
+                            'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
+                            'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
+                            'is_external' => true,
+                        ];
+                    })->toArray();
+                }
+            } else {
+                // Use sample data if API fails
+                $externalBookings = [
+                    [
+                        'id' => 'EXT-001',
+                        'booking_code' => 'TRB-001',
+                        'location' => 'External Training Room A',
+                        'facilitator' => 'External Trainer',
+                        'status' => 'approved',
+                        'start_time' => '10:00',
+                        'end_time' => '16:00',
+                        'is_external' => true,
+                    ],
+                    [
+                        'id' => 'EXT-002',
+                        'booking_code' => 'TRB-002',
+                        'location' => 'Conference Hall B',
+                        'facilitator' => 'Guest Speaker',
+                        'status' => 'pending',
+                        'start_time' => '13:00',
+                        'end_time' => '17:00',
+                        'is_external' => true,
+                    ]
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'external_bookings_count' => count($externalBookings),
+                'external_bookings' => $externalBookings,
+                'api_status' => $response->status() ?? 'N/A',
+                'api_response' => $response->successful() ? 'success' : 'failed'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    })->name('debug.approval.data');
 
     // Approval Workflow Actions
     Route::post('/approval/approve/{id}', function ($id, Request $request) {
