@@ -322,27 +322,27 @@ Route::middleware('auth')->group(function () {
         try {
             // Find document by code or ID
             $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
-            
+
             if (!$document) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Document not found'
                 ], 404);
             }
-            
+
             // Delete file from storage if it exists
             if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
                 Storage::disk('public')->delete($document->file_path);
             }
-            
+
             // Delete database record
             $document->delete();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Document deleted successfully'
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -356,14 +356,14 @@ Route::middleware('auth')->group(function () {
         try {
             // Find document by code or ID
             $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
-            
+
             if (!$document) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Document not found'
                 ], 404);
             }
-            
+
             return response()->json([
                 'success' => true,
                 'document' => [
@@ -382,7 +382,7 @@ Route::middleware('auth')->group(function () {
                     'receipt_date' => $document->receipt_date
                 ]
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -396,31 +396,31 @@ Route::middleware('auth')->group(function () {
         try {
             // Find document by code or ID
             $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
-            
+
             if (!$document) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Document not found'
                 ], 404);
             }
-            
+
             $email = $request->input('email');
-            
+
             // Here you would typically:
             // 1. Generate a shareable link
             // 2. Send email notification
             // 3. Log the share action
-            
+
             // For now, just mark as shared and return success
             $document->is_shared = true;
             $document->save();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Document shared successfully',
                 'share_link' => url('/document/' . $document->code . '/download')
             ]);
-            
+
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -937,31 +937,33 @@ Route::middleware('auth')->group(function () {
         try {
             // Make HTTP request to external API
             $response = \Illuminate\Support\Facades\Http::get('https://hr2.microfinancial-1.com/api/training-room-bookings');
-            
+
             if ($response->successful()) {
                 $bookings = $response->json();
-                
+
                 // Format the response data to match our expected structure
-                $formattedBookings = collect($bookings)->map(function ($booking) {
+                $bookingsData = $bookings['data'] ?? $bookings;
+                $formattedBookings = collect($bookingsData)->map(function ($booking) {
                     return [
                         'id' => $booking['id'] ?? null,
-                        'request_id' => $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
-                        'title' => $booking['title'] ?? $booking['name'] ?? 'Training Room Booking',
-                        'name' => $booking['name'] ?? 'Training Room',
+                        'request_id' => $booking['request_id'] ?? $booking['booking_code'] ?? ('TRB-' . ($booking['id'] ?? '000')),
+                        'title' => $booking['title'] ?? $booking['course_name'] ?? $booking['name'] ?? 'Training Room Booking',
+                        'name' => $booking['name'] ?? $booking['course_name'] ?? 'Training Room',
                         'type' => $booking['type'] ?? 'room',
-                        'date' => $booking['date'] ?? $booking['booking_date'] ?? now()->toDateString(),
+                        'date' => $booking['date'] ?? $booking['session_date'] ?? $booking['booking_date'] ?? now()->toDateString(),
                         'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? '09:00',
                         'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? '17:00',
-                        'purpose' => $booking['purpose'] ?? $booking['description'] ?? 'Training session',
+                        'purpose' => $booking['purpose'] ?? $booking['notes'] ?? $booking['description'] ?? 'Training session',
                         'status' => $booking['status'] ?? 'pending',
-                        'requested_by' => $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                        'requested_by' => $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
+                        'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? null,
                         'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
                         'created_at' => $booking['created_at'] ?? now()->toDateTimeString(),
                         'updated_at' => $booking['updated_at'] ?? now()->toDateTimeString(),
                         'source' => 'external_api', // Mark as external data
                     ];
                 })->toArray();
-                
+
                 return response()->json([
                     'success' => true,
                     'data' => $formattedBookings,
@@ -989,15 +991,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/test-external-api', function () {
         try {
             $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
-            
+
             return response()->json([
                 'testing_url' => $apiUrl,
                 'timestamp' => now()->toDateTimeString(),
                 'attempting_request' => true
             ]);
-            
+
             $response = \Illuminate\Support\Facades\Http::timeout(5)->get($apiUrl);
-            
+
             return response()->json([
                 'url' => $apiUrl,
                 'status' => $response->status(),
@@ -1077,29 +1079,30 @@ Route::middleware('auth')->group(function () {
         $externalBookings = [];
         try {
             $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
-            
+
             $response = \Illuminate\Support\Facades\Http::timeout(10)->get($apiUrl);
-            
+
             if ($response->successful()) {
                 $bookings = $response->json();
-                
+
                 if (!empty($bookings) && is_array($bookings)) {
-                    $externalBookings = collect($bookings)->map(function ($booking) {
+                    $bookingsData = $bookings['data'] ?? $bookings;
+                    $externalBookings = collect($bookingsData)->map(function ($booking) {
                         return [
                             'id' => $booking['id'] ?? ('EXT-' . uniqid()),
                             'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
-                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
-                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['course_name'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
                             'status' => $booking['status'] ?? 'pending',
                             'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
                             'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
-                            'request_id' => $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
-                            'title' => $booking['title'] ?? $booking['name'] ?? 'Training Room Booking',
+                            'request_id' => $booking['request_id'] ?? $booking['booking_code'] ?? ('TRB-' . ($booking['id'] ?? '000')),
+                            'title' => $booking['title'] ?? $booking['course_name'] ?? $booking['name'] ?? 'Training Room Booking',
                             'type' => $booking['type'] ?? 'room',
-                            'requested_by' => $booking['requested_by'] ?? $booking['user'] ?? 'External User',
-                            'date' => $booking['date'] ?? $booking['booking_date'] ?? now()->toDateString(),
+                            'requested_by' => $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
+                            'date' => $booking['date'] ?? $booking['session_date'] ?? $booking['booking_date'] ?? now()->toDateString(),
                             'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
-                            'description' => $booking['purpose'] ?? $booking['description'] ?? 'External training session',
+                            'description' => $booking['purpose'] ?? $booking['notes'] ?? $booking['description'] ?? 'External training session',
                             'approved_by' => null, // External bookings don't have internal approvers
                             'rejected_by' => null,
                             'approved_at' => null,
@@ -1107,7 +1110,7 @@ Route::middleware('auth')->group(function () {
                             'is_external' => true, // Mark as external booking
                         ];
                     })->toArray();
-                    
+
                     \Log::info('External API bookings loaded: ' . count($externalBookings));
                 } else {
                     \Log::warning('No bookings data received from external API');
@@ -1117,7 +1120,7 @@ Route::middleware('auth')->group(function () {
             }
         } catch (\Exception $e) {
             \Log::error('Failed to fetch external bookings: ' . $e->getMessage());
-            
+
             // Add sample external bookings for testing if API fails
             $externalBookings = [
                 [
@@ -1163,7 +1166,7 @@ Route::middleware('auth')->group(function () {
                     'is_external' => true,
                 ]
             ];
-            
+
             \Log::info('Using sample external bookings for testing: ' . count($externalBookings));
         }
 
@@ -1198,19 +1201,20 @@ Route::middleware('auth')->group(function () {
             // Fetch training room bookings from external API
             $externalBookings = [];
             $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
-            
+
             $response = \Illuminate\Support\Facades\Http::timeout(10)->get($apiUrl);
-            
+
             if ($response->successful()) {
                 $bookings = $response->json();
-                
+
                 if (!empty($bookings) && is_array($bookings)) {
-                    $externalBookings = collect($bookings)->map(function ($booking) {
+                    $bookingsData = $bookings['data'] ?? $bookings;
+                    $externalBookings = collect($bookingsData)->map(function ($booking) {
                         return [
                             'id' => $booking['id'] ?? ('EXT-' . uniqid()),
                             'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
-                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
-                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['course_name'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
                             'status' => $booking['status'] ?? 'pending',
                             'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
                             'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
@@ -1265,7 +1269,7 @@ Route::middleware('auth')->group(function () {
         try {
             // Find the approval request
             $approval = \App\Models\Approval::find($id);
-            
+
             if (!$approval) {
                 return response()->json([
                     'success' => false,
@@ -1318,7 +1322,7 @@ Route::middleware('auth')->group(function () {
 
             // Find the approval request
             $approval = \App\Models\Approval::find($id);
-            
+
             if (!$approval) {
                 return response()->json([
                     'success' => false,
@@ -1365,7 +1369,7 @@ Route::middleware('auth')->group(function () {
         try {
             // For external bookings, we'll simulate approval since we can't actually modify external API
             // In a real implementation, you would make an API call back to the external system
-            
+
             // Log the external approval action
             \Log::info('External booking approved', [
                 'booking_id' => $id,
@@ -1395,7 +1399,7 @@ Route::middleware('auth')->group(function () {
 
             // For external bookings, we'll simulate rejection since we can't actually modify external API
             // In a real implementation, you would make an API call back to the external system
-            
+
             // Log the external rejection action
             \Log::info('External booking rejected', [
                 'booking_id' => $id,
@@ -1483,39 +1487,40 @@ Route::middleware('auth')->group(function () {
         $externalBookings = [];
         try {
             $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
-            
+
             // Add debugging
             \Log::info('Attempting to fetch external bookings from: ' . $apiUrl);
-            
+
             $response = \Illuminate\Support\Facades\Http::timeout(10)->get($apiUrl);
-            
+
             \Log::info('API Response Status: ' . $response->status());
             \Log::info('API Response Body: ' . $response->body());
-            
+
             if ($response->successful()) {
                 $bookings = $response->json();
                 \Log::info('Decoded bookings: ' . json_encode($bookings));
-                
+
                 if (!empty($bookings) && is_array($bookings)) {
-                    $externalBookings = collect($bookings)->map(function ($booking) {
+                    $bookingsData = $bookings['data'] ?? $bookings;
+                    $externalBookings = collect($bookingsData)->map(function ($booking) {
                         return [
                             'id' => $booking['id'] ?? ('EXT-' . uniqid()),
                             'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
-                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
-                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['course_name'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
                             'status' => $booking['status'] ?? 'pending',
                             'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
                             'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
-                            'name' => $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                            'name' => $booking['title'] ?? $booking['course_name'] ?? $booking['name'] ?? 'Training Room',
                             'type' => $booking['type'] ?? 'room',
-                            'date' => $booking['date'] ?? $booking['booking_date'] ?? now()->toDateString(),
+                            'date' => $booking['date'] ?? $booking['session_date'] ?? $booking['booking_date'] ?? now()->toDateString(),
                             'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
-                            'purpose' => $booking['purpose'] ?? $booking['description'] ?? 'External training session',
-                            'requested_by' => $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                            'purpose' => $booking['purpose'] ?? $booking['notes'] ?? $booking['description'] ?? 'External training session',
+                            'requested_by' => $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
                             'is_external' => true, // Mark as external booking
                         ];
                     })->toArray();
-                    
+
                     \Log::info('Formatted external bookings count: ' . count($externalBookings));
                 } else {
                     \Log::warning('No bookings data received from external API');
@@ -1526,7 +1531,7 @@ Route::middleware('auth')->group(function () {
         } catch (\Exception $e) {
             \Log::error('Failed to fetch external bookings: ' . $e->getMessage());
             \Log::error('Exception trace: ' . $e->getTraceAsString());
-            
+
             // Add sample external bookings for testing if API fails
             $externalBookings = [
                 [
@@ -1562,7 +1567,7 @@ Route::middleware('auth')->group(function () {
                     'is_external' => true,
                 ]
             ];
-            
+
             \Log::info('Using sample external bookings for testing: ' . count($externalBookings));
         }
 

@@ -12,7 +12,7 @@
         logger('Blade template - Total requests: ' . count($requests));
         logger('Blade template - External count: ' . $externalCount);
         logger('Blade template - Pending count: ' . $pendingCount);
-        
+
         // Log first few requests to see structure
         $sampleRequests = array_slice($requests, 0, 3);
         foreach ($sampleRequests as $index => $req) {
@@ -744,10 +744,12 @@
                                                     <div class="text-sm font-medium text-gray-900">
                                                         {{ $request['title'] }}
                                                         @if($request['is_external'] ?? false)
-                                                            <span class="ml-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">External</span>
+                                                            <span
+                                                                class="ml-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">External</span>
                                                         @endif
                                                     </div>
-                                                    <div class="text-xs text-gray-500">#{{ $request['request_id'] ?? $request['id'] }}</div>
+                                                    <div class="text-xs text-gray-500">
+                                                        #{{ $request['request_id'] ?? $request['id'] }}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -760,7 +762,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">
                                                 @if($request['is_external'] ?? false)
-                                                    {{ $request['facilitator'] ?? 'External Facilitator' }}
+                                                    {{ $request['facilitator'] ?? $request['requested_by'] ?? 'N/A' }}
                                                 @else
                                                     {{ $request['requested_by'] ?? 'N/A' }}
                                                 @endif
@@ -790,21 +792,25 @@
                                                     {{ ucfirst($request['status']) }}
                                                 </span>
                                                 @if($request['status'] === 'approved' && !empty($request['approved_by']))
-                                                    <div class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
+                                                    <div
+                                                        class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded border border-green-200">
                                                         <i class="fas fa-check-circle mr-1"></i>
                                                         Approved by {{ $request['approved_by'] }}
                                                         @if(!empty($request['approved_at']))
                                                             <br>
-                                                            <span class="text-green-500">{{ \Carbon\Carbon::parse($request['approved_at'])->format('M d, Y H:i') }}</span>
+                                                            <span
+                                                                class="text-green-500">{{ \Carbon\Carbon::parse($request['approved_at'])->format('M d, Y H:i') }}</span>
                                                         @endif
                                                     </div>
                                                 @elseif($request['status'] === 'rejected' && !empty($request['rejected_by']))
-                                                    <div class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-200">
+                                                    <div
+                                                        class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded border border-red-200">
                                                         <i class="fas fa-times-circle mr-1"></i>
                                                         Rejected by {{ $request['rejected_by'] }}
                                                         @if(!empty($request['rejected_at']))
                                                             <br>
-                                                            <span class="text-red-500">{{ \Carbon\Carbon::parse($request['rejected_at'])->format('M d, Y H:i') }}</span>
+                                                            <span
+                                                                class="text-red-500">{{ \Carbon\Carbon::parse($request['rejected_at'])->format('M d, Y H:i') }}</span>
                                                         @endif
                                                     </div>
                                                 @endif
@@ -853,14 +859,19 @@
     <!-- View Request Details Modal -->
     <div id="viewRequestModal"
         class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden overflow-y-auto h-full w-full p-4">
-        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 transform transition-all duration-500 scale-95 opacity-0">
+        <div
+            class="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 transform transition-all duration-500 scale-95 opacity-0">
             <!-- Modal Header with Enhanced Gradient -->
-            <div class="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
+            <div
+                class="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
                 <!-- Background Pattern -->
                 <div class="absolute inset-0 opacity-10">
-                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=" 60"
+                        height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" %3E%3Cg fill="none"
+                        fill-rule="evenodd" %3E%3Cg fill="%23ffffff" fill-opacity="0.4" %3E%3Ccircle cx="30" cy="30"
+                        r="2" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
                 </div>
-                
+
                 <div class="relative flex justify-between items-center">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
@@ -868,13 +879,13 @@
                         </div>
                         <h3 class="text-2xl font-bold text-white">Request Details</h3>
                     </div>
-                    <button onclick="closeModal('viewRequestModal')" 
+                    <button onclick="closeModal('viewRequestModal')"
                         class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Body -->
             <div class="p-8 bg-gradient-to-br from-teal-50 to-white" id="requestDetailsContent">
                 <!-- Content will be loaded by JavaScript -->
@@ -885,56 +896,64 @@
     <!-- Action Confirmation Modal -->
     <div id="actionConfirmationModal"
         class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden overflow-y-auto h-full w-full p-4">
-        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-500 scale-95 opacity-0" id="actionModalContent">
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-500 scale-95 opacity-0"
+            id="actionModalContent">
             <!-- Modal Header with Dynamic Gradient -->
             <div class="px-6 py-6 rounded-t-3xl relative overflow-hidden" id="actionModalHeader">
                 <!-- Background Pattern -->
                 <div class="absolute inset-0 opacity-10">
-                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=" 60"
+                        height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" %3E%3Cg fill="none"
+                        fill-rule="evenodd" %3E%3Cg fill="%23ffffff" fill-opacity="0.4" %3E%3Ccircle cx="30" cy="30"
+                        r="2" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
                 </div>
-                
+
                 <div class="relative flex justify-between items-center">
                     <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center" id="actionModalIcon">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center"
+                            id="actionModalIcon">
                             <i class="fas fa-exclamation-triangle text-white text-xl"></i>
                         </div>
                         <h3 class="text-2xl font-bold text-white" id="actionModalTitle">Confirm Action</h3>
                     </div>
-                    <button onclick="closeModal('actionConfirmationModal')" 
+                    <button onclick="closeModal('actionConfirmationModal')"
                         class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Body -->
             <div class="p-8 bg-gradient-to-br from-gray-50 to-white text-center">
                 <!-- Dynamic Icon -->
-                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg" id="actionModalIconContainer">
-                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse" id="actionModalIconLarge"></i>
+                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg"
+                    id="actionModalIconContainer">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"
+                        id="actionModalIconLarge"></i>
                 </div>
-                
+
                 <!-- Warning Message -->
                 <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
                 <p class="text-gray-600 mb-8 leading-relaxed" id="actionModalMessage">
-                    This action <span class="font-semibold text-red-600">cannot be undone</span>. 
+                    This action <span class="font-semibold text-red-600">cannot be undone</span>.
                     Please review your decision carefully before proceeding.
                 </p>
-                
+
                 <!-- Reason Input for Rejection -->
                 <div id="reasonInputContainer" class="mb-6 hidden">
                     <label for="rejectionReason" class="block text-sm font-medium text-gray-700 mb-2">
                         Reason for Rejection <span class="text-red-500">*</span>
                     </label>
-                    <textarea id="rejectionReason" name="reason" rows="3" 
+                    <textarea id="rejectionReason" name="reason" rows="3"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors resize-none"
                         placeholder="Please provide a detailed reason for rejection..." required></textarea>
-                    <p class="text-xs text-gray-500 mt-1">This reason will be recorded and shared with the requester.</p>
+                    <p class="text-xs text-gray-500 mt-1">This reason will be recorded and shared with the requester.
+                    </p>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex justify-center space-x-4">
-                    <button onclick="closeModal('actionConfirmationModal')" 
+                    <button onclick="closeModal('actionConfirmationModal')"
                         class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
                         <i class="fas fa-shield-alt mr-2"></i>
                         Cancel
@@ -1105,8 +1124,7 @@
                 if (modal) {
                     modal.classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
-                    
-                    // Add animation
+ // Add animation
                     setTimeout(() => {
                         const modalContent = modal.querySelector('.transform');
                         if (modalContent) {
@@ -1124,8 +1142,8 @@
                     if (modalContent) {
                         modalContent.classList.remove('scale-100', 'opacity-100');
                         modalContent.classList.add('scale-95', 'opacity-0');
-                        
-                        setTimeout(() => {
+
+                                               setTimeout(() => {
                             modal.classList.add('hidden');
                             document.body.style.overflow = '';
                         }, 300);
@@ -1145,11 +1163,11 @@
                     if (modalContent) {
                         modalContent.classList.remove('scale-100', 'opacity-100');
                         modalContent.classList.add('scale-95', 'opacity-0');
-                        
+
                         setTimeout(() => {
                             viewModal.classList.add('hidden');
                             document.body.style.overflow = '';
-                            
+
                             // Open action confirmation modal after view modal is closed
                             setTimeout(() => {
                                 showActionConfirmation(requestId, action);
@@ -1158,7 +1176,7 @@
                     } else {
                         viewModal.classList.add('hidden');
                         document.body.style.overflow = '';
-                        
+
                         // Open action confirmation modal immediately
                         setTimeout(() => {
                             showActionConfirmation(requestId, action);
@@ -1264,7 +1282,7 @@
                                     </div>
                                     <label class="text-xs font-bold text-blue-600 uppercase tracking-wider">Request ID</label>
                                 </div>
-                                <p class="text-gray-900 font-semibold text-lg">${request.id}</p>
+                                <p class="text-gray-900 font-semibold text-lg">${request.request_id || request.id}</p>
                             </div>
                             
                             <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 hover:shadow-md transition-all duration-200">
@@ -1274,7 +1292,27 @@
                                     </div>
                                     <label class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Requested By</label>
                                 </div>
-                                <p class="text-gray-900 font-semibold text-lg">${request.requested_by}</p>
+                                <p class="text-gray-900 font-semibold text-lg">${request.requested_by || 'N/A'}</p>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-4 border border-purple-100 hover:shadow-md transition-all duration-200">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-chalkboard-teacher text-white text-sm"></i>
+                                    </div>
+                                    <label class="text-xs font-bold text-purple-600 uppercase tracking-wider">Facilitator</label>
+                                </div>
+                                <p class="text-gray-900 font-semibold text-lg">${request.facilitator || request.requested_by || 'N/A'}</p>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl p-4 border border-cyan-100 hover:shadow-md transition-all duration-200">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-map-marker-alt text-white text-sm"></i>
+                                    </div>
+                                    <label class="text-xs font-bold text-cyan-600 uppercase tracking-wider">Location</label>
+                                </div>
+                                <p class="text-gray-900 font-semibold text-lg">${request.location || 'N/A'}</p>
                             </div>
                             
                             <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100 hover:shadow-md transition-all duration-200">
@@ -1290,11 +1328,11 @@
                             <div class="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl p-4 border border-rose-100 hover:shadow-md transition-all duration-200">
                                 <div class="flex items-center gap-3 mb-2">
                                     <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-hourglass-half text-white text-sm"></i>
+                                        <i class="fas fa-clock text-white text-sm"></i>
                                     </div>
-                                    <label class="text-xs font-bold text-rose-600 uppercase tracking-wider">Lead Time</label>
+                                    <label class="text-xs font-bold text-rose-600 uppercase tracking-wider">Time</label>
                                 </div>
-                                <p class="text-gray-900 font-semibold text-lg">${request.lead_time ? request.lead_time + ' days' : 'Not specified'}</p>
+                                <p class="text-gray-900 font-semibold text-lg">${request.start_time || 'N/A'} - ${request.end_time || 'N/A'}</p>
                             </div>
                         </div>
                         
@@ -1388,7 +1426,7 @@
             window.showActionConfirmation = function (requestId, action, isExternal = false) {
                 currentRequestId = requestId;
                 currentAction = action;
-                
+
                 // Set different URLs for external vs internal requests
                 if (isExternal) {
                     currentActionUrl = action === 'approve'
@@ -1412,14 +1450,14 @@
                 // Dynamic styling and messaging based on action and type
                 if (action === 'approve') {
                     modalTitle.textContent = isExternal ? 'Approve External Booking' : 'Approve Request';
-                    modalMessage.textContent = isExternal 
+                    modalMessage.textContent = isExternal
                         ? `Are you sure you want to approve this external booking? This will sync the approval status with the external system.`
                         : `Are you sure you want to approve this request? This action cannot be undone.`;
                     confirmBtnText.textContent = isExternal ? 'Approve External Booking' : 'Approve Request';
-                    
+
                     // Hide reason input for approval
                     document.getElementById('reasonInputContainer').classList.add('hidden');
-                    
+
                     // Green theme for approve
                     modalHeader.className = 'px-6 py-6 rounded-t-3xl relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600';
                     modalIcon.className = 'w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center';
@@ -1431,11 +1469,11 @@
                     modalTitle.textContent = 'Reject Request';
                     modalMessage.innerHTML = `Are you sure you want to reject this request? This action cannot be undone.`;
                     confirmBtnText.textContent = 'Reject Request';
-                    
+
                     // Show reason input for rejection
                     document.getElementById('reasonInputContainer').classList.remove('hidden');
                     document.getElementById('rejectionReason').value = ''; // Clear previous reason
-                    
+
                     // Red theme for reject
                     modalHeader.className = 'px-6 py-6 rounded-t-3xl relative overflow-hidden bg-gradient-to-r from-red-600 via-rose-600 to-pink-600';
                     modalIcon.className = 'w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center';
@@ -1459,7 +1497,7 @@
 
                     // Prepare request data
                     const requestData = {};
-                    
+
                     // Add reason for rejection
                     if (currentAction === 'reject') {
                         const reason = document.getElementById('rejectionReason').value.trim();
@@ -1502,12 +1540,12 @@
                             const statusClass = currentAction === 'approve' ? 'status-approved' : 'status-rejected';
                             const statusText = currentAction === 'approve' ? 'Approved' : 'Rejected';
                             const currentUser = '{{ auth()->user()->name }}';
-                            const currentTime = new Date().toLocaleString('en-US', { 
-                                year: 'numeric', 
-                                month: 'short', 
-                                day: 'numeric', 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
+                            const currentTime = new Date().toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
                             });
 
                             // Create new status HTML with decision notes
@@ -1571,7 +1609,7 @@
             function showValidationError(message) {
                 const modalMessage = document.getElementById('actionModalMessage');
                 const originalMessage = modalMessage.innerHTML;
-                
+
                 // Update modal message to show error
                 modalMessage.innerHTML = `
                     <div class="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
@@ -1582,20 +1620,20 @@
                     </div>
                     ${originalMessage}
                 `;
-                
+
                 // Add red border to reason input if it's a rejection validation error
                 if (currentAction === 'reject' && message.includes('reason')) {
                     const reasonInput = document.getElementById('rejectionReason');
                     const reasonContainer = document.getElementById('reasonInputContainer');
                     reasonInput.classList.add('border-red-500', 'bg-red-50');
                     reasonInput.focus();
-                    
+
                     // Remove error styling after user starts typing
-                    reasonInput.addEventListener('input', function() {
+                    reasonInput.addEventListener('input', function () {
                         this.classList.remove('border-red-500', 'bg-red-50');
                     }, { once: true });
                 }
-                
+
                 // Auto-hide error message after 5 seconds
                 setTimeout(() => {
                     modalMessage.innerHTML = originalMessage;
@@ -1753,4 +1791,4 @@
     </script>
 </body>
 
-</html> 
+</html>
