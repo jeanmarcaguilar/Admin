@@ -544,7 +544,8 @@
                             <div>
                                 <p class="text-sm font-medium text-gray-500 mb-1">Pending Approvals</p>
                                 <h3 class="text-3xl font-bold text-gray-900">
-                                    {{ count(array_filter($bookings, fn($b) => $b['status'] === 'pending')) }}</h3>
+                                    {{ count(array_filter($bookings, fn($b) => $b['status'] === 'pending')) }}
+                                </h3>
                                 <div
                                     class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
@@ -630,10 +631,13 @@
                                         Reservation ID</th>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Booking Code</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Facility</th>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Requested By</th>
+                                        Facilitator / Requested By</th>
                                     <th scope="col"
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date & Time</th>
@@ -657,17 +661,24 @@
                                         data-type="{{ $reservation['type'] ?? '' }}"
                                         data-status="{{ $reservation['status'] ?? '' }}">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            #{{ $reservation['id'] ?? 'N/A' }}
-                                            @if($reservation['is_approval'] ?? false)
-                                                <span class="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Approval</span>
+                                            #{{ $reservation['request_id'] ?? $reservation['id'] ?? 'N/A' }}
+                                            @if($reservation['is_external'] ?? false)
+                                                <span
+                                                    class="ml-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">External</span>
+                                            @elseif($reservation['is_approval'] ?? false)
+                                                <span
+                                                    class="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Approval</span>
                                             @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+                                            {{ $reservation['booking_code'] ?? 'N/A' }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div
-                                                    class="flex-shrink-0 h-10 w-10 rounded-full {{ ($reservation['is_approval'] ?? false) ? 'bg-purple-100' : 'bg-blue-100' }} flex items-center justify-center">
+                                                    class="flex-shrink-0 h-10 w-10 rounded-full {{ ($reservation['is_external'] ?? false) ? 'bg-orange-100' : (($reservation['is_approval'] ?? false) ? 'bg-purple-100' : 'bg-blue-100') }} flex items-center justify-center">
                                                     <i
-                                                        class="{{ ($reservation['is_approval'] ?? false) ? 'bx bx-clipboard-check' : (($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house' : 'bx bx-video-recording') }} {{ ($reservation['is_approval'] ?? false) ? 'text-purple-600' : 'text-blue-600' }}"></i>
+                                                        class="{{ ($reservation['is_external'] ?? false) ? 'bx bx-cloud-download text-orange-600' : (($reservation['is_approval'] ?? false) ? 'bx bx-clipboard-check text-purple-600' : (($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house text-blue-600' : 'bx bx-video-recording text-blue-600')) }}"></i>
                                                 </div>
                                                 <div class="ml-4">
                                                     @php
@@ -675,13 +686,32 @@
                                                         $facilityType = $reservation['type'] ?? 'room';
                                                     @endphp
                                                     <div class="text-sm font-medium text-gray-900">{{ $title }}</div>
-                                                    <div class="text-sm text-gray-500">{{ ucfirst($facilityType) }}</div>
+                                                    <div class="text-xs text-gray-500">
+                                                        @if($reservation['is_external'] ?? false)
+                                                            <span class="flex items-center gap-1">
+                                                                <i class="fas fa-map-marker-alt text-[10px]"></i>
+                                                                {{ $reservation['location'] ?? 'External' }}
+                                                            </span>
+                                                        @else
+                                                            {{ ucfirst($facilityType) }}
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $reservation['requested_by'] ?? ($user->name ?? 'User') }}</div>
-                                            <div class="text-sm text-gray-500">&nbsp;</div>
+                                            <div class="text-sm text-gray-900 font-medium">
+                                                @if($reservation['is_external'] ?? false)
+                                                    {{ $reservation['facilitator'] ?? $reservation['requested_by'] ?? 'N/A' }}
+                                                @else
+                                                    {{ $reservation['requested_by'] ?? ($user->name ?? 'User') }}
+                                                @endif
+                                            </div>
+                                            @if(!($reservation['is_external'] ?? false))
+                                                <div class="text-xs text-gray-500">Internal Staff</div>
+                                            @else
+                                                <div class="text-xs text-gray-500">External Facilitator</div>
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             @php
@@ -725,7 +755,7 @@
                                                 $note = null;
                                                 $isRejected = $status === 'rejected';
                                                 $isApproved = $status === 'approved';
-                                                
+
                                                 if ($isApproval) {
                                                     if ($isRejected && $reservation['rejected_by']) {
                                                         $note = 'Rejected by ' . $reservation['rejected_by'];
@@ -784,12 +814,19 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button type="button"
                                                 class="text-blue-600 hover:text-blue-900 mr-3 view-reservation"
-                                                data-id="{{ $reservation['id'] ?? '' }}" data-title="{{ $title }}"
-                                                data-type="{{ $facilityType }}" data-date="{{ $reservation['date'] ?? '' }}"
-                                                data-start="{{ $start12 }}" data-end="{{ $end12 }}"
+                                                data-id="{{ $reservation['id'] ?? '' }}"
+                                                data-request-id="{{ $reservation['request_id'] ?? $reservation['id'] ?? '' }}"
+                                                data-booking-code="{{ $reservation['booking_code'] ?? 'N/A' }}"
+                                                data-title="{{ $title }}" data-type="{{ $facilityType }}"
+                                                data-date="{{ $reservation['date'] ?? '' }}" data-start="{{ $start12 }}"
+                                                data-end="{{ $end12 }}"
                                                 data-status="{{ strtolower($reservation['status'] ?? 'pending') }}"
                                                 data-requested-by="{{ $reservation['requested_by'] ?? ($user->name ?? 'User') }}"
-                                                data-is-approval="{{ $isApproval ? 'true' : 'false' }}">
+                                                data-facilitator="{{ $reservation['facilitator'] ?? 'N/A' }}"
+                                                data-location="{{ $reservation['location'] ?? 'N/A' }}"
+                                                data-is-approval="{{ $isApproval ? 'true' : 'false' }}"
+                                                data-is-external="{{ ($reservation['is_external'] ?? false) ? 'true' : 'false' }}"
+                                                data-purpose="{{ $reservation['purpose'] ?? ($reservation['notes'] ?? ($reservation['description'] ?? 'No description provided')) }}">
                                                 View
                                             </button>
                                         </td>
@@ -842,32 +879,50 @@
             </div>
             <div class="p-6 space-y-3 text-sm" id="reservationDetailsContent">
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="text-gray-500">Reservation ID</div>
-                    <div class="col-span-2 font-medium" id="resId">—</div>
+                    <div class="text-gray-500 font-medium">Request ID</div>
+                    <div class="col-span-2 text-gray-900" id="resId">—</div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="text-gray-500">Title</div>
-                    <div class="col-span-2 font-medium" id="resTitle">—</div>
+                    <div class="text-gray-500 font-medium">Booking Code</div>
+                    <div class="col-span-2 text-gray-900 font-mono" id="resBookingCode">—</div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="text-gray-500">Facility</div>
-                    <div class="col-span-2 font-medium" id="resType">—</div>
+                    <div class="text-gray-500 font-medium">Title</div>
+                    <div class="col-span-2 text-gray-900 font-semibold" id="resTitle">—</div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="text-gray-500">Date</div>
-                    <div class="col-span-2 font-medium" id="resDate">—</div>
+                    <div class="text-gray-500 font-medium">Facility / Type</div>
+                    <div class="col-span-2 text-gray-900" id="resType">—</div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="text-gray-500">Time</div>
-                    <div class="col-span-2 font-medium" id="resTime">—</div>
+                    <div class="text-gray-500 font-medium">Location</div>
+                    <div class="col-span-2 text-gray-900" id="resLocation">—</div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="text-gray-500">Status</div>
-                    <div class="col-span-2 font-medium" id="resStatus">—</div>
+                    <div class="text-gray-500 font-medium">Date</div>
+                    <div class="col-span-2 text-gray-900" id="resDate">—</div>
                 </div>
                 <div class="grid grid-cols-3 gap-2">
-                    <div class="text-gray-500">Requested By</div>
-                    <div class="col-span-2 font-medium" id="resRequestedBy">—</div>
+                    <div class="text-gray-500 font-medium">Time</div>
+                    <div class="col-span-2 text-gray-900" id="resTime">—</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="text-gray-500 font-medium">Status</div>
+                    <div class="col-span-2 font-bold" id="resStatus">—</div>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="text-gray-500 font-medium" id="labelRequestedBy">Requested By</div>
+                    <div class="col-span-2 text-gray-900" id="resRequestedBy">—</div>
+                </div>
+                <div id="facilitatorRow" class="grid grid-cols-3 gap-2 hidden">
+                    <div class="text-gray-500 font-medium">Facilitator</div>
+                    <div class="col-span-2 text-gray-900" id="resFacilitator">—</div>
+                </div>
+                <div class="border-t border-gray-100 my-4 pt-4">
+                    <div class="text-gray-500 font-medium mb-1">Purpose / Notes</div>
+                    <div class="text-gray-900 bg-gray-50 p-3 rounded-lg border border-gray-100 italic" id="resPurpose">
+                        No purpose provided
+                    </div>
                 </div>
             </div>
         </div>
@@ -1105,6 +1160,8 @@
                     e.stopPropagation();
 
                     const id = btn.getAttribute('data-id') || '—';
+                    const requestId = btn.getAttribute('data-request-id') || id;
+                    const bookingCode = btn.getAttribute('data-booking-code') || 'N/A';
                     const title = btn.getAttribute('data-title') || '—';
                     const type = btn.getAttribute('data-type') || '—';
                     const date = btn.getAttribute('data-date') || '';
@@ -1112,11 +1169,16 @@
                     const end = btn.getAttribute('data-end') || '';
                     const status = btn.getAttribute('data-status') || 'pending';
                     const requestedBy = btn.getAttribute('data-requested-by') || '—';
+                    const facilitator = btn.getAttribute('data-facilitator') || 'N/A';
+                    const location = btn.getAttribute('data-location') || 'N/A';
+                    const purpose = btn.getAttribute('data-purpose') || 'No description provided';
+                    const isExternal = btn.getAttribute('data-is-external') === 'true';
 
-                    resId.textContent = `#${id}`;
-                    resTitle.textContent = title;
-                    resType.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-                    resDate.textContent = date ? new Date(date).toLocaleDateString(undefined, {
+                    document.getElementById('resId').textContent = `#${requestId}`;
+                    document.getElementById('resBookingCode').textContent = bookingCode;
+                    document.getElementById('resTitle').textContent = title;
+                    document.getElementById('resType').textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                    document.getElementById('resDate').textContent = date ? new Date(date).toLocaleDateString(undefined, {
                         year: 'numeric',
                         month: 'short',
                         day: '2-digit'
@@ -1125,10 +1187,30 @@
                     const start12 = to12h(start);
                     const end12 = to12h(end);
                     const timeStr = start12 && end12 ? `${start12} - ${end12}` : (start12 || end12 || '—');
-                    resTime.textContent = timeStr;
+                    document.getElementById('resTime').textContent = timeStr;
 
-                    resStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
-                    resRequestedBy.textContent = requestedBy;
+                    const statusElem = document.getElementById('resStatus');
+                    statusElem.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                    
+                    // Style status based on value
+                    statusElem.className = 'col-span-2 font-bold';
+                    if (status === 'approved') statusElem.classList.add('text-emerald-600');
+                    else if (status === 'rejected') statusElem.classList.add('text-red-600');
+                    else if (status === 'pending') statusElem.classList.add('text-amber-600');
+
+                    document.getElementById('resRequestedBy').textContent = requestedBy;
+                    document.getElementById('resLocation').textContent = location;
+                    document.getElementById('resPurpose').textContent = purpose;
+
+                    const facilitatorRow = document.getElementById('facilitatorRow');
+                    if (isExternal) {
+                        facilitatorRow.classList.remove('hidden');
+                        document.getElementById('resFacilitator').textContent = facilitator;
+                        document.getElementById('labelRequestedBy').textContent = 'Created By';
+                    } else {
+                        facilitatorRow.classList.add('hidden');
+                        document.getElementById('labelRequestedBy').textContent = 'Requested By';
+                    }
 
                     openModal(reservationModal);
                 });
