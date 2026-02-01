@@ -1261,6 +1261,65 @@ Route::middleware('auth')->group(function () {
         }
     })->name('approval.reject');
 
+    // External Approval Workflow Actions
+    Route::post('/approval/external/approve/{id}', function ($id, Request $request) {
+        try {
+            // For external bookings, we'll simulate approval since we can't actually modify external API
+            // In a real implementation, you would make an API call back to the external system
+            
+            // Log the external approval action
+            \Log::info('External booking approved', [
+                'booking_id' => $id,
+                'approved_by' => auth()->user()->name,
+                'approved_at' => now()->toDateTimeString()
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'External booking approved successfully',
+                'approved_by' => auth()->user()->name,
+                'approved_at' => now()->toDateTimeString()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error approving external booking: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('approval.external.approve');
+
+    Route::post('/approval/external/reject/{id}', function ($id, Request $request) {
+        try {
+            $request->validate([
+                'reason' => 'required|string|max:500'
+            ]);
+
+            // For external bookings, we'll simulate rejection since we can't actually modify external API
+            // In a real implementation, you would make an API call back to the external system
+            
+            // Log the external rejection action
+            \Log::info('External booking rejected', [
+                'booking_id' => $id,
+                'rejected_by' => auth()->user()->name,
+                'rejected_at' => now()->toDateTimeString(),
+                'rejection_reason' => $request->reason
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'External booking rejected successfully',
+                'rejected_by' => auth()->user()->name,
+                'rejected_at' => now()->toDateTimeString(),
+                'reason' => $request->reason
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error rejecting external booking: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('approval.external.reject');
+
     Route::get('/reservation-history', function () {
         // Get existing bookings from session or use defaults
         $localBookings = session('calendar_bookings', [

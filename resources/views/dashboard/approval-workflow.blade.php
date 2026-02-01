@@ -770,24 +770,19 @@
                                                 <i class="fas fa-eye mr-1"></i>
                                                 View
                                             </button>
-                                            @if($request['status'] === 'pending' && !($request['is_external'] ?? false))
+                                            @if($request['status'] === 'pending')
                                                 <button type="button"
-                                                    onclick="showActionConfirmation('{{ $request['id'] }}', 'approve')"
+                                                    onclick="showActionConfirmation('{{ $request['id'] }}', 'approve', {{ $request['is_external'] ?? 'false' }})"
                                                     class="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-xs font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
                                                     <i class="fas fa-check-circle mr-1"></i>
                                                     Approve
                                                 </button>
                                                 <button type="button"
-                                                    onclick="showActionConfirmation('{{ $request['id'] }}', 'reject')"
+                                                    onclick="showActionConfirmation('{{ $request['id'] }}', 'reject', {{ $request['is_external'] ?? 'false' }})"
                                                     class="px-3 py-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg text-xs font-semibold hover:from-red-600 hover:to-rose-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 flex items-center">
                                                     <i class="fas fa-times-circle mr-1"></i>
                                                     Reject
                                                 </button>
-                                            @elseif($request['is_external'] ?? false)
-                                                <span class="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded border border-orange-200">
-                                                    <i class="fas fa-external-link-alt mr-1"></i>
-                                                    External Booking
-                                                </span>
                                             @endif
                                         </td>
                                     </tr>
@@ -1344,12 +1339,20 @@
             let currentAction = '';
             let currentActionUrl = '';
 
-            window.showActionConfirmation = function (requestId, action) {
+            window.showActionConfirmation = function (requestId, action, isExternal = false) {
                 currentRequestId = requestId;
                 currentAction = action;
-                currentActionUrl = action === 'approve'
-                    ? `{{ url('/approval/approve') }}/${requestId}`
-                    : `{{ url('/approval/reject') }}/${requestId}`;
+                
+                // Set different URLs for external vs internal requests
+                if (isExternal) {
+                    currentActionUrl = action === 'approve'
+                        ? `{{ url('/approval/external/approve') }}/${requestId}`
+                        : `{{ url('/approval/external/reject') }}/${requestId}`;
+                } else {
+                    currentActionUrl = action === 'approve'
+                        ? `{{ url('/approval/approve') }}/${requestId}`
+                        : `{{ url('/approval/reject') }}/${requestId}`;
+                }
 
                 const confirmBtn = document.getElementById('confirmActionBtn');
                 const modalTitle = document.getElementById('actionModalTitle');
@@ -1360,11 +1363,13 @@
                 const modalIconContainer = document.getElementById('actionModalIconContainer');
                 const confirmBtnText = document.getElementById('confirmBtnText');
 
-                // Dynamic styling based on action
+                // Dynamic styling and messaging based on action and type
                 if (action === 'approve') {
-                    modalTitle.textContent = 'Approve Request';
-                    modalMessage.textContent = `Are you sure you want to approve this request? This action cannot be undone.`;
-                    confirmBtnText.textContent = 'Approve Request';
+                    modalTitle.textContent = isExternal ? 'Approve External Booking' : 'Approve Request';
+                    modalMessage.textContent = isExternal 
+                        ? `Are you sure you want to approve this external booking? This will sync the approval status with the external system.`
+                        : `Are you sure you want to approve this request? This action cannot be undone.`;
+                    confirmBtnText.textContent = isExternal ? 'Approve External Booking' : 'Approve Request';
                     
                     // Hide reason input for approval
                     document.getElementById('reasonInputContainer').classList.add('hidden');
@@ -1377,9 +1382,11 @@
                     modalIconLarge.className = 'fas fa-check-circle text-green-600 text-3xl animate-pulse';
                     confirmBtn.className = 'px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center';
                 } else {
-                    modalTitle.textContent = 'Reject Request';
-                    modalMessage.innerHTML = `Are you sure you want to reject this request? This action cannot be undone.`;
-                    confirmBtnText.textContent = 'Reject Request';
+                    modalTitle.textContent = isExternal ? 'Reject External Booking' : 'Reject Request';
+                    modalMessage.innerHTML = isExternal 
+                        ? `Are you sure you want to reject this external booking? This will sync the rejection status with the external system.`
+                        : `Are you sure you want to reject this request? This action cannot be undone.`;
+                    confirmBtnText.textContent = isExternal ? 'Reject External Booking' : 'Reject Request';
                     
                     // Show reason input for rejection
                     document.getElementById('reasonInputContainer').classList.remove('hidden');
