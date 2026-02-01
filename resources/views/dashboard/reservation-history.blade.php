@@ -1,77 +1,80 @@
 @php
-// Get the authenticated user
-$user = auth()->user();
+    // Get the authenticated user
+    $user = auth()->user();
 
-// Use provided $bookings (from route) or fallback to session store
-$bookings = $bookings ?? session('calendar_bookings', [
-    [
-        'id' => 'RES-001',
-        'name' => 'Conference Room A',
-        'type' => 'room',
-        'date' => '2025-01-25',
-        'start_time' => '09:00',
-        'end_time' => '11:00',
-        'status' => 'approved',
-        'lead_time' => '3',
-        'purpose' => 'Team meeting'
-    ],
-    [
-        'id' => 'RES-002',
-        'name' => 'Projector',
-        'type' => 'equipment',
-        'date' => '2025-01-26',
-        'start_time' => '14:00',
-        'end_time' => '16:00',
-        'status' => 'pending',
-        'lead_time' => '2',
-        'purpose' => 'Client presentation'
-    ],
-    [
-        'id' => 'RES-003',
-        'name' => 'Training Room B',
-        'type' => 'room',
-        'date' => '2025-01-28',
-        'start_time' => '10:00',
-        'end_time' => '17:00',
-        'status' => 'completed',
-        'lead_time' => '7',
-        'purpose' => 'Employee training'
-    ],
-    [
-        'id' => 'RES-004',
-        'name' => 'Audio System',
-        'type' => 'equipment',
-        'date' => '2025-01-30',
-        'start_time' => '13:00',
-        'end_time' => '15:00',
-        'status' => 'rejected',
-        'lead_time' => '1',
-        'purpose' => 'Company event'
-    ],
-    [
-        'id' => 'RES-005',
-        'name' => 'Meeting Room C',
-        'type' => 'room',
-        'date' => '2025-02-02',
-        'start_time' => '15:00',
-        'end_time' => '17:00',
-        'status' => 'pending',
-        'lead_time' => '5',
-        'purpose' => 'Board meeting'
-    ]
-]);
-// Map approval requests to enrich "Requested By" when available
-$approvalMap = collect(session('approval_requests', []))->keyBy('id');
+    // Use provided $bookings (from route) or fallback to session store
+    $bookings = $bookings ?? session('calendar_bookings', [
+        [
+            'id' => 'RES-001',
+            'name' => 'Conference Room A',
+            'type' => 'room',
+            'date' => '2025-01-25',
+            'start_time' => '09:00',
+            'end_time' => '11:00',
+            'status' => 'approved',
+            'lead_time' => '3',
+            'purpose' => 'Team meeting'
+        ],
+        [
+            'id' => 'RES-002',
+            'name' => 'Projector',
+            'type' => 'equipment',
+            'date' => '2025-01-26',
+            'start_time' => '14:00',
+            'end_time' => '16:00',
+            'status' => 'pending',
+            'lead_time' => '2',
+            'purpose' => 'Client presentation'
+        ],
+        [
+            'id' => 'RES-003',
+            'name' => 'Training Room B',
+            'type' => 'room',
+            'date' => '2025-01-28',
+            'start_time' => '10:00',
+            'end_time' => '17:00',
+            'status' => 'completed',
+            'lead_time' => '7',
+            'purpose' => 'Employee training'
+        ],
+        [
+            'id' => 'RES-004',
+            'name' => 'Audio System',
+            'type' => 'equipment',
+            'date' => '2025-01-30',
+            'start_time' => '13:00',
+            'end_time' => '15:00',
+            'status' => 'rejected',
+            'lead_time' => '1',
+            'purpose' => 'Company event'
+        ],
+        [
+            'id' => 'RES-005',
+            'name' => 'Meeting Room C',
+            'type' => 'room',
+            'date' => '2025-02-02',
+            'start_time' => '15:00',
+            'end_time' => '17:00',
+            'status' => 'pending',
+            'lead_time' => '5',
+            'purpose' => 'Board meeting'
+        ]
+    ]);
+    // Map approval requests to enrich "Requested By" when available
+    $approvalMap = collect(session('approval_requests', []))->keyBy('id');
 @endphp
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Administrative</title>
-    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -89,7 +92,8 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -163,8 +167,15 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .fade-in {
@@ -200,26 +211,27 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
         }
     </style>
 </head>
+
 <body class="bg-brand-background-main min-h-screen">
 
     <!-- Overlay (mobile) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
+    </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar"
-        class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
                transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
         <div class="h-16 flex items-center px-4 border-b border-gray-100">
-            <a href="{{ route('admin.dashboard') }}"
-                class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 w-full rounded-xl px-2 py-2
                        hover:bg-gray-100 active:bg-gray-200 transition group">
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
                         Microfinance HR
                     </div>
-                    <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+                    <div
+                        class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
                         HUMAN RESOURCE III
                     </div>
                 </div>
@@ -249,23 +261,36 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
                     Visitor Management
                 </span>
-                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="visitor-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('visitors.registration') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitors.registration') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitors Registration
                     </a>
-                    <a href="{{ route('checkinout.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('checkinout.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Check In/Out Tracking
                     </a>
-                    <a href="{{ route('visitor.history.records') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitor.history.records') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitor History Records
                     </a>
                 </div>
@@ -280,27 +305,44 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
                     Document Management
                 </span>
-                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="document-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('document.upload.indexing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.upload.indexing') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Document Upload & Indexing
                     </a>
-                    <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.version.control') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Version Control
                     </a>
-                    <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.access.control.permissions') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Access Control & Permissions
                     </a>
-                    <a href="{{ route('document.archival.retention.policy') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.archival.retention.policy') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Archival & Retention Policy
                     </a>
                 </div>
@@ -315,27 +357,44 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
                     Facilities Management
                 </span>
-                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="facilities-submenu" class="submenu mt-1">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('room-equipment') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Room & Equipment Booking
                     </a>
-                    <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('scheduling.calendar') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Scheduling & Calendar Integrations
                     </a>
-                    <a href="{{ route('approval.workflow') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('approval.workflow') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Approval Workflow
                     </a>
-                    <a href="{{ route('reservation.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('reservation.history') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Reservation History
                     </a>
                 </div>
@@ -350,27 +409,44 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
                     Legal Management
                 </span>
-                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="legal-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('case.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('case.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Case Management
                     </a>
-                    <a href="{{ route('contract.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('contract.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Contract Management
                     </a>
-                    <a href="{{ route('compliance.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('compliance.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Compliance Tracking
                     </a>
-                    <a href="{{ route('deadline.hearing.alerts') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('deadline.hearing.alerts') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Deadline & Hearing Alerts
                     </a>
                 </div>
@@ -384,7 +460,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © {{ date('Y') }}<br/>
+                    Microfinance HR © {{ date('Y') }}<br />
                     Human Resource III System
                 </div>
             </div>
@@ -397,7 +473,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
         <!-- TOP HEADER -->
         <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
                     shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-            
+
             <!-- BORDER COVER -->
             <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
 
@@ -420,37 +496,44 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
 
                 <!-- User Profile Dropdown -->
                 <div class="relative">
-                    <button id="user-menu-button"
-                        class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                    <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
                             hover:bg-gray-100 active:bg-gray-200 transition">
-                        <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
-                            <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                        <div
+                            class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+                            <div
+                                class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         </div>
                         <div class="hidden md:flex flex-col items-start text-left">
-                            <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
                                 {{ $user->name }}
                             </span>
-                            <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
                                 Administrator
                             </span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
                     </button>
 
-                    <div id="user-menu-dropdown"
-                        class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
+                    <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
                             absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
                             transition-all duration-200 z-50">
-                        <button id="openProfileBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
+                        <button id="openProfileBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
+                        <button id="openAccountSettingsBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
                         <div class="h-px bg-gray-100"></div>
                         <form method="POST" action="{{ route('logout') }}" class="w-full">
                             @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
+                            <button type="submit"
+                                class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
                         </form>
                     </div>
                 </div>
@@ -469,10 +552,14 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                         </div>
                         <div class="mt-4 md:mt-0 flex space-x-3">
                             <div class="relative">
-                                <input id="reservationSearch" type="text" placeholder="Search reservations..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent w-full md:w-64" aria-label="Search reservations">
-                                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                <input id="reservationSearch" type="text" placeholder="Search reservations..."
+                                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent w-full md:w-64"
+                                    aria-label="Search reservations">
+                                <i
+                                    class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             </div>
-                            <button id="exportReservationsBtn" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
+                            <button id="exportReservationsBtn"
+                                class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
                                 <i class="fas fa-download mr-2"></i> Export
                             </button>
                         </div>
@@ -482,94 +569,104 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                 <!-- Enhanced Reservation Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <!-- Total Reservations Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Total Reservations</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count($bookings) }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        <i class="bx bx-calendar mr-1"></i>
-                                        All
-                                    </span>
-                                    <span class="text-xs text-gray-500">Bookings</span>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 rounded-full bg-blue-50 blur-3xl opacity-60 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Total Reservations</p>
+                                <h3 class="text-3xl font-bold text-gray-900">{{ count($bookings) }}</h3>
+                                <div
+                                    class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
+                                    Overview
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-calendar text-white text-xl"></i>
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center shadow-blue-200 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                <i class="bx bx-calendar text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Pending Approvals Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Pending Approvals</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ count(array_filter($bookings, fn($b) => $b['status'] === 'pending')) }}</p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                                        <i class="bx bx-time-five mr-1"></i>
-                                        Waiting
-                                    </span>
-                                    <span class="text-xs text-gray-500">Review</span>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 rounded-full bg-amber-50 blur-3xl opacity-60 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Pending Approvals</p>
+                                <h3 class="text-3xl font-bold text-gray-900">
+                                    {{ count(array_filter($bookings, fn($b) => $b['status'] === 'pending')) }}</h3>
+                                <div
+                                    class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                                    Review Required
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-time-five text-white text-xl"></i>
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-500 text-white flex items-center justify-center shadow-amber-200 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                <i class="bx bx-time-five text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- This Week Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">This Week</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    {{ count(array_filter($bookings, function($booking) {
-                                        $date = $booking['date'] ?? '';
-                                        $startOfWeek = now()->startOfWeek();
-                                        $endOfWeek = now()->endOfWeek();
-                                        return $date && strtotime($date) >= $startOfWeek->timestamp && strtotime($date) <= $endOfWeek->timestamp;
-                                    })) }}
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                        <i class="bx bx-calendar-event mr-1"></i>
-                                        Active
-                                    </span>
-                                    <span class="text-xs text-gray-500">Week</span>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 rounded-full bg-emerald-50 blur-3xl opacity-60 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">This Week</p>
+                                <h3 class="text-3xl font-bold text-gray-900">
+                                    {{ count(array_filter($bookings, function ($booking) {
+    $date = $booking['date'] ?? '';
+    $startOfWeek = now()->startOfWeek();
+    $endOfWeek = now()->endOfWeek();
+    return $date && strtotime($date) >= $startOfWeek->timestamp && strtotime($date) <= $endOfWeek->timestamp;
+})) }}
+                                </h3>
+                                <div
+                                    class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
+                                    Active
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-calendar-event text-white text-xl"></i>
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-500 text-white flex items-center justify-center shadow-emerald-200 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                <i class="bx bx-calendar-event text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Rooms vs Equipment Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-sm mb-2">Rooms vs Equipment</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">
-                                    {{ count(array_filter($bookings, fn($b) => $b['type'] === 'room')) }} / {{ count(array_filter($bookings, fn($b) => $b['type'] === 'equipment')) }}
-                                </p>
-                                <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100 text-violet-800">
-                                        <i class="bx bx-building-house mr-1"></i>
-                                        Types
-                                    </span>
-                                    <span class="text-xs text-gray-500">Ratio</span>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 rounded-full bg-violet-50 blur-3xl opacity-60 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <div class="relative flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500 mb-1">Rooms vs Equipment</p>
+                                <h3 class="text-3xl font-bold text-gray-900">
+                                    {{ count(array_filter($bookings, fn($b) => $b['type'] === 'room')) }} /
+                                    {{ count(array_filter($bookings, fn($b) => $b['type'] === 'equipment')) }}
+                                </h3>
+                                <div
+                                    class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-violet-50 text-violet-700">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-violet-500 mr-1.5"></span>
+                                    Ratio
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-building-house text-white text-xl"></i>
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500 to-violet-600 text-white flex items-center justify-center shadow-violet-200 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                <i class="bx bx-building-house text-2xl"></i>
                             </div>
                         </div>
                     </div>
@@ -580,153 +677,186 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     <div class="px-6 py-4 border-b border-gray-200">
                         <h3 class="font-semibold text-lg text-gray-900">All Reservations</h3>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reservation ID</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Facility</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested By</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lead Time</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Decision Notes</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Reservation ID</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Facility</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Requested By</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Date & Time</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Lead Time</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Decision Notes</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($bookings as $reservation)
-                                <tr class="reservation-row" data-id="{{ $reservation['id'] ?? '' }}" data-type="{{ $reservation['type'] ?? '' }}" data-status="{{ $reservation['status'] ?? '' }}">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $reservation['id'] ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                                <i class="{{ ($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house' : 'bx bx-video-recording' }} text-blue-600"></i>
-                                            </div>
-                                            <div class="ml-4">
-                                                @php
-                                                    $title = $reservation['name'] ?? ($reservation['title'] ?? 'Booking');
-                                                    $facilityType = $reservation['type'] ?? 'room';
-                                                @endphp
-                                                <div class="text-sm font-medium text-gray-900">{{ $title }}</div>
-                                                <div class="text-sm text-gray-500">{{ ucfirst($facilityType) }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $req = $approvalMap[$reservation['id']] ?? null;
-                                            $requestedBy = $req['requested_by'] ?? ($user->name ?? 'User');
-                                        @endphp
-                                        <div class="text-sm text-gray-900">{{ $requestedBy }}</div>
-                                        <div class="text-sm text-gray-500">&nbsp;</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $dateStr = isset($reservation['date']) ? \Carbon\Carbon::parse($reservation['date'])->format('M d, Y') : 'N/A';
-                                            $start = $reservation['start_time'] ?? '';
-                                            $end = $reservation['end_time'] ?? '';
-                                            $start12 = $start ? \Carbon\Carbon::parse($start)->format('g:i A') : '';
-                                            $end12 = $end ? \Carbon\Carbon::parse($end)->format('g:i A') : '';
-                                            $timeStr = $start12 && $end12 ? ($start12 . ' - ' . $end12) : ($start12 ?: '');
-                                        @endphp
-                                        <div class="text-sm text-gray-900">{{ $dateStr }}</div>
-                                        <div class="text-sm text-gray-500">{{ $timeStr ?: '—' }}</div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $leadTime = $reservation['lead_time'] ?? null;
-                                            $leadTimeDisplay = $leadTime ? $leadTime . ' days' : 'Not specified';
-                                        @endphp
-                                        <div class="text-sm text-gray-900">{{ $leadTimeDisplay }}</div>
-                                        @if($leadTime)
-                                            <div class="text-xs text-gray-500">Preparation time</div>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $status = strtolower($reservation['status'] ?? 'pending');
-                                            $statusClasses = [
-                                                'approved' => 'status-badge status-approved',
-                                                'pending' => 'status-badge status-pending',
-                                                'rejected' => 'status-badge status-rejected',
-                                                'completed' => 'status-badge status-completed'
-                                            ];
-                                            $statusClass = $statusClasses[$status] ?? 'status-badge status-pending';
-                                        @endphp
-                                        <span class="{{ $statusClass }}">{{ ucfirst($status) }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        @php
-                                            // Try to read decision notes/reasons from approval map or reservation payload
-                                            $req = $approvalMap[$reservation['id']] ?? null;
-                                            $note = $req['decision_reason'] ?? $req['reason'] ?? ($reservation['decision_note'] ?? ($reservation['reason'] ?? null));
-                                            $isRejected = $status === 'rejected';
-                                            $isApproved = $status === 'approved';
-                                            // Defaults if nothing stored
-                                            if (!$note && $isApproved) { $note = 'Approved: meets booking qualifications'; }
-                                            if (!$note && $isRejected) { $note = 'Rejected'; }
-                                        @endphp
-                                        @if($note)
-                                            @if($isRejected)
-                                                <div class="inline-flex items-start max-w-xs md:max-w-md lg:max-w-lg">
-                                                    <div class="bg-red-50 border border-red-200 text-red-800 rounded-md px-3 py-2 leading-snug">
-                                                        <span class="block text-xs font-semibold tracking-wide uppercase mb-0.5">Rejection Reason</span>
-                                                        <span class="text-sm">{{ $note }}</span>
-                                                    </div>
+                                    <tr class="reservation-row" data-id="{{ $reservation['id'] ?? '' }}"
+                                        data-type="{{ $reservation['type'] ?? '' }}"
+                                        data-status="{{ $reservation['status'] ?? '' }}">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            #{{ $reservation['id'] ?? 'N/A' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                    <i
+                                                        class="{{ ($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house' : 'bx bx-video-recording' }} text-blue-600"></i>
                                                 </div>
-                                            @elseif($isApproved)
-                                                <div class="inline-flex items-start max-w-xs md:max-w-md lg:max-w-lg">
-                                                    <div class="bg-green-50 border border-green-200 text-green-800 rounded-md px-3 py-2 leading-snug">
-                                                        <span class="block text-xs font-semibold tracking-wide uppercase mb-0.5">Approval Note</span>
-                                                        <span class="text-sm">{{ $note }}</span>
-                                                    </div>
+                                                <div class="ml-4">
+                                                    @php
+                                                        $title = $reservation['name'] ?? ($reservation['title'] ?? 'Booking');
+                                                        $facilityType = $reservation['type'] ?? 'room';
+                                                    @endphp
+                                                    <div class="text-sm font-medium text-gray-900">{{ $title }}</div>
+                                                    <div class="text-sm text-gray-500">{{ ucfirst($facilityType) }}</div>
                                                 </div>
-                                            @else
-                                                <div class="text-gray-700">{{ $note }}</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $req = $approvalMap[$reservation['id']] ?? null;
+                                                $requestedBy = $req['requested_by'] ?? ($user->name ?? 'User');
+                                            @endphp
+                                            <div class="text-sm text-gray-900">{{ $requestedBy }}</div>
+                                            <div class="text-sm text-gray-500">&nbsp;</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $dateStr = isset($reservation['date']) ? \Carbon\Carbon::parse($reservation['date'])->format('M d, Y') : 'N/A';
+                                                $start = $reservation['start_time'] ?? '';
+                                                $end = $reservation['end_time'] ?? '';
+                                                $start12 = $start ? \Carbon\Carbon::parse($start)->format('g:i A') : '';
+                                                $end12 = $end ? \Carbon\Carbon::parse($end)->format('g:i A') : '';
+                                                $timeStr = $start12 && $end12 ? ($start12 . ' - ' . $end12) : ($start12 ?: '');
+                                            @endphp
+                                            <div class="text-sm text-gray-900">{{ $dateStr }}</div>
+                                            <div class="text-sm text-gray-500">{{ $timeStr ?: '—' }}</div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $leadTime = $reservation['lead_time'] ?? null;
+                                                $leadTimeDisplay = $leadTime ? $leadTime . ' days' : 'Not specified';
+                                            @endphp
+                                            <div class="text-sm text-gray-900">{{ $leadTimeDisplay }}</div>
+                                            @if($leadTime)
+                                                <div class="text-xs text-gray-500">Preparation time</div>
                                             @endif
-                                        @else
-                                            <span class="text-gray-400">—</span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button type="button"
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @php
+                                                $status = strtolower($reservation['status'] ?? 'pending');
+                                                $statusClasses = [
+                                                    'approved' => 'status-badge status-approved',
+                                                    'pending' => 'status-badge status-pending',
+                                                    'rejected' => 'status-badge status-rejected',
+                                                    'completed' => 'status-badge status-completed'
+                                                ];
+                                                $statusClass = $statusClasses[$status] ?? 'status-badge status-pending';
+                                            @endphp
+                                            <span class="{{ $statusClass }}">{{ ucfirst($status) }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                            @php
+                                                // Try to read decision notes/reasons from approval map or reservation payload
+                                                $req = $approvalMap[$reservation['id']] ?? null;
+                                                $note = $req['decision_reason'] ?? $req['reason'] ?? ($reservation['decision_note'] ?? ($reservation['reason'] ?? null));
+                                                $isRejected = $status === 'rejected';
+                                                $isApproved = $status === 'approved';
+                                                // Defaults if nothing stored
+                                                if (!$note && $isApproved) {
+                                                    $note = 'Approved: meets booking qualifications';
+                                                }
+                                                if (!$note && $isRejected) {
+                                                    $note = 'Rejected';
+                                                }
+                                            @endphp
+                                            @if($note)
+                                                @if($isRejected)
+                                                    <div class="inline-flex items-start max-w-xs md:max-w-md lg:max-w-lg">
+                                                        <div
+                                                            class="bg-red-50 border border-red-200 text-red-800 rounded-md px-3 py-2 leading-snug">
+                                                            <span
+                                                                class="block text-xs font-semibold tracking-wide uppercase mb-0.5">Rejection
+                                                                Reason</span>
+                                                            <span class="text-sm">{{ $note }}</span>
+                                                        </div>
+                                                    </div>
+                                                @elseif($isApproved)
+                                                    <div class="inline-flex items-start max-w-xs md:max-w-md lg:max-w-lg">
+                                                        <div
+                                                            class="bg-green-50 border border-green-200 text-green-800 rounded-md px-3 py-2 leading-snug">
+                                                            <span
+                                                                class="block text-xs font-semibold tracking-wide uppercase mb-0.5">Approval
+                                                                Note</span>
+                                                            <span class="text-sm">{{ $note }}</span>
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <div class="text-gray-700">{{ $note }}</div>
+                                                @endif
+                                            @else
+                                                <span class="text-gray-400">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button type="button"
                                                 class="text-blue-600 hover:text-blue-900 mr-3 view-reservation"
-                                                data-id="{{ $reservation['id'] ?? '' }}"
-                                                data-title="{{ $title }}"
-                                                data-type="{{ $facilityType }}"
-                                                data-date="{{ $reservation['date'] ?? '' }}"
-                                                data-start="{{ $start12 }}"
-                                                data-end="{{ $end12 }}"
+                                                data-id="{{ $reservation['id'] ?? '' }}" data-title="{{ $title }}"
+                                                data-type="{{ $facilityType }}" data-date="{{ $reservation['date'] ?? '' }}"
+                                                data-start="{{ $start12 }}" data-end="{{ $end12 }}"
                                                 data-status="{{ strtolower($reservation['status'] ?? 'pending') }}"
                                                 data-requested-by="{{ $requestedBy }}">
-                                            View
-                                        </button>
-                                    </td>
-                                </tr>
+                                                View
+                                            </button>
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                                        <i class="fas fa-inbox text-4xl text-gray-300 mb-2"></i>
-                                        <p class="text-sm">No reservation history found</p>
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                                            <i class="fas fa-inbox text-4xl text-gray-300 mb-2"></i>
+                                            <p class="text-sm">No reservation history found</p>
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <!-- Pagination -->
                     <div class="bg-white px-6 py-3 flex items-center justify-between border-t border-gray-200">
                         <div class="text-sm text-gray-700">
-                            Showing {{ count($bookings) > 0 ? 1 : 0 }} to {{ count($bookings) }} of {{ count($bookings) }} results
+                            Showing {{ count($bookings) > 0 ? 1 : 0 }} to {{ count($bookings) }} of
+                            {{ count($bookings) }} results
                         </div>
                         <div class="flex space-x-2">
-                            <button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:opacity-50" disabled>
+                            <button disabled
+                                class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:opacity-50"
+                                disabled>
                                 Previous
                             </button>
-                            <button disabled class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:opacity-50" disabled>
+                            <button disabled
+                                class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-primary disabled:opacity-50"
+                                disabled>
                                 Next
                             </button>
                         </div>
@@ -817,7 +947,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                 if (btn && submenu) {
                     btn.addEventListener("click", () => {
                         const isHidden = submenu.classList.contains("hidden");
-                        
+
                         // Close all other dropdowns
                         Object.values(dropdowns).forEach(id => {
                             const otherSubmenu = document.getElementById(id);
@@ -850,7 +980,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                 userMenuButton.addEventListener("click", (e) => {
                     e.stopPropagation();
                     const isHidden = userMenuDropdown.classList.contains("hidden");
-                    
+
                     if (isHidden) {
                         userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                         userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
@@ -892,7 +1022,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
             const facilitiesBtn = document.getElementById('facilities-management-btn');
             const facilitiesSubmenu = document.getElementById('facilities-submenu');
             const facilitiesArrow = document.getElementById('facilities-arrow');
-            
+
             if (facilitiesSubmenu && facilitiesSubmenu.classList.contains('hidden')) {
                 facilitiesSubmenu.classList.remove('hidden');
                 if (facilitiesArrow) facilitiesArrow.classList.add('rotate-180');
@@ -901,10 +1031,10 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
             // Search functionality
             const searchInput = document.getElementById('reservationSearch');
             if (searchInput) {
-                searchInput.addEventListener('input', function() {
+                searchInput.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase();
                     const rows = document.querySelectorAll('tbody tr.reservation-row');
-                    
+
                     rows.forEach(row => {
                         const text = row.textContent.toLowerCase();
                         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -915,27 +1045,27 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
             // Export functionality
             const exportBtn = document.getElementById('exportReservationsBtn');
             if (exportBtn) {
-                exportBtn.addEventListener('click', function(e) {
+                exportBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     const table = document.querySelector('table.min-w-full');
                     if (!table) return;
-                    
+
                     const ths = Array.from(table.querySelectorAll('thead th'))
                         .map(th => th.textContent.trim());
                     // Exclude the last column (Actions)
                     const headers = ths.slice(0, ths.length - 1);
-                    
+
                     const rows = Array.from(table.querySelectorAll('tbody tr:not([style*="display: none"])'))
                         .map(tr => Array.from(tr.querySelectorAll('td')).slice(0, ths.length - 1)
                             .map(td => td.textContent.replace(/\s+/g, ' ').trim())
                         );
-                    
+
                     if (!rows.length) return;
-                    
+
                     const escapeCSV = (v) => '"' + String(v).replace(/"/g, '""') + '"';
                     const csvLines = [headers.map(escapeCSV).join(',')];
                     rows.forEach(r => csvLines.push(r.map(escapeCSV).join(',')));
-                    
+
                     const csv = '\uFEFF' + csvLines.join('\r\n'); // BOM for Excel
                     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                     const url = URL.createObjectURL(blob);
@@ -1009,7 +1139,7 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     const id = btn.getAttribute('data-id') || '—';
                     const title = btn.getAttribute('data-title') || '—';
                     const type = btn.getAttribute('data-type') || '—';
@@ -1022,17 +1152,17 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
                     resId.textContent = `#${id}`;
                     resTitle.textContent = title;
                     resType.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-                    resDate.textContent = date ? new Date(date).toLocaleDateString(undefined, { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: '2-digit' 
+                    resDate.textContent = date ? new Date(date).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit'
                     }) : '—';
-                    
+
                     const start12 = to12h(start);
                     const end12 = to12h(end);
                     const timeStr = start12 && end12 ? `${start12} - ${end12}` : (start12 || end12 || '—');
                     resTime.textContent = timeStr;
-                    
+
                     resStatus.textContent = status.charAt(0).toUpperCase() + status.slice(1);
                     resRequestedBy.textContent = requestedBy;
 
@@ -1045,136 +1175,14 @@ $approvalMap = collect(session('approval_requests', []))->keyBy('id');
             });
 
             // Close modal when clicking outside
-            reservationModal.addEventListener('click', function(e) {
+            reservationModal.addEventListener('click', function (e) {
                 if (e.target === this) {
                     closeModal(this);
                 }
             });
 
-            // Reservation lock/unlock functionality
-            function updateReservationHistoryLockState(isLocked) {
-                const tableRows = document.querySelectorAll('tbody tr.reservation-row');
-                
-                tableRows.forEach(row => {
-                    const idCell = row.querySelector('td:nth-child(1)');
-                    const facilityCell = row.querySelector('td:nth-child(2) .text-sm.font-medium');
-                    const typeCell = row.querySelector('td:nth-child(2) .text-sm.text-gray-500');
-                    const requestedByCell = row.querySelector('td:nth-child(3) .text-sm');
-                    const dateCell = row.querySelector('td:nth-child(4) .text-sm:first-child');
-                    const timeCell = row.querySelector('td:nth-child(4) .text-sm:last-child');
-                    const leadTimeCell = row.querySelector('td:nth-child(5) .text-sm');
-                    const statusCell = row.querySelector('td:nth-child(6) .status-badge');
-                    const decisionNoteCell = row.querySelector('td:nth-child(7)');
-                    const viewButton = row.querySelector('td:nth-child(8) button');
-                    
-                    if (isLocked) {
-                        // Store original data if not already stored
-                        if (!row.dataset.originalData) {
-                            row.dataset.originalData = JSON.stringify({
-                                id: idCell?.textContent || '',
-                                facility: facilityCell?.textContent || '',
-                                type: typeCell?.textContent || '',
-                                requestedBy: requestedByCell?.textContent || '',
-                                date: dateCell?.textContent || '',
-                                time: timeCell?.textContent || '',
-                                leadTime: leadTimeCell?.textContent || '',
-                                status: statusCell?.textContent || '',
-                                statusClass: statusCell?.className || '',
-                                decisionNote: decisionNoteCell?.innerHTML || ''
-                            });
-                        }
-                        
-                        // Mask the data
-                        if (idCell) idCell.textContent = '****';
-                        if (facilityCell) {
-                            facilityCell.innerHTML = '**** <i class="fas fa-lock text-red-500 text-xs ml-1"></i>';
-                        }
-                        if (typeCell) typeCell.textContent = '****';
-                        if (requestedByCell) requestedByCell.textContent = '****';
-                        if (dateCell) dateCell.textContent = '** ** ****';
-                        if (timeCell && timeCell.textContent !== '—') {
-                            timeCell.textContent = '**:**** - **:****';
-                        }
-                        if (leadTimeCell) {
-                            const text = leadTimeCell.textContent;
-                            leadTimeCell.textContent = text.includes('days') ? '** days' : '****';
-                        }
-                        if (statusCell) {
-                            statusCell.textContent = '****';
-                            statusCell.className = 'status-badge bg-gray-100 text-gray-800';
-                        }
-                        if (decisionNoteCell && !decisionNoteCell.querySelector('.text-gray-400')) {
-                            decisionNoteCell.innerHTML = '<span class="text-gray-400">****</span>';
-                        }
-                        
-                        // Disable view button
-                        if (viewButton) {
-                            viewButton.disabled = true;
-                            viewButton.style.opacity = '0.5';
-                            viewButton.style.cursor = 'not-allowed';
-                            viewButton.style.pointerEvents = 'none';
-                        }
-                        
-                        // Add lock styling to row
-                        row.style.opacity = '0.7';
-                        row.classList.add('locked-row');
-                    } else {
-                        // Restore original data
-                        if (row.dataset.originalData) {
-                            try {
-                                const originalData = JSON.parse(row.dataset.originalData);
-                                
-                                if (idCell) idCell.textContent = originalData.id;
-                                if (facilityCell) facilityCell.innerHTML = originalData.facility;
-                                if (typeCell) typeCell.textContent = originalData.type;
-                                if (requestedByCell) requestedByCell.textContent = originalData.requestedBy;
-                                if (dateCell) dateCell.textContent = originalData.date;
-                                if (timeCell) timeCell.textContent = originalData.time;
-                                if (leadTimeCell) leadTimeCell.textContent = originalData.leadTime;
-                                if (statusCell) {
-                                    statusCell.textContent = originalData.status;
-                                    statusCell.className = originalData.statusClass;
-                                }
-                                if (decisionNoteCell && originalData.decisionNote) {
-                                    decisionNoteCell.innerHTML = originalData.decisionNote;
-                                }
-                            } catch (e) {
-                                console.error('Error restoring original data:', e);
-                            }
-                        }
-                        
-                        // Restore view button
-                        if (viewButton) {
-                            viewButton.disabled = false;
-                            viewButton.style.opacity = '1';
-                            viewButton.style.cursor = 'pointer';
-                            viewButton.style.pointerEvents = 'auto';
-                        }
-                        
-                        // Remove lock styling from row
-                        row.style.opacity = '1';
-                        row.classList.remove('locked-row');
-                    }
-                });
-            }
-
-            // Check and apply lock state on page load
-            function checkAndApplyLockState() {
-                const isLocked = localStorage.getItem('reservationsLocked') === 'true';
-                updateReservationHistoryLockState(isLocked);
-            }
-
-            // Listen for storage changes (for cross-tab synchronization)
-            window.addEventListener('storage', (e) => {
-                if (e.key === 'reservationsLocked') {
-                    const isLocked = e.newValue === 'true';
-                    updateReservationHistoryLockState(isLocked);
-                }
-            });
-
-            // Apply lock state on page load
-            checkAndApplyLockState();
         });
     </script>
 </body>
+
 </html>

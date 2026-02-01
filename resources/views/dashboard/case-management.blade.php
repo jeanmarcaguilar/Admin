@@ -585,17 +585,17 @@ $user = auth()->user();
                             </div>
                             <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5" placeholder="Search cases...">
                         </div>
-                        <div class="flex flex-wrap gap-2">
-                            <button class="px-3 py-1.5 text-sm font-medium bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors">
+                        <div class="flex flex-wrap gap-2" id="filterButtons">
+                            <button onclick="setFilter('all')" class="filter-btn active px-3 py-1.5 text-sm font-medium bg-blue-100 text-blue-700 rounded-full hover:bg-blue-100 transition-colors" data-filter="all">
                                 All Cases
                             </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-green-50 text-green-700 rounded-full hover:bg-green-100 transition-colors">
+                            <button onclick="setFilter('active')" class="filter-btn px-3 py-1.5 text-sm font-medium bg-white text-gray-600 border border-gray-200 rounded-full hover:bg-green-50 hover:text-green-700 transition-colors" data-filter="active">
                                 <i class='bx bx-check-circle mr-1'></i> Active
                             </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-amber-50 text-amber-700 rounded-full hover:bg-amber-100 transition-colors">
+                            <button onclick="setFilter('pending')" class="filter-btn px-3 py-1.5 text-sm font-medium bg-white text-gray-600 border border-gray-200 rounded-full hover:bg-amber-50 hover:text-amber-700 transition-colors" data-filter="pending">
                                 <i class='bx bx-time-five mr-1'></i> Pending
                             </button>
-                            <button class="px-3 py-1.5 text-sm font-medium bg-purple-50 text-purple-700 rounded-full hover:bg-purple-100 transition-colors">
+                            <button onclick="setFilter('urgent')" class="filter-btn px-3 py-1.5 text-sm font-medium bg-white text-gray-600 border border-gray-200 rounded-full hover:bg-purple-50 hover:text-purple-700 transition-colors" data-filter="urgent">
                                 <i class='bx bx-gavel mr-1'></i> Urgent
                             </button>
                         </div>
@@ -613,9 +613,6 @@ $user = auth()->user();
                         </div>
                         <div class="flex items-center space-x-3">
                             <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{ isset($stats['upcoming_hearings']) ? $stats['upcoming_hearings'] : 0 }} total</span>
-                            <button id="lockAllHearingsBtn" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-700 hover:bg-gray-800 text-white transition-colors duration-200 flex items-center">
-                                <i class='bx bx-lock mr-1'></i>Lock All
-                            </button>
                         </div>
                     </div>
                     <div class="p-6">
@@ -660,9 +657,6 @@ $user = auth()->user();
                         <div class="flex items-center space-x-3">
                             <button id="exportCasesBtn" class="px-3 py-1.5 text-sm font-medium bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
                                 <i class="fas fa-download mr-1"></i> Export
-                            </button>
-                            <button id="lockAllCasesBtn" class="px-3 py-1.5 text-sm font-medium bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center">
-                                <i class='bx bx-lock mr-1'></i> Lock All
                             </button>
                         </div>
                     </div>
@@ -1271,18 +1265,112 @@ $user = auth()->user();
             updateClock();
             setInterval(updateClock, 1000);
 
-            // Search functionality
+            // Search and Filter functionality
+            let currentFilter = 'all';
+            let currentSearch = '';
+
+            window.setFilter = function(filterType) {
+                currentFilter = filterType;
+                
+                // Update button styles
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    const type = btn.dataset.filter;
+                    if (type === filterType) {
+                        // Active state
+                        btn.className = `filter-btn active px-3 py-1.5 text-sm font-medium rounded-full transition-colors ${getFilterColorClass(type)}`;
+                    } else {
+                        // Inactive state
+                        btn.className = 'filter-btn px-3 py-1.5 text-sm font-medium bg-white text-gray-600 border border-gray-200 rounded-full hover:bg-gray-50 transition-colors';
+                    }
+                });
+
+                filterTable();
+            };
+
+            function getFilterColorClass(type) {
+                switch(type) {
+                    case 'all': return 'bg-blue-100 text-blue-700';
+                    case 'active': return 'bg-green-100 text-green-700';
+                    case 'pending': return 'bg-amber-100 text-amber-700';
+                    case 'urgent': return 'bg-purple-100 text-purple-700';
+                    default: return 'bg-gray-100 text-gray-700';
+                }
+            }
+
             const searchInput = document.getElementById('searchInput');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase();
-                    const rows = document.querySelectorAll('#casesTbody tr');
-                    
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(searchTerm) ? '' : 'none';
-                    });
+                    currentSearch = this.value.toLowerCase();
+                    filterTable();
                 });
+            }
+
+            function filterTable() {
+                const rows = document.querySelectorAll('#casesTbody tr');
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    // Skip empty/error rows if they don't have data attributes (like "No cases found")
+                    if (!row.dataset.status) return;
+
+                    const status = (row.dataset.status || '').toLowerCase();
+                    const text = row.textContent.toLowerCase();
+                    
+                    // Priority is sometimes mapped to status in this UI logic or handled separately. 
+                    // Based on the cards, 'Urgent' might be a specific status or priority level.
+                    // Let's assume for now it checks if 'urgent' appears in the row text or data-priority if it existed.
+                    // Looking at the view_file output, there isn't an explicit priority column shown in the big table loop, 
+                    // but there is a Status column. Let's check how 'Urgent' is identified. 
+                    // The 'Urgent' card uses $stats['urgent_cases'].
+                    // If 'Urgent' is a status, simple check. If it's a priority, we might need to check text content if data-priority isn't there.
+                    // The row has `data-status`. Let's assume for now we match 'active', 'pending'. 
+                    // For 'urgent', since we don't have a data-priority, we'll check if the text contains 'urgent' OR if the status corresponds to something urgent.
+                    // Actually, looking at the code for the stats cards:
+                    // Urgent cases = priority 'urgent'.
+                    // The table row doesn't have data-priority. 
+                    // I'll check the text content for 'urgent' for now, or if I can add data-priority to the row that would be better.
+                    // Row has: data-number, data-name, data-client, data-type, data-status.
+                    
+                    let matchesFilter = false;
+                    if (currentFilter === 'all') {
+                        matchesFilter = true;
+                    } else if (currentFilter === 'active') {
+                        matchesFilter = ['active', 'open', 'confirmed', 'in progress'].includes(status);
+                    } else if (currentFilter === 'pending') {
+                        matchesFilter = ['pending'].includes(status);
+                    } else if (currentFilter === 'urgent') {
+                         // Since we don't have data-priority, we check if the row text contains 'urgent' or if status is urgent
+                         matchesFilter = status === 'urgent' || text.includes('urgent'); // Fallback to text search for priority
+                    }
+
+                    const matchesSearch = text.includes(currentSearch);
+
+                    if (matchesFilter && matchesSearch) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Handle no results
+                let noResultsRow = document.getElementById('no-results-row');
+                if (visibleCount === 0) {
+                    if (!noResultsRow) {
+                        const tbody = document.getElementById('casesTbody');
+                        noResultsRow = document.createElement('tr');
+                        noResultsRow.id = 'no-results-row';
+                        noResultsRow.innerHTML = `<td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-search text-2xl mb-2 text-gray-300"></i>
+                            <p>No cases found matching your filters.</p>
+                        </td>`;
+                        tbody.appendChild(noResultsRow);
+                    } else {
+                        noResultsRow.style.display = '';
+                    }
+                } else {
+                    if (noResultsRow) noResultsRow.style.display = 'none';
+                }
             }
 
             // Print functionality
@@ -1663,156 +1751,6 @@ $user = auth()->user();
                 });
             }
 
-            // Lock/Unlock functionality
-            const lockAllCasesBtn = document.getElementById('lockAllCasesBtn');
-            const lockAllHearingsBtn = document.getElementById('lockAllHearingsBtn');
-
-            // Case lock functionality
-            if (lockAllCasesBtn) {
-                lockAllCasesBtn.addEventListener('click', () => {
-                    const isLocked = localStorage.getItem('casesLocked') === 'true';
-                    
-                    if (isLocked) {
-                        // Currently locked, so unlock
-                        if (typeof window.unlockAllCases === 'function') {
-                            window.unlockAllCases();
-                        } else {
-                            // Simple unlock if function doesn't exist
-                            const tableRows = document.querySelectorAll('#casesTbody tr');
-                            tableRows.forEach(row => {
-                                if (row.dataset.originalData) {
-                                    try {
-                                        const originalData = JSON.parse(row.dataset.originalData);
-                                        // Restore original data
-                                        // This is a simplified version - you'd want to restore each cell
-                                    } catch(e) {}
-                                }
-                                row.style.opacity = '1';
-                                row.classList.remove('locked-row');
-                            });
-                            localStorage.setItem('casesLocked', 'false');
-                            lockAllCasesBtn.innerHTML = '<i class="bx bx-lock mr-1"></i> Lock All';
-                            lockAllCasesBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                            lockAllCasesBtn.classList.add('bg-gray-700', 'hover:bg-gray-800');
-                        }
-                    } else {
-                        // Currently unlocked, so lock
-                        Swal.fire({
-                            title: 'Lock All Cases?',
-                            text: 'Are you sure you want to lock all cases for confidentiality?',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, Lock',
-                            cancelButtonText: 'No, Cancel'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                if (typeof window.lockAllCases === 'function') {
-                                    window.lockAllCases();
-                                } else {
-                                    // Simple lock if function doesn't exist
-                                    const tableRows = document.querySelectorAll('#casesTbody tr');
-                                    tableRows.forEach(row => {
-                                        // Store original data
-                                        if (!row.dataset.originalData) {
-                                            const cells = row.querySelectorAll('td');
-                                            const originalData = {};
-                                            cells.forEach((cell, index) => {
-                                                originalData[`cell${index}`] = cell.innerHTML;
-                                            });
-                                            row.dataset.originalData = JSON.stringify(originalData);
-                                        }
-                                        // Apply masking
-                                        row.style.opacity = '0.7';
-                                        row.classList.add('locked-row');
-                                    });
-                                    localStorage.setItem('casesLocked', 'true');
-                                    lockAllCasesBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i> Unlock All';
-                                    lockAllCasesBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
-                                    lockAllCasesBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-
-            // Hearing lock functionality
-            if (lockAllHearingsBtn) {
-                lockAllHearingsBtn.addEventListener('click', () => {
-                    const isLocked = localStorage.getItem('hearingsLocked') === 'true';
-                    
-                    if (isLocked) {
-                        // Currently locked, so unlock
-                        const hearingItems = document.querySelectorAll('.hearing-item');
-                        hearingItems.forEach(item => {
-                            if (item.dataset.originalData) {
-                                try {
-                                    const originalData = JSON.parse(item.dataset.originalData);
-                                    // Restore original data
-                                } catch(e) {}
-                            }
-                            item.style.opacity = '1';
-                            item.classList.remove('locked-hearing');
-                        });
-                        localStorage.setItem('hearingsLocked', 'false');
-                        lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock mr-1"></i> Lock All';
-                    } else {
-                        // Currently unlocked, so lock
-                        Swal.fire({
-                            title: 'Lock All Hearings?',
-                            text: 'Are you sure you want to lock all hearings for confidentiality?',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#3085d6',
-                            cancelButtonColor: '#d33',
-                            confirmButtonText: 'Yes, Lock',
-                            cancelButtonText: 'No, Cancel'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                const hearingItems = document.querySelectorAll('.hearing-item');
-                                hearingItems.forEach(item => {
-                                    // Store original data
-                                    if (!item.dataset.originalData) {
-                                        const originalData = {
-                                            title: item.querySelector('.hearing-title')?.textContent || '',
-                                            code: item.querySelector('.hearing-code')?.textContent || '',
-                                            date: item.querySelector('.hearing-date')?.textContent || '',
-                                            time: item.querySelector('.hearing-time')?.textContent || ''
-                                        };
-                                        item.dataset.originalData = JSON.stringify(originalData);
-                                    }
-                                    // Apply masking
-                                    item.style.opacity = '0.7';
-                                    item.classList.add('locked-hearing');
-                                });
-                                localStorage.setItem('hearingsLocked', 'true');
-                                lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i> Unlock All';
-                            }
-                        });
-                    }
-                });
-            }
-
-            // Initialize lock states
-            function initializeLockStates() {
-                // Cases
-                const casesLocked = localStorage.getItem('casesLocked') === 'true';
-                if (casesLocked && lockAllCasesBtn) {
-                    lockAllCasesBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i> Unlock All';
-                    lockAllCasesBtn.classList.remove('bg-gray-700', 'hover:bg-gray-800');
-                    lockAllCasesBtn.classList.add('bg-green-600', 'hover:bg-green-700');
-                }
-
-                // Hearings
-                const hearingsLocked = localStorage.getItem('hearingsLocked') === 'true';
-                if (hearingsLocked && lockAllHearingsBtn) {
-                    lockAllHearingsBtn.innerHTML = '<i class="bx bx-lock-open mr-1"></i> Unlock All';
-                }
-            }
-
-            initializeLockStates();
         });
     </script>
 </body>

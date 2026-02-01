@@ -1,18 +1,21 @@
 @php
-// Get the authenticated user
-$user = auth()->user();
-// Get calendar bookings from database (passed from route)
-$calendarBookings = $calendarBookings ?? [];
+    // Get the authenticated user
+    $user = auth()->user();
+    // Get calendar bookings from database (passed from route)
+    $calendarBookings = $calendarBookings ?? [];
 @endphp
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Administrative</title>
-    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -30,7 +33,8 @@ $calendarBookings = $calendarBookings ?? [];
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
@@ -94,8 +98,15 @@ $calendarBookings = $calendarBookings ?? [];
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .fade-in {
@@ -125,28 +136,77 @@ $calendarBookings = $calendarBookings ?? [];
             transform: translateY(-1px);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
+        /* 3D Calendar Styles */
+        .calendar-3d-container {
+            perspective: 1000px;
+        }
+
+        .calendar-day-3d {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            position: relative;
+            top: 0;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 0 0 #e5e7eb, 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-day-3d:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 0 #e5e7eb, 0 8px 10px -2px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .calendar-day-3d:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 #e5e7eb, 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-day-3d.is-today {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border-color: #047857;
+            box-shadow: 0 4px 0 0 #064e3b, 0 4px 6px -1px rgba(5, 150, 105, 0.4);
+        }
+
+        .calendar-day-3d.is-today .day-number {
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-day-3d.is-today:hover {
+            box-shadow: 0 6px 0 0 #064e3b, 0 8px 10px -2px rgba(5, 150, 105, 0.4);
+        }
+
+        /* Empty slot styling */
+        .calendar-day-empty {
+            background-color: #f9fafb;
+            border: 1px dashed #e5e7eb;
+            opacity: 0.6;
+        }
     </style>
 </head>
+
 <body class="bg-brand-background-main min-h-screen">
 
     <!-- Overlay (mobile) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
+    </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar"
-        class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
                transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
         <div class="h-16 flex items-center px-4 border-b border-gray-100">
-            <a href="{{ route('admin.dashboard') }}"
-                class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 w-full rounded-xl px-2 py-2
                        hover:bg-gray-100 active:bg-gray-200 transition group">
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
                         Microfinance HR
                     </div>
-                    <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+                    <div
+                        class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
                         HUMAN RESOURCE III
                     </div>
                 </div>
@@ -176,23 +236,36 @@ $calendarBookings = $calendarBookings ?? [];
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
                     Visitor Management
                 </span>
-                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="visitor-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('visitors.registration') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitors.registration') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitors Registration
                     </a>
-                    <a href="{{ route('checkinout.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('checkinout.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Check In/Out Tracking
                     </a>
-                    <a href="{{ route('visitor.history.records') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitor.history.records') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitor History Records
                     </a>
                 </div>
@@ -207,27 +280,44 @@ $calendarBookings = $calendarBookings ?? [];
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
                     Document Management
                 </span>
-                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="document-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('document.upload.indexing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.upload.indexing') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Document Upload & Indexing
                     </a>
-                    <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.version.control') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Version Control
                     </a>
-                    <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.access.control.permissions') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Access Control & Permissions
                     </a>
-                    <a href="{{ route('document.archival.retention.policy') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.archival.retention.policy') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Archival & Retention Policy
                     </a>
                 </div>
@@ -242,27 +332,44 @@ $calendarBookings = $calendarBookings ?? [];
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
                     Facilities Management
                 </span>
-                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="facilities-submenu" class="submenu mt-1">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('room-equipment') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Room & Equipment Booking
                     </a>
-                    <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('scheduling.calendar') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Scheduling & Calendar Integrations
                     </a>
-                    <a href="{{ route('approval.workflow') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('approval.workflow') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Approval Workflow
                     </a>
-                    <a href="{{ route('reservation.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('reservation.history') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Reservation History
                     </a>
                 </div>
@@ -277,27 +384,44 @@ $calendarBookings = $calendarBookings ?? [];
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
                     Legal Management
                 </span>
-                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="legal-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('case.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('case.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Case Management
                     </a>
-                    <a href="{{ route('contract.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('contract.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Contract Management
                     </a>
-                    <a href="{{ route('compliance.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('compliance.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Compliance Tracking
                     </a>
-                    <a href="{{ route('deadline.hearing.alerts') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('deadline.hearing.alerts') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Deadline & Hearing Alerts
                     </a>
                 </div>
@@ -311,7 +435,7 @@ $calendarBookings = $calendarBookings ?? [];
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © {{ date('Y') }}<br/>
+                    Microfinance HR © {{ date('Y') }}<br />
                     Human Resource III System
                 </div>
             </div>
@@ -324,7 +448,7 @@ $calendarBookings = $calendarBookings ?? [];
         <!-- TOP HEADER -->
         <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
                     shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-            
+
             <!-- BORDER COVER -->
             <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
 
@@ -347,37 +471,44 @@ $calendarBookings = $calendarBookings ?? [];
 
                 <!-- User Profile Dropdown -->
                 <div class="relative">
-                    <button id="user-menu-button"
-                        class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                    <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
                             hover:bg-gray-100 active:bg-gray-200 transition">
-                        <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
-                            <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                        <div
+                            class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+                            <div
+                                class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         </div>
                         <div class="hidden md:flex flex-col items-start text-left">
-                            <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
                                 {{ $user->name }}
                             </span>
-                            <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
                                 Administrator
                             </span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
                     </button>
 
-                    <div id="user-menu-dropdown"
-                        class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
+                    <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
                             absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
                             transition-all duration-200 z-50">
-                        <button id="openProfileBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
+                        <button id="openProfileBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
+                        <button id="openAccountSettingsBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
                         <div class="h-px bg-gray-100"></div>
                         <form method="POST" action="{{ route('logout') }}" class="w-full">
                             @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
+                            <button type="submit"
+                                class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
                         </form>
                     </div>
                 </div>
@@ -395,13 +526,16 @@ $calendarBookings = $calendarBookings ?? [];
                             <p class="text-gray-600 mt-1">Manage room bookings, calendar events, and integrations</p>
                         </div>
                         <div class="mt-4 md:mt-0 flex space-x-3">
-                            <a href="{{ route('room-equipment') }}" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
+                            <a href="{{ route('room-equipment') }}"
+                                class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
                                 <i class="fas fa-plus mr-2"></i> New Booking
                             </a>
-                            <button id="exportBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
+                            <button id="exportBtn"
+                                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
                                 <i class="fas fa-download mr-2"></i> Export
                             </button>
-                            <button id="printBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
+                            <button id="printBtn"
+                                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
                                 <i class="fas fa-print mr-2"></i> Print
                             </button>
                         </div>
@@ -415,16 +549,20 @@ $calendarBookings = $calendarBookings ?? [];
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="font-semibold text-lg text-gray-900">Calendar View</h3>
                             <div class="flex items-center gap-2">
-                                <button id="todayBtn" class="px-3 py-1.5 text-sm font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors">
+                                <button id="todayBtn"
+                                    class="px-3 py-1.5 text-sm font-medium bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors">
                                     Today
                                 </button>
-                                <button id="prevMonthBtn" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                                <button id="prevMonthBtn"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
                                     <i class="fas fa-chevron-left text-sm"></i>
                                 </button>
-                                <span id="monthLabel" class="text-sm font-semibold text-gray-700 min-w-[120px] text-center">
+                                <span id="monthLabel"
+                                    class="text-sm font-semibold text-gray-700 min-w-[120px] text-center">
                                     {{ now()->format('F Y') }}
                                 </span>
-                                <button id="nextMonthBtn" class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
+                                <button id="nextMonthBtn"
+                                    class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors">
                                     <i class="fas fa-chevron-right text-sm"></i>
                                 </button>
                             </div>
@@ -441,7 +579,8 @@ $calendarBookings = $calendarBookings ?? [];
                             <div class="text-center text-xs font-medium text-gray-500 py-2">Sat</div>
                         </div>
 
-                        <div id="calendarGrid" class="grid grid-cols-7 gap-2 border border-gray-200 rounded-lg p-2" style="min-height: 500px;"></div>
+                        <div id="calendarGrid" class="calendar-3d-container grid grid-cols-7 gap-3 mb-3 p-2"
+                            style="min-height: 500px;"></div>
 
                         <!-- Calendar Legend -->
                         <div class="mt-6 pt-6 border-t border-gray-100">
@@ -468,13 +607,15 @@ $calendarBookings = $calendarBookings ?? [];
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                             <h3 class="font-semibold text-lg text-gray-900 mb-4">Quick Actions</h3>
                             <div class="space-y-3">
-                                <button id="exportCalendarBtn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                                <button id="exportCalendarBtn"
+                                    class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
                                     <i class="fas fa-download"></i> Export Calendar
                                 </button>
                                 @if (Route::has('calendar.clear'))
                                     <form method="POST" action="{{ route('calendar.clear') }}" class="w-full">
                                         @csrf
-                                        <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
+                                        <button type="submit"
+                                            class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
                                             <i class="fas fa-trash"></i> Clear All
                                         </button>
                                     </form>
@@ -486,11 +627,12 @@ $calendarBookings = $calendarBookings ?? [];
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                             <div class="flex items-center justify-between mb-4">
                                 <h3 class="font-semibold text-lg text-gray-900">Upcoming Events</h3>
-                                <span id="upcomingCount" class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                                <span id="upcomingCount"
+                                    class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                                     {{ count($calendarBookings) }}
                                 </span>
                             </div>
-                            
+
                             <div id="upcomingEventsList" class="max-h-80 overflow-y-auto custom-scrollbar">
                                 @if (!empty($calendarBookings))
                                     <div class="space-y-3">
@@ -510,19 +652,25 @@ $calendarBookings = $calendarBookings ?? [];
                                                     'rejected' => 'status-rejected',
                                                 ][$status] ?? 'bg-gray-100 text-gray-800';
                                             @endphp
-                                            <div class="calendar-event p-3 rounded-lg border border-gray-100 hover:border-green-200 cursor-pointer" onclick="showEventDetails({{ json_encode($booking) }})">
+                                            <div class="calendar-event p-3 rounded-lg border border-gray-100 hover:border-green-200 cursor-pointer"
+                                                onclick="showEventDetails({{ json_encode($booking) }})">
                                                 <div class="flex items-start space-x-3">
-                                                    <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-green-50 text-green-600 font-bold">
+                                                    <div
+                                                        class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-lg bg-green-50 text-green-600 font-bold">
                                                         {{ $day }}
                                                     </div>
                                                     <div class="flex-grow">
                                                         <div class="flex items-center justify-between">
-                                                            <span class="font-medium text-gray-900 text-sm">{{ Str::limit($title, 20) }}</span>
-                                                            <span class="px-2 py-0.5 text-xs font-medium rounded-full {{ $statusClass }}">
+                                                            <span
+                                                                class="font-medium text-gray-900 text-sm">{{ Str::limit($title, 20) }}</span>
+                                                            <span
+                                                                class="px-2 py-0.5 text-xs font-medium rounded-full {{ $statusClass }}">
                                                                 {{ ucfirst($status) }}
                                                             </span>
                                                         </div>
-                                                        <p class="text-xs text-gray-500 mt-1">{{ $day }} {{ $monthShort }} @if($time) · {{ $time }} @endif</p>
+                                                        <p class="text-xs text-gray-500 mt-1">{{ $day }} {{ $monthShort }}
+                                                            @if($time) · {{ $time }} @endif
+                                                        </p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -537,10 +685,10 @@ $calendarBookings = $calendarBookings ?? [];
                             </div>
                         </div>
 
-                                            </div>
+                    </div>
                 </div>
 
-                            </div>
+            </div>
         </main>
     </div>
 
@@ -549,7 +697,8 @@ $calendarBookings = $calendarBookings ?? [];
         <div class="bg-white rounded-lg shadow-lg w-[400px] max-w-full mx-4 fade-in" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
                 <h3 class="text-lg font-semibold text-gray-900">Event Details</h3>
-                <button onclick="closeEventDetails()" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200">
+                <button onclick="closeEventDetails()"
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -610,10 +759,10 @@ $calendarBookings = $calendarBookings ?? [];
                         e.preventDefault();
                         e.stopPropagation();
                         console.log(`Clicked dropdown: ${btnId}`);
-                        
+
                         const isHidden = submenu.classList.contains("hidden");
                         console.log(`Dropdown ${btnId} is hidden: ${isHidden}`);
-                        
+
                         // Close all other dropdowns
                         Object.values(dropdowns).forEach(id => {
                             const otherSubmenu = document.getElementById(id);
@@ -651,7 +800,7 @@ $calendarBookings = $calendarBookings ?? [];
                 userMenuButton.addEventListener("click", (e) => {
                     e.stopPropagation();
                     const isHidden = userMenuDropdown.classList.contains("hidden");
-                    
+
                     if (isHidden) {
                         userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                         userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
@@ -679,7 +828,7 @@ $calendarBookings = $calendarBookings ?? [];
                 const minutes = now.getMinutes().toString().padStart(2, '0');
                 const seconds = now.getSeconds().toString().padStart(2, '0');
                 const timeString = `${hours}:${minutes}:${seconds}`;
-                
+
                 const clockElement = document.getElementById('real-time-clock');
                 if (clockElement) {
                     clockElement.textContent = timeString;
@@ -693,7 +842,7 @@ $calendarBookings = $calendarBookings ?? [];
             const facilitiesBtn = document.getElementById('facilities-management-btn');
             const facilitiesSubmenu = document.getElementById('facilities-submenu');
             const facilitiesArrow = document.getElementById('facilities-arrow');
-            
+
             if (facilitiesBtn && facilitiesSubmenu) {
                 // Force open the facilities dropdown
                 facilitiesSubmenu.classList.remove('hidden');
@@ -720,7 +869,11 @@ $calendarBookings = $calendarBookings ?? [];
             });
 
             let currentDate = new Date();
-            const sessionBookings = @json($calendarBookings);
+            const rawBookings = @json($calendarBookings);
+            // Ensure we have an array, even if PHP sending associative array
+            const sessionBookings = Array.isArray(rawBookings) ? rawBookings : Object.values(rawBookings || {});
+
+            console.log('Bookings loaded:', sessionBookings.length);
 
             function daysInMonth(year, monthIndex) {
                 return new Date(year, monthIndex + 1, 0).getDate();
@@ -748,7 +901,7 @@ $calendarBookings = $calendarBookings ?? [];
                 // Leading empty cells
                 for (let i = 0; i < startWeekday; i++) {
                     const cell = document.createElement('div');
-                    cell.className = 'h-24 border border-gray-200 rounded-lg p-2 bg-gray-50';
+                    cell.className = 'h-28 rounded-xl p-2 calendar-day-empty';
                     calendarGrid.appendChild(cell);
                 }
 
@@ -757,57 +910,97 @@ $calendarBookings = $calendarBookings ?? [];
                 for (let day = 1; day <= totalDays; day++) {
                     const cell = document.createElement('div');
                     const isToday = today.getFullYear() === year && today.getMonth() === monthIndex && today.getDate() === day;
-                    cell.className = `h-24 border border-gray-200 rounded-lg p-2 calendar-day ${
-                        isToday ? 'ring-2 ring-brand-primary bg-brand-primary/5' : 'bg-white hover:bg-gray-50'
-                    }`;
+
+                    cell.className = `h-28 rounded-xl p-2 calendar-day-3d flex flex-col justify-between cursor-pointer ${isToday ? 'is-today' : ''
+                        }`;
+
+                    // Header: Day number + Add button (visible on hover)
+                    const header = document.createElement('div');
+                    header.className = 'flex justify-between items-start';
 
                     const badge = document.createElement('span');
-                    badge.className = `text-sm font-medium ${
-                        isToday ? 'text-brand-primary' : 'text-gray-700'
-                    }`;
+                    badge.className = `day-number text-lg font-bold ${isToday ? 'text-white' : 'text-gray-700'
+                        }`;
                     badge.textContent = day;
-                    cell.appendChild(badge);
+
+                    header.appendChild(badge);
+                    cell.appendChild(header);
 
                     // Render bookings for this day
                     const events = (sessionBookings || []).filter(b => {
                         if (!b.date) return false;
-                        const d = new Date(b.date);
-                        return d.getFullYear() === year && d.getMonth() === monthIndex && d.getDate() === day;
+
+                        // Robust date comparing: "YYYY-MM-DD"
+                        // Split string to avoid timezone offset issues (e.g. UTC -> Local)
+                        // If date is "2026-02-01", split gives ["2026", "02", "01"]
+                        let y, m, d;
+
+                        if (b.date.includes('T')) {
+                             const datePart = b.date.split('T')[0];
+                             [y, m, d] = datePart.split('-').map(Number);
+                        } else if (b.date.includes(' ')) {
+                             const datePart = b.date.split(' ')[0];
+                             [y, m, d] = datePart.split('-').map(Number);
+                        } else {
+                             [y, m, d] = b.date.split('-').map(Number);
+                        }
+
+                        // Compare with current cell: year, monthIndex (0-11), day
+                        return y === year && (m - 1) === monthIndex && d === day;
                     });
 
+                    const eventsContainer = document.createElement('div');
+                    eventsContainer.className = 'space-y-1 overflow-y-auto custom-scrollbar mt-1 max-h-[4.5rem]';
+
                     if (events.length) {
-                        const container = document.createElement('div');
-                        container.className = 'mt-1 space-y-1';
                         events.forEach(ev => {
                             const pill = document.createElement('div');
                             const status = (ev.status || '').toLowerCase();
-                            let color = '';
-                            if (status === 'approved') color = 'bg-green-100 text-green-800 border border-green-200';
-                            else if (status === 'rejected') color = 'bg-red-100 text-red-800 border border-red-200';
-                            else if (status === 'pending') color = 'bg-yellow-100 text-yellow-800 border border-yellow-200';
-                            else color = 'bg-blue-100 text-blue-800 border border-blue-200';
+                            let colorClass = '';
 
-                            const start = ev.start_time ? ev.start_time.substring(0,5) : '';
-                            const timeStr = start ? ` (${start})` : '';
+                            // 3D effect for events too
+                            if (status === 'approved') colorClass = 'bg-green-100 text-green-800 border-l-2 border-green-500';
+                            else if (status === 'rejected') colorClass = 'bg-red-100 text-red-800 border-l-2 border-red-500';
+                            else if (status === 'pending') colorClass = 'bg-yellow-100 text-yellow-800 border-l-2 border-yellow-500';
+                            else colorClass = 'bg-blue-100 text-blue-800 border-l-2 border-blue-500';
 
-                            pill.className = `text-xs px-2 py-1 rounded truncate ${color} cursor-pointer hover:opacity-80`;
-                            pill.title = (ev.name || ev.title || 'Booking') + (status ? ` [${status}]` : '');
-                            pill.textContent = `${ev.name || ev.title || 'Booking'}${timeStr}`;
-                            pill.onclick = () => showEventDetails(ev);
-                            container.appendChild(pill);
+                            const start = ev.start_time ? ev.start_time.substring(0, 5) : '';
+                            
+                            // Determine the best display text
+                            // explicit name > title > purpose > room > 'Booking'
+                            let displayText = ev.name || ev.title || ev.purpose || ev.room || 'Booking';
+                            
+                            // If just "Booking" (generic) and we have a room, append it
+                            if (displayText === 'Booking' && ev.room) {
+                                displayText += ` (${ev.room})`;
+                            }
+
+                            pill.className = `text-[11px] font-semibold px-1.5 py-1 rounded shadow-sm mb-1 truncate ${colorClass} hover:opacity-80 transition-opacity`;
+                            pill.title = `${displayText}` + (status ? ` [${status}]` : '') + (ev.room ? ` @ ${ev.room}` : '');
+                            pill.textContent = `${start ? start + ' ' : ''}${displayText}`;
+
+                            pill.onclick = (e) => {
+                                e.stopPropagation();
+                                showEventDetails(ev);
+                            };
+                            eventsContainer.appendChild(pill);
                         });
-                        cell.appendChild(container);
                     }
 
+                    cell.appendChild(eventsContainer);
                     calendarGrid.appendChild(cell);
                 }
 
                 // Trailing empty cells
                 const usedCells = startWeekday + totalDays;
-                for (let i = usedCells; i < totalCells; i++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'h-24 border border-gray-200 rounded-lg p-2 bg-gray-50';
-                    calendarGrid.appendChild(cell);
+                // Fill up to the end of the last row, or extra row to maintain grid shape
+                const remaining = 7 - (usedCells % 7);
+                if (remaining < 7) {
+                    for (let i = 0; i < remaining; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'h-28 rounded-xl p-2 calendar-day-empty';
+                        calendarGrid.appendChild(cell);
+                    }
                 }
             }
 
@@ -844,7 +1037,7 @@ $calendarBookings = $calendarBookings ?? [];
             // Print functionality
             const printBtn = document.getElementById('printBtn');
             if (printBtn) {
-                printBtn.addEventListener('click', function() {
+                printBtn.addEventListener('click', function () {
                     window.print();
                 });
             }
@@ -855,28 +1048,28 @@ $calendarBookings = $calendarBookings ?? [];
             console.log('Calendar render called');
 
             // Event details modal functions
-            window.showEventDetails = function(event) {
+            window.showEventDetails = function (event) {
                 const modal = document.getElementById('eventDetailsModal');
                 const content = document.getElementById('eventDetailsContent');
-                
+
                 const status = (event.status || '').toLowerCase();
                 const statusClass = {
                     'pending': 'status-pending',
                     'approved': 'status-approved',
                     'rejected': 'status-rejected',
                 }[status] || 'bg-gray-100 text-gray-800';
-                
-                const date = event.date ? new Date(event.date).toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+
+                const date = event.date ? new Date(event.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                 }) : 'No date specified';
-                
-                const time = event.start_time && event.end_time ? 
-                    `${event.start_time} - ${event.end_time}` : 
+
+                const time = event.start_time && event.end_time ?
+                    `${event.start_time} - ${event.end_time}` :
                     event.start_time || 'All day';
-                
+
                 content.innerHTML = `
                     <div class="space-y-4">
                         <div>
@@ -917,50 +1110,17 @@ $calendarBookings = $calendarBookings ?? [];
                         ` : ''}
                     </div>
                 `;
-                
+
                 modal.classList.remove('hidden');
                 modal.classList.add('active');
                 modal.style.display = 'flex';
             };
 
-            window.closeEventDetails = function() {
+            window.closeEventDetails = function () {
                 const modal = document.getElementById('eventDetailsModal');
                 modal.classList.add('hidden');
                 modal.classList.remove('active');
                 modal.style.display = 'none';
-            };
-
-                    confirmButtonText: 'Verify & Unlock',
-                    confirmButtonColor: '#059669',
-                    showLoaderOnConfirm: true,
-                    preConfirm: (otp) => {
-                        if (!otp || otp.length !== 6) {
-                            Swal.showValidationMessage('Please enter a valid 6-digit code');
-                            return false;
-                        }
-                        return true;
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Reservations Unlocked',
-                            text: 'All reservations have been successfully unlocked and normal access restored.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                        
-                        // Update button
-                        const lockBtn = document.getElementById('lockAllBtn');
-                        if (lockBtn) {
-                            lockBtn.innerHTML = '<i class="fas fa-lock"></i> Lock All Reservations';
-                            lockBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-                            lockBtn.classList.add('bg-amber-600', 'hover:bg-amber-700');
-                            lockBtn.setAttribute('onclick', 'lockAllReservations()');
-                            localStorage.setItem('reservationsLocked', 'false');
-                        }
-                    }
-                });
             };
 
             // Check and restore lock state on page load
@@ -994,7 +1154,7 @@ $calendarBookings = $calendarBookings ?? [];
             // Close modals when clicking outside
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
-                modal.addEventListener('click', function(e) {
+                modal.addEventListener('click', function (e) {
                     if (e.target === this) {
                         this.classList.add('hidden');
                         this.classList.remove('active');
@@ -1005,4 +1165,5 @@ $calendarBookings = $calendarBookings ?? [];
         });
     </script>
 </body>
+
 </html>

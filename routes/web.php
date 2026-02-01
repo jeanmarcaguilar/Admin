@@ -14,7 +14,8 @@ use App\Mail\TwoFactorCodeMail;
 use App\Models\Visitor;
 
 if (!function_exists('formatBytes')) {
-    function formatBytes($bytes, $precision = 2) {
+    function formatBytes($bytes, $precision = 2)
+    {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
@@ -32,7 +33,7 @@ Route::get('/', function () {
 // Dashboard route (protected by auth middleware)
 Route::get('/dashboard', function () {
     $user = auth()->user();
-    
+
     // Get real statistics from database
     $visitors = \App\Models\Visitor::all();
     $checkedInCount = $visitors->filter(fn($v) => strtolower($v->status ?? '') === 'checked_in')->count();
@@ -44,7 +45,7 @@ Route::get('/dashboard', function () {
         $s = strtolower($c->status ?? '');
         return in_array($s, ['active', 'in progress', 'urgent']);
     })->count();
-    
+
     // Real statistics for dashboard cards
     $stats = [
         'checked_in_visitors' => $checkedInCount,
@@ -52,48 +53,48 @@ Route::get('/dashboard', function () {
         'uploaded_documents' => $documentsCount,
         'active_cases' => $activeCases,
     ];
-    
+
     // Recent activities from real data
     $recentActivities = [];
-    
+
     // Add recent visitors
     $recentVisitors = $visitors->sortByDesc('created_at')->take(2);
     foreach ($recentVisitors as $visitor) {
-        $recentActivities[] = (object)[
+        $recentActivities[] = (object) [
             'id' => $visitor->code,
             'description' => 'New visitor registered: ' . $visitor->name,
             'created_at' => $visitor->created_at,
             'type' => 'visitor_registered'
         ];
     }
-    
+
     // Add recent documents
     $recentDocuments = $documents->sortByDesc('created_at')->take(1);
     foreach ($recentDocuments as $document) {
-        $recentActivities[] = (object)[
+        $recentActivities[] = (object) [
             'id' => $document->id,
             'description' => 'Document uploaded',
             'created_at' => $document->created_at,
             'type' => 'document_uploaded'
         ];
     }
-    
+
     // Sort by creation date and take top 3
     $recentActivities = collect($recentActivities)
         ->sortByDesc('created_at')
         ->take(3)
         ->values()
         ->all();
-    
+
     // Upcoming events from bookings
     $upcomingBookings = \App\Models\Booking::where('date', '>=', now()->toDateString())
         ->orderBy('date')
         ->take(2)
         ->get();
-    
+
     $upcomingEvents = [];
     foreach ($upcomingBookings as $booking) {
-        $upcomingEvents[] = (object)[
+        $upcomingEvents[] = (object) [
             'id' => $booking->code,
             'title' => $booking->name . ': ' . $booking->purpose,
             'start_date' => \Carbon\Carbon::parse($booking->date),
@@ -101,7 +102,7 @@ Route::get('/dashboard', function () {
             'description' => 'Booking for ' . $booking->purpose
         ];
     }
-    
+
     return view('dashboard.dashboard', [
         'user' => $user,
         'stats' => $stats,
@@ -111,7 +112,7 @@ Route::get('/dashboard', function () {
 })->middleware('auth')->name('admin.dashboard');
 
 // Authentication routes (from auth.php)
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Protected routes
 // Logout route
@@ -121,13 +122,13 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
 // 2FA: Send verification code to email (public, CSRF protected)
 Route::post('/two-factor/email', [TwoFactorController::class, 'sendEmailCode'])
     ->name('twofactor.email');
- 
+
 // 2FA: Verify code and log in (public, CSRF protected)
 Route::post('/two-factor/verify', [TwoFactorController::class, 'verifyCode'])
     ->name('two-factor.verify');
 
 Route::middleware('auth')->group(function () {
-    
+
     // Document Upload & Indexing
     Route::get('/document-upload-indexing', function () {
         // Get documents from database
@@ -144,13 +145,13 @@ Route::middleware('auth')->group(function () {
                 'status' => $d->status ?? 'Indexed',
             ];
         })->toArray();
-        
+
         return view('dashboard.document-upload-indexing', [
             'user' => auth()->user(),
             'documents' => $documents
         ]);
     })->name('document.upload.indexing');
-    
+
     // Document Upload Store
     Route::post('/document-upload-indexing/upload', function (Request $request) {
         $request->validate([
@@ -162,12 +163,12 @@ Route::middleware('auth')->group(function () {
         ]);
 
         $uploadedFiles = [];
-        
+
         foreach ($request->file('documents') as $file) {
             if ($file->isValid()) {
                 // Store file
                 $path = $file->store('documents', 'public');
-                
+
                 // Get file extension and map to valid ENUM type
                 $extension = strtolower($file->getClientOriginalExtension());
                 $typeMapping = [
@@ -179,21 +180,21 @@ Route::middleware('auth')->group(function () {
                     'ppt' => 'internal',
                     'pptx' => 'internal',
                 ];
-                
+
                 $inferredType = $typeMapping[$extension] ?? 'internal';
-                
+
                 // Use provided docType or inferred type
                 $documentType = $request->input('docType', $inferredType);
-                
+
                 // Validate that the type is a valid ENUM value
                 $validTypes = ['internal', 'payment', 'vendor', 'release_of_funds', 'purchase', 'disbursement', 'receipt'];
                 if (!in_array($documentType, $validTypes)) {
                     $documentType = 'internal';
                 }
-                
+
                 // Generate document code
                 $code = 'DOC-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-                
+
                 // Create document record
                 $document = \App\Models\Document::create([
                     'code' => $code,
@@ -207,7 +208,7 @@ Route::middleware('auth')->group(function () {
                     'status' => $request->input('status', 'Indexed'),
                     'uploaded_on' => now()->toDateString(),
                 ]);
-                
+
                 $uploadedFiles[] = [
                     'name' => $file->getClientOriginalName(),
                     'size' => formatBytes($file->getSize()),
@@ -228,20 +229,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/document/{id}/download', function ($id) {
         // Debug logging
         error_log("Download route called with ID: " . $id);
-        
+
         // Find document by code or ID
         $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
-        
+
         if (!$document) {
             error_log("Document not found with ID: " . $id);
             abort(404, 'Document not found');
         }
-        
+
         error_log("Document found: " . $document->name . " (ID: " . $document->id . ", Code: " . $document->code . ")");
-        
+
         $filePath = null;
         $fileName = $document->name;
-        
+
         // First try the stored file path
         if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
             $filePath = Storage::disk('public')->path($document->file_path);
@@ -251,15 +252,15 @@ Route::middleware('auth')->group(function () {
             // If stored path doesn't exist, try to find any file in documents directory
             $files = Storage::disk('public')->allFiles('documents');
             error_log("Available files: " . implode(', ', $files));
-            
+
             if (!empty($files)) {
                 // Try to match by file extension or use the first available file
                 $documentExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-                $matchingFiles = array_filter($files, function($file) use ($documentExtension) {
+                $matchingFiles = array_filter($files, function ($file) use ($documentExtension) {
                     $fileExtension = pathinfo($file, PATHINFO_EXTENSION);
                     return strtolower($fileExtension) === strtolower($documentExtension);
                 });
-                
+
                 if (!empty($matchingFiles)) {
                     $filePath = Storage::disk('public')->path(array_values($matchingFiles)[0]);
                     error_log("Found matching file by extension: " . array_values($matchingFiles)[0]);
@@ -270,17 +271,17 @@ Route::middleware('auth')->group(function () {
                 }
             }
         }
-        
+
         if (!$filePath) {
             error_log("No file path found for document: " . $document->name);
             abort(404, 'File not found - no downloadable files available');
         }
-        
+
         error_log("Final file path: " . $filePath);
-        
+
         // Determine file type
         $fileType = $document->file_type ?? mime_content_type($filePath) ?? 'application/octet-stream';
-        
+
         // Return file download response
         return response()->download($filePath, $fileName, [
             'Content-Type' => $fileType,
@@ -304,7 +305,7 @@ Route::middleware('auth')->group(function () {
                 'status' => $d->status ?? 'Indexed',
             ];
         })->toArray();
-        
+
         return view('test_download', ['documents' => $documents]);
     })->name('test.download');
 
@@ -331,14 +332,14 @@ Route::middleware('auth')->group(function () {
                 'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
-        
+
         // Calculate statistics
         $allVisitors = \App\Models\Visitor::all();
         $now = now();
         $todayVisitors = \App\Models\Visitor::whereDate('check_in_date', $now->toDateString())->count();
         $checkedInVisitors = \App\Models\Visitor::where('status', 'checked_in')->count();
         $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
-        
+
         $stats = [
             'total_visitors' => $allVisitors->count(),
             'today_visitors' => $todayVisitors,
@@ -347,14 +348,14 @@ Route::middleware('auth')->group(function () {
             'checked_out' => $allVisitors->where('status', 'checked_out')->count(),
             'expired' => $allVisitors->where('status', 'expired')->count(),
         ];
-        
+
         return view('dashboard.visitors-registration', [
             'user' => auth()->user(),
             'visitors' => $visitors,
             'stats' => $stats
         ]);
     })->name('visitors.registration');
-    
+
     Route::get('/visitor-history', function () {
         // Get visitors from database for history records
         $visitors = \App\Models\Visitor::orderByDesc('created_at')->get()->map(function ($v) {
@@ -378,7 +379,7 @@ Route::middleware('auth')->group(function () {
                 'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
-        
+
         // Calculate history statistics
         $allVisitors = \App\Models\Visitor::all();
         $now = now();
@@ -387,7 +388,7 @@ Route::middleware('auth')->group(function () {
         $checkedOutVisitors = \App\Models\Visitor::where('status', 'checked_out')->count();
         $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
         $overdueVisitors = \App\Models\Visitor::where('status', 'expired')->count();
-        
+
         $stats = [
             'total_visitors' => $allVisitors->count(),
             'today_visitors' => $todayVisitors,
@@ -396,14 +397,14 @@ Route::middleware('auth')->group(function () {
             'pending' => $pendingVisitors,
             'overdue' => $overdueVisitors,
         ];
-        
+
         return view('dashboard.visitor-history', [
             'user' => auth()->user(),
             'visitors' => $visitors,
             'stats' => $stats
         ]);
     })->name('visitor.history');
-    
+
     Route::get('/visitor-history-records', function () {
         // Get visitors from database for history records
         $visitors = \App\Models\Visitor::orderByDesc('created_at')->get()->map(function ($v) {
@@ -427,7 +428,7 @@ Route::middleware('auth')->group(function () {
                 'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
-        
+
         // Calculate history statistics
         $allVisitors = \App\Models\Visitor::all();
         $now = now();
@@ -436,7 +437,7 @@ Route::middleware('auth')->group(function () {
         $checkedOutVisitors = \App\Models\Visitor::where('status', 'checked_out')->count();
         $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
         $overdueVisitors = \App\Models\Visitor::where('status', 'expired')->count();
-        
+
         $stats = [
             'total_visitors' => $allVisitors->count(),
             'today_visitors' => $todayVisitors,
@@ -445,7 +446,7 @@ Route::middleware('auth')->group(function () {
             'pending' => $pendingVisitors,
             'overdue' => $overdueVisitors,
         ];
-        
+
         return view('dashboard.visitor-history', [
             'user' => auth()->user(),
             'visitors' => $visitors,
@@ -469,13 +470,13 @@ Route::middleware('auth')->group(function () {
                 'description' => $d->description ?? '',
             ];
         })->toArray();
-        
+
         return view('dashboard.version-control', [
             'user' => auth()->user(),
             'documents' => $documents
         ]);
     })->name('document.version.control');
-    
+
     Route::post('/document-version-upload', function (Request $request) {
         $request->validate([
             'documents.*' => 'required|file|max:51200', // 50MB max
@@ -487,16 +488,16 @@ Route::middleware('auth')->group(function () {
         ]);
 
         $uploadedFiles = [];
-        
+
         if ($request->hasFile('documents')) {
             foreach ($request->file('documents') as $file) {
                 if ($file->isValid()) {
                     $filename = time() . '_' . $file->getClientOriginalName();
                     $path = $file->storeAs('documents', $filename, 'public');
-                    
+
                     // Generate document code
                     $code = 'DOC-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-                    
+
                     // Create document record with version info
                     $document = \App\Models\Document::create([
                         'code' => $code,
@@ -512,7 +513,7 @@ Route::middleware('auth')->group(function () {
                         'description' => $request->input('description', ''),
                         'data_type' => $request->input('version', '1.0'), // Store version in data_type
                     ]);
-                    
+
                     $uploadedFiles[] = [
                         'name' => $file->getClientOriginalName(),
                         'size' => formatBytes($file->getSize()),
@@ -530,7 +531,7 @@ Route::middleware('auth')->group(function () {
             'files' => $uploadedFiles
         ]);
     })->name('document.version.upload');
-    
+
     Route::get('/document-access-control', function () {
         // Get permissions from database
         $permissions = \App\Models\Permission::with(['user', 'document'])
@@ -541,21 +542,21 @@ Route::middleware('auth')->group(function () {
                 $user = $p->user;
                 $userName = $user ? $user->name : 'Unknown User';
                 $userEmail = $user ? $user->email : 'unknown@example.com';
-                
+
                 // Map access level to role
                 $roleMap = [
                     'admin' => 'Admin',
-                    'write' => 'Editor', 
+                    'write' => 'Editor',
                     'read' => 'Viewer'
                 ];
                 $role = $roleMap[$p->access_level] ?? 'Custom';
-                
+
                 // Get document type
                 $documentType = 'All Documents';
                 if ($p->document) {
                     $documentType = $p->document->category ?? 'Other';
                 }
-                
+
                 // Determine permissions array
                 $permissionsArray = [];
                 if ($p->access_level === 'admin') {
@@ -565,13 +566,13 @@ Route::middleware('auth')->group(function () {
                 } else {
                     $permissionsArray = ['view'];
                 }
-                
+
                 // Check if permission is expired
                 $status = 'active';
                 if ($p->expires_at && $p->expires_at->isPast()) {
                     $status = 'expired';
                 }
-                
+
                 return [
                     'id' => $p->id,
                     'name' => $userName,
@@ -586,17 +587,17 @@ Route::middleware('auth')->group(function () {
                     'description' => $p->description,
                 ];
             })->toArray();
-        
+
         // Get all users for dropdowns
         $allUsers = \App\Models\User::orderBy('name')->get(['id', 'name', 'email']);
-        
+
         return view('dashboard.access-control', [
             'user' => auth()->user(),
             'permissions' => $permissions,
             'allUsers' => $allUsers
         ]);
     })->name('document.access.control.permissions');
-    
+
     Route::post('/permissions/store', function (Request $request) {
         $request->validate([
             'permissionType' => 'required|string|max:255',
@@ -624,51 +625,51 @@ Route::middleware('auth')->group(function () {
             'permission' => $permission
         ]);
     })->name('permissions.store');
-    
+
     Route::delete('/permissions/{id}', function ($id) {
         $permission = \App\Models\Permission::find($id);
-        
+
         if (!$permission) {
             return response()->json([
                 'success' => false,
                 'message' => 'Permission not found.'
             ], 404);
         }
-        
+
         $permission->delete();
-        
+
         return response()->json([
             'success' => true,
             'message' => 'Permission deleted successfully!'
         ]);
     })->name('permissions.destroy');
-    
+
     Route::get('/permissions/{id}', function ($id) {
         $permission = \App\Models\Permission::find($id);
-        
+
         if (!$permission) {
             return response()->json([
                 'success' => false,
                 'message' => 'Permission not found.'
             ], 404);
         }
-        
+
         return response()->json([
             'success' => true,
             'permission' => $permission
         ]);
     })->name('permissions.show');
-    
+
     Route::put('/permissions/{id}', function (Request $request, $id) {
         $permission = \App\Models\Permission::find($id);
-        
+
         if (!$permission) {
             return response()->json([
                 'success' => false,
                 'message' => 'Permission not found.'
             ], 404);
         }
-        
+
         $request->validate([
             'permissionType' => 'required|string|max:255',
             'description' => 'nullable|string|max:500',
@@ -693,7 +694,7 @@ Route::middleware('auth')->group(function () {
             'permission' => $permission
         ]);
     })->name('permissions.update');
-    
+
     Route::get('/document-archival-retention', function () {
         // Get documents from database
         $documents = \App\Models\Document::orderByDesc('created_at')->get()->map(function ($d) {
@@ -709,7 +710,7 @@ Route::middleware('auth')->group(function () {
                 'created_at' => $d->created_at?->toDateString() ?? now()->toDateString(),
             ];
         })->toArray();
-        
+
         // Get archived documents (those with Archived status)
         $archivedDocuments = \App\Models\Document::where('status', 'Archived')
             ->orderByDesc('created_at')
@@ -727,7 +728,7 @@ Route::middleware('auth')->group(function () {
                     'created_at' => $d->created_at?->toDateString() ?? now()->toDateString(),
                 ];
             })->toArray();
-        
+
         // Default retention settings
         $settings = [
             'default_retention' => '5',
@@ -735,7 +736,7 @@ Route::middleware('auth')->group(function () {
             'notification_emails' => '',
             'default_lead_time' => '7',
         ];
-        
+
         return view('dashboard.archival-retention', [
             'user' => auth()->user(),
             'documents' => $documents,
@@ -750,7 +751,7 @@ Route::middleware('auth')->group(function () {
             'user' => auth()->user()
         ]);
     })->name('room-equipment');
-    
+
     Route::get('/scheduling-calendar', function () {
         // Get bookings from database
         $calendarBookings = \App\Models\Booking::orderBy('date', 'asc')
@@ -765,7 +766,7 @@ Route::middleware('auth')->group(function () {
                         $date = $b->date;
                     }
                 }
-                
+
                 return [
                     'id' => $b->id,
                     'code' => $b->code ?? '',
@@ -781,17 +782,17 @@ Route::middleware('auth')->group(function () {
                     'updated_at' => $b->updated_at?->toDateString(),
                 ];
             })->toArray();
-        
+
         return view('dashboard.scheduling-calendar', [
             'user' => auth()->user(),
             'calendarBookings' => $calendarBookings
         ]);
     })->name('scheduling.calendar');
-    
+
     Route::get('/booking/combined', function () {
         return redirect()->route('room-equipment')->with('info', 'Please use the booking form to submit bookings.');
     });
-    
+
     Route::post('/booking/combined', function (Request $request) {
         $request->validate([
             'booking_type' => 'required|string|in:room,equipment,both',
@@ -829,13 +830,13 @@ Route::middleware('auth')->group(function () {
             'booking' => $booking
         ]);
     })->name('booking.combined');
-    
+
     Route::get('/approval-workflow', function () {
         return view('dashboard.approval-workflow', [
             'user' => auth()->user()
         ]);
     })->name('approval.workflow');
-    
+
     // Approval Workflow Actions
     Route::post('/approval/approve/{id}', function ($id) {
         // Find and update the approval request
@@ -845,13 +846,13 @@ Route::middleware('auth')->group(function () {
             $approval->approved_by = auth()->user()->name;
             $approval->approved_at = now();
             $approval->save();
-            
+
             return back()->with('success', 'Request approved successfully.');
         }
-        
+
         return back()->with('error', 'Request not found.');
     })->name('approval.approve');
-    
+
     Route::post('/approval/reject/{id}', function ($id) {
         // Find and update the approval request
         $approval = \App\Models\Approval::find($id);
@@ -860,13 +861,13 @@ Route::middleware('auth')->group(function () {
             $approval->rejected_by = auth()->user()->name;
             $approval->rejected_at = now();
             $approval->save();
-            
+
             return back()->with('success', 'Request rejected successfully.');
         }
-        
+
         return back()->with('error', 'Request not found.');
     })->name('approval.reject');
-    
+
     Route::get('/reservation-history', function () {
         return view('dashboard.reservation-history', [
             'user' => auth()->user()
@@ -878,7 +879,7 @@ Route::middleware('auth')->group(function () {
         // Debug: Check total cases first
         $totalCases = \App\Models\CaseFile::count();
         \Log::info('Total cases in database: ' . $totalCases);
-        
+
         // Get cases from database with relationships
         $cases = \App\Models\CaseFile::with(['client', 'assignedUser'])->orderByDesc('created_at')->get()->map(function ($c) {
             return [
@@ -915,12 +916,12 @@ Route::middleware('auth')->group(function () {
                 'updated_at' => $c->updated_at?->toDateString() ?? now()->toDateString(),
             ];
         })->toArray();
-        
+
         \Log::info('Mapped cases count: ' . count($cases));
         if (!empty($cases)) {
             \Log::info('First case data: ' . json_encode($cases[0]));
         }
-        
+
         // Get upcoming hearings with relationships
         $upcoming = \App\Models\CaseFile::with(['client'])
             ->whereNotNull('hearing_date')
@@ -939,11 +940,11 @@ Route::middleware('auth')->group(function () {
                     'priority' => 'medium', // Default since priority field doesn't exist
                 ];
             })->toArray();
-        
+
         // Calculate statistics
         $allCases = \App\Models\CaseFile::all();
         $upcomingHearings = collect($upcoming);
-        
+
         $stats = [
             'total_cases' => $allCases->count(),
             'active_cases' => $allCases->whereIn('status', ['open', 'active'])->count(),
@@ -955,7 +956,7 @@ Route::middleware('auth')->group(function () {
             'upcoming_hearings' => $upcomingHearings->count(),
             'next_hearing' => $upcomingHearings->sortBy('hearing_date')->first(),
         ];
-        
+
         return view('dashboard.case-management', [
             'user' => auth()->user(),
             'cases' => $cases,
@@ -963,12 +964,12 @@ Route::middleware('auth')->group(function () {
             'stats' => $stats
         ]);
     })->name('case.management');
-    
+
     Route::get('/document-case-management', function () {
         // Debug: Check total cases first
         $totalCases = \App\Models\CaseFile::count();
         \Log::info('Total cases in database: ' . $totalCases);
-        
+
         // Get cases from database with relationships
         $cases = \App\Models\CaseFile::with(['client', 'assignedUser'])->orderByDesc('created_at')->get()->map(function ($c) {
             return [
@@ -1005,12 +1006,12 @@ Route::middleware('auth')->group(function () {
                 'updated_at' => $c->updated_at?->toDateString() ?? now()->toDateString(),
             ];
         })->toArray();
-        
+
         \Log::info('Mapped cases count: ' . count($cases));
         if (!empty($cases)) {
             \Log::info('First case data: ' . json_encode($cases[0]));
         }
-        
+
         // Get upcoming hearings with relationships
         $upcoming = \App\Models\CaseFile::with(['client'])
             ->whereNotNull('hearing_date')
@@ -1029,11 +1030,11 @@ Route::middleware('auth')->group(function () {
                     'priority' => 'medium', // Default since priority field doesn't exist
                 ];
             })->toArray();
-        
+
         // Calculate statistics
         $allCases = \App\Models\CaseFile::all();
         $upcomingHearings = collect($upcoming);
-        
+
         $stats = [
             'total_cases' => $allCases->count(),
             'active_cases' => $allCases->whereIn('status', ['open', 'active'])->count(),
@@ -1045,7 +1046,7 @@ Route::middleware('auth')->group(function () {
             'upcoming_hearings' => $upcomingHearings->count(),
             'next_hearing' => $upcomingHearings->sortBy('hearing_date')->first(),
         ];
-        
+
         return view('dashboard.case-management', [
             'user' => auth()->user(),
             'cases' => $cases,
@@ -1053,15 +1054,15 @@ Route::middleware('auth')->group(function () {
             'stats' => $stats
         ]);
     })->name('document.case.management');
-    
+
     Route::get('/contract-management', function () {
         // Get contracts from database
         $contracts = \App\Models\Contract::with('client')->orderByDesc('created_at')->get();
-        
+
         // Calculate statistics
         $allContracts = \App\Models\Contract::all();
         $now = now();
-        
+
         $stats = [
             'total' => $allContracts->count(),
             'active' => $allContracts->whereIn('status', ['active', 'signed'])->count(),
@@ -1070,14 +1071,14 @@ Route::middleware('auth')->group(function () {
                 ->where('end_date', '<=', $now->copy()->addDays(30))
                 ->count(),
         ];
-        
+
         return view('dashboard.contract-management', [
             'user' => auth()->user(),
             'contracts' => $contracts,
             'stats' => $stats
         ]);
     })->name('contract.management');
-    
+
     Route::post('/contracts/create', function (Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -1092,7 +1093,7 @@ Route::middleware('auth')->group(function () {
 
         // Generate contract code
         $contractCode = 'CT-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        
+
         // Create contract record
         $contract = \App\Models\Contract::create([
             'code' => $contractCode,
@@ -1113,7 +1114,7 @@ Route::middleware('auth')->group(function () {
             'contract' => $contract
         ]);
     })->name('contracts.create');
-    
+
     Route::post('/contracts/update', function (Request $request) {
         $request->validate([
             'code' => 'required|string|exists:contracts,code',
@@ -1147,7 +1148,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Contract not found.'
         ], 404);
     })->name('contracts.update');
-    
+
     Route::post('/contracts/delete', function (Request $request) {
         $request->validate([
             'code' => 'required|string|exists:contracts,code'
@@ -1167,7 +1168,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Contract not found.'
         ], 404);
     })->name('contracts.delete');
-    
+
     // Case Management Routes
     Route::post('/case/create', function (Request $request) {
         $request->validate([
@@ -1186,7 +1187,7 @@ Route::middleware('auth')->group(function () {
 
         // Generate case number
         $caseNumber = 'C-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        
+
         // Create case record
         $case = \App\Models\CaseFile::create([
             'number' => $caseNumber,
@@ -1208,7 +1209,7 @@ Route::middleware('auth')->group(function () {
             'case' => $case
         ]);
     })->name('case.create');
-    
+
     Route::post('/case/update', function (Request $request) {
         $request->validate([
             'id' => 'required|exists:case_files,id',
@@ -1253,7 +1254,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Case not found.'
         ], 404);
     })->name('case.update');
-    
+
     Route::post('/case/delete', function (Request $request) {
         $request->validate([
             'number' => 'required|exists:case_files,code'
@@ -1273,7 +1274,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Case not found.'
         ], 404);
     })->name('case.delete');
-    
+
     Route::get('/checkinout-tracking', function () {
         // Get visitors from database for check-in/out tracking
         $allVisitors = \App\Models\Visitor::orderByDesc('check_in_date')->get()->map(function ($v) {
@@ -1297,7 +1298,7 @@ Route::middleware('auth')->group(function () {
                 'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
-        
+
         // Get currently checked-in visitors
         $currentCheckIns = \App\Models\Visitor::where('status', 'checked_in')->orderByDesc('check_in_date')->get()->map(function ($v) {
             return [
@@ -1320,7 +1321,7 @@ Route::middleware('auth')->group(function () {
                 'created_at' => $v->created_at ? (is_string($v->created_at) ? $v->created_at : $v->created_at->toDateString()) : now()->toDateString(),
             ];
         })->toArray();
-        
+
         // Calculate check-in/out statistics
         $allVisitorsCount = \App\Models\Visitor::all();
         $now = now();
@@ -1329,14 +1330,14 @@ Route::middleware('auth')->group(function () {
         $checkedOutVisitors = \App\Models\Visitor::where('status', 'checked_out')->count();
         $pendingVisitors = \App\Models\Visitor::where('status', 'pending')->count();
         $overdueVisitors = \App\Models\Visitor::where('status', 'expired')->count();
-        
+
         // Calculate duration for checked-in visitors
         $avgDuration = 0;
         $checkedInWithTime = $allVisitorsCount->where('status', 'checked_out')
             ->filter(function ($v) {
                 return $v->check_in_time && $v->check_out_time;
             });
-        
+
         if ($checkedInWithTime->count() > 0) {
             $totalMinutes = $checkedInWithTime->sum(function ($v) {
                 $checkIn = strtotime($v->check_in_date . ' ' . $v->check_in_time);
@@ -1345,7 +1346,7 @@ Route::middleware('auth')->group(function () {
             });
             $avgDuration = round($totalMinutes / $checkedInWithTime->count());
         }
-        
+
         $stats = [
             'currently_checked_in' => $checkedInVisitors,
             'todays_checkins' => $todayVisitors,
@@ -1357,7 +1358,7 @@ Route::middleware('auth')->group(function () {
             'avg_duration_minutes' => $avgDuration,
             'peak_hour' => '10:00', // Could be calculated from actual data
         ];
-        
+
         return view('dashboard.check-in-out-tracking', [
             'user' => auth()->user(),
             'allVisitors' => $allVisitors,
@@ -1365,22 +1366,22 @@ Route::middleware('auth')->group(function () {
             'stats' => $stats
         ]);
     })->name('checkinout.tracking');
-    
+
     Route::get('/compliance-tracking', function () {
         $complianceItems = \App\Models\ComplianceTracking::latest('due_date')->get();
-        
+
         $stats = [
             'active' => $complianceItems->where('status', 'active')->count(),
             'pending' => $complianceItems->where('status', 'pending')->count(),
         ];
-        
+
         return view('dashboard.compliance-tracking', [
             'user' => auth()->user(),
             'complianceItems' => $complianceItems,
             'stats' => $stats
         ]);
     })->name('compliance.tracking');
-    
+
     Route::post('/compliance/create', function (Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -1395,7 +1396,7 @@ Route::middleware('auth')->group(function () {
 
         // Generate compliance task code
         $taskCode = 'CP-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        
+
         // Create compliance task record
         $compliance = \App\Models\Compliance::create([
             'code' => $taskCode,
@@ -1416,7 +1417,7 @@ Route::middleware('auth')->group(function () {
             'compliance' => $compliance
         ]);
     })->name('compliance.create');
-    
+
     Route::post('/compliance/update', function (Request $request) {
         $request->validate([
             'id' => 'required|exists:compliances,id',
@@ -1457,7 +1458,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Compliance task not found.'
         ], 404);
     })->name('compliance.update');
-    
+
     Route::post('/compliance/delete', function (Request $request) {
         $request->validate([
             'id' => 'required|exists:compliances,id'
@@ -1477,22 +1478,22 @@ Route::middleware('auth')->group(function () {
             'message' => 'Compliance task not found.'
         ], 404);
     })->name('compliance.delete');
-    
+
     Route::get('/document-compliance-tracking', function () {
         $complianceItems = \App\Models\ComplianceTracking::latest('due_date')->get();
-        
+
         $stats = [
             'active' => $complianceItems->where('status', 'active')->count(),
             'pending' => $complianceItems->where('status', 'pending')->count(),
         ];
-        
+
         return view('dashboard.compliance-tracking', [
             'user' => auth()->user(),
             'complianceItems' => $complianceItems,
             'stats' => $stats
         ]);
     })->name('document.compliance.tracking');
-    
+
     Route::get('/deadline-hearing-alerts', function () {
         // Get hearings from database
         $hearings = \App\Models\Hearing::orderBy('hearing_date', 'asc')->get()->map(function ($h) {
@@ -1503,6 +1504,7 @@ Route::middleware('auth')->group(function () {
                 'number' => $h->case_number ?? '', // Added for view compatibility
                 'case_number' => $h->case_number ?? '',
                 'date' => $h->hearing_date ? $h->hearing_date->toDateString() : '', // Added for view compatibility
+                'due_date' => $h->hearing_date ? $h->hearing_date->toDateString() : '', // Mapped for alerts view
                 'time' => $h->hearing_time ?? '', // Added for view compatibility
                 'hearing_date' => $h->hearing_date ? $h->hearing_date->toDateString() : '',
                 'hearing_time' => $h->hearing_time ?? '',
@@ -1518,27 +1520,27 @@ Route::middleware('auth')->group(function () {
                 'created_at' => $h->created_at?->toDateString() ?? now()->toDateString(),
             ];
         })->toArray();
-        
+
         // Calculate statistics
         $now = now();
         $upcomingCount = \App\Models\Hearing::where('hearing_date', '>=', $now->toDateString())->count();
         $todayCount = \App\Models\Hearing::where('hearing_date', '=', $now->toDateString())->count();
         $overdueCount = \App\Models\Hearing::where('hearing_date', '<', $now->toDateString())->count();
-        
+
         $counts = [
             'upcoming' => $upcomingCount,
             'today' => $todayCount,
             'overdue' => $overdueCount,
             'total' => count($hearings),
         ];
-        
+
         return view('dashboard.deadline-hearing-alerts', [
             'user' => auth()->user(),
-            'hearings' => $hearings,
+            'alerts' => $hearings,
             'counts' => $counts
         ]);
     })->name('deadline.hearing.alerts');
-    
+
     Route::post('/hearings/create', function (Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
@@ -1580,7 +1582,7 @@ Route::middleware('auth')->group(function () {
             'hearing' => $hearing
         ]);
     })->name('hearings.create');
-    
+
     Route::post('/visitor/update', function (Request $request) {
         $request->validate([
             'id' => 'required|exists:visitors,id',
@@ -1625,7 +1627,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Visitor not found.'
         ], 404);
     })->name('visitor.update');
-    
+
     Route::get('/visitor/get', function (Request $request) {
         $request->validate([
             'id' => 'required|exists:visitors,id'
@@ -1644,7 +1646,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Visitor not found.'
         ], 404);
     })->name('visitor.get');
-    
+
     Route::post('/visitor/delete', function (Request $request) {
         $request->validate([
             'id' => 'required|exists:visitors,id'
@@ -1664,7 +1666,7 @@ Route::middleware('auth')->group(function () {
             'message' => 'Visitor not found.'
         ], 404);
     })->name('visitor.delete');
-    
+
     Route::post('/visitor/create', function (Request $request) {
         $request->validate([
             'name' => 'required|string|max:255',
@@ -1681,7 +1683,7 @@ Route::middleware('auth')->group(function () {
 
         // Generate visitor code
         $visitorCode = 'V-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-        
+
         // Create visitor record
         $visitor = \App\Models\Visitor::create([
             'code' => $visitorCode,
@@ -1705,7 +1707,7 @@ Route::middleware('auth')->group(function () {
             'visitor' => $visitor
         ]);
     })->name('visitor.create');
-    
+
     Route::post('/account/password/change-request', function (Request $request) {
         $request->validate([
             'current_password' => 'required|string',
@@ -1713,7 +1715,7 @@ Route::middleware('auth')->group(function () {
         ]);
 
         $user = auth()->user();
-        
+
         if (!Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'The current password is incorrect.']);
         }
@@ -1721,7 +1723,7 @@ Route::middleware('auth')->group(function () {
         // Generate and send verification code
         $code = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         Cache::put('password_change_' . $user->id, $code, now()->addMinutes(10));
-        
+
         // Send code to user's email
         Mail::to($user->email)->send(new TwoFactorCodeMail($code));
 
