@@ -1153,7 +1153,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/reservation-history', function () {
         // Get existing bookings from session or use defaults
-        $bookings = session('calendar_bookings', [
+        $localBookings = session('calendar_bookings', [
             [
                 'id' => 'RES-001',
                 'name' => 'Conference Room A',
@@ -1211,6 +1211,32 @@ Route::middleware('auth')->group(function () {
             ]
         ]);
 
+        // Fetch training room bookings from external API
+        $externalBookings = [];
+        try {
+            $response = \Illuminate\Support\Facades\Http::get('https://hr2.microfinancial-1.com/api/training-room-bookings');
+            if ($response->successful()) {
+                $externalBookings = collect($response->json())->map(function ($booking) {
+                    return [
+                        'id' => $booking['id'] ?? ('EXT-' . uniqid()),
+                        'name' => $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                        'type' => $booking['type'] ?? 'room',
+                        'date' => $booking['date'] ?? $booking['booking_date'] ?? now()->toDateString(),
+                        'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? '09:00',
+                        'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? '17:00',
+                        'status' => $booking['status'] ?? 'pending',
+                        'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
+                        'purpose' => $booking['purpose'] ?? $booking['description'] ?? 'External training session',
+                        'requested_by' => $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                        'is_external' => true, // Mark as external booking
+                    ];
+                })->toArray();
+            }
+        } catch (\Exception $e) {
+            // Log error but continue with local bookings
+            \Log::error('Failed to fetch external bookings: ' . $e->getMessage());
+        }
+
         // Get approval requests from database
         $approvals = \App\Models\Approval::orderByDesc('created_at')->get()->map(function ($approval) {
             return [
@@ -1230,8 +1256,8 @@ Route::middleware('auth')->group(function () {
             ];
         })->toArray();
 
-        // Combine bookings and approvals
-        $allReservations = array_merge($bookings, $approvals);
+        // Combine all data: local bookings + external bookings + approvals
+        $allReservations = array_merge($localBookings, $externalBookings, $approvals);
 
         // Create approval map for decision notes lookup
         $approvalMap = collect($approvals)->keyBy('id');

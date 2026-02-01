@@ -660,14 +660,16 @@
                                             #{{ $reservation['id'] ?? 'N/A' }}
                                             @if($reservation['is_approval'] ?? false)
                                                 <span class="ml-2 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Approval</span>
+                                            @elseif($reservation['is_external'] ?? false)
+                                                <span class="ml-2 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">External</span>
                                             @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <div
-                                                    class="flex-shrink-0 h-10 w-10 rounded-full {{ ($reservation['is_approval'] ?? false) ? 'bg-purple-100' : 'bg-blue-100' }} flex items-center justify-center">
+                                                    class="flex-shrink-0 h-10 w-10 rounded-full {{ ($reservation['is_approval'] ?? false) ? 'bg-purple-100' : (($reservation['is_external'] ?? false) ? 'bg-orange-100' : 'bg-blue-100') }} flex items-center justify-center">
                                                     <i
-                                                        class="{{ ($reservation['is_approval'] ?? false) ? 'bx bx-clipboard-check' : (($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house' : 'bx bx-video-recording') }} {{ ($reservation['is_approval'] ?? false) ? 'text-purple-600' : 'text-blue-600' }}"></i>
+                                                        class="{{ ($reservation['is_approval'] ?? false) ? 'bx bx-clipboard-check' : (($reservation['is_external'] ?? false) ? 'bx bx-cloud-download' : (($reservation['type'] ?? 'room') === 'room' ? 'bx bx-building-house' : 'bx bx-video-recording')) }} {{ ($reservation['is_approval'] ?? false) ? 'text-purple-600' : (($reservation['is_external'] ?? false) ? 'text-orange-600' : 'text-blue-600') }}"></i>
                                                 </div>
                                                 <div class="ml-4">
                                                     @php
