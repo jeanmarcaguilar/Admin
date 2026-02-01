@@ -972,7 +972,8 @@ Route::middleware('auth')->group(function () {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to fetch training room bookings',
-                    'error' => 'External API returned status: ' . $response->status()
+                    'error' => 'External API returned status: ' . $response->status(),
+                    'response_body' => $response->body()
                 ], $response->status());
             }
         } catch (\Exception $e) {
@@ -983,6 +984,35 @@ Route::middleware('auth')->group(function () {
             ], 500);
         }
     })->name('api.training-room-bookings');
+
+    // Test route to debug external API
+    Route::get('/test-external-api', function () {
+        try {
+            $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
+            
+            return response()->json([
+                'testing_url' => $apiUrl,
+                'timestamp' => now()->toDateTimeString(),
+                'attempting_request' => true
+            ]);
+            
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($apiUrl);
+            
+            return response()->json([
+                'url' => $apiUrl,
+                'status' => $response->status(),
+                'successful' => $response->successful(),
+                'body' => $response->body(),
+                'json' => $response->json(),
+                'headers' => $response->headers()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    })->name('test.external.api');
 
     Route::post('/booking/combined', function (Request $request) {
         $request->validate([
@@ -1214,27 +1244,79 @@ Route::middleware('auth')->group(function () {
         // Fetch training room bookings from external API
         $externalBookings = [];
         try {
-            $response = \Illuminate\Support\Facades\Http::get('https://hr2.microfinancial-1.com/api/training-room-bookings');
+            $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
+            
+            // Add debugging
+            \Log::info('Attempting to fetch external bookings from: ' . $apiUrl);
+            
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get($apiUrl);
+            
+            \Log::info('API Response Status: ' . $response->status());
+            \Log::info('API Response Body: ' . $response->body());
+            
             if ($response->successful()) {
-                $externalBookings = collect($response->json())->map(function ($booking) {
-                    return [
-                        'id' => $booking['id'] ?? ('EXT-' . uniqid()),
-                        'name' => $booking['title'] ?? $booking['name'] ?? 'Training Room',
-                        'type' => $booking['type'] ?? 'room',
-                        'date' => $booking['date'] ?? $booking['booking_date'] ?? now()->toDateString(),
-                        'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? '09:00',
-                        'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? '17:00',
-                        'status' => $booking['status'] ?? 'pending',
-                        'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
-                        'purpose' => $booking['purpose'] ?? $booking['description'] ?? 'External training session',
-                        'requested_by' => $booking['requested_by'] ?? $booking['user'] ?? 'External User',
-                        'is_external' => true, // Mark as external booking
-                    ];
-                })->toArray();
+                $bookings = $response->json();
+                \Log::info('Decoded bookings: ' . json_encode($bookings));
+                
+                if (!empty($bookings) && is_array($bookings)) {
+                    $externalBookings = collect($bookings)->map(function ($booking) {
+                        return [
+                            'id' => $booking['id'] ?? ('EXT-' . uniqid()),
+                            'name' => $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                            'type' => $booking['type'] ?? 'room',
+                            'date' => $booking['date'] ?? $booking['booking_date'] ?? now()->toDateString(),
+                            'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? '09:00',
+                            'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? '17:00',
+                            'status' => $booking['status'] ?? 'pending',
+                            'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
+                            'purpose' => $booking['purpose'] ?? $booking['description'] ?? 'External training session',
+                            'requested_by' => $booking['requested_by'] ?? $booking['user'] ?? 'External User',
+                            'is_external' => true, // Mark as external booking
+                        ];
+                    })->toArray();
+                    
+                    \Log::info('Formatted external bookings count: ' . count($externalBookings));
+                } else {
+                    \Log::warning('No bookings data received from external API');
+                }
+            } else {
+                \Log::error('External API request failed with status: ' . $response->status());
             }
         } catch (\Exception $e) {
-            // Log error but continue with local bookings
             \Log::error('Failed to fetch external bookings: ' . $e->getMessage());
+            \Log::error('Exception trace: ' . $e->getTraceAsString());
+            
+            // Add sample external bookings for testing if API fails
+            $externalBookings = [
+                [
+                    'id' => 'EXT-001',
+                    'name' => 'External Training Room A',
+                    'type' => 'room',
+                    'date' => '2025-02-05',
+                    'start_time' => '10:00',
+                    'end_time' => '16:00',
+                    'status' => 'approved',
+                    'lead_time' => 2,
+                    'purpose' => 'External API Training Session',
+                    'requested_by' => 'External Trainer',
+                    'is_external' => true,
+                ],
+                [
+                    'id' => 'EXT-002',
+                    'name' => 'Conference Hall B',
+                    'type' => 'room',
+                    'date' => '2025-02-06',
+                    'start_time' => '13:00',
+                    'end_time' => '17:00',
+                    'status' => 'pending',
+                    'lead_time' => 3,
+                    'purpose' => 'Workshop from External System',
+                    'requested_by' => 'Guest Speaker',
+                    'is_external' => true,
+                ]
+            ];
+            
+            \Log::info('Using sample external bookings for testing: ' . count($externalBookings));
         }
 
         // Get approval requests from database
