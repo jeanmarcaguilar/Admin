@@ -738,7 +738,13 @@
                                             <div class="text-sm text-gray-900">{{ $request['location'] ?? 'N/A' }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900">{{ $request['facilitator'] ?? $request['requested_by'] ?? 'N/A' }}</div>
+                                            <div class="text-sm text-gray-900">
+                                                @if($request['is_external'] ?? false)
+                                                    {{ $request['facilitator'] ?? 'External Facilitator' }}
+                                                @else
+                                                    {{ $request['requested_by'] ?? 'N/A' }}
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="text-sm text-gray-900">
