@@ -68,12 +68,19 @@
         .category-card {
             transition: all 0.2s ease-in-out;
             border: 1px solid #e5e7eb;
+            cursor: pointer;
+            user-select: none;
         }
 
         .category-card:hover {
             border-color: #059669;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-card:active {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .category-card.active {
@@ -413,7 +420,7 @@
                 <!-- Clock pill -->
                 <span id="real-time-clock" data-server-timestamp="{{ now()->timestamp * 1000 }}"
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                    {{ now()->format('H:i:s') }}
+                    {{ now()->format('g:i:s A') }}
                 </span>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
@@ -995,16 +1002,26 @@
 
     <!-- Document Details Modal -->
     <div id="documentModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="document-modal-title">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 id="document-modal-title" class="text-lg font-semibold text-gray-900">Document Details</h3>
-                <button id="closeDocumentModalBtn" type="button"
-                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
-                    aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-alt text-white text-lg"></i>
+                        </div>
+                        <h3 id="document-modal-title" class="text-xl font-bold text-white">Document Details</h3>
+                    </div>
+                    <button id="closeDocumentModalBtn" type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
             </div>
-            <div class="p-6" id="documentDetailsContent">
+            
+            <!-- Modal Content -->
+            <div class="p-6 bg-gradient-to-br from-gray-50 to-white" id="documentDetailsContent">
                 <!-- Content will be loaded by JavaScript -->
             </div>
         </div>
@@ -1013,35 +1030,61 @@
     <!-- Download Document Modal -->
     <div id="downloadDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
         aria-labelledby="download-document-title">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 id="download-document-title" class="text-lg font-semibold text-gray-900">Download Document</h3>
-                <button id="closeDownloadModalBtn" type="button"
-                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
-                    aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-download text-white text-lg"></i>
+                        </div>
+                        <h3 id="download-document-title" class="text-xl font-bold text-white">Download Document</h3>
+                    </div>
+                    <button id="closeDownloadModalBtn" type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
             </div>
-            <div class="p-6">
-                <div class="mb-4">
-                    <div class="text-sm text-gray-500">File</div>
-                    <div id="downloadDocName" class="text-sm font-medium text-gray-900">—</div>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <div class="text-xs text-gray-500">Type</div>
-                        <div id="downloadDocType" class="text-sm text-gray-900">—</div>
+            
+            <!-- Modal Content -->
+            <div class="p-6 bg-gradient-to-br from-blue-50 to-white">
+                <!-- File Preview Card -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-blue-100 mb-6">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 font-medium">File Name</div>
+                            <div id="downloadDocName" class="text-sm font-semibold text-gray-900 truncate">—</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="text-xs text-gray-500">Size</div>
-                        <div id="downloadDocSize" class="text-sm text-gray-900">—</div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <div class="text-xs text-gray-500 font-medium mb-1">Type</div>
+                            <div id="downloadDocType" class="text-sm font-semibold text-gray-900">—</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3">
+                            <div class="text-xs text-gray-500 font-medium mb-1">Size</div>
+                            <div id="downloadDocSize" class="text-sm font-semibold text-gray-900">—</div>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Action Buttons -->
                 <div class="flex justify-end space-x-3">
                     <button type="button" id="cancelDownloadBtn"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
+                        class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        Cancel
+                    </button>
                     <button type="button" id="confirmDownloadBtn" onclick="performDownload()"
-                        class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover">Download</button>
+                        class="px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-600 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-download mr-2"></i>
+                        Download
+                    </button>
                 </div>
             </div>
         </div>
@@ -1050,40 +1093,83 @@
     <!-- Share Document Modal -->
     <div id="shareDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
         aria-labelledby="share-document-title">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 id="share-document-title" class="text-lg font-semibold text-gray-900">Share Document</h3>
-                <button id="closeShareModalBtn" type="button"
-                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
-                    aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-purple-500 to-pink-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-share-alt text-white text-lg"></i>
+                        </div>
+                        <h3 id="share-document-title" class="text-xl font-bold text-white">Share Document</h3>
+                    </div>
+                    <button id="closeShareModalBtn" type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
             </div>
-            <div class="p-6">
-                <div class="mb-4">
-                    <div class="text-sm text-gray-500">File</div>
-                    <div id="shareDocName" class="text-sm font-medium text-gray-900">—</div>
-                </div>
-                <div class="mb-4">
-                    <label for="shareEmail" class="block text-xs text-gray-500 mb-1">Share with (email)</label>
-                    <input id="shareEmail" type="email" placeholder="name@example.com"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary" />
-                </div>
-                <div class="mb-6">
-                    <label class="block text-xs text-gray-500 mb-1">Share link</label>
-                    <div class="flex">
-                        <input id="shareLink" type="text" readonly
-                            class="flex-1 border border-gray-300 rounded-l-lg px-3 py-2 text-sm bg-gray-50" />
-                        <button type="button" onclick="copyShareLink()"
-                            class="px-3 py-2 border border-gray-300 rounded-r-lg text-sm bg-white hover:bg-gray-50">Copy</button>
+            
+            <!-- Modal Content -->
+            <div class="p-6 bg-gradient-to-br from-purple-50 to-white">
+                <!-- File Info Card -->
+                <div class="bg-white rounded-xl p-4 shadow-sm border border-purple-100 mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-xs text-gray-500 font-medium">File Name</div>
+                            <div id="shareDocName" class="text-sm font-semibold text-gray-900 truncate">—</div>
+                        </div>
                     </div>
                 </div>
+                
+                <!-- Email Input -->
+                <div class="mb-6">
+                    <label for="shareEmail" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <i class="fas fa-envelope text-purple-500 mr-2"></i>
+                        Share with (email)
+                    </label>
+                    <div class="relative">
+                        <input id="shareEmail" type="email" placeholder="name@example.com"
+                            class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 pl-10" />
+                        <i class="fas fa-envelope absolute left-3 top-3.5 text-purple-400"></i>
+                    </div>
+                </div>
+                
+                <!-- Share Link -->
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <i class="fas fa-link text-purple-500 mr-2"></i>
+                        Share link
+                    </label>
+                    <div class="flex">
+                        <div class="relative flex-1">
+                            <input id="shareLink" type="text" readonly
+                                class="flex-1 border-2 border-purple-200 rounded-l-xl px-4 py-3 text-sm bg-gray-50 font-mono text-xs focus:outline-none" />
+                            <i class="fas fa-link absolute left-3 top-3.5 text-purple-400"></i>
+                        </div>
+                        <button type="button" onclick="copyShareLink()"
+                            class="px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-r-xl text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-200 flex items-center">
+                            <i class="fas fa-copy mr-2"></i>
+                            Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
                 <div class="flex justify-end space-x-3">
                     <button type="button" id="cancelShareBtn"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
+                        class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        Cancel
+                    </button>
                     <button type="button" onclick="sendShareInvite()"
-                        class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover">Send
-                        Invite</button>
+                        class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl text-sm font-medium hover:from-purple-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Send Invite
+                    </button>
                 </div>
             </div>
         </div>
@@ -1092,21 +1178,48 @@
     <!-- Delete Document Modal -->
     <div id="deleteDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
         aria-labelledby="delete-document-title">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 fade-in" role="document">
-            <div class="p-6 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                    <i class="fas fa-exclamation text-red-600 text-xl"></i>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-trash text-white text-lg"></i>
+                        </div>
+                        <h3 id="delete-document-title" class="text-xl font-bold text-white">Delete Document</h3>
+                    </div>
+                    <button type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        onclick="closeDeleteDocumentModal()" aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
                 </div>
-                <h3 id="delete-document-title" class="text-lg font-medium text-gray-900 mb-2">Delete Document</h3>
-                <p class="text-sm text-gray-500 mb-6">Are you sure you want to delete this document? This action cannot
-                    be undone.</p>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6 bg-gradient-to-br from-red-50 to-white text-center">
+                <!-- Warning Icon -->
+                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"></i>
+                </div>
+                
+                <!-- Warning Message -->
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    This action <span class="font-semibold text-red-600">cannot be undone</span>. 
+                    This will permanently delete the document and remove it from your records.
+                </p>
+                
+                <!-- Action Buttons -->
                 <div class="flex justify-center space-x-4">
                     <button type="button" id="cancelDeleteBtn"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        <i class="fas fa-shield-alt mr-2"></i>
                         No, Keep It
                     </button>
                     <button type="button" id="confirmDeleteBtn"
-                        class="px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                        class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-trash mr-2"></i>
                         Yes, Delete Document
                     </button>
                 </div>
@@ -1116,34 +1229,75 @@
 
     <!-- OTP Modal -->
     <div id="otpModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="otp-modal-title">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 id="otp-modal-title" class="text-lg font-semibold text-gray-900">Security Verification</h3>
-                <button id="closeOtpModalBtn" type="button"
-                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
-                    aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="p-6">
-                <p class="text-sm text-gray-600 mb-4">Enter the 6-digit code to view confidential document details.</p>
-                <div class="mb-4">
-                    <label for="otpInput" class="block text-sm font-medium text-gray-700 mb-2">One-Time Password
-                        (OTP)</label>
-                    <input id="otpInput" type="text" inputmode="numeric" maxlength="6"
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-center tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                        placeholder="••••••">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-white text-lg"></i>
+                        </div>
+                        <h3 id="otp-modal-title" class="text-xl font-bold text-white">Security Verification</h3>
+                    </div>
+                    <button id="closeOtpModalBtn" type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
                 </div>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6 bg-gradient-to-br from-amber-50 to-white">
+                <!-- Security Icon -->
+                <div class="mx-auto w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-lock text-amber-600 text-2xl"></i>
+                </div>
+                
+                <!-- Instructions -->
+                <p class="text-gray-600 mb-6 text-center leading-relaxed">
+                    Enter the 6-digit code to view confidential document details. This extra step ensures your document security.
+                </p>
+                
+                <!-- OTP Input -->
+                <div class="mb-8">
+                    <label for="otpInput" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center justify-center">
+                        <i class="fas fa-key text-amber-500 mr-2"></i>
+                        One-Time Password (OTP)
+                    </label>
+                    <div class="relative">
+                        <input id="otpInput" type="text" inputmode="numeric" maxlength="6"
+                            class="w-full border-2 border-amber-200 rounded-xl px-4 py-4 text-2xl text-center tracking-[0.5em] font-mono font-bold focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 bg-white shadow-sm"
+                            placeholder="••••••">
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div class="flex space-x-2">
+                                <div class="w-1 h-8 bg-amber-200 rounded-full"></div>
+                                <div class="w-1 h-8 bg-amber-200 rounded-full"></div>
+                                <div class="w-1 h-8 bg-amber-200 rounded-full"></div>
+                                <div class="w-1 h-8 bg-amber-200 rounded-full"></div>
+                                <div class="w-1 h-8 bg-amber-200 rounded-full"></div>
+                                <div class="w-1 h-8 bg-amber-200 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
                 <div class="flex justify-end space-x-3">
                     <button id="cancelOtpBtn" type="button"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        class="px-5 py-2.5 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        <i class="fas fa-times mr-2"></i>
                         Cancel
                     </button>
                     <button id="verifyOtpBtn" type="button"
-                        class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover">
+                        class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
                         Verify OTP
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
             </div>
         </div>
     </div>
@@ -1289,11 +1443,17 @@
                                     }, 300);
 
                                     uploadForm.reset();
+                                    selectedFilesDiv.innerHTML = '';
 
-                                    // Reload page to show new documents
-                                    setTimeout(() => {
-                                        window.location.reload();
-                                    }, 1000);
+                                    // Add uploaded documents to table dynamically
+                                    if (data.files && data.files.length > 0) {
+                                        addDocumentsToTable(data.files);
+                                    } else {
+                                        // Fallback to reload if no files data returned
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 1000);
+                                    }
                                 });
                             } else {
                                 Swal.fire({
@@ -1428,6 +1588,88 @@
                 };
             }
         });
+
+        // Category filtering
+        const categoryCards = document.querySelectorAll('.category-card');
+        categoryCards.forEach(card => {
+            card.addEventListener('click', function () {
+                const selectedCategory = this.dataset.category;
+
+                // Update active state
+                categoryCards.forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+
+                // Filter documents
+                filterDocumentsByCategory(selectedCategory);
+            });
+        });
+
+        function filterDocumentsByCategory(category) {
+            const rows = document.querySelectorAll('#documentsTable tbody tr');
+            let visibleCount = 0;
+
+            // Show loading state
+            const tableContainer = document.querySelector('#documentsTable');
+            if (tableContainer) {
+                tableContainer.style.opacity = '0.7';
+            }
+
+            // Small delay for visual feedback
+            setTimeout(() => {
+                rows.forEach(row => {
+                    if (row.querySelector('td[colspan]')) {
+                        // Skip "No documents" row
+                        return;
+                    }
+
+                    const docCategory = row.dataset.category || '';
+
+                    if (category === 'all') {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        // Check for exact match or partial match for flexibility
+                        if (docCategory === category || docCategory.includes(category)) {
+                            row.style.display = '';
+                            visibleCount++;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+
+                // Update count
+                const visibleCountElement = document.getElementById('visibleCount');
+                if (visibleCountElement) {
+                    visibleCountElement.textContent = visibleCount;
+                }
+
+                // Reset opacity
+                if (tableContainer) {
+                    tableContainer.style.opacity = '1';
+                }
+
+                // Show no results message if needed
+                const tbody = document.querySelector('#documentsTable tbody');
+                const noResultsRow = tbody.querySelector('.no-results-row');
+
+                if (visibleCount === 0 && !noResultsRow) {
+                    const noResultsRow = document.createElement('tr');
+                    noResultsRow.className = 'no-results-row';
+                    noResultsRow.innerHTML = `
+                        <td colspan="5" class="px-6 py-8 text-center">
+                            <div class="text-gray-500">
+                                <i class="bx bx-folder-open text-4xl mb-2"></i>
+                                <p class="text-sm">No documents found in this category</p>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(noResultsRow);
+                } else if (visibleCount > 0 && noResultsRow) {
+                    noResultsRow.remove();
+                }
+            }, 150);
+        }
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -1558,11 +1800,18 @@
                 // Get current time with server offset applied
                 const now = new Date(Date.now() + serverTimeOffset);
 
-                // Format time in 24-hour format (HH:MM:SS)
-                const hours = String(now.getHours()).padStart(2, '0');
+                // Format time in 12-hour format with AM/PM
+                let hours = now.getHours();
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
-                const timeString = `${hours}:${minutes}:${seconds}`;
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                
+                // Convert to 12-hour format
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                const displayHours = String(hours).padStart(2, '0');
+                
+                const timeString = `${displayHours}:${minutes}:${seconds} ${ampm}`;
 
                 clockElement.textContent = timeString;
             }
@@ -1682,7 +1931,10 @@
             // Close buttons
             document.getElementById('closeUploadDocumentsBtn').addEventListener('click', () => closeModal(uploadModal));
             document.getElementById('cancelUploadBtn').addEventListener('click', () => closeModal(uploadModal));
-            document.getElementById('closeDocumentModalBtn').addEventListener('click', () => closeModal(documentModal));
+            document.getElementById('closeDocumentModalBtn').addEventListener('click', () => {
+                const documentModal = document.getElementById('documentModal');
+                closeModal(documentModal);
+            });
             document.getElementById('closeDownloadModalBtn').addEventListener('click', () => closeModal(downloadModal));
             document.getElementById('cancelDownloadBtn').addEventListener('click', () => closeModal(downloadModal));
             document.getElementById('closeShareModalBtn').addEventListener('click', () => closeModal(shareModal));
@@ -1869,89 +2121,6 @@
                     submitBtn.innerHTML = originalText;
                 }
             });
-        });
-
-        // Category filtering
-        const categoryCards = document.querySelectorAll('.category-card');
-        categoryCards.forEach(card => {
-            card.addEventListener('click', function () {
-                const selectedCategory = this.dataset.category;
-
-                // Update active state
-                categoryCards.forEach(c => c.classList.remove('active'));
-                this.classList.add('active');
-
-                // Filter documents
-                filterDocumentsByCategory(selectedCategory);
-            });
-        });
-
-        function filterDocumentsByCategory(category) {
-            const rows = document.querySelectorAll('#documentsTable tbody tr');
-            let visibleCount = 0;
-
-            // Show loading state
-            const tableContainer = document.querySelector('#documentsTable');
-            if (tableContainer) {
-                tableContainer.style.opacity = '0.7';
-            }
-
-            // Small delay for visual feedback
-            setTimeout(() => {
-                rows.forEach(row => {
-                    if (row.querySelector('td[colspan]')) {
-                        // Skip "No documents" row
-                        return;
-                    }
-
-                    const docCategory = row.dataset.category || '';
-
-                    if (category === 'all') {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        // Check for exact match or partial match for flexibility
-                        if (docCategory === category || docCategory.includes(category)) {
-                            row.style.display = '';
-                            visibleCount++;
-                        } else {
-                            row.style.display = 'none';
-                        }
-                    }
-                });
-
-                // Update count
-                const visibleCountElement = document.getElementById('visibleCount');
-                if (visibleCountElement) {
-                    visibleCountElement.textContent = visibleCount;
-                }
-
-                // Reset opacity
-                if (tableContainer) {
-                    tableContainer.style.opacity = '1';
-                }
-
-                // Show no results message if needed
-                const tbody = document.querySelector('#documentsTable tbody');
-                const noResultsRow = tbody.querySelector('.no-results-row');
-
-                if (visibleCount === 0 && !noResultsRow) {
-                    const noResultsRow = document.createElement('tr');
-                    noResultsRow.className = 'no-results-row';
-                    noResultsRow.innerHTML = `
-                            <td colspan="5" class="px-6 py-8 text-center">
-                                <div class="text-gray-500">
-                                    <i class="bx bx-folder-open text-4xl mb-2"></i>
-                                    <p class="text-sm">No documents found in this category</p>
-                                </div>
-                            </td>
-                        `;
-                    tbody.appendChild(noResultsRow);
-                } else if (visibleCount > 0 && noResultsRow) {
-                    noResultsRow.remove();
-                }
-            }, 150);
-        }
 
         // Search functionality
         const searchInput = document.getElementById('searchInput');
@@ -1967,134 +2136,15 @@
             });
         }
 
-        // Document actions
-        window.showDocumentDetails = function (doc) {
-            const contentDiv = document.getElementById('documentDetailsContent');
-            contentDiv.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h4 class="text-lg font-medium text-gray-900">${doc.name}</h4>
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">${doc.type}</span>
-                        </div>
-                        <div class="border-t border-b border-gray-200 py-4">
-                            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Category</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${doc.category || '—'}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Size</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${doc.size || '—'}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Uploaded</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${doc.uploaded || '—'}</dd>
-                                </div>
-                                <div>
-                                    <dt class="text-sm font-medium text-gray-500">Status</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">Active</dd>
-                                </div>
-                            </dl>
-                        </div>
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Description</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${doc.description || 'No description provided.'}</dd>
-                        </div>
-                    </div>
-                    <div class="mt-6 flex justify-end space-x-3">
-                        <button type="button" onclick="closeModal(documentModal)" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                            Close
-                        </button>
-                    </div>
-                `;
-            openModal(documentModal);
-        };
+        console.log('Document upload functions loaded');
 
-        let currentDownloadDoc = null;
-        window.showDownloadDocumentModal = function (doc) {
-            currentDownloadDoc = doc;
-            document.getElementById('downloadDocName').textContent = doc.name || '—';
-            document.getElementById('downloadDocType').textContent = doc.type || '—';
-            document.getElementById('downloadDocSize').textContent = doc.size || '—';
-            openModal(downloadModal);
-        };
-
-        window.performDownload = function () {
-            if (!currentDownloadDoc) return;
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Download Started',
-                text: `${currentDownloadDoc.name} is being downloaded.`,
-                timer: 2000,
-                showConfirmButton: false
-            });
-            closeModal(downloadModal);
-        };
-
-        let currentShareDoc = null;
-        window.showShareDocumentModal = function (doc) {
-            currentShareDoc = doc;
-            document.getElementById('shareDocName').textContent = doc.name || '—';
-            document.getElementById('shareLink').value = `${window.location.origin}/documents/${doc.id}`;
-            document.getElementById('shareEmail').value = '';
-            openModal(shareModal);
-        };
-
-        window.copyShareLink = function () {
-            const input = document.getElementById('shareLink');
-            input.select();
-            document.execCommand('copy');
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Copied!',
-                text: 'Link copied to clipboard.',
-                timer: 1500,
-                showConfirmButton: false
-            });
-        };
-
-        window.sendShareInvite = function () {
-            const email = document.getElementById('shareEmail').value.trim();
-            if (!email) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Email Required',
-                    text: 'Please enter an email address.',
-                    confirmButtonColor: '#059669'
-                });
-                return;
+        // Global function to close document details modal
+        window.closeDocumentDetailsModal = function() {
+            const documentModal = document.getElementById('documentModal');
+            if (documentModal) {
+                closeModal(documentModal);
             }
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Invite Sent',
-                text: `Share invite sent to ${email}.`,
-                timer: 2000,
-                showConfirmButton: false
-            });
-            closeModal(shareModal);
         };
-
-        let currentDeleteId = null;
-        window.showDeleteDocumentConfirmation = function (docId) {
-            currentDeleteId = docId;
-            openModal(deleteModal);
-        };
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-            Swal.fire({
-                icon: 'success',
-                title: 'Document Deleted',
-                text: 'The document has been deleted successfully.',
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-                closeModal(deleteModal);
-                // In real app, you would make an API call here
-            });
-        });
 
         // Lock/Unlock functionality
         const lockAllBtn = document.getElementById('lockAllDocsBtn');
@@ -2166,6 +2216,150 @@
         let currentShareDoc = null;
         let currentDeleteDoc = null;
 
+        // Add uploaded documents to table dynamically
+        window.addDocumentsToTable = function(files) {
+            console.log('Adding documents to table:', files);
+            
+            const tbody = document.querySelector('#documentsTable tbody');
+            if (!tbody) {
+                console.error('Table tbody not found');
+                return;
+            }
+
+            // Remove "No documents" row if it exists
+            const noDocumentsRow = tbody.querySelector('td[colspan]');
+            if (noDocumentsRow) {
+                noDocumentsRow.parentElement.remove();
+            }
+
+            files.forEach(file => {
+                // Determine icon based on file type
+                const dtype = file.type ? file.type.toUpperCase() : '';
+                let icon = 'bxs-file text-gray-500';
+                if (dtype.includes('PDF') || file.name.toLowerCase().endsWith('.pdf')) {
+                    icon = 'bxs-file-pdf text-red-500';
+                } else if (dtype.includes('WORD') || dtype.includes('DOC') || file.name.toLowerCase().match(/\.(doc|docx)$/)) {
+                    icon = 'bxs-file-doc text-blue-500';
+                } else if (dtype.includes('EXCEL') || dtype.includes('XLS') || file.name.toLowerCase().match(/\.(xls|xlsx)$/)) {
+                    icon = 'bxs-file-txt text-green-500';
+                }
+
+                // Format category for display
+                const rawCategory = file.category || 'other';
+                const categoryKey = rawCategory.toLowerCase();
+                let displayCategory = categoryKey === 'hr' ? 'HR' : ucfirst(categoryKey);
+                
+                if (!['financial', 'hr', 'legal', 'operations'].includes(categoryKey)) {
+                    displayCategory = file.type || 'Other';
+                }
+
+                // Create new table row
+                const row = document.createElement('tr');
+                row.className = 'document-row fade-in';
+                row.setAttribute('data-category', categoryKey);
+                row.setAttribute('data-type', dtype.toLowerCase());
+                row.setAttribute('data-doc-id', file.id || '');
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <i class='bx ${icon} text-xl mr-3'></i>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    <span class="doc-name" data-name="${file.name}">${file.name}</span>
+                                </div>
+                                <div class="text-xs text-gray-500">${file.size || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">${dtype}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">${displayCategory}</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${file.uploaded || '—'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="showDownloadDocumentModal(${JSON.stringify(file).replace(/"/g, '&quot;')})"
+                            class="text-brand-primary hover:text-brand-primary-hover mr-3"
+                            title="Download">
+                            <i class="bx bx-download"></i>
+                        </button>
+                        <button onclick="showDocumentDetails(${JSON.stringify(file).replace(/"/g, '&quot;')})"
+                            class="text-blue-600 hover:text-blue-800 mr-3" title="View">
+                            <i class="bx bx-show"></i>
+                        </button>
+                        <button onclick="showShareDocumentModal(${JSON.stringify(file).replace(/"/g, '&quot;')})"
+                            class="text-green-600 hover:text-green-800 mr-3" title="Share">
+                            <i class="bx bx-share-alt"></i>
+                        </button>
+                        <button onclick="showDeleteDocumentConfirmation('${file.id || ''}')"
+                            class="text-red-600 hover:text-red-800" title="Delete">
+                            <i class="bx bx-trash"></i>
+                        </button>
+                    </td>
+                `;
+
+                // Add row to table
+                tbody.appendChild(row);
+            });
+
+            // Update document counts
+            updateDocumentCounts();
+
+            // Show success animation
+            showUploadSuccessAnimation(files.length);
+        };
+
+        // Update document counts in the stats cards
+        function updateDocumentCounts() {
+            const allRows = document.querySelectorAll('#documentsTable tbody tr:not([style*="display: none"])');
+            const totalCount = allRows.length;
+            
+            // Update visible count in table header
+            const visibleCountElement = document.getElementById('visibleCount');
+            const totalCountElement = document.getElementById('totalCount');
+            if (visibleCountElement) visibleCountElement.textContent = totalCount;
+            if (totalCountElement) totalCountElement.textContent = totalCount;
+
+            // Update total documents card
+            const totalDocsCard = document.querySelector('.font-bold.text-3xl');
+            if (totalDocsCard && totalDocsCard.textContent.includes('@{{ count($documents) }}')) {
+                // Skip if it's still the template string
+                return;
+            }
+
+            // Find and update the total documents count
+            const totalDocsElements = document.querySelectorAll('.font-bold.text-3xl');
+            totalDocsElements.forEach(el => {
+                const currentText = el.textContent;
+                if (!currentText.includes('@{{')) {
+                    el.textContent = totalCount;
+                }
+            });
+        }
+
+        // Show upload success animation
+        function showUploadSuccessAnimation(fileCount) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="bx bx-check-circle text-xl mr-2"></i>
+                    <span>${fileCount} file(s) added to table</span>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         console.log('Document upload functions loaded');
 
         // Show download document modal
@@ -2190,47 +2384,172 @@
             openModal(downloadModal);
         };
 
+        // Perform actual download
+        window.performDownload = function () {
+            console.log('performDownload called');
+            if (!currentDownloadDoc) {
+                console.error('No current download document');
+                return;
+            }
+
+            const docId = currentDownloadDoc.id || currentDownloadDoc.code;
+            if (!docId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Download Failed',
+                    text: 'Document ID not found',
+                    confirmButtonColor: '#059669'
+                });
+                return;
+            }
+
+            // Create download link
+            const downloadUrl = "{{ route('document.download', ':id') }}".replace(':id', docId);
+            
+            // Trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = currentDownloadDoc.name || 'document';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Show success message and close modal
+            Swal.fire({
+                icon: 'success',
+                title: 'Download Started',
+                text: `${currentDownloadDoc.name} is being downloaded.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            closeModal(downloadModal);
+        };
+
         // Show document details modal
         window.showDocumentDetails = function (doc) {
             console.log('showDocumentDetails called with:', doc);
+            
+            const docId = doc.id || doc.code;
+            if (!docId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Document ID not found',
+                    confirmButtonColor: '#059669'
+                });
+                return;
+            }
+
+            // Show loading state
             const content = document.getElementById('documentDetailsContent');
             if (!content) {
                 console.error('Document details content not found');
                 return;
             }
-
+            
             content.innerHTML = `
-                <div class="space-y-4">
-                    <div>
-                        <h4 class="font-semibold text-gray-900">Document Information</h4>
-                        <div class="mt-2 grid grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-sm text-gray-500">Name:</span>
-                                <p class="text-sm font-medium text-gray-900">${doc.name || '—'}</p>
-                            </div>
-                            <div>
-                                <span class="text-sm text-gray-500">Type:</span>
-                                <p class="text-sm font-medium text-gray-900">${doc.type || '—'}</p>
-                            </div>
-                            <div>
-                                <span class="text-sm text-gray-500">Category:</span>
-                                <p class="text-sm font-medium text-gray-900">${doc.category || '—'}</p>
-                            </div>
-                            <div>
-                                <span class="text-sm text-gray-500">Size:</span>
-                                <p class="text-sm font-medium text-gray-900">${doc.size || '—'}</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="text-center py-8">
+                    <i class="bx bx-loader-alt animate-spin text-3xl text-gray-500"></i>
+                    <p class="mt-2 text-gray-500">Loading document details...</p>
                 </div>
             `;
 
             const documentModal = document.getElementById('documentModal');
             if (documentModal) {
                 openModal(documentModal);
-            } else {
-                console.error('Document modal not found');
             }
+
+            // Fetch document details from backend
+            const detailsUrl = "{{ route('document.details', ':id') }}".replace(':id', docId);
+            
+            fetch(detailsUrl, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const document = data.document;
+                    content.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-lg font-medium text-gray-900">${document.name}</h4>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">${document.type}</span>
+                            </div>
+                            <div class="border-t border-b border-gray-200 py-4">
+                                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Category</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">${document.category || '—'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Size</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">${document.size || '—'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Uploaded</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">${document.uploaded || '—'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Status</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">${document.status || 'Active'}</dd>
+                                    </div>
+                                    ${document.amount ? `
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Amount</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">₱${parseFloat(document.amount).toFixed(2)}</dd>
+                                    </div>
+                                    ` : ''}
+                                    ${document.receipt_date ? `
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Receipt Date</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">${document.receipt_date}</dd>
+                                    </div>
+                                    ` : ''}
+                                    <div>
+                                        <dt class="text-sm font-medium text-gray-500">Shared</dt>
+                                        <dd class="mt-1 text-sm text-gray-900">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${document.is_shared ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                                ${document.is_shared ? 'Yes' : 'No'}
+                                            </span>
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </div>
+                            ${document.description ? `
+                            <div>
+                                <dt class="text-sm font-medium text-gray-500">Description</dt>
+                                <dd class="mt-1 text-sm text-gray-900">${document.description}</dd>
+                            </div>
+                            ` : ''}
+                        </div>
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button type="button" onclick="closeDocumentDetailsModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                Close
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    content.innerHTML = `
+                        <div class="text-center py-8">
+                            <i class="bx bx-error-circle text-3xl text-red-500"></i>
+                            <p class="mt-2 text-gray-500">${data.message || 'Failed to load document details'}</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching document details:', error);
+                content.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="bx bx-error-circle text-3xl text-red-500"></i>
+                        <p class="mt-2 text-gray-500">Error loading document details</p>
+                    </div>
+                `;
+            });
         };
 
         // Show share document modal
@@ -2258,7 +2577,17 @@
         // Show delete document confirmation
         window.showDeleteDocumentConfirmation = function (docId) {
             console.log('showDeleteDocumentConfirmation called with:', docId);
-            currentDeleteDoc = docId;
+            
+            if (!docId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Document ID not found',
+                    confirmButtonColor: '#059669'
+                });
+                return;
+            }
+
             Swal.fire({
                 title: 'Delete Document',
                 text: 'Are you sure you want to delete this document? This action cannot be undone.',
@@ -2270,15 +2599,81 @@
                 cancelButtonText: 'Cancel'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Here you would typically make an API call to delete the document
+                    // Show loading state
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Deleted',
-                        text: 'Document has been deleted successfully.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.reload();
+                        title: 'Deleting Document...',
+                        text: 'Please wait while we delete the document.',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Send delete request to backend
+                    const deleteUrl = "{{ route('document.delete', ':id') }}".replace(':id', docId);
+                    
+                    fetch(deleteUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.close();
+                        
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'Document has been deleted successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                // Remove the document row from table
+                                const row = document.querySelector(`tr[data-doc-id="${docId}"]`);
+                                if (row) {
+                                    row.style.opacity = '0';
+                                    row.style.transform = 'translateX(-20px)';
+                                    setTimeout(() => {
+                                        row.remove();
+                                        updateDocumentCounts();
+                                        
+                                        // Show no documents message if table is empty
+                                        const tbody = document.querySelector('#documentsTable tbody');
+                                        const remainingRows = tbody.querySelectorAll('tr:not([style*="display: none"])');
+                                        if (remainingRows.length === 0) {
+                                            const noResultsRow = document.createElement('tr');
+                                            noResultsRow.innerHTML = `
+                                                <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
+                                                    No documents available. Click "Upload Documents" to add your first document.
+                                                </td>
+                                            `;
+                                            tbody.appendChild(noResultsRow);
+                                        }
+                                    }, 300);
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Delete Failed',
+                                text: data.message || 'Failed to delete document',
+                                confirmButtonColor: '#059669'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.close();
+                        console.error('Error deleting document:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Delete Failed',
+                            text: 'An error occurred while deleting the document',
+                            confirmButtonColor: '#059669'
+                        });
                     });
                 }
             });
@@ -2342,7 +2737,7 @@
                 return;
             }
 
-            const emailValue = email.value;
+            const emailValue = email.value.trim();
             if (!emailValue) {
                 Swal.fire({
                     icon: 'error',
@@ -2353,15 +2748,90 @@
                 return;
             }
 
-            // Here you would typically make an API call to send the invite
+            if (!currentShareDoc) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No document selected for sharing',
+                    confirmButtonColor: '#059669'
+                });
+                return;
+            }
+
+            const docId = currentShareDoc.id || currentShareDoc.code;
+            if (!docId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Document ID not found',
+                    confirmButtonColor: '#059669'
+                });
+                return;
+            }
+
+            // Show loading state
             Swal.fire({
-                icon: 'success',
-                title: 'Invite Sent',
-                text: `Share invite sent to ${emailValue}`,
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-                closeModal(shareModal);
+                title: 'Sharing Document...',
+                text: 'Please wait while we share the document.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            // Send share request to backend
+            const shareUrl = "{{ route('document.share', ':id') }}".replace(':id', docId);
+            
+            fetch(shareUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: emailValue
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                Swal.close();
+                
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Document Shared!',
+                        html: `
+                            <div class="text-center">
+                                <p class="text-gray-600 mb-3">Document has been shared with <strong>${emailValue}</strong></p>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-xs text-gray-500 mb-1">Share Link:</p>
+                                    <p class="text-xs text-blue-600 break-all">${data.share_link || 'Generated'}</p>
+                                </div>
+                            </div>
+                        `,
+                        confirmButtonColor: '#059669'
+                    }).then(() => {
+                        closeModal(shareModal);
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Share Failed',
+                        text: data.message || 'Failed to share document',
+                        confirmButtonColor: '#059669'
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.close();
+                console.error('Error sharing document:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Share Failed',
+                    text: 'An error occurred while sharing the document',
+                    confirmButtonColor: '#059669'
+                });
             });
         };
 

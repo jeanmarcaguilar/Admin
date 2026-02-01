@@ -755,58 +755,91 @@ $user = auth()->user();
     </script>
 
     <!-- User Details Modal -->
-    <div id="userModal" class="fixed inset-0 bg-black bg-opacity-60 hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
-            <!-- Modal Header -->
-            <div class="bg-gradient-to-r from-brand-primary to-brand-primary-hover px-6 py-4 rounded-t-2xl">
-                <div class="flex justify-between items-center">
-                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                        <i class="fas fa-user-circle"></i>
-                        User Details
-                    </h3>
-                    <button id="closeUserModal" class="text-white hover:text-gray-200 transition-colors">
-                        <i class="fas fa-times text-xl"></i>
+    <div id="userModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full transform transition-all duration-500 scale-95 opacity-0" id="modalContent">
+            <!-- Modal Header with Enhanced Gradient -->
+            <div class="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+                </div>
+                
+                <div class="relative flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                            <i class="fas fa-user-circle text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">User Details</h3>
+                    </div>
+                    <button id="closeUserModal" class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
+                        <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
             
-            <!-- Modal Body -->
-            <div class="p-6 space-y-4">
-                <!-- User Avatar and Basic Info -->
-                <div class="flex items-center gap-4 pb-4 border-b border-gray-200">
-                    <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                        <span id="modalUserAvatar" class="text-white text-xl font-bold"></span>
+            <!-- Modal Body with Enhanced Design -->
+            <div class="p-8 bg-gradient-to-br from-gray-50 to-white space-y-6">
+                <!-- Enhanced User Avatar and Basic Info -->
+                <div class="flex items-center gap-5 pb-6 border-b border-gray-200">
+                    <div class="relative">
+                        <div class="w-20 h-20 bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-white/50">
+                            <span id="modalUserAvatar" class="text-white text-2xl font-bold"></span>
+                        </div>
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-lg"></div>
                     </div>
-                    <div>
-                        <h4 id="modalUserName" class="text-lg font-semibold text-gray-900"></h4>
-                        <p id="modalUserRole" class="text-sm text-gray-600 font-medium"></p>
+                    <div class="flex-1">
+                        <h4 id="modalUserName" class="text-xl font-bold text-gray-900 mb-1"></h4>
+                        <div class="flex items-center gap-2">
+                            <p id="modalUserRole" class="text-sm text-purple-600 font-semibold bg-purple-100 px-3 py-1 rounded-full"></p>
+                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- User Information Grid -->
+                <!-- Enhanced User Information Grid -->
                 <div class="grid grid-cols-1 gap-4">
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address</label>
-                        <p id="modalUserEmail" class="text-gray-900 font-medium mt-1"></p>
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100 hover:shadow-md transition-all duration-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-envelope text-white text-sm"></i>
+                            </div>
+                            <label class="text-xs font-bold text-blue-600 uppercase tracking-wider">Email Address</label>
+                        </div>
+                        <p id="modalUserEmail" class="text-gray-900 font-semibold text-sm mt-1"></p>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Department</label>
-                        <p id="modalUserDepartment" class="text-gray-900 font-medium mt-1"></p>
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 hover:shadow-md transition-all duration-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-building text-white text-sm"></i>
+                            </div>
+                            <label class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Department</label>
+                        </div>
+                        <p id="modalUserDepartment" class="text-gray-900 font-semibold text-sm mt-1"></p>
                     </div>
                     
-                    <div class="bg-gray-50 rounded-lg p-3">
-                        <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Last Login</label>
-                        <p id="modalUserLastLogin" class="text-gray-900 font-medium mt-1"></p>
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100 hover:shadow-md transition-all duration-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-white text-sm"></i>
+                            </div>
+                            <label class="text-xs font-bold text-amber-600 uppercase tracking-wider">Last Login</label>
+                        </div>
+                        <p id="modalUserLastLogin" class="text-gray-900 font-semibold text-sm mt-1"></p>
                     </div>
                 </div>
             </div>
             
-            <!-- Modal Footer -->
-            <div class="bg-gray-50 px-6 py-4 rounded-b-2xl">
-                <div class="flex justify-end">
-                    <button id="closeUserModalBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                        Cancel
+            <!-- Enhanced Modal Footer -->
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 rounded-b-3xl border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <i class="fas fa-shield-alt text-green-500"></i>
+                        <span>Secure Information</span>
+                    </div>
+                    <button id="closeUserModalBtn" class="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-violet-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <i class="fas fa-check"></i>
+                        Close
                     </button>
                 </div>
             </div>

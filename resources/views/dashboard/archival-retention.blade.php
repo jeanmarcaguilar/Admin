@@ -651,7 +651,7 @@ $user = auth()->user();
                                             default => 'Archive after 6 months - Retain 3 Years'
                                         };
                                     @endphp
-                                    <tr class="hover:bg-gray-50">
+                                    <tr class="hover:bg-gray-50" data-doc-id="{{ $doc['id'] ?? '' }}">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <i class="bx {{ $icon }} text-xl mr-3"></i>
@@ -670,8 +670,14 @@ $user = auth()->user();
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $doc['uploaded'] ?? 'Unknown date' }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $retention }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button class="text-brand-primary hover:text-brand-primary-hover mr-3">View</button>
-                                            <button class="text-red-600 hover:text-red-700">Delete</button>
+                                            <button onclick="showViewModal({{ json_encode($doc) }})" class="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg text-xs font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
+                                                <i class="fas fa-eye mr-1"></i>
+                                                View
+                                            </button>
+                                            <button onclick="showDeleteModal('{{ $doc['id'] ?? '' }}')" class="px-3 py-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg text-xs font-semibold hover:from-red-600 hover:to-rose-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 flex items-center">
+                                                <i class="fas fa-trash mr-1"></i>
+                                                Delete
+                                            </button>
                                         </td>
                                     </tr>
                                 @empty
@@ -906,6 +912,265 @@ $user = auth()->user();
                     }
                 });
             });
+        });
+    </script>
+
+    <!-- View Document Modal -->
+    <div id="viewDocumentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full transform transition-all duration-500 scale-95 opacity-0" id="viewModalContent">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+                </div>
+                
+                <div class="relative flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                            <i class="fas fa-file-alt text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Document Details</h3>
+                    </div>
+                    <button onclick="closeViewModal()" class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-8 bg-gradient-to-br from-blue-50 to-white space-y-6">
+                <!-- Document Icon and Basic Info -->
+                <div class="flex items-center gap-5 pb-6 border-b border-gray-200">
+                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-white/50">
+                        <i id="modalDocIcon" class="fas fa-file text-white text-3xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 id="modalDocName" class="text-xl font-bold text-gray-900 mb-1"></h4>
+                        <div class="flex items-center gap-2">
+                            <span id="modalDocType" class="text-sm text-blue-600 font-semibold bg-blue-100 px-3 py-1 rounded-full"></span>
+                            <span id="modalDocCategory" class="text-sm text-purple-600 font-semibold bg-purple-100 px-3 py-1 rounded-full"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Document Information Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 hover:shadow-md transition-all duration-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-database text-white text-sm"></i>
+                            </div>
+                            <label class="text-xs font-bold text-emerald-600 uppercase tracking-wider">File Size</label>
+                        </div>
+                        <p id="modalDocSize" class="text-gray-900 font-semibold text-sm mt-1"></p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100 hover:shadow-md transition-all duration-200">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-calendar text-white text-sm"></i>
+                            </div>
+                            <label class="text-xs font-bold text-amber-600 uppercase tracking-wider">Uploaded Date</label>
+                        </div>
+                        <p id="modalDocUploaded" class="text-gray-900 font-semibold text-sm mt-1"></p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl p-4 border border-rose-100 hover:shadow-md transition-all duration-200 md:col-span-2">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-white text-sm"></i>
+                            </div>
+                            <label class="text-xs font-bold text-rose-600 uppercase tracking-wider">Retention Policy</label>
+                        </div>
+                        <p id="modalDocRetention" class="text-gray-900 font-semibold text-sm mt-1"></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 rounded-b-3xl border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-xs text-gray-500">
+                        <i class="fas fa-shield-alt text-green-500"></i>
+                        <span>Archived Document Information</span>
+                    </div>
+                    <button onclick="closeViewModal()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2">
+                        <i class="fas fa-check"></i>
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Document Modal -->
+    <div id="deleteDocumentModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-md w-full transform transition-all duration-500 scale-95 opacity-0" id="deleteModalContent">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-red-600 via-rose-600 to-pink-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+                </div>
+                
+                <div class="relative flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                            <i class="fas fa-trash text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Delete Document</h3>
+                    </div>
+                    <button onclick="closeDeleteModal()" class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-8 bg-gradient-to-br from-red-50 to-white text-center">
+                <!-- Warning Icon -->
+                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"></i>
+                </div>
+                
+                <!-- Warning Message -->
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    This action <span class="font-semibold text-red-600">cannot be undone</span>. 
+                    This will permanently delete the archived document and remove it from your records.
+                </p>
+                
+                <!-- Action Buttons -->
+                <div class="flex justify-center space-x-4">
+                    <button onclick="closeDeleteModal()" class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        No, Keep It
+                    </button>
+                    <button onclick="confirmDelete()" class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-700 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-trash mr-2"></i>
+                        Yes, Delete Document
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentDocumentId = null;
+
+        // View Document Modal Functions
+        window.showViewModal = function(doc) {
+            currentDocumentId = doc.id;
+            
+            // Populate modal with document data
+            document.getElementById('modalDocName').textContent = doc.name || 'Unknown Document';
+            document.getElementById('modalDocType').textContent = doc.type || 'Unknown';
+            document.getElementById('modalDocCategory').textContent = doc.category || 'General';
+            document.getElementById('modalDocSize').textContent = doc.size || 'Unknown size';
+            document.getElementById('modalDocUploaded').textContent = doc.uploaded || 'Unknown date';
+            document.getElementById('modalDocRetention').textContent = doc.retention || 'Unknown retention policy';
+            
+            // Update icon based on document type
+            const iconElement = document.getElementById('modalDocIcon');
+            const dtype = (doc.type || '').toUpperCase();
+            if (dtype.includes('PDF')) {
+                iconElement.className = 'fas fa-file-pdf text-white text-3xl';
+            } else if (dtype.includes('WORD') || dtype.includes('DOC') || dtype.includes('DOCX')) {
+                iconElement.className = 'fas fa-file-word text-white text-3xl';
+            } else if (dtype.includes('EXCEL') || dtype.includes('XLS') || dtype.includes('XLSX')) {
+                iconElement.className = 'fas fa-file-excel text-white text-3xl';
+            } else {
+                iconElement.className = 'fas fa-file text-white text-3xl';
+            }
+            
+            // Show modal with animation
+            const modal = document.getElementById('viewDocumentModal');
+            const modalContent = document.getElementById('viewModalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.closeViewModal = function() {
+            const modalContent = document.getElementById('viewModalContent');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                document.getElementById('viewDocumentModal').classList.add('hidden');
+            }, 300);
+        };
+
+        // Delete Document Modal Functions
+        window.showDeleteModal = function(docId) {
+            currentDocumentId = docId;
+            
+            const modal = document.getElementById('deleteDocumentModal');
+            const modalContent = document.getElementById('deleteModalContent');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        };
+
+        window.closeDeleteModal = function() {
+            const modalContent = document.getElementById('deleteModalContent');
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                document.getElementById('deleteDocumentModal').classList.add('hidden');
+            }, 300);
+        };
+
+        window.confirmDelete = function() {
+            // Here you would typically make an AJAX call to delete the document
+            // For now, we'll just show a success message and close the modal
+            closeDeleteModal();
+            
+            // Show success message
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+            successDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="bx bx-check-circle text-xl mr-2"></i>
+                    <span>Document deleted successfully</span>
+                </div>
+            `;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.style.opacity = '0';
+                setTimeout(() => successDiv.remove(), 300);
+            }, 3000);
+            
+            // Remove the row from table
+            if (currentDocumentId) {
+                const row = document.querySelector(`tr[data-doc-id="${currentDocumentId}"]`);
+                if (row) {
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-100%)';
+                    setTimeout(() => row.remove(), 300);
+                }
+            }
+        };
+
+        // Close modals when clicking outside
+        document.getElementById('viewDocumentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'viewDocumentModal') {
+                closeViewModal();
+            }
+        });
+
+        document.getElementById('deleteDocumentModal').addEventListener('click', (e) => {
+            if (e.target.id === 'deleteDocumentModal') {
+                closeDeleteModal();
+            }
         });
     </script>
 </body>

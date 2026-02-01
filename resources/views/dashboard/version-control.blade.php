@@ -10,6 +10,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Administrative</title>
     <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
@@ -343,7 +344,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                 <!-- Clock pill -->
                 <span id="real-time-clock"
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                    {{ now()->format('H:i:s') }}
+                    {{ now()->format('g:i:s A') }}
                 </span>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
@@ -404,7 +405,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             <button id="printBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
                                 <i class="fas fa-print mr-2"></i> Print
                             </button>
-                            <button id="newVersionBtn" class="px-4 py-2 bg-white border border-brand-primary text-brand-primary rounded-lg hover:bg-brand-background-main transition-colors font-medium flex items-center">
+                            <button id="newVersionBtn" onclick="openNewVersionModal()" class="px-4 py-2 bg-white border border-brand-primary text-brand-primary rounded-lg hover:bg-brand-background-main transition-colors font-medium flex items-center cursor-pointer">
                                 <i class="fas fa-plus mr-2"></i> New Version
                             </button>
                         </div>
@@ -678,14 +679,24 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
     <!-- Modals -->
     <!-- Version Details Modal -->
     <div id="versionDetailsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="version-details-title">
-        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
-                <h3 id="version-details-title" class="font-semibold text-sm text-gray-900">Document Details</h3>
-                <button id="closeVersionDetailsBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-alt text-white text-lg"></i>
+                        </div>
+                        <h3 id="version-details-title" class="text-xl font-bold text-white">Document Details</h3>
+                    </div>
+                    <button id="closeVersionDetailsBtn" type="button" class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm" aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
             </div>
-            <div id="versionDetailsContent" class="px-6 pt-5 pb-6">
+            
+            <!-- Modal Content -->
+            <div id="versionDetailsContent" class="p-6 bg-gradient-to-br from-indigo-50 to-white">
                 <!-- Populated dynamically by showVersionDetails(doc) -->
             </div>
         </div>
@@ -693,19 +704,32 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
     <!-- New Version Modal -->
     <div id="newVersionModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="new-version-title">
-        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
-                <h3 id="new-version-title" class="font-semibold text-sm text-gray-900">Upload New Version</h3>
-                <button id="closeNewVersionBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-upload text-white text-lg"></i>
+                        </div>
+                        <h3 id="new-version-title" class="text-xl font-bold text-white">Upload New Version</h3>
+                    </div>
+                    <button id="closeNewVersionBtn" type="button" class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm" aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
             </div>
-            <form id="newVersionForm" class="px-6 pt-5 pb-6" action="{{ route('document.version.upload') }}" method="POST" enctype="multipart/form-data">
+            
+            <!-- Modal Content -->
+            <form id="newVersionForm" class="p-6 bg-gradient-to-br from-emerald-50 to-white" action="{{ route('document.version.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
-                        <label for="documentSelect" class="block text-xs font-medium text-gray-700 mb-1">Select Document</label>
-                        <select id="documentSelect" name="document_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent">
+                        <label for="documentSelect" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-file text-emerald-500 mr-2"></i>
+                            Select Document
+                        </label>
+                        <select id="documentSelect" name="document_id" required class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200">
                             <option value="">Select a document...</option>
                             @foreach($documents as $doc)
                                 <option value="{{ $doc['id'] ?? '' }}">{{ $doc['name'] ?? 'Document' }}</option>
@@ -713,32 +737,51 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         </select>
                     </div>
                     <div>
-                        <label for="versionNumber" class="block text-xs font-medium text-gray-700 mb-1">Version Number</label>
-                        <input type="text" id="versionNumber" name="version_number" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" placeholder="e.g., 2.0">
+                        <label for="versionNumber" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-code-branch text-emerald-500 mr-2"></i>
+                            Version Number
+                        </label>
+                        <input type="text" id="versionNumber" name="version_number" required class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="e.g., 2.0" value="1.1">
                     </div>
                     <div>
-                        <label for="versionNotes" class="block text-xs font-medium text-gray-700 mb-1">Version Notes</label>
-                        <textarea id="versionNotes" name="version_notes" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent" placeholder="Describe the changes in this version..."></textarea>
+                        <label for="versionNotes" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-sticky-note text-emerald-500 mr-2"></i>
+                            Version Notes
+                        </label>
+                        <textarea id="versionNotes" name="version_notes" rows="3" class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="Describe the changes in this version..."></textarea>
                     </div>
                     <div>
-                        <label for="file-upload" class="block text-xs font-medium text-gray-700 mb-1">Upload File</label>
-                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                            <div class="space-y-1 text-center">
-                                <div class="flex text-sm text-gray-600">
-                                    <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-brand-primary hover:text-brand-primary-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-primary">
-                                        <span>Upload a file</span>
+                        <label for="file-upload" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                            <i class="fas fa-cloud-upload-alt text-emerald-500 mr-2"></i>
+                            Upload File
+                        </label>
+                        <div class="border-2 border-dashed border-emerald-300 rounded-xl p-8 text-center hover:border-emerald-400 transition-colors duration-200 bg-emerald-50/50">
+                            <div class="space-y-3">
+                                <div class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto">
+                                    <i class="fas fa-cloud-upload-alt text-emerald-600 text-2xl"></i>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    <label for="file-upload" class="relative cursor-pointer bg-emerald-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-emerald-700 transition-colors duration-200 inline-flex items-center">
+                                        <i class="fas fa-upload mr-2"></i>
+                                        Choose File
                                         <input id="file-upload" name="file" type="file" required class="sr-only">
                                     </label>
-                                    <p class="pl-1">or drag and drop</p>
+                                    <p class="mt-2 text-xs text-gray-500">or drag and drop</p>
                                 </div>
                                 <p class="text-xs text-gray-500">PDF, DOCX, XLSX up to 50MB</p>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-end space-x-3 mt-6">
-                    <button type="button" id="cancelNewVersionBtn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover rounded-lg transition-colors">Upload</button>
+                <div class="flex justify-end space-x-3 mt-8">
+                    <button type="button" id="cancelNewVersionBtn" class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-upload mr-2"></i>
+                        Upload Version
+                    </button>
                 </div>
             </form>
         </div>
@@ -746,22 +789,46 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
     <!-- Delete Document Confirmation Modal -->
     <div id="deleteDocumentModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="delete-document-title">
-        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
-                <h3 id="delete-document-title" class="font-semibold text-sm text-gray-900">Delete Document</h3>
-                <button id="closeDeleteDocumentBtn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="px-6 pt-5 pb-6 text-center">
-                <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                    <i class="fas fa-exclamation text-red-600 text-xl"></i>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+            <!-- Modal Header with Gradient -->
+            <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-t-2xl px-6 py-5">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                            <i class="fas fa-trash text-white text-lg"></i>
+                        </div>
+                        <h3 id="delete-document-title" class="text-xl font-bold text-white">Delete Document</h3>
+                    </div>
+                    <button id="closeDeleteDocumentBtn" type="button" class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm" aria-label="Close">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
                 </div>
-                <p class="text-sm text-gray-700 mb-3">Are you sure you want to delete this document?</p>
-                <p class="text-xs text-gray-500 mb-4">This action cannot be undone.</p>
-                <div class="flex justify-center space-x-3">
-                    <button id="cancelDeleteDocumentBtn" type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button id="confirmDeleteDocumentBtn" type="button" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6 bg-gradient-to-br from-red-50 to-white text-center">
+                <!-- Warning Icon -->
+                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"></i>
+                </div>
+                
+                <!-- Warning Message -->
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    This action <span class="font-semibold text-red-600">cannot be undone</span>. 
+                    This will permanently delete the document and remove it from your records.
+                </p>
+                
+                <!-- Action Buttons -->
+                <div class="flex justify-center space-x-4">
+                    <button id="cancelDeleteDocumentBtn" type="button" class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        <i class="fas fa-shield-alt mr-2"></i>
+                        No, Keep It
+                    </button>
+                    <button id="confirmDeleteDocumentBtn" type="button" class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-trash mr-2"></i>
+                        Yes, Delete Document
+                    </button>
                 </div>
             </div>
         </div>
@@ -945,14 +1012,26 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             const newVersionBtn = document.getElementById("newVersionBtn");
 
             function openModal(modal) {
+                console.log('Opening modal:', modal);
+                if (!modal) {
+                    console.error('Modal is null or undefined');
+                    return;
+                }
                 modal.classList.add("active");
                 modal.style.display = "flex";
+                console.log('Modal opened successfully');
             }
 
             function closeModal(modal) {
+                console.log('Closing modal:', modal);
+                if (!modal) {
+                    console.error('Modal is null or undefined');
+                    return;
+                }
                 modal.classList.remove("active");
                 setTimeout(() => {
                     modal.style.display = "none";
+                    console.log('Modal closed successfully');
                 }, 300);
             }
 
@@ -1004,7 +1083,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         </div>
                     </div>
                     <div class="flex justify-end space-x-3 mt-6">
-                        <button type="button" onclick="closeModal('versionDetailsModal')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Close</button>
+                        <button type="button" onclick="closeVersionDetailsModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Close</button>
                         <button type="button" onclick="showDeleteDocumentConfirmation('${doc.id || ''}')" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
                     </div>
                 `;
@@ -1013,12 +1092,245 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
             // New Version Modal
             if (newVersionBtn) {
+                console.log('New Version button found:', newVersionBtn);
                 newVersionBtn.addEventListener('click', () => {
-                    if (document.getElementById('newVersionForm')) {
-                        document.getElementById('newVersionForm').reset();
+                    console.log('New Version button clicked!');
+                    
+                    const form = document.getElementById('newVersionForm');
+                    if (form) {
+                        console.log('Resetting form');
+                        form.reset();
+                        // Reset version number to default
+                        const versionNumber = document.getElementById('versionNumber');
+                        if (versionNumber) {
+                            versionNumber.value = '1.1';
+                        }
                     }
-                    openModal(newVersionModal);
+                    
+                    if (newVersionModal) {
+                        console.log('Opening new version modal');
+                        openModal(newVersionModal);
+                    } else {
+                        console.error('New version modal not found');
+                    }
                 });
+            } else {
+                console.error('New Version button not found!');
+            }
+
+            // Handle new version form submission
+            const newVersionForm = document.getElementById('newVersionForm');
+            if (newVersionForm) {
+                newVersionForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    
+                    // Client-side validation
+                    const documentSelect = document.getElementById('documentSelect');
+                    const versionNumber = document.getElementById('versionNumber');
+                    const fileInput = document.getElementById('file-upload');
+                    
+                    if (!documentSelect.value) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: 'Please select a document.',
+                            confirmButtonColor: '#059669'
+                        });
+                        return;
+                    }
+                    
+                    if (!versionNumber.value.trim()) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: 'Version number is required.',
+                            confirmButtonColor: '#059669'
+                        });
+                        versionNumber.focus();
+                        return;
+                    }
+                    
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Validation Error',
+                            text: 'Please select a file to upload.',
+                            confirmButtonColor: '#059669'
+                        });
+                        return;
+                    }
+                    
+                    try {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
+                        
+                        const formData = new FormData(this);
+                        
+                        // Debug: Log form data
+                        console.log('Form data being sent:');
+                        for (let [key, value] of formData.entries()) {
+                            console.log(key, value);
+                        }
+                        
+                        // Try the version upload route first, then fallback to document upload
+                        let uploadUrl = this.action;
+                        let response;
+                        
+                        try {
+                            response = await fetch(uploadUrl, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            });
+                        } catch (error) {
+                            console.log('Version upload route failed, trying document upload route...');
+                            // Fallback to document upload route
+                            uploadUrl = "{{ route('document.upload.store') }}";
+                            response = await fetch(uploadUrl, {
+                                method: 'POST',
+                                body: formData,
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                                    'Accept': 'application/json'
+                                }
+                            });
+                        }
+                        
+                        const data = await response.json();
+                        
+                        // Debug: Log response
+                        console.log('Server response:', data);
+                        
+                        if (data.success) {
+                            console.log('Upload successful, closing modal and adding to table');
+                            closeModal(newVersionModal);
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Version Uploaded!',
+                                text: 'New version has been uploaded successfully.',
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                            
+                            // Add the new version to the table
+                            if (data.document) {
+                                console.log('Adding document to table:', data.document);
+                                addDocumentToTable(data.document);
+                            } else {
+                                console.log('No document data received from server');
+                            }
+                            
+                            // Reset form
+                            this.reset();
+                            
+                            // Reset file display
+                            const dropZoneText = document.querySelector('.border-dashed .text-center');
+                            if (dropZoneText) {
+                                dropZoneText.innerHTML = `
+                                    <div class="space-y-1 text-center">
+                                        <div class="flex text-sm text-gray-600">
+                                            <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-brand-primary hover:text-brand-primary-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-primary">
+                                                <span>Upload a file</span>
+                                                <input id="file-upload" name="file" type="file" required class="sr-only">
+                                            </label>
+                                            <p class="pl-1">or drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PDF, DOCX, XLSX up to 50MB</p>
+                                    </div>
+                                `;
+                            }
+                        } else {
+                            console.log('Upload failed:', data);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Upload Failed',
+                                text: data.message || 'Failed to upload version. Please try again.',
+                                confirmButtonColor: '#059669'
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Upload Failed',
+                            text: 'An error occurred while uploading. Please try again.',
+                            confirmButtonColor: '#059669'
+                        });
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }
+                });
+            }
+
+            // Drag and drop functionality
+            const dropZone = document.querySelector('.border-dashed');
+            const fileInput = document.getElementById('file-upload');
+            
+            if (dropZone && fileInput) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.classList.add('border-brand-primary', 'bg-brand-background-main');
+                    }, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => {
+                        dropZone.classList.remove('border-brand-primary', 'bg-brand-background-main');
+                    }, false);
+                });
+                
+                dropZone.addEventListener('drop', (e) => {
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                        updateFileDisplay(files[0]);
+                    }
+                }, false);
+                
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        updateFileDisplay(e.target.files[0]);
+                    }
+                });
+                
+                function updateFileDisplay(file) {
+                    const dropZoneText = dropZone.querySelector('.text-center');
+                    if (dropZoneText) {
+                        dropZoneText.innerHTML = `
+                            <div class="space-y-1 text-center">
+                                <div class="flex text-sm text-gray-600">
+                                    <span class="font-medium text-brand-primary">${file.name}</span>
+                                </div>
+                                <p class="text-xs text-gray-500">${formatFileSize(file.size)}</p>
+                                <p class="text-xs text-gray-400">Click to change file</p>
+                            </div>
+                        `;
+                    }
+                }
+                
+                function formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                }
             }
 
             // Close modal buttons
@@ -1080,39 +1392,6 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         closeModal(this);
                     }
                 });
-            });
-
-            // Document lock/unlock functionality
-            function applyDocumentMasking() {
-                const isLocked = localStorage.getItem('documentsLocked') === 'true';
-                const docNameElements = document.querySelectorAll('.doc-name');
-                
-                docNameElements.forEach(el => {
-                    const realName = el.dataset.name || el.textContent;
-                    if (isLocked) {
-                        if (!el.dataset.original) {
-                            el.dataset.original = realName;
-                        }
-                        const masked = realName.replace(/./g, '*');
-                        el.textContent = masked;
-                        el.classList.add('locked');
-                    } else {
-                        if (el.dataset.original) {
-                            el.textContent = el.dataset.original;
-                            el.classList.remove('locked');
-                        }
-                    }
-                });
-            }
-
-            // Check on load
-            applyDocumentMasking();
-
-            // Listen for changes
-            window.addEventListener('storage', function(e) {
-                if (e.key === 'documentsLocked') {
-                    applyDocumentMasking();
-                }
             });
 
             // Category filtering
@@ -1195,6 +1474,192 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         noResultsRow.remove();
                     }
                 }, 150);
+            }
+
+            // Global modal functions
+            window.closeVersionDetailsModal = function() {
+                const modal = document.getElementById('versionDetailsModal');
+                if (modal) {
+                    closeModal(modal);
+                }
+            };
+
+            window.closeNewVersionModal = function() {
+                const modal = document.getElementById('newVersionModal');
+                if (modal) {
+                    closeModal(modal);
+                }
+            };
+
+            window.closeDeleteDocumentModal = function() {
+                const modal = document.getElementById('deleteDocumentModal');
+                if (modal) {
+                    closeModal(modal);
+                }
+            };
+
+            // Global function to open new version modal
+            window.openNewVersionModal = function() {
+                console.log('Global openNewVersionModal called');
+                const form = document.getElementById('newVersionForm');
+                if (form) {
+                    console.log('Resetting form from global function');
+                    form.reset();
+                    // Reset version number to default
+                    const versionNumber = document.getElementById('versionNumber');
+                    if (versionNumber) {
+                        versionNumber.value = '1.1';
+                    }
+                }
+                
+                const modal = document.getElementById('newVersionModal');
+                if (modal) {
+                    console.log('Opening new version modal from global function');
+                    openModal(modal);
+                } else {
+                    console.error('New version modal not found from global function');
+                }
+            };
+
+            // Add document to table dynamically
+            window.addDocumentToTable = function(doc) {
+                console.log('addDocumentToTable called with:', doc);
+                
+                const tbody = document.querySelector('#documentsTable tbody');
+                if (!tbody) {
+                    console.error('Table tbody not found');
+                    return;
+                }
+
+                console.log('Table tbody found:', tbody);
+
+                // Remove "No documents" row if it exists
+                const noDocumentsRow = tbody.querySelector('td[colspan]');
+                if (noDocumentsRow) {
+                    console.log('Removing no documents row');
+                    noDocumentsRow.parentElement.remove();
+                }
+
+                // Get user info for the row
+                const userName = '{{ $user->name }}' || 'User';
+                const initials = '{{ collect(explode(" ", $user->name))->map(fn($p) => strtoupper(substr($p,0,1)))->implode("") }}' || 'U';
+
+                console.log('User info:', { userName, initials });
+
+                // Determine icon based on file type
+                const dtype = (doc.type || '').toUpperCase();
+                let icon = 'bxs-file text-gray-600';
+                if (dtype.includes('PDF')) {
+                    icon = 'bxs-file-pdf text-red-600';
+                } else if (dtype.includes('WORD') || dtype.includes('DOC') || dtype.includes('DOCX')) {
+                    icon = 'bxs-file-doc text-blue-600';
+                } else if (dtype.includes('EXCEL') || dtype.includes('XLS') || dtype.includes('XLSX')) {
+                    icon = 'bxs-file-txt text-green-600';
+                }
+
+                console.log('File icon determined:', icon);
+
+                // Format uploaded date
+                const uploadedDate = doc.uploaded ? new Date(doc.uploaded) : new Date();
+                const formattedDate = uploadedDate.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                console.log('Formatted date:', formattedDate);
+
+                // Create new table row
+                const row = document.createElement('tr');
+                row.className = 'document-row fade-in';
+                row.setAttribute('data-doc-id', doc.id || '');
+                row.setAttribute('data-name', (doc.name || '').toLowerCase());
+                row.setAttribute('data-type', (doc.type || '').toLowerCase());
+                row.setAttribute('data-category', (doc.category || 'other').toLowerCase());
+                row.setAttribute('data-status', (doc.status || 'indexed').toLowerCase());
+                
+                console.log('Creating row with attributes:', {
+                    id: doc.id || '',
+                    name: doc.name || '',
+                    type: doc.type || '',
+                    category: doc.category || 'other',
+                    status: doc.status || 'indexed'
+                });
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i class='bx ${icon}'></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">
+                                    <span class="doc-name" data-name="${doc.name || ''}">${doc.name || 'Document'}</span>
+                                </div>
+                                <div class="text-sm text-gray-500">${doc.size || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.type || 'File'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${doc.category ? doc.category.charAt(0).toUpperCase() + doc.category.slice(1) : 'Other'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formattedDate}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">${initials}</div>
+                            <span class="ml-2">${userName}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${(doc.status || '').toLowerCase() === 'approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${doc.status || 'Indexed'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="showVersionDetails(${JSON.stringify(doc).replace(/"/g, '&quot;')})" class="text-brand-primary hover:text-brand-primary-hover mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
+                        <button onclick="showDeleteDocumentConfirmation('${doc.id || ''}')" class="text-red-600 hover:text-red-800 bg-transparent border-none p-0 cursor-pointer">Delete</button>
+                    </td>
+                `;
+
+                console.log('Row HTML created');
+
+                // Add row to table at the beginning
+                tbody.insertBefore(row, tbody.firstChild);
+
+                console.log('Row added to table');
+
+                // Update visible count
+                const visibleCountElement = document.getElementById('visibleCount');
+                if (visibleCountElement) {
+                    const currentCount = parseInt(visibleCountElement.textContent) || 0;
+                    visibleCountElement.textContent = currentCount + 1;
+                    console.log('Updated visible count to:', currentCount + 1);
+                }
+
+                // Show success animation
+                showUploadSuccessAnimation();
+                
+                console.log('addDocumentToTable completed successfully');
+            };
+
+            // Show upload success animation
+            function showUploadSuccessAnimation() {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+                toast.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="bx bx-check-circle text-xl mr-2"></i>
+                        <span>New version added to table</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
             }
         });
     </script>

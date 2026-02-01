@@ -317,6 +317,118 @@ Route::middleware('auth')->group(function () {
         ]);
     })->name('document.download');
 
+    // Document Delete Route
+    Route::delete('/document/{id}/delete', function ($id) {
+        try {
+            // Find document by code or ID
+            $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
+            
+            if (!$document) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Document not found'
+                ], 404);
+            }
+            
+            // Delete file from storage if it exists
+            if ($document->file_path && Storage::disk('public')->exists($document->file_path)) {
+                Storage::disk('public')->delete($document->file_path);
+            }
+            
+            // Delete database record
+            $document->delete();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Document deleted successfully'
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting document: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('document.delete');
+
+    // Document View/Details Route
+    Route::get('/document/{id}/details', function ($id) {
+        try {
+            // Find document by code or ID
+            $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
+            
+            if (!$document) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Document not found'
+                ], 404);
+            }
+            
+            return response()->json([
+                'success' => true,
+                'document' => [
+                    'id' => $document->id,
+                    'code' => $document->code,
+                    'name' => $document->name,
+                    'type' => $document->type,
+                    'category' => $document->category,
+                    'size' => $document->size,
+                    'description' => $document->description,
+                    'uploaded' => $document->uploaded_on ?: $document->created_at->toDateString(),
+                    'status' => $document->status,
+                    'file_type' => $document->file_type,
+                    'is_shared' => $document->is_shared,
+                    'amount' => $document->amount,
+                    'receipt_date' => $document->receipt_date
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching document details: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('document.details');
+
+    // Document Share Route
+    Route::post('/document/{id}/share', function ($id, Request $request) {
+        try {
+            // Find document by code or ID
+            $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
+            
+            if (!$document) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Document not found'
+                ], 404);
+            }
+            
+            $email = $request->input('email');
+            
+            // Here you would typically:
+            // 1. Generate a shareable link
+            // 2. Send email notification
+            // 3. Log the share action
+            
+            // For now, just mark as shared and return success
+            $document->is_shared = true;
+            $document->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Document shared successfully',
+                'share_link' => url('/document/' . $document->code . '/download')
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error sharing document: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('document.share');
+
     // Test Download Route (for debugging)
     Route::get('/test-download', function () {
         // Get documents from database

@@ -768,18 +768,21 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <button type="button" onclick='showRequestDetails(@json($request))'
-                                                class="text-brand-primary hover:text-brand-primary-hover mr-4 font-medium">
+                                                class="px-3 py-1.5 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg text-xs font-semibold hover:from-teal-600 hover:to-cyan-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
+                                                <i class="fas fa-eye mr-1"></i>
                                                 View
                                             </button>
                                             @if($request['status'] === 'pending')
                                                 <button type="button"
                                                     onclick="showActionConfirmation('{{ $request['id'] }}', 'approve')"
-                                                    class="text-green-600 hover:text-green-700 mr-4 font-medium">
+                                                    class="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-xs font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
+                                                    <i class="fas fa-check-circle mr-1"></i>
                                                     Approve
                                                 </button>
                                                 <button type="button"
                                                     onclick="showActionConfirmation('{{ $request['id'] }}', 'reject')"
-                                                    class="text-red-600 hover:text-red-700 font-medium">
+                                                    class="px-3 py-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg text-xs font-semibold hover:from-red-600 hover:to-rose-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 flex items-center">
+                                                    <i class="fas fa-times-circle mr-1"></i>
                                                     Reject
                                                 </button>
                                             @endif
@@ -805,16 +808,31 @@
 
     <!-- View Request Details Modal -->
     <div id="viewRequestModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 class="text-xl font-semibold text-gray-900">Request Details</h3>
-                <button onclick="closeModal('viewRequestModal')"
-                    class="text-gray-400 hover:text-gray-500 rounded-lg p-2">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden overflow-y-auto h-full w-full p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto mx-4 transform transition-all duration-500 scale-95 opacity-0">
+            <!-- Modal Header with Enhanced Gradient -->
+            <div class="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+                </div>
+                
+                <div class="relative flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+                            <i class="fas fa-clipboard-check text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white">Request Details</h3>
+                    </div>
+                    <button onclick="closeModal('viewRequestModal')" 
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
             </div>
-            <div class="p-6" id="requestDetailsContent">
+            
+            <!-- Modal Body -->
+            <div class="p-8 bg-gradient-to-br from-teal-50 to-white" id="requestDetailsContent">
                 <!-- Content will be loaded by JavaScript -->
             </div>
         </div>
@@ -822,23 +840,54 @@
 
     <!-- Action Confirmation Modal -->
     <div id="actionConfirmationModal"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-2xl w-full max-w-md mx-4">
-            <div class="p-6 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                    <i class="fas fa-exclamation text-red-600 text-xl"></i>
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 hidden overflow-y-auto h-full w-full p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 transform transition-all duration-500 scale-95 opacity-0" id="actionModalContent">
+            <!-- Modal Header with Dynamic Gradient -->
+            <div class="px-6 py-6 rounded-t-3xl relative overflow-hidden" id="actionModalHeader">
+                <!-- Background Pattern -->
+                <div class="absolute inset-0 opacity-10">
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900 mb-2" id="actionModalTitle">Confirm Action</h3>
-                <p class="text-sm text-gray-500 mb-6" id="actionModalMessage">Are you sure you want to take this action?
-                    This cannot be undone.</p>
+                
+                <div class="relative flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center" id="actionModalIcon">
+                            <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white" id="actionModalTitle">Confirm Action</h3>
+                    </div>
+                    <button onclick="closeModal('actionConfirmationModal')" 
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-8 bg-gradient-to-br from-gray-50 to-white text-center">
+                <!-- Dynamic Icon -->
+                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg" id="actionModalIconContainer">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse" id="actionModalIconLarge"></i>
+                </div>
+                
+                <!-- Warning Message -->
+                <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
+                <p class="text-gray-600 mb-8 leading-relaxed" id="actionModalMessage">
+                    This action <span class="font-semibold text-red-600">cannot be undone</span>. 
+                    Please review your decision carefully before proceeding.
+                </p>
+                
+                <!-- Action Buttons -->
                 <div class="flex justify-center space-x-4">
-                    <button type="button" onclick="closeModal('actionConfirmationModal')"
-                        class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                    <button onclick="closeModal('actionConfirmationModal')" 
+                        class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                        <i class="fas fa-shield-alt mr-2"></i>
                         Cancel
                     </button>
                     <button type="button" id="confirmActionBtn"
-                        class="px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                        Confirm
+                        class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-700 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                        <i class="fas fa-check mr-2"></i>
+                        <span id="confirmBtnText">Confirm</span>
                     </button>
                 </div>
             </div>
@@ -1001,14 +1050,68 @@
                 if (modal) {
                     modal.classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
+                    
+                    // Add animation
+                    setTimeout(() => {
+                        const modalContent = modal.querySelector('.transform');
+                        if (modalContent) {
+                            modalContent.classList.remove('scale-95', 'opacity-0');
+                            modalContent.classList.add('scale-100', 'opacity-100');
+                        }
+                    }, 10);
                 }
             }
 
             window.closeModal = function (modalId) {
                 const modal = document.getElementById(modalId);
                 if (modal) {
-                    modal.classList.add('hidden');
-                    document.body.style.overflow = '';
+                    const modalContent = modal.querySelector('.transform');
+                    if (modalContent) {
+                        modalContent.classList.remove('scale-100', 'opacity-100');
+                        modalContent.classList.add('scale-95', 'opacity-0');
+                        
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                            document.body.style.overflow = '';
+                        }, 300);
+                    } else {
+                        modal.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }
+                }
+            }
+
+            // Function to close view modal and open action confirmation
+            window.closeViewModalAndOpenAction = function (action, requestId) {
+                // Close the view modal first
+                const viewModal = document.getElementById('viewRequestModal');
+                if (viewModal) {
+                    const modalContent = viewModal.querySelector('.transform');
+                    if (modalContent) {
+                        modalContent.classList.remove('scale-100', 'opacity-100');
+                        modalContent.classList.add('scale-95', 'opacity-0');
+                        
+                        setTimeout(() => {
+                            viewModal.classList.add('hidden');
+                            document.body.style.overflow = '';
+                            
+                            // Open action confirmation modal after view modal is closed
+                            setTimeout(() => {
+                                showActionConfirmation(requestId, action);
+                            }, 100);
+                        }, 300);
+                    } else {
+                        viewModal.classList.add('hidden');
+                        document.body.style.overflow = '';
+                        
+                        // Open action confirmation modal immediately
+                        setTimeout(() => {
+                            showActionConfirmation(requestId, action);
+                        }, 100);
+                    }
+                } else {
+                    // If view modal doesn't exist, open action confirmation directly
+                    showActionConfirmation(requestId, action);
                 }
             }
 
@@ -1042,68 +1145,134 @@
                     year: 'numeric'
                 });
 
-                // Status badge
-                const statusClasses = {
-                    'pending': 'status-pending',
-                    'approved': 'status-approved',
-                    'rejected': 'status-rejected'
+                // Status badge with enhanced styling
+                const statusConfig = {
+                    'pending': {
+                        class: 'bg-amber-100 text-amber-800 border-amber-200',
+                        icon: 'fas fa-clock',
+                        text: 'Pending'
+                    },
+                    'approved': {
+                        class: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                        icon: 'fas fa-check-circle',
+                        text: 'Approved'
+                    },
+                    'rejected': {
+                        class: 'bg-red-100 text-red-800 border-red-200',
+                        icon: 'fas fa-times-circle',
+                        text: 'Rejected'
+                    }
                 };
-                const statusClass = statusClasses[request.status] || 'bg-gray-100 text-gray-800';
+                const status = statusConfig[request.status] || statusConfig['pending'];
 
-                // Build the content
+                // Type icon
+                const typeConfig = {
+                    'room': {
+                        icon: 'fas fa-door-open',
+                        color: 'text-blue-600',
+                        bg: 'bg-blue-100'
+                    },
+                    'equipment': {
+                        icon: 'fas fa-laptop',
+                        color: 'text-purple-600',
+                        bg: 'bg-purple-100'
+                    }
+                };
+                const type = typeConfig[request.type] || typeConfig['room'];
+
+                // Build the enhanced content
                 contentDiv.innerHTML = `
                     <div class="space-y-6">
-                        <div class="flex items-center justify-between">
-                            <h3 class="text-lg font-medium leading-6 text-gray-900">${request.title}</h3>
-                            <span class="status-badge ${statusClass}">
-                                ${request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                            </span>
+                        <!-- Header with Title and Status -->
+                        <div class="flex items-center justify-between pb-6 border-b border-gray-200">
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-2">${request.title}</h3>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium border ${status.class}">
+                                        <i class="${status.icon} mr-2"></i>
+                                        ${status.text}
+                                    </span>
+                                    <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${type.bg} ${type.color}">
+                                        <i class="${type.icon} mr-2"></i>
+                                        ${request.type.charAt(0).toUpperCase() + request.type.slice(1)}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="border-t border-b border-gray-200 py-6">
-                            <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-                                <div class="mb-4">
-                                    <dt class="text-sm font-medium text-gray-500">Request ID</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${request.id}</dd>
+                        <!-- Request Information Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100 hover:shadow-md transition-all duration-200">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-hashtag text-white text-sm"></i>
+                                    </div>
+                                    <label class="text-xs font-bold text-blue-600 uppercase tracking-wider">Request ID</label>
                                 </div>
-                                <div class="mb-4">
-                                    <dt class="text-sm font-medium text-gray-500">Requested By</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${request.requested_by}</dd>
+                                <p class="text-gray-900 font-semibold text-lg">${request.id}</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 hover:shadow-md transition-all duration-200">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-user text-white text-sm"></i>
+                                    </div>
+                                    <label class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Requested By</label>
                                 </div>
-                                <div class="mb-4">
-                                    <dt class="text-sm font-medium text-gray-500">Date</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${formattedDate}</dd>
+                                <p class="text-gray-900 font-semibold text-lg">${request.requested_by}</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100 hover:shadow-md transition-all duration-200">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-calendar text-white text-sm"></i>
+                                    </div>
+                                    <label class="text-xs font-bold text-amber-600 uppercase tracking-wider">Date</label>
                                 </div>
-                                <div class="mb-4">
-                                    <dt class="text-sm font-medium text-gray-500">Type</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${request.type.charAt(0).toUpperCase() + request.type.slice(1)}</dd>
+                                <p class="text-gray-900 font-semibold text-lg">${formattedDate}</p>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-rose-50 to-pink-50 rounded-2xl p-4 border border-rose-100 hover:shadow-md transition-all duration-200">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-hourglass-half text-white text-sm"></i>
+                                    </div>
+                                    <label class="text-xs font-bold text-rose-600 uppercase tracking-wider">Lead Time</label>
                                 </div>
-                                <div class="mb-4">
-                                    <dt class="text-sm font-medium text-gray-500">Lead Time</dt>
-                                    <dd class="mt-1 text-sm text-gray-900">${request.lead_time ? request.lead_time + ' days' : 'Not specified'}</dd>
+                                <p class="text-gray-900 font-semibold text-lg">${request.lead_time ? request.lead_time + ' days' : 'Not specified'}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Description Section -->
+                        <div class="bg-gradient-to-r from-gray-50 to-slate-50 rounded-2xl p-6 border border-gray-200">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-8 h-8 bg-gray-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-align-left text-white text-sm"></i>
                                 </div>
-                                <div class="col-span-2">
-                                    <dt class="text-sm font-medium text-gray-500">Description</dt>
-                                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">${request.description || 'No description provided'}</dd>
-                                </div>
-                            </dl>
+                                <label class="text-xs font-bold text-gray-600 uppercase tracking-wider">Description</label>
+                            </div>
+                            <p class="text-gray-900 font-medium whitespace-pre-line">${request.description || 'No description provided'}</p>
                         </div>
                     </div>
 
-                    <div class="mt-6 flex justify-end space-x-3">
-                        <button type="button" onclick="closeModal('viewRequestModal')" 
-                            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                            Close
-                        </button>
+                    <!-- Enhanced Action Buttons -->
+                    <div class="mt-8 flex justify-end space-x-4">
                         ${request.status === 'pending' ? `
-                        <button type="button" onclick="closeModal('viewRequestModal'); showActionConfirmation('${request.id}', 'approve')" 
-                            class="px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        <button type="button" onclick="closeViewModalAndOpenAction('approve', '${request.id}')" 
+                            class="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                            <i class="fas fa-check-circle mr-2"></i>
                             Approve
                         </button>
-                        <button type="button" onclick="closeModal('viewRequestModal'); showActionConfirmation('${request.id}', 'reject')" 
-                            class="px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <button type="button" onclick="closeViewModalAndOpenAction('reject', '${request.id}')" 
+                            class="px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-700 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                            <i class="fas fa-times-circle mr-2"></i>
                             Reject
                         </button>` : ''}
+                        <button type="button" onclick="closeModal('viewRequestModal')" 
+                            class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                            <i class="fas fa-times mr-2"></i>
+                            Close
+                        </button>
                     </div>
                 `;
 
@@ -1125,11 +1294,38 @@
                 const confirmBtn = document.getElementById('confirmActionBtn');
                 const modalTitle = document.getElementById('actionModalTitle');
                 const modalMessage = document.getElementById('actionModalMessage');
+                const modalHeader = document.getElementById('actionModalHeader');
+                const modalIcon = document.getElementById('actionModalIcon');
+                const modalIconLarge = document.getElementById('actionModalIconLarge');
+                const modalIconContainer = document.getElementById('actionModalIconContainer');
+                const confirmBtnText = document.getElementById('confirmBtnText');
 
-                modalTitle.textContent = action === 'approve' ? 'Approve Request' : 'Reject Request';
-                modalMessage.textContent = `Are you sure you want to ${action} this request? This action cannot be undone.`;
-                confirmBtn.textContent = action === 'approve' ? 'Approve Request' : 'Reject Request';
-                confirmBtn.className = `px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-white ${action === 'approve' ? 'bg-green-600 hover:bg-green-700 focus:ring-green-500' : 'bg-red-600 hover:bg-red-700 focus:ring-red-500'} focus:outline-none focus:ring-2 focus:ring-offset-2`;
+                // Dynamic styling based on action
+                if (action === 'approve') {
+                    modalTitle.textContent = 'Approve Request';
+                    modalMessage.textContent = `Are you sure you want to approve this request? This action cannot be undone.`;
+                    confirmBtnText.textContent = 'Approve Request';
+                    
+                    // Green theme for approve
+                    modalHeader.className = 'px-6 py-6 rounded-t-3xl relative overflow-hidden bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600';
+                    modalIcon.className = 'w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center';
+                    modalIcon.innerHTML = '<i class="fas fa-check-circle text-white text-xl"></i>';
+                    modalIconContainer.className = 'mx-auto w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mb-6 shadow-lg';
+                    modalIconLarge.className = 'fas fa-check-circle text-green-600 text-3xl animate-pulse';
+                    confirmBtn.className = 'px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl text-sm font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center';
+                } else {
+                    modalTitle.textContent = 'Reject Request';
+                    modalMessage.textContent = `Are you sure you want to reject this request? This action cannot be undone.`;
+                    confirmBtnText.textContent = 'Reject Request';
+                    
+                    // Red theme for reject
+                    modalHeader.className = 'px-6 py-6 rounded-t-3xl relative overflow-hidden bg-gradient-to-r from-red-600 via-rose-600 to-pink-600';
+                    modalIcon.className = 'w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center';
+                    modalIcon.innerHTML = '<i class="fas fa-times-circle text-white text-xl"></i>';
+                    modalIconContainer.className = 'mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg';
+                    modalIconLarge.className = 'fas fa-times-circle text-red-600 text-3xl animate-pulse';
+                    confirmBtn.className = 'px-6 py-3 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-700 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center';
+                }
 
                 confirmBtn.onclick = handleActionRequest;
                 openModal('actionConfirmationModal');
