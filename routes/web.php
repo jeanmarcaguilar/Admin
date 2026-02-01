@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 use App\Mail\TwoFactorCodeMail;
 use App\Models\Visitor;
 
@@ -127,6 +128,15 @@ Route::post('/two-factor/email', [TwoFactorController::class, 'sendEmailCode'])
 Route::post('/two-factor/verify', [TwoFactorController::class, 'verifyCode'])
     ->name('two-factor.verify');
 
+// Server time API endpoint (for clock synchronization)
+Route::get('/api/server-time', function () {
+    return response()->json([
+        'timestamp' => now()->timestamp * 1000, // milliseconds
+        'time' => now()->format('H:i:s'),
+        'timezone' => config('app.timezone', 'Asia/Manila')
+    ]);
+})->middleware('auth')->name('api.server-time');
+
 Route::middleware('auth')->group(function () {
 
     // Document Upload & Indexing
@@ -140,7 +150,7 @@ Route::middleware('auth')->group(function () {
                 'name' => $d->name ?? '',
                 'type' => $d->type ?? '',
                 'category' => $d->category ?? '',
-                'size' => $d->size_label ?? '0 MB',
+                'size' => $d->size ?? '0 MB',
                 'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
                 'status' => $d->status ?? 'Indexed',
             ];
@@ -195,25 +205,43 @@ Route::middleware('auth')->group(function () {
                 // Generate document code
                 $code = 'DOC-' . date('Y') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
-                // Create document record
+                // Create document record - only use columns that exist in database
                 $document = \App\Models\Document::create([
-                    'code' => $code,
                     'name' => $file->getClientOriginalName(),
                     'type' => $documentType,
                     'category' => $request->input('category', 'internal'),
                     'size' => formatBytes($file->getSize()),
-                    'size_label' => formatBytes($file->getSize()),
                     'file_path' => $path,
-                    'file_type' => $file->getMimeType(),
                     'status' => $request->input('status', 'Indexed'),
-                    'uploaded_on' => now()->toDateString(),
                 ]);
 
+                // Try to add additional columns if they exist (to avoid errors)
+                try {
+                    if (Schema::hasColumn('documents', 'code')) {
+                        $document->code = $code;
+                        $document->save();
+                    }
+                    if (Schema::hasColumn('documents', 'file_type')) {
+                        $document->file_type = $file->getMimeType();
+                        $document->save();
+                    }
+                    if (Schema::hasColumn('documents', 'uploaded_on')) {
+                        $document->uploaded_on = now()->toDateString();
+                        $document->save();
+                    }
+                } catch (\Exception $e) {
+                    // Ignore errors for optional columns
+                }
+
                 $uploadedFiles[] = [
+                    'id' => $document->id,
                     'name' => $file->getClientOriginalName(),
                     'size' => formatBytes($file->getSize()),
                     'type' => $documentType,
-                    'path' => $path
+                    'category' => $request->input('category', 'internal'),
+                    'path' => $path,
+                    'code' => $code,
+                    'uploaded' => now()->toDateString()
                 ];
             }
         }
@@ -300,7 +328,7 @@ Route::middleware('auth')->group(function () {
                 'name' => $d->name ?? '',
                 'type' => $d->type ?? '',
                 'category' => $d->category ?? '',
-                'size' => $d->size_label ?? '0 MB',
+                'size' => $d->size ?? '0 MB',
                 'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
                 'status' => $d->status ?? 'Indexed',
             ];
@@ -463,7 +491,7 @@ Route::middleware('auth')->group(function () {
                 'name' => $d->name ?? '',
                 'type' => $d->type ?? '',
                 'category' => $d->category ?? '',
-                'size' => $d->size_label ?? '0 MB',
+                'size' => $d->size ?? '0 MB',
                 'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
                 'status' => $d->status ?? 'Indexed',
                 'version' => $d->data_type ?? '1.0', // Version from data_type field
@@ -505,7 +533,6 @@ Route::middleware('auth')->group(function () {
                         'type' => $request->input('docType', 'internal'),
                         'category' => $request->input('category', 'financial'),
                         'size' => formatBytes($file->getSize()),
-                        'size_label' => formatBytes($file->getSize()),
                         'file_path' => $path,
                         'file_type' => $file->getMimeType(),
                         'status' => $request->input('status', 'Indexed'),
@@ -703,7 +730,7 @@ Route::middleware('auth')->group(function () {
                 'name' => $d->name ?? '',
                 'type' => $d->type ?? '',
                 'category' => $d->category ?? '',
-                'size' => $d->size_label ?? '0 MB',
+                'size' => $d->size ?? '0 MB',
                 'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
                 'status' => $d->status ?? 'Indexed',
                 'description' => $d->description ?? '',
@@ -721,7 +748,7 @@ Route::middleware('auth')->group(function () {
                     'name' => $d->name ?? '',
                     'type' => $d->type ?? '',
                     'category' => $d->category ?? '',
-                    'size' => $d->size_label ?? '0 MB',
+                    'size' => $d->size ?? '0 MB',
                     'uploaded' => ($d->uploaded_on ?: ($d->created_at?->toDateString() ?? now()->toDateString())),
                     'status' => $d->status ?? 'Archived',
                     'description' => $d->description ?? '',
@@ -1586,34 +1613,66 @@ Route::middleware('auth')->group(function () {
     Route::post('/visitor/update', function (Request $request) {
         $request->validate([
             'id' => 'required|exists:visitors,id',
-            'name' => 'required|string|max:255',
+            'name' => 'sometimes|string|max:255',
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'company' => 'nullable|string|max:255',
-            'purpose' => 'required|string|max:500',
-            'visit_date' => 'required|date',
+            'visitor_type' => 'nullable|string|max:100',
+            'host' => 'nullable|string|max:255',
+            'host_department' => 'nullable|string|max:255',
+            'purpose' => 'sometimes|string|max:500',
+            'visit_date' => 'sometimes|date',
+            'check_in_date' => 'sometimes|date', // Accept either
             'check_in_time' => 'nullable|string',
             'check_out_time' => 'nullable|string',
-            'status' => 'required|string|in:pending,checked_in,checked_out,expired',
+            'status' => 'sometimes|string|in:pending,checked_in,checked_out,expired,scheduled',
             'notes' => 'nullable|string',
         ]);
 
         $visitor = \App\Models\Visitor::find($request->id);
         if ($visitor) {
-            $visitor->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'company' => $request->company,
-                'purpose' => $request->purpose,
-                'visit_date' => $request->visit_date,
-                'check_in_time' => $request->check_in_time,
-                'check_out_time' => $request->check_out_time,
-                'status' => $request->status,
-                'notes' => $request->notes,
-                'updated_by' => auth()->id(),
-                'updated_at' => now(),
-            ]);
+            $data = [];
+            if ($request->has('name'))
+                $data['name'] = $request->name;
+            if ($request->has('email'))
+                $data['email'] = $request->email;
+            if ($request->has('phone'))
+                $data['phone'] = $request->phone;
+            if ($request->has('company'))
+                $data['company'] = $request->company;
+            if ($request->has('visitor_type'))
+                $data['visitor_type'] = $request->visitor_type;
+            if ($request->has('host'))
+                $data['host'] = $request->host;
+            if ($request->has('host_department'))
+                $data['host_department'] = $request->host_department;
+            if ($request->has('purpose'))
+                $data['purpose'] = $request->purpose;
+
+            // Handle date mapping
+            if ($request->has('visit_date')) {
+                $data['check_in_date'] = $request->visit_date;
+                $data['check_out_date'] = $request->visit_date; // Assume same day visit
+            } elseif ($request->has('check_in_date')) {
+                $data['check_in_date'] = $request->check_in_date;
+                if (!$visitor->check_out_date) {
+                    $data['check_out_date'] = $request->check_in_date;
+                }
+            }
+
+            if ($request->has('check_in_time'))
+                $data['check_in_time'] = $request->check_in_time;
+            if ($request->has('check_out_time'))
+                $data['check_out_time'] = $request->check_out_time;
+            if ($request->has('status'))
+                $data['status'] = $request->status;
+            if ($request->has('notes'))
+                $data['notes'] = $request->notes;
+
+            $data['updated_by'] = auth()->id();
+            $data['updated_at'] = now();
+
+            $visitor->update($data);
 
             return response()->json([
                 'success' => true,
@@ -1673,11 +1732,14 @@ Route::middleware('auth')->group(function () {
             'email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'company' => 'nullable|string|max:255',
+            'visitor_type' => 'nullable|string|max:100',
+            'host' => 'nullable|string|max:255',
+            'host_department' => 'nullable|string|max:255',
             'purpose' => 'required|string|max:500',
             'visit_date' => 'required|date',
             'check_in_time' => 'nullable|string',
             'check_out_time' => 'nullable|string',
-            'status' => 'required|string|in:pending,checked_in,checked_out,expired',
+            'status' => 'required|string|in:pending,checked_in,checked_out,expired,scheduled',
             'notes' => 'nullable|string',
         ]);
 
@@ -1691,6 +1753,9 @@ Route::middleware('auth')->group(function () {
             'email' => $request->email,
             'phone' => $request->phone,
             'company' => $request->company,
+            'visitor_type' => $request->visitor_type,
+            'host' => $request->host,
+            'host_department' => $request->host_department,
             'purpose' => $request->purpose,
             'check_in_date' => $request->visit_date,
             'check_in_time' => $request->check_in_time,

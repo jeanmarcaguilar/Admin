@@ -1,16 +1,19 @@
 @php
-// Get the authenticated user
-$user = auth()->user();
+    // Get the authenticated user
+    $user = auth()->user();
 @endphp
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Administrative</title>
-    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -28,7 +31,8 @@ $user = auth()->user();
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -91,8 +95,15 @@ $user = auth()->user();
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .fade-in {
@@ -100,26 +111,27 @@ $user = auth()->user();
         }
     </style>
 </head>
+
 <body class="bg-brand-background-main min-h-screen">
 
     <!-- Overlay (mobile) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
+    </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar"
-        class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
                transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
         <div class="h-16 flex items-center px-4 border-b border-gray-100">
-            <a href="{{ route('admin.dashboard') }}"
-                class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 w-full rounded-xl px-2 py-2
                        hover:bg-gray-100 active:bg-gray-200 transition group">
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
                         Microfinance Admin
                     </div>
-                    <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+                    <div
+                        class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
                         Administrative
                     </div>
                 </div>
@@ -149,23 +161,36 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
                     Visitor Management
                 </span>
-                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="visitor-submenu" class="submenu mt-1">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('visitors.registration') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitors.registration') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitors Registration
                     </a>
-                    <a href="{{ route('checkinout.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('checkinout.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Check In/Out Tracking
                     </a>
-                    <a href="{{ route('visitor.history.records') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitor.history.records') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitor History Records
                     </a>
                 </div>
@@ -180,27 +205,44 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
                     Document Management
                 </span>
-                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="document-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('document.upload.indexing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.upload.indexing') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Document Upload & Indexing
                     </a>
-                    <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.version.control') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Version Control
                     </a>
-                    <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.access.control.permissions') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Access Control & Permissions
                     </a>
-                    <a href="{{ route('document.archival.retention.policy') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.archival.retention.policy') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Archival & Retention Policy
                     </a>
                 </div>
@@ -215,27 +257,44 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
                     Facilities Management
                 </span>
-                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="facilities-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('room-equipment') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Room & Equipment Booking
                     </a>
-                    <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('scheduling.calendar') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Scheduling & Calendar Integrations
                     </a>
-                    <a href="{{ route('approval.workflow') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('approval.workflow') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Approval Workflow
                     </a>
-                    <a href="{{ route('reservation.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('reservation.history') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Reservation History
                     </a>
                 </div>
@@ -250,27 +309,44 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
                     Legal Management
                 </span>
-                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="legal-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('case.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('case.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Case Management
                     </a>
-                    <a href="{{ route('contract.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('contract.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Contract Management
                     </a>
-                    <a href="{{ route('compliance.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('compliance.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Compliance Tracking
                     </a>
-                    <a href="{{ route('deadline.hearing.alerts') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('deadline.hearing.alerts') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Deadline & Hearing Alerts
                     </a>
                 </div>
@@ -282,7 +358,7 @@ $user = auth()->user();
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance Admin © {{ date('Y') }}<br/>
+                    Microfinance Admin © {{ date('Y') }}<br />
                     Administrative
                 </div>
             </div>
@@ -295,7 +371,7 @@ $user = auth()->user();
         <!-- TOP HEADER -->
         <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
                     shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-            
+
             <!-- BORDER COVER -->
             <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
 
@@ -304,7 +380,7 @@ $user = auth()->user();
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
                     ☰
                 </button>
-                
+
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">
@@ -318,37 +394,44 @@ $user = auth()->user();
 
                 <!-- User Profile Dropdown -->
                 <div class="relative">
-                    <button id="user-menu-button"
-                        class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                    <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
                             hover:bg-gray-100 active:bg-gray-200 transition">
-                        <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
-                            <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                        <div
+                            class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+                            <div
+                                class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         </div>
                         <div class="hidden md:flex flex-col items-start text-left">
-                            <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
                                 {{ $user->name }}
                             </span>
-                            <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
                                 Administrator
                             </span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
                     </button>
 
-                    <div id="user-menu-dropdown"
-                        class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
+                    <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
                             absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
                             transition-all duration-200 z-50">
-                        <button id="openProfileBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
+                        <button id="openProfileBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
+                        <button id="openAccountSettingsBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
                         <div class="h-px bg-gray-100"></div>
                         <form method="POST" action="{{ route('logout') }}" class="w-full">
                             @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
+                            <button type="submit"
+                                class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
                         </form>
                     </div>
                 </div>
@@ -366,7 +449,8 @@ $user = auth()->user();
                             <p class="text-gray-600 mt-1">Register, track, and manage visitor activity</p>
                         </div>
                         <div class="mt-4 md:mt-0">
-                            <button id="addVisitorBtn" class="inline-flex items-center bg-brand-primary hover:bg-brand-primary-hover text-white font-medium rounded-lg px-4 py-2.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
+                            <button id="addVisitorBtn"
+                                class="inline-flex items-center bg-brand-primary hover:bg-brand-primary-hover text-white font-medium rounded-lg px-4 py-2.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
                                 <i class="fas fa-user-plus mr-2"></i> Register Visitor
                             </button>
                         </div>
@@ -380,7 +464,9 @@ $user = auth()->user();
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
-                            <input type="text" id="searchVisitors" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5" placeholder="Search visitors, companies, hosts...">
+                            <input type="text" id="searchVisitors"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5"
+                                placeholder="Search visitors, companies, hosts...">
                         </div>
                     </div>
                 </div>
@@ -388,84 +474,105 @@ $user = auth()->user();
                 <!-- Enhanced Stats Cards -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <!-- Total Today Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-sm mb-2">Total Today</p>
                                 <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['total_today'] ?? 0 }}</p>
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                         <i class="fas fa-calendar-day mr-1"></i>
                                         Daily
                                     </span>
                                     <span class="text-xs text-gray-500">Visitors</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="fas fa-calendar-day text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Checked In Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-sm mb-2">Checked In</p>
                                 <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['checked_in'] ?? 0 }}</p>
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                                         <i class="fas fa-user-check mr-1"></i>
                                         Active
                                     </span>
                                     <span class="text-xs text-gray-500">Currently</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="fas fa-user-check text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Scheduled Today Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-amber-50 to-amber-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-sm mb-2">Scheduled Today</p>
-                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['scheduled_today'] ?? 0 }}</p>
+                                <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['scheduled_today'] ?? 0 }}
+                                </p>
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                                         <i class="fas fa-clock mr-1"></i>
                                         Pending
                                     </span>
                                     <span class="text-xs text-gray-500">Expected</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="fas fa-clock text-white text-xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Checked Out Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-gray-50 to-gray-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-sm mb-2">Checked Out</p>
                                 <p class="font-bold text-3xl text-gray-900 mb-1">{{ $stats['checked_out'] ?? 0 }}</p>
                                 <div class="flex items-center gap-2">
-                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    <span
+                                        class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
                                         <i class="fas fa-door-open mr-1"></i>
                                         Completed
                                     </span>
                                     <span class="text-xs text-gray-500">Departed</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="fas fa-door-open text-white text-xl"></i>
                             </div>
                         </div>
@@ -475,17 +582,23 @@ $user = auth()->user();
                 <!-- Enhanced Table with Pagination -->
                 <section class="grid grid-cols-1 gap-6">
                     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 border-b border-gray-100">
+                        <div
+                            class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-6 py-4 border-b border-gray-100">
                             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 <div class="flex items-center gap-2">
-                                    <button class="text-sm font-medium text-brand-primary px-4 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-200">Today</button>
-                                    <button class="text-sm text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">Scheduled</button>
-                                    <button class="text-sm text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">All</button>
+                                    <button
+                                        class="text-sm font-medium text-brand-primary px-4 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-200">Today</button>
+                                    <button
+                                        class="text-sm text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">Scheduled</button>
+                                    <button
+                                        class="text-sm text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors border border-gray-200">All</button>
                                 </div>
-                                <div id="resultsCount" class="text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">0 results</div>
+                                <div id="resultsCount" class="text-xs text-gray-500 bg-gray-50 px-3 py-1 rounded-full">0
+                                    results</div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <select class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                <select
+                                    class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                                     <option>10 per page</option>
                                     <option>25 per page</option>
                                     <option>50 per page</option>
@@ -497,20 +610,35 @@ $user = auth()->user();
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Visitor</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Host</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Visitor</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Type</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Company</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Host</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Time</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status</th>
+                                        <th
+                                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="visitorsTbody" class="bg-white divide-y divide-gray-200">
                                     @forelse(($visitors ?? []) as $v)
                                         <tr class="table-row">
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm font-medium text-gray-900">{{ $v['name'] ?? 'Visitor' }}</div>
+                                                <div class="text-sm font-medium text-gray-900">{{ $v['name'] ?? 'Visitor' }}
+                                                </div>
                                                 <div class="text-xs text-gray-500">ID: {{ $v['id'] ?? '' }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
@@ -525,7 +653,8 @@ $user = auth()->user();
                                                     ];
                                                     $typeLabel = ucfirst(str_replace('_', ' ', $visitorType));
                                                 @endphp
-                                                <span class="px-2 py-1 text-xs font-medium rounded-full inline-flex items-center {{ $typeClasses[$visitorType] ?? 'bg-gray-100 text-gray-800' }}">
+                                                <span
+                                                    class="px-2 py-1 text-xs font-medium rounded-full inline-flex items-center {{ $typeClasses[$visitorType] ?? 'bg-gray-100 text-gray-800' }}">
                                                     @if($visitorType === 'vip')
                                                         <i class="fas fa-crown text-yellow-500 mr-1 text-xs"></i>
                                                     @endif
@@ -544,10 +673,13 @@ $user = auth()->user();
                                                     $__rawTime = $v['check_in_time'] ?? '';
                                                     $__fmtTime = $__rawTime;
                                                     if ($__rawTime) {
-                                                        try { $__fmtTime = \Carbon\Carbon::createFromFormat('H:i', $__rawTime)->format('g:i A'); }
-                                                        catch (\Exception $e) {
-                                                            try { $__fmtTime = \Carbon\Carbon::createFromFormat('H:i:s', $__rawTime)->format('g:i A'); }
-                                                            catch (\Exception $e2) { /* leave as-is */ }
+                                                        try {
+                                                            $__fmtTime = \Carbon\Carbon::createFromFormat('H:i', $__rawTime)->format('g:i A');
+                                                        } catch (\Exception $e) {
+                                                            try {
+                                                                $__fmtTime = \Carbon\Carbon::createFromFormat('H:i:s', $__rawTime)->format('g:i A');
+                                                            } catch (\Exception $e2) { /* leave as-is */
+                                                            }
                                                         }
                                                     }
                                                 @endphp
@@ -556,17 +688,28 @@ $user = auth()->user();
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @php $st = strtolower($v['status'] ?? 'scheduled'); @endphp
-                                                <span class="px-2 py-1 text-xs font-medium rounded-full inline-flex items-center {{ $st === 'checked_in' ? 'bg-green-100 text-green-800' : ($st==='checked_out' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800') }}">
+                                                <span
+                                                    class="px-2 py-1 text-xs font-medium rounded-full inline-flex items-center {{ $st === 'checked_in' ? 'bg-green-100 text-green-800' : ($st === 'checked_out' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800') }}">
                                                     {{ ucfirst($st) }}
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <a href="#" class="visitorViewBtn text-brand-primary hover:text-brand-primary-hover mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="View"><i class="fas fa-eye"></i></a>
-                                                <a href="#" class="visitorEditBtn text-blue-600 hover:text-blue-900 mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Edit"><i class="fas fa-edit"></i></a>
+                                                <a href="#"
+                                                    class="visitorViewBtn text-brand-primary hover:text-brand-primary-hover mr-3"
+                                                    data-id="{{ $v['id'] ?? '' }}" data-tooltip="View"><i
+                                                        class="fas fa-eye"></i></a>
+                                                <a href="#" class="visitorEditBtn text-blue-600 hover:text-blue-900 mr-3"
+                                                    data-id="{{ $v['id'] ?? '' }}" data-tooltip="Edit"><i
+                                                        class="fas fa-edit"></i></a>
                                                 @if($st !== 'checked_out' && $st !== 'checked_in')
-                                                    <a href="#" class="visitorCheckInBtn text-green-600 hover:text-green-800 mr-3" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Check In"><i class="fas fa-sign-in-alt"></i></a>
+                                                    <a href="#"
+                                                        class="visitorCheckInBtn text-green-600 hover:text-green-800 mr-3"
+                                                        data-id="{{ $v['id'] ?? '' }}" data-tooltip="Check In"><i
+                                                            class="fas fa-sign-in-alt"></i></a>
                                                 @endif
-                                                <a href="#" class="visitorDeleteBtn text-red-600 hover:text-red-900" data-id="{{ $v['id'] ?? '' }}" data-tooltip="Delete"><i class="fas fa-trash"></i></a>
+                                                <a href="#" class="visitorDeleteBtn text-red-600 hover:text-red-900"
+                                                    data-id="{{ $v['id'] ?? '' }}" data-tooltip="Delete"><i
+                                                        class="fas fa-trash"></i></a>
                                             </td>
                                         </tr>
                                     @empty
@@ -574,7 +717,9 @@ $user = auth()->user();
                                             <td colspan="7" class="px-6 py-10 text-center text-sm text-gray-500">
                                                 No visitors registered yet.
                                                 <div class="mt-3">
-                                                    <button type="button" onclick="document.getElementById('addVisitorBtn').click()" class="inline-flex items-center bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-medium rounded-lg px-3 py-2 shadow-sm">
+                                                    <button type="button"
+                                                        onclick="document.getElementById('addVisitorBtn').click()"
+                                                        class="inline-flex items-center bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-medium rounded-lg px-3 py-2 shadow-sm">
                                                         <i class="fas fa-user-plus mr-2"></i> Register your first visitor
                                                     </button>
                                                 </div>
@@ -584,22 +729,31 @@ $user = auth()->user();
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         <!-- Pagination -->
-                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
+                        <div
+                            class="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t border-gray-100 bg-gray-50">
                             <div class="text-sm text-gray-700">
-                                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">{{ count($visitors ?? []) }}</span> results
+                                Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of
+                                <span class="font-medium">{{ count($visitors ?? []) }}</span> results
                             </div>
                             <div class="flex items-center gap-2">
-                                <button class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                                <button
+                                    class="px-3 py-1 text-sm text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled>
                                     <i class="fas fa-chevron-left"></i>
                                 </button>
-                                <button class="px-3 py-1 text-sm text-white bg-emerald-600 border border-emerald-600 rounded-lg hover:bg-emerald-700">1</button>
-                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
-                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
+                                <button
+                                    class="px-3 py-1 text-sm text-white bg-emerald-600 border border-emerald-600 rounded-lg hover:bg-emerald-700">1</button>
+                                <button
+                                    class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">2</button>
+                                <button
+                                    class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">3</button>
                                 <span class="px-2 text-sm text-gray-500">...</span>
-                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">10</button>
-                                <button class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+                                <button
+                                    class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">10</button>
+                                <button
+                                    class="px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
                                     <i class="fas fa-chevron-right"></i>
                                 </button>
                             </div>
@@ -612,11 +766,15 @@ $user = auth()->user();
 
     <!-- Modals -->
     <!-- Add Visitor Modal -->
-    <div id="addVisitorModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="add-visitor-modal-title">
-        <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4 max-h-[90vh] overflow-y-auto fade-in" role="document">
+    <div id="addVisitorModal" class="modal hidden" aria-modal="true" role="dialog"
+        aria-labelledby="add-visitor-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4 max-h-[90vh] overflow-y-auto fade-in"
+            role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
                 <h3 id="add-visitor-modal-title" class="font-semibold text-sm text-gray-900">Register New Visitor</h3>
-                <button id="closeAddVisitorModal" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
+                <button id="closeAddVisitorModal" type="button"
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
+                    aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -628,27 +786,38 @@ $user = auth()->user();
                         </div>
                         <div>
                             <label for="firstName" class="block mb-1 font-medium text-xs">First Name *</label>
-                            <input type="text" id="firstName" name="firstName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <input type="text" id="firstName" name="firstName"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                         </div>
                         <div>
                             <label for="lastName" class="block mb-1 font-medium text-xs">Last Name *</label>
-                            <input type="text" id="lastName" name="lastName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <input type="text" id="lastName" name="lastName"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                         </div>
                         <div class="col-span-2">
                             <label for="email" class="block mb-1 font-medium text-xs">Email Address</label>
-                            <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
+                            <input type="email" id="email" name="email"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
                         </div>
                         <div>
                             <label for="phone" class="block mb-1 font-medium text-xs">Phone Number *</label>
-                            <input type="tel" id="phone" name="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <input type="tel" id="phone" name="phone"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                         </div>
                         <div>
                             <label for="company" class="block mb-1 font-medium text-xs">Company *</label>
-                            <input type="text" id="company" name="company" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <input type="text" id="company" name="company"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                         </div>
                         <div class="col-span-2">
                             <label for="visitorType" class="block mb-1 font-medium text-xs">Visitor Type *</label>
-                            <select id="visitorType" name="visitorType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <select id="visitorType" name="visitorType"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                                 <option value="">Select visitor type</option>
                                 <option value="personal">Personal</option>
                                 <option value="professional">Professional</option>
@@ -662,15 +831,21 @@ $user = auth()->user();
                         </div>
                         <div>
                             <label for="hostName" class="block mb-1 font-medium text-xs">Host Name *</label>
-                            <input type="text" id="hostName" name="hostName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" placeholder="e.g., Sarah Johnson" required>
+                            <input type="text" id="hostName" name="hostName"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                placeholder="e.g., Sarah Johnson" required>
                         </div>
                         <div>
                             <label for="hostDepartment" class="block mb-1 font-medium text-xs">Host Department</label>
-                            <input type="text" id="hostDepartment" name="hostDepartment" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" placeholder="e.g., Procurement">
+                            <input type="text" id="hostDepartment" name="hostDepartment"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                placeholder="e.g., Procurement">
                         </div>
                         <div>
                             <label for="purpose" class="block mb-1 font-medium text-xs">Purpose of Visit *</label>
-                            <select id="purpose" name="purpose" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <select id="purpose" name="purpose"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                                 <option value="">Select purpose</option>
                                 <option value="meeting">Meeting</option>
                                 <option value="delivery">Delivery</option>
@@ -681,26 +856,35 @@ $user = auth()->user();
                         </div>
                         <div>
                             <label for="checkInDate" class="block mb-1 font-medium text-xs">Check-In Date *</label>
-                            <input type="date" id="checkInDate" name="checkInDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <input type="date" id="checkInDate" name="checkInDate"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                         </div>
                         <div>
                             <label for="checkInTime" class="block mb-1 font-medium text-xs">Check-In Time *</label>
-                            <input type="time" id="checkInTime" name="checkInTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm" required>
+                            <input type="time" id="checkInTime" name="checkInTime"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"
+                                required>
                         </div>
                         <div class="col-span-2">
                             <label for="notes" class="block mb-1 font-medium text-xs">Additional Notes</label>
-                            <textarea id="notes" name="notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"></textarea>
+                            <textarea id="notes" name="notes" rows="3"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm"></textarea>
                         </div>
                         <div class="col-span-2">
                             <label class="flex items-center space-x-2 text-xs">
-                                <input id="sendEmailNotification" name="sendEmailNotification" type="checkbox" checked class="w-4 h-4 text-brand-primary focus:ring-brand-primary border-gray-300 rounded">
+                                <input id="sendEmailNotification" name="sendEmailNotification" type="checkbox" checked
+                                    class="w-4 h-4 text-brand-primary focus:ring-brand-primary border-gray-300 rounded">
                                 <span>Send email notification to host</span>
                             </label>
                         </div>
                     </div>
                     <div class="flex justify-end space-x-3 pt-2">
-                        <button type="button" id="cancelAddVisitor" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover rounded-lg transition-colors">Register Visitor</button>
+                        <button type="button" id="cancelAddVisitor"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover rounded-lg transition-colors">Register
+                            Visitor</button>
                     </div>
                 </form>
             </div>
@@ -712,7 +896,9 @@ $user = auth()->user();
         <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4 fade-in" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
                 <h3 class="font-semibold text-sm text-gray-900">View Visitor</h3>
-                <button id="closeViewVisitor" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
+                <button id="closeViewVisitor" type="button"
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
+                    aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -756,7 +942,8 @@ $user = auth()->user();
                     </div>
                 </div>
                 <div class="flex justify-end pt-4">
-                    <button type="button" id="closeViewVisitor2" class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover rounded-lg transition-colors">Close</button>
+                    <button type="button" id="closeViewVisitor2"
+                        class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover rounded-lg transition-colors">Close</button>
                 </div>
             </div>
         </div>
@@ -767,7 +954,9 @@ $user = auth()->user();
         <div class="bg-white rounded-lg shadow-lg w-[460px] max-w-full mx-4 fade-in" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
                 <h3 class="font-semibold text-sm text-gray-900">Edit Visitor</h3>
-                <button id="closeEditVisitor" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
+                <button id="closeEditVisitor" type="button"
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
+                    aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -776,12 +965,14 @@ $user = auth()->user();
                     <input type="hidden" id="evId" />
                     <div>
                         <label class="block mb-1 font-medium text-xs">Company</label>
-                        <input type="text" id="evCompany" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
+                        <input type="text" id="evCompany"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block mb-1 font-medium text-xs">Type</label>
-                            <select id="evType" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
+                            <select id="evType"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
                                 <option value="">—</option>
                                 <option value="client">Client</option>
                                 <option value="vendor">Vendor</option>
@@ -792,7 +983,8 @@ $user = auth()->user();
                         </div>
                         <div>
                             <label class="block mb-1 font-medium text-xs">Purpose</label>
-                            <select id="evPurpose" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
+                            <select id="evPurpose"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
                                 <option value="">—</option>
                                 <option value="meeting">Meeting</option>
                                 <option value="delivery">Delivery</option>
@@ -805,24 +997,29 @@ $user = auth()->user();
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block mb-1 font-medium text-xs">Date</label>
-                            <input type="date" id="evDate" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
+                            <input type="date" id="evDate"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
                         </div>
                         <div>
                             <label class="block mb-1 font-medium text-xs">Time</label>
-                            <input type="time" id="evTime" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
+                            <input type="time" id="evTime"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
                         </div>
                     </div>
                     <div>
                         <label class="block mb-1 font-medium text-xs">Status</label>
-                        <select id="evStatus" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
+                        <select id="evStatus"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent text-sm">
                             <option value="scheduled">Scheduled</option>
                             <option value="checked_in">Checked In</option>
                             <option value="checked_out">Checked Out</option>
                         </select>
                     </div>
                     <div class="flex justify-end space-x-3 pt-2">
-                        <button type="button" id="cancelEditVisitor" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover rounded-lg transition-colors">Save</button>
+                        <button type="button" id="cancelEditVisitor"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-brand-primary hover:bg-brand-primary-hover rounded-lg transition-colors">Save</button>
                     </div>
                 </form>
             </div>
@@ -834,16 +1031,21 @@ $user = auth()->user();
         <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4 fade-in" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
                 <h3 class="font-semibold text-sm text-gray-900">Delete Visitor</h3>
-                <button id="closeDeleteVisitor" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
+                <button id="closeDeleteVisitor" type="button"
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
+                    aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="px-6 pt-5 pb-6">
-                <p class="text-sm text-gray-700 mb-3">Are you sure you want to delete visitor <span id="dvText" class="font-semibold text-gray-900"></span>?</p>
+                <p class="text-sm text-gray-700 mb-3">Are you sure you want to delete visitor <span id="dvText"
+                        class="font-semibold text-gray-900"></span>?</p>
                 <input type="hidden" id="dvId" />
                 <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancelDeleteVisitor" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="button" id="confirmDeleteVisitor" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
+                    <button type="button" id="cancelDeleteVisitor"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                    <button type="button" id="confirmDeleteVisitor"
+                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
                 </div>
             </div>
         </div>
@@ -854,16 +1056,22 @@ $user = auth()->user();
         <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4 fade-in" role="document">
             <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
                 <h3 id="check-in-modal-title" class="font-semibold text-sm text-gray-900">Check In Visitor</h3>
-                <button id="closeCheckIn" type="button" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
+                <button id="closeCheckIn" type="button"
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
+                    aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="px-6 pt-5 pb-6">
-                <p class="text-sm text-gray-700 mb-3">Are you sure you want to check in visitor <span id="ciText" class="font-semibold text-gray-900"></span> now?</p>
+                <p class="text-sm text-gray-700 mb-3">Are you sure you want to check in visitor <span id="ciText"
+                        class="font-semibold text-gray-900"></span> now?</p>
                 <input type="hidden" id="ciId" />
                 <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancelCheckIn" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="button" id="confirmCheckIn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors">Check In</button>
+                    <button type="button" id="cancelCheckIn"
+                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
+                    <button type="button" id="confirmCheckIn"
+                        class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors">Check
+                        In</button>
                 </div>
             </div>
         </div>
@@ -906,8 +1114,8 @@ $user = auth()->user();
 
                 if (btn && submenu) {
                     btn.addEventListener("click", () => {
-                        const isHidden = submenu.classList.contains("hidden");
-                        
+                        const isHidden = submenu.classList.contains("hidden"    );
+
                         // Close all other dropdowns
                         Object.values(dropdowns).forEach(id => {
                             const otherSubmenu = document.getElementById(id);
@@ -940,7 +1148,7 @@ $user = auth()->user();
                 userMenuButton.addEventListener("click", (e) => {
                     e.stopPropagation();
                     const isHidden = userMenuDropdown.classList.contains("hidden");
-                    
+
                     if (isHidden) {
                         userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                         userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
@@ -982,7 +1190,7 @@ $user = auth()->user();
             const visitorBtn = document.getElementById('visitor-management-btn');
             const visitorSubmenu = document.getElementById('visitor-submenu');
             const visitorArrow = document.getElementById('visitor-arrow');
-            
+
             if (visitorSubmenu && !visitorSubmenu.classList.contains('hidden')) {
                 visitorSubmenu.classList.remove('hidden');
                 if (visitorArrow) visitorArrow.classList.add('rotate-180');
@@ -1001,12 +1209,12 @@ $user = auth()->user();
             function initializeVisitorsData() {
                 const tbody = document.getElementById('visitorsTbody');
                 if (!tbody) return;
-                
+
                 const rows = Array.from(tbody.querySelectorAll('tr'));
                 allVisitors = rows.map((row, index) => {
                     const emptyCell = row.querySelector('td[colspan]');
                     if (emptyCell) return null;
-                    
+
                     return {
                         element: row,
                         index: index,
@@ -1018,7 +1226,7 @@ $user = auth()->user();
                         dept: row.querySelector('td:nth-child(4) .text-xs')?.textContent || ''
                     };
                 }).filter(v => v !== null);
-                
+
                 filteredVisitors = [...allVisitors];
             }
 
@@ -1030,7 +1238,7 @@ $user = auth()->user();
 
             function applySearchFilter(query) {
                 const q = (query || '').toString().toLowerCase().trim();
-                
+
                 if (q === '') {
                     filteredVisitors = [...allVisitors];
                 } else {
@@ -1039,7 +1247,7 @@ $user = auth()->user();
                         return hay.includes(q);
                     });
                 }
-                
+
                 currentPage = 1;
                 updatePagination();
                 renderVisitors();
@@ -1049,21 +1257,21 @@ $user = auth()->user();
             function renderVisitors() {
                 const tbody = document.getElementById('visitorsTbody');
                 if (!tbody) return;
-                
+
                 // Hide all visitor rows initially
                 allVisitors.forEach(visitor => {
                     visitor.element.classList.add('hidden');
                 });
-                
+
                 // Show only the current page's filtered visitors
                 const startIndex = (currentPage - 1) * itemsPerPage;
                 const endIndex = startIndex + itemsPerPage;
                 const pageVisitors = filteredVisitors.slice(startIndex, endIndex);
-                
+
                 pageVisitors.forEach(visitor => {
                     visitor.element.classList.remove('hidden');
                 });
-                
+
                 // Handle empty state
                 const emptyRow = tbody.querySelector('td[colspan]');
                 if (emptyRow) {
@@ -1076,10 +1284,10 @@ $user = auth()->user();
                 const totalPages = Math.ceil(filteredVisitors.length / itemsPerPage);
                 const paginationContainer = document.querySelector('.flex.items-center.gap-2');
                 if (!paginationContainer) return;
-                
+
                 // Clear existing pagination buttons
                 paginationContainer.innerHTML = '';
-                
+
                 // Previous button
                 const prevBtn = document.createElement('button');
                 prevBtn.className = 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed';
@@ -1093,19 +1301,19 @@ $user = auth()->user();
                     }
                 });
                 paginationContainer.appendChild(prevBtn);
-                
+
                 // Page numbers
                 const maxVisiblePages = 5;
                 let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
                 let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                
+
                 if (endPage - startPage < maxVisiblePages - 1) {
                     startPage = Math.max(1, endPage - maxVisiblePages + 1);
                 }
-                
+
                 for (let i = startPage; i <= endPage; i++) {
                     const pageBtn = document.createElement('button');
-                    pageBtn.className = i === currentPage 
+                    pageBtn.className = i === currentPage
                         ? 'px-3 py-1 text-sm text-white bg-emerald-600 border border-emerald-600 rounded-lg hover:bg-emerald-700'
                         : 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50';
                     pageBtn.textContent = i;
@@ -1116,14 +1324,14 @@ $user = auth()->user();
                     });
                     paginationContainer.appendChild(pageBtn);
                 }
-                
+
                 // Ellipsis if needed
                 if (endPage < totalPages) {
                     const ellipsis = document.createElement('span');
                     ellipsis.className = 'px-2 text-sm text-gray-500';
                     ellipsis.textContent = '...';
                     paginationContainer.appendChild(ellipsis);
-                    
+
                     const lastPageBtn = document.createElement('button');
                     lastPageBtn.className = 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50';
                     lastPageBtn.textContent = totalPages;
@@ -1134,7 +1342,7 @@ $user = auth()->user();
                     });
                     paginationContainer.appendChild(lastPageBtn);
                 }
-                
+
                 // Next button
                 const nextBtn = document.createElement('button');
                 nextBtn.className = 'px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed';
@@ -1148,7 +1356,7 @@ $user = auth()->user();
                     }
                 });
                 paginationContainer.appendChild(nextBtn);
-                
+
                 // Update results summary
                 const summaryElement = document.querySelector('.text-sm.text-gray-700');
                 if (summaryElement && filteredVisitors.length > 0) {
@@ -1251,7 +1459,7 @@ $user = auth()->user();
             const modals = [viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal]; // Removed addVisitorModal
             modals.forEach(modal => {
                 if (modal) {
-                    modal.addEventListener('click', function(e) {
+                    modal.addEventListener('click', function (e) {
                         if (e.target === this) {
                             closeModal(this);
                         }
@@ -1334,17 +1542,30 @@ $user = auth()->user();
                 addVisitorForm.addEventListener("submit", async (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    
+
                     // Prevent any modal closing
                     const submitButton = e.target.querySelector('button[type="submit"]');
                     if (submitButton) {
                         submitButton.disabled = true;
                         submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Registering...';
                     }
-                    
+
                     const formData = new FormData(addVisitorForm);
-                    const payload = Object.fromEntries(formData);
-                    
+                    const payload = {
+                        name: `${formData.get('firstName')} ${formData.get('lastName')}`,
+                        email: formData.get('email'),
+                        phone: formData.get('phone'),
+                        company: formData.get('company'),
+                        visitor_type: formData.get('visitorType'),
+                        host: formData.get('hostName'),
+                        host_department: formData.get('hostDepartment'),
+                        purpose: formData.get('purpose'),
+                        visit_date: formData.get('checkInDate'),
+                        check_in_time: formData.get('checkInTime'),
+                        status: 'scheduled',
+                        notes: formData.get('notes')
+                    };
+
                     try {
                         const res = await fetch(`{{ route('visitor.create') }}`, {
                             method: "POST",
@@ -1355,7 +1576,7 @@ $user = auth()->user();
                             },
                             body: JSON.stringify(payload),
                         });
-                        
+
                         if (res.ok) {
                             // Show success message but keep modal open
                             await Swal.fire({
@@ -1367,16 +1588,16 @@ $user = auth()->user();
                                 timerProgressBar: true,
                                 showConfirmButton: false
                             });
-                            
+
                             // Clear form but keep modal open
                             addVisitorForm.reset();
-                            
+
                             // Re-enable button
                             if (submitButton) {
                                 submitButton.disabled = false;
                                 submitButton.innerHTML = 'Register Visitor';
                             }
-                            
+
                             // Optionally update the visitor list without reload
                             // location.reload(); // Commented out to keep modal open
                         } else {
@@ -1388,7 +1609,7 @@ $user = auth()->user();
                             submitButton.disabled = false;
                             submitButton.innerHTML = 'Register Visitor';
                         }
-                        
+
                         Swal.fire({
                             icon: "error",
                             title: "Registration failed",
@@ -1413,7 +1634,7 @@ $user = auth()->user();
                         check_in_time: document.getElementById("evTime").value || null,
                         status: document.getElementById("evStatus").value || null,
                     };
-                    
+
                     try {
                         const res = await fetch(`{{ route('visitor.update') }}`, {
                             method: "POST",
@@ -1424,7 +1645,7 @@ $user = auth()->user();
                             },
                             body: JSON.stringify(payload),
                         });
-                        
+
                         if (res.ok) {
                             closeModal(editVisitorModal);
                             location.reload();
@@ -1447,14 +1668,14 @@ $user = auth()->user();
                 const id = document.getElementById("dvId").value;
                 const fd = new FormData();
                 fd.append("id", id);
-                
+
                 try {
                     const res = await fetch(`{{ route('visitor.delete') }}`, {
                         method: "POST",
                         headers: { "X-CSRF-TOKEN": csrf, "Accept": "application/json" },
                         body: fd,
                     });
-                    
+
                     if (res.ok) {
                         closeModal(deleteVisitorModal);
                         location.reload();
@@ -1472,12 +1693,18 @@ $user = auth()->user();
             });
 
             // Confirm check in
-            document.getElementById("confirmCheckIn")?.addEventListener("click", async () => {
+            document.getElementById("confirmCheckIn")?.addEventListener("click", async function() {
+                const btn = this;
+                const originalContent = btn.innerHTML;
                 const id = document.getElementById("ciId").value;
                 const now = new Date();
                 const pad = (n) => n.toString().padStart(2, "0");
                 const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
                 const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+                
+                // Disable button and show loading state
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Checking In...';
                 
                 try {
                     const res = await fetch(`{{ route('visitor.update') }}`, {
@@ -1496,7 +1723,19 @@ $user = auth()->user();
                     });
                     
                     if (!res.ok) throw new Error("Failed to check in visitor");
+                    
                     closeModal(checkInModal);
+                    
+                    // Show success confirmation before reload
+                    await Swal.fire({
+                        icon: "success",
+                        title: "Check-in Successful",
+                        text: "The visitor has been checked in.",
+                        confirmButtonColor: "#059669",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    
                     location.reload();
                 } catch (err) {
                     Swal.fire({
@@ -1505,9 +1744,14 @@ $user = auth()->user();
                         text: err.message || "Please try again.",
                         confirmButtonColor: "#059669",
                     });
+                    
+                    // Reset button
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
                 }
             });
         });
     </script>
 </body>
+
 </html>
