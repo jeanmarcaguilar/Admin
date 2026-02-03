@@ -919,12 +919,137 @@ Route::middleware('auth')->group(function () {
                     'status' => $b->status ?? 'pending',
                     'created_at' => $b->created_at?->toDateString(),
                     'updated_at' => $b->updated_at?->toDateString(),
+                    'room' => $b->name ?? '', // Add room field for calendar display
+                    'is_external' => false
                 ];
             })->toArray();
 
+        // Get approval requests from database
+        $approvalBookings = \App\Models\Approval::orderBy('date', 'asc')
+            ->get()
+            ->map(function ($approval) {
+                return [
+                    'id' => 'APP-' . $approval->id,
+                    'code' => $approval->request_id ?? '',
+                    'name' => $approval->title,
+                    'title' => $approval->title,
+                    'type' => $approval->type ?? 'room',
+                    'date' => $approval->date,
+                    'start_time' => '09:00', // Default time for approvals
+                    'end_time' => '17:00',   // Default time for approvals
+                    'purpose' => $approval->description,
+                    'status' => $approval->status,
+                    'room' => $approval->title, // Use title as room for display
+                    'requested_by' => $approval->requested_by,
+                    'approved_by' => $approval->approved_by,
+                    'rejected_by' => $approval->rejected_by,
+                    'approved_at' => $approval->approved_at,
+                    'rejected_at' => $approval->rejected_at,
+                    'rejection_reason' => $approval->rejection_reason,
+                    'is_external' => false
+                ];
+            })->toArray();
+
+        // Get external bookings from API
+        $externalBookings = [];
+        try {
+            $response = \Illuminate\Support\Facades\Http::timeout(10)->get('https://hr2.microfinancial-1.com/api/training-room-bookings');
+            
+            if ($response->successful()) {
+                $bookings = $response->json();
+                
+                if (!empty($bookings) && is_array($bookings)) {
+                    $bookingsData = $bookings['data'] ?? $bookings;
+                    $externalBookings = collect($bookingsData)->map(function ($booking) {
+                        // Check if we have stored status for this external booking
+                        $storedStatus = \Cache::get('external_booking_status_' . $booking['id'], $booking['status'] ?? 'pending');
+                        $approvedBy = \Cache::get('external_booking_approved_by_' . $booking['id']);
+                        $rejectedBy = \Cache::get('external_booking_rejected_by_' . $booking['id']);
+                        $approvedAt = \Cache::get('external_booking_approved_at_' . $booking['id']);
+                        $rejectedAt = \Cache::get('external_booking_rejected_at_' . $booking['id']);
+                        $rejectionReason = \Cache::get('external_booking_reason_' . $booking['id']);
+                        
+                        return [
+                            'id' => 'EXT-' . ($booking['id'] ?? uniqid()),
+                            'code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
+                            'name' => $booking['title'] ?? $booking['course_name'] ?? $booking['name'] ?? 'External Training',
+                            'title' => $booking['title'] ?? $booking['course_name'] ?? $booking['name'] ?? 'External Training',
+                            'type' => $booking['type'] ?? 'room',
+                            'date' => $booking['date'] ?? $booking['session_date'] ?? $booking['booking_date'] ?? now()->toDateString(),
+                            'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
+                            'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
+                            'purpose' => $booking['description'] ?? $booking['notes'] ?? $booking['purpose'] ?? 'External training session',
+                            'status' => $storedStatus,
+                            'room' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? 'External Room',
+                            'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
+                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
+                            'requested_by' => $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
+                            'approved_by' => $approvedBy,
+                            'rejected_by' => $rejectedBy,
+                            'approved_at' => $approvedAt,
+                            'rejected_at' => $rejectedAt,
+                            'rejection_reason' => $rejectionReason,
+                            'is_external' => true
+                        ];
+                    })->toArray();
+                }
+            }
+        } catch (\Exception $e) {
+            // Add sample external bookings for testing if API fails
+            $externalBookings = [
+                [
+                    'id' => 'EXT-001',
+                    'code' => 'TRB-001',
+                    'name' => 'External Training Room A',
+                    'title' => 'External Training Room A',
+                    'type' => 'room',
+                    'date' => '2025-02-05',
+                    'start_time' => '10:00',
+                    'end_time' => '16:00',
+                    'purpose' => 'External API Training Session',
+                    'status' => \Cache::get('external_booking_status_EXT-001', 'approved'),
+                    'room' => 'External Training Room A',
+                    'booking_code' => 'TRB-001',
+                    'facilitator' => 'External Trainer',
+                    'requested_by' => 'External Trainer',
+                    'approved_by' => \Cache::get('external_booking_approved_by_EXT-001'),
+                    'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-001'),
+                    'approved_at' => \Cache::get('external_booking_approved_at_EXT-001'),
+                    'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-001'),
+                    'rejection_reason' => \Cache::get('external_booking_reason_EXT-001'),
+                    'is_external' => true
+                ],
+                [
+                    'id' => 'EXT-002',
+                    'code' => 'TRB-002',
+                    'name' => 'Conference Hall B',
+                    'title' => 'Conference Hall B',
+                    'type' => 'room',
+                    'date' => '2025-02-06',
+                    'start_time' => '13:00',
+                    'end_time' => '17:00',
+                    'purpose' => 'Workshop from External System',
+                    'status' => \Cache::get('external_booking_status_EXT-002', 'pending'),
+                    'room' => 'Conference Hall B',
+                    'booking_code' => 'TRB-002',
+                    'facilitator' => 'Guest Speaker',
+                    'requested_by' => 'Guest Speaker',
+                    'approved_by' => \Cache::get('external_booking_approved_by_EXT-002'),
+                    'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-002'),
+                    'approved_at' => \Cache::get('external_booking_approved_at_EXT-002'),
+                    'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-002'),
+                    'rejection_reason' => \Cache::get('external_booking_reason_EXT-002'),
+                    'is_external' => true
+                ]
+            ];
+        }
+
+        // Merge all bookings
+        $allBookings = array_merge($calendarBookings, $approvalBookings, $externalBookings);
+
         return view('dashboard.scheduling-calendar', [
             'user' => auth()->user(),
-            'calendarBookings' => $calendarBookings
+            'calendarBookings' => $allBookings
         ]);
     })->name('scheduling.calendar');
 

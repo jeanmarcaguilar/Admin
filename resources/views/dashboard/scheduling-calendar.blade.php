@@ -1,4 +1,4 @@
-@php
+﻿@php
     // Get the authenticated user
     $user = auth()->user();
     // Get calendar bookings from database (passed from route)
@@ -642,15 +642,16 @@
                                                 $day = $date ? $date->format('d') : '--';
                                                 $monthShort = $date ? $date->format('M') : '';
                                                 $time = isset($booking['start_time']) && $booking['start_time']
-                                                    ? (\Carbon\Carbon::createFromFormat('H:i', $booking['start_time'])->format('g:i A'))
+                                                    ? (\Carbon\Carbon::parse($booking['start_time'])->format('g:i A'))
                                                     : '';
                                                 $title = $booking['name'] ?? ($booking['title'] ?? 'Booking');
                                                 $status = strtolower($booking['status'] ?? 'pending');
-                                                $statusClass = [
+                                                $statusMap = array(
                                                     'pending' => 'status-pending',
                                                     'approved' => 'status-approved',
                                                     'rejected' => 'status-rejected',
-                                                ][$status] ?? 'bg-gray-100 text-gray-800';
+                                                );
+                                                $statusClass = $statusMap[$status] ?? 'bg-gray-100 text-gray-800';
                                             @endphp
                                             <div class="calendar-event p-3 rounded-lg border border-gray-100 hover:border-green-200 cursor-pointer"
                                                 onclick="showEventDetails({{ json_encode($booking) }})">
@@ -936,13 +937,13 @@
                         let y, m, d;
 
                         if (b.date.includes('T')) {
-                             const datePart = b.date.split('T')[0];
-                             [y, m, d] = datePart.split('-').map(Number);
+                            const datePart = b.date.split('T')[0];
+                            [y, m, d] = datePart.split('-').map(Number);
                         } else if (b.date.includes(' ')) {
-                             const datePart = b.date.split(' ')[0];
-                             [y, m, d] = datePart.split('-').map(Number);
+                            const datePart = b.date.split(' ')[0];
+                            [y, m, d] = datePart.split('-').map(Number);
                         } else {
-                             [y, m, d] = b.date.split('-').map(Number);
+                            [y, m, d] = b.date.split('-').map(Number);
                         }
 
                         // Compare with current cell: year, monthIndex (0-11), day
@@ -965,11 +966,11 @@
                             else colorClass = 'bg-blue-100 text-blue-800 border-l-2 border-blue-500';
 
                             const start = ev.start_time ? ev.start_time.substring(0, 5) : '';
-                            
+
                             // Determine the best display text
                             // explicit name > title > purpose > room > 'Booking'
                             let displayText = ev.name || ev.title || ev.purpose || ev.room || 'Booking';
-                            
+
                             // If just "Booking" (generic) and we have a room, append it
                             if (displayText === 'Booking' && ev.room) {
                                 displayText += ` (${ev.room})`;
