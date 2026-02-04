@@ -159,11 +159,11 @@
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-                        Microfinance HR
+                        Microfinance Admin
                     </div>
                     <div
                         class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        HUMAN RESOURCE III
+                        Administrative
                     </div>
                 </div>
             </a>
@@ -391,8 +391,8 @@
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © {{ date('Y') }}<br />
-                    Human Resource III System
+                    Microfinance Admin © {{ date('Y') }}<br />
+                    Administrative System
                 </div>
             </div>
         </div>
@@ -413,7 +413,7 @@
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
                     ☰
                 </button>
-                <h1 class="text-lg font-bold text-gray-800 hidden md:block">Document Upload & Indexing</h1>
+
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">
@@ -1002,7 +1002,8 @@
 
     <!-- Document Details Modal -->
     <div id="documentModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="document-modal-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 fade-in transform transition-all duration-300" role="document">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -1019,7 +1020,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
             <div class="p-6 bg-gradient-to-br from-gray-50 to-white" id="documentDetailsContent">
                 <!-- Content will be loaded by JavaScript -->
@@ -1030,7 +1031,8 @@
     <!-- Download Document Modal -->
     <div id="downloadDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
         aria-labelledby="download-document-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -1047,13 +1049,14 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
             <div class="p-6 bg-gradient-to-br from-blue-50 to-white">
                 <!-- File Preview Card -->
                 <div class="bg-white rounded-xl p-4 shadow-sm border border-blue-100 mb-6">
                     <div class="flex items-center space-x-3 mb-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
                             <i class="fas fa-file text-blue-600 text-xl"></i>
                         </div>
                         <div class="flex-1">
@@ -1061,7 +1064,7 @@
                             <div id="downloadDocName" class="text-sm font-semibold text-gray-900 truncate">—</div>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-gray-50 rounded-lg p-3">
                             <div class="text-xs text-gray-500 font-medium mb-1">Type</div>
@@ -1073,7 +1076,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex justify-end space-x-3">
                     <button type="button" id="cancelDownloadBtn"
@@ -1093,7 +1096,8 @@
     <!-- Share Document Modal -->
     <div id="shareDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
         aria-labelledby="share-document-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-purple-500 to-pink-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -1110,13 +1114,14 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
             <div class="p-6 bg-gradient-to-br from-purple-50 to-white">
                 <!-- File Info Card -->
                 <div class="bg-white rounded-xl p-4 shadow-sm border border-purple-100 mb-6">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                        <div
+                            class="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
                             <i class="fas fa-file text-purple-600 text-xl"></i>
                         </div>
                         <div class="flex-1">
@@ -1125,7 +1130,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Email Input -->
                 <div class="mb-6">
                     <label for="shareEmail" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
@@ -1138,7 +1143,7 @@
                         <i class="fas fa-envelope absolute left-3 top-3.5 text-purple-400"></i>
                     </div>
                 </div>
-                
+
                 <!-- Share Link -->
                 <div class="mb-6">
                     <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
@@ -1158,7 +1163,7 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex justify-end space-x-3">
                     <button type="button" id="cancelShareBtn"
@@ -1178,7 +1183,8 @@
     <!-- Delete Document Modal -->
     <div id="deleteDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
         aria-labelledby="delete-document-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -1195,21 +1201,22 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
             <div class="p-6 bg-gradient-to-br from-red-50 to-white text-center">
                 <!-- Warning Icon -->
-                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                <div
+                    class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
                     <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"></i>
                 </div>
-                
+
                 <!-- Warning Message -->
                 <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
                 <p class="text-gray-600 mb-8 leading-relaxed">
-                    This action <span class="font-semibold text-red-600">cannot be undone</span>. 
+                    This action <span class="font-semibold text-red-600">cannot be undone</span>.
                     This will permanently delete the document and remove it from your records.
                 </p>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex justify-center space-x-4">
                     <button type="button" id="cancelDeleteBtn"
@@ -1229,7 +1236,8 @@
 
     <!-- OTP Modal -->
     <div id="otpModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="otp-modal-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-amber-500 to-orange-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -1246,22 +1254,25 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
             <div class="p-6 bg-gradient-to-br from-amber-50 to-white">
                 <!-- Security Icon -->
-                <div class="mx-auto w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                <div
+                    class="mx-auto w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
                     <i class="fas fa-lock text-amber-600 text-2xl"></i>
                 </div>
-                
+
                 <!-- Instructions -->
                 <p class="text-gray-600 mb-6 text-center leading-relaxed">
-                    Enter the 6-digit code to view confidential document details. This extra step ensures your document security.
+                    Enter the 6-digit code to view confidential document details. This extra step ensures your document
+                    security.
                 </p>
-                
+
                 <!-- OTP Input -->
                 <div class="mb-8">
-                    <label for="otpInput" class="block text-sm font-semibold text-gray-700 mb-3 flex items-center justify-center">
+                    <label for="otpInput"
+                        class="block text-sm font-semibold text-gray-700 mb-3 flex items-center justify-center">
                         <i class="fas fa-key text-amber-500 mr-2"></i>
                         One-Time Password (OTP)
                     </label>
@@ -1281,7 +1292,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex justify-end space-x-3">
                     <button id="cancelOtpBtn" type="button"
@@ -1298,8 +1309,8 @@
             </div>
         </div>
     </div>
-            </div>
-        </div>
+    </div>
+    </div>
     </div>
 
     <!-- JAVASCRIPT -->
@@ -1805,12 +1816,12 @@
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 const seconds = String(now.getSeconds()).padStart(2, '0');
                 const ampm = hours >= 12 ? 'PM' : 'AM';
-                
+
                 // Convert to 12-hour format
                 hours = hours % 12;
                 hours = hours ? hours : 12; // the hour '0' should be '12'
                 const displayHours = String(hours).padStart(2, '0');
-                
+
                 const timeString = `${displayHours}:${minutes}:${seconds} ${ampm}`;
 
                 clockElement.textContent = timeString;
@@ -2122,145 +2133,145 @@
                 }
             });
 
-        // Search functionality
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', function () {
-                const searchTerm = this.value.toLowerCase();
-                const rows = document.querySelectorAll('#documentsTable tbody tr');
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function () {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#documentsTable tbody tr');
 
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        row.style.display = text.includes(searchTerm) ? '' : 'none';
+                    });
                 });
-            });
-        }
-
-        console.log('Document upload functions loaded');
-
-        // Global function to close document details modal
-        window.closeDocumentDetailsModal = function() {
-            const documentModal = document.getElementById('documentModal');
-            if (documentModal) {
-                closeModal(documentModal);
             }
-        };
 
-        // Lock/Unlock functionality
-        const lockAllBtn = document.getElementById('lockAllDocsBtn');
-        const unlockAllBtn = document.getElementById('unlockAllBtn');
+            console.log('Document upload functions loaded');
 
-        if (lockAllBtn) {
-            lockAllBtn.addEventListener('click', () => {
-                // Show OTP modal for verification
-                openModal(otpModal);
+            // Global function to close document details modal
+            window.closeDocumentDetailsModal = function () {
+                const documentModal = document.getElementById('documentModal');
+                if (documentModal) {
+                    closeModal(documentModal);
+                }
+            };
+
+            // Lock/Unlock functionality
+            const lockAllBtn = document.getElementById('lockAllDocsBtn');
+            const unlockAllBtn = document.getElementById('unlockAllBtn');
+
+            if (lockAllBtn) {
+                lockAllBtn.addEventListener('click', () => {
+                    // Show OTP modal for verification
+                    openModal(otpModal);
+                });
+            }
+
+            if (unlockAllBtn) {
+                unlockAllBtn.addEventListener('click', () => {
+                    // Show OTP modal for verification
+                    openModal(otpModal);
+                });
+            }
+
+            document.getElementById('verifyOtpBtn').addEventListener('click', () => {
+                const otp = document.getElementById('otpInput').value;
+                if (otp.length === 6) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Verified',
+                        text: 'OTP verified successfully.',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        closeModal(otpModal);
+                        // Toggle lock state
+                        const isLocked = lockAllBtn.innerHTML.includes('Lock');
+                        if (isLocked) {
+                            lockAllBtn.innerHTML = '<i class="fas fa-unlock mr-2"></i> Unlock All';
+                            unlockAllBtn.style.display = 'none';
+                        } else {
+                            lockAllBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> Lock All';
+                            unlockAllBtn.style.display = 'inline-flex';
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid OTP',
+                        text: 'Please enter a valid 6-digit code.',
+                        confirmButtonColor: '#059669'
+                    });
+                }
             });
-        }
 
-        if (unlockAllBtn) {
-            unlockAllBtn.addEventListener('click', () => {
-                // Show OTP modal for verification
-                openModal(otpModal);
-            });
-        }
-
-        document.getElementById('verifyOtpBtn').addEventListener('click', () => {
-            const otp = document.getElementById('otpInput').value;
-            if (otp.length === 6) {
+            // Export functionality
+            document.getElementById('exportBtn').addEventListener('click', () => {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Verified',
-                    text: 'OTP verified successfully.',
-                    timer: 1500,
+                    title: 'Export Started',
+                    text: 'Your document list export has been queued. You will receive an email when it\'s ready.',
+                    timer: 2000,
                     showConfirmButton: false
-                }).then(() => {
-                    closeModal(otpModal);
-                    // Toggle lock state
-                    const isLocked = lockAllBtn.innerHTML.includes('Lock');
-                    if (isLocked) {
-                        lockAllBtn.innerHTML = '<i class="fas fa-unlock mr-2"></i> Unlock All';
-                        unlockAllBtn.style.display = 'none';
-                    } else {
-                        lockAllBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> Lock All';
-                        unlockAllBtn.style.display = 'inline-flex';
-                    }
                 });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid OTP',
-                    text: 'Please enter a valid 6-digit code.',
-                    confirmButtonColor: '#059669'
-                });
-            }
-        });
-
-        // Export functionality
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Export Started',
-                text: 'Your document list export has been queued. You will receive an email when it\'s ready.',
-                timer: 2000,
-                showConfirmButton: false
             });
-        });
 
-        // Refresh functionality
-        document.getElementById('refreshBtn').addEventListener('click', () => {
-            window.location.reload();
-        });
+            // Refresh functionality
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                window.location.reload();
+            });
 
-        // Document action functions
-        let currentDownloadDoc = null;
-        let currentShareDoc = null;
-        let currentDeleteDoc = null;
+            // Document action functions
+            let currentDownloadDoc = null;
+            let currentShareDoc = null;
+            let currentDeleteDoc = null;
 
-        // Add uploaded documents to table dynamically
-        window.addDocumentsToTable = function(files) {
-            console.log('Adding documents to table:', files);
-            
-            const tbody = document.querySelector('#documentsTable tbody');
-            if (!tbody) {
-                console.error('Table tbody not found');
-                return;
-            }
+            // Add uploaded documents to table dynamically
+            window.addDocumentsToTable = function (files) {
+                console.log('Adding documents to table:', files);
 
-            // Remove "No documents" row if it exists
-            const noDocumentsRow = tbody.querySelector('td[colspan]');
-            if (noDocumentsRow) {
-                noDocumentsRow.parentElement.remove();
-            }
-
-            files.forEach(file => {
-                // Determine icon based on file type
-                const dtype = file.type ? file.type.toUpperCase() : '';
-                let icon = 'bxs-file text-gray-500';
-                if (dtype.includes('PDF') || file.name.toLowerCase().endsWith('.pdf')) {
-                    icon = 'bxs-file-pdf text-red-500';
-                } else if (dtype.includes('WORD') || dtype.includes('DOC') || file.name.toLowerCase().match(/\.(doc|docx)$/)) {
-                    icon = 'bxs-file-doc text-blue-500';
-                } else if (dtype.includes('EXCEL') || dtype.includes('XLS') || file.name.toLowerCase().match(/\.(xls|xlsx)$/)) {
-                    icon = 'bxs-file-txt text-green-500';
+                const tbody = document.querySelector('#documentsTable tbody');
+                if (!tbody) {
+                    console.error('Table tbody not found');
+                    return;
                 }
 
-                // Format category for display
-                const rawCategory = file.category || 'other';
-                const categoryKey = rawCategory.toLowerCase();
-                let displayCategory = categoryKey === 'hr' ? 'HR' : ucfirst(categoryKey);
-                
-                if (!['financial', 'hr', 'legal', 'operations'].includes(categoryKey)) {
-                    displayCategory = file.type || 'Other';
+                // Remove "No documents" row if it exists
+                const noDocumentsRow = tbody.querySelector('td[colspan]');
+                if (noDocumentsRow) {
+                    noDocumentsRow.parentElement.remove();
                 }
 
-                // Create new table row
-                const row = document.createElement('tr');
-                row.className = 'document-row fade-in';
-                row.setAttribute('data-category', categoryKey);
-                row.setAttribute('data-type', dtype.toLowerCase());
-                row.setAttribute('data-doc-id', file.id || '');
-                
-                row.innerHTML = `
+                files.forEach(file => {
+                    // Determine icon based on file type
+                    const dtype = file.type ? file.type.toUpperCase() : '';
+                    let icon = 'bxs-file text-gray-500';
+                    if (dtype.includes('PDF') || file.name.toLowerCase().endsWith('.pdf')) {
+                        icon = 'bxs-file-pdf text-red-500';
+                    } else if (dtype.includes('WORD') || dtype.includes('DOC') || file.name.toLowerCase().match(/\.(doc|docx)$/)) {
+                        icon = 'bxs-file-doc text-blue-500';
+                    } else if (dtype.includes('EXCEL') || dtype.includes('XLS') || file.name.toLowerCase().match(/\.(xls|xlsx)$/)) {
+                        icon = 'bxs-file-txt text-green-500';
+                    }
+
+                    // Format category for display
+                    const rawCategory = file.category || 'other';
+                    const categoryKey = rawCategory.toLowerCase();
+                    let displayCategory = categoryKey === 'hr' ? 'HR' : ucfirst(categoryKey);
+
+                    if (!['financial', 'hr', 'legal', 'operations'].includes(categoryKey)) {
+                        displayCategory = file.type || 'Other';
+                    }
+
+                    // Create new table row
+                    const row = document.createElement('tr');
+                    row.className = 'document-row fade-in';
+                    row.setAttribute('data-category', categoryKey);
+                    row.setAttribute('data-type', dtype.toLowerCase());
+                    row.setAttribute('data-doc-id', file.id || '');
+
+                    row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <i class='bx ${icon} text-xl mr-3'></i>
@@ -2302,178 +2313,178 @@
                     </td>
                 `;
 
-                // Add row to table
-                tbody.appendChild(row);
-            });
+                    // Add row to table
+                    tbody.appendChild(row);
+                });
 
-            // Update document counts
-            updateDocumentCounts();
+                // Update document counts
+                updateDocumentCounts();
 
-            // Show success animation
-            showUploadSuccessAnimation(files.length);
-        };
+                // Show success animation
+                showUploadSuccessAnimation(files.length);
+            };
 
-        // Update document counts in the stats cards
-        function updateDocumentCounts() {
-            const allRows = document.querySelectorAll('#documentsTable tbody tr:not([style*="display: none"])');
-            const totalCount = allRows.length;
-            
-            // Update visible count in table header
-            const visibleCountElement = document.getElementById('visibleCount');
-            const totalCountElement = document.getElementById('totalCount');
-            if (visibleCountElement) visibleCountElement.textContent = totalCount;
-            if (totalCountElement) totalCountElement.textContent = totalCount;
+            // Update document counts in the stats cards
+            function updateDocumentCounts() {
+                const allRows = document.querySelectorAll('#documentsTable tbody tr:not([style*="display: none"])');
+                const totalCount = allRows.length;
 
-            // Update total documents card
-            const totalDocsCard = document.querySelector('.font-bold.text-3xl');
-            if (totalDocsCard && totalDocsCard.textContent.includes('@{{ count($documents) }}')) {
-                // Skip if it's still the template string
-                return;
+                // Update visible count in table header
+                const visibleCountElement = document.getElementById('visibleCount');
+                const totalCountElement = document.getElementById('totalCount');
+                if (visibleCountElement) visibleCountElement.textContent = totalCount;
+                if (totalCountElement) totalCountElement.textContent = totalCount;
+
+                // Update total documents card
+                const totalDocsCard = document.querySelector('.font-bold.text-3xl');
+                if (totalDocsCard && totalDocsCard.textContent.includes('@{{ count($documents) }}')) {
+                    // Skip if it's still the template string
+                    return;
+                }
+
+                // Find and update the total documents count
+                const totalDocsElements = document.querySelectorAll('.font-bold.text-3xl');
+                totalDocsElements.forEach(el => {
+                    const currentText = el.textContent;
+                    if (!currentText.includes('@{{')) {
+                        el.textContent = totalCount;
+                    }
+                });
             }
 
-            // Find and update the total documents count
-            const totalDocsElements = document.querySelectorAll('.font-bold.text-3xl');
-            totalDocsElements.forEach(el => {
-                const currentText = el.textContent;
-                if (!currentText.includes('@{{')) {
-                    el.textContent = totalCount;
-                }
-            });
-        }
-
-        // Show upload success animation
-        function showUploadSuccessAnimation(fileCount) {
-            const toast = document.createElement('div');
-            toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
-            toast.innerHTML = `
+            // Show upload success animation
+            function showUploadSuccessAnimation(fileCount) {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+                toast.innerHTML = `
                 <div class="flex items-center">
                     <i class="bx bx-check-circle text-xl mr-2"></i>
                     <span>${fileCount} file(s) added to table</span>
                 </div>
             `;
-            
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
 
-        console.log('Document upload functions loaded');
+                document.body.appendChild(toast);
 
-        // Show download document modal
-        window.showDownloadDocumentModal = function (doc) {
-            console.log('showDownloadDocumentModal called with:', doc);
-            currentDownloadDoc = doc;
-
-            const downloadModal = document.getElementById('downloadDocumentModal');
-            if (!downloadModal) {
-                console.error('Download modal not found');
-                return;
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
             }
 
-            const nameElement = document.getElementById('downloadDocName');
-            const typeElement = document.getElementById('downloadDocType');
-            const sizeElement = document.getElementById('downloadDocSize');
+            console.log('Document upload functions loaded');
 
-            if (nameElement) nameElement.textContent = doc.name || '—';
-            if (typeElement) typeElement.textContent = doc.type || '—';
-            if (sizeElement) sizeElement.textContent = doc.size || '—';
+            // Show download document modal
+            window.showDownloadDocumentModal = function (doc) {
+                console.log('showDownloadDocumentModal called with:', doc);
+                currentDownloadDoc = doc;
 
-            openModal(downloadModal);
-        };
+                const downloadModal = document.getElementById('downloadDocumentModal');
+                if (!downloadModal) {
+                    console.error('Download modal not found');
+                    return;
+                }
 
-        // Perform actual download
-        window.performDownload = function () {
-            console.log('performDownload called');
-            if (!currentDownloadDoc) {
-                console.error('No current download document');
-                return;
-            }
+                const nameElement = document.getElementById('downloadDocName');
+                const typeElement = document.getElementById('downloadDocType');
+                const sizeElement = document.getElementById('downloadDocSize');
 
-            const docId = currentDownloadDoc.id || currentDownloadDoc.code;
-            if (!docId) {
+                if (nameElement) nameElement.textContent = doc.name || '—';
+                if (typeElement) typeElement.textContent = doc.type || '—';
+                if (sizeElement) sizeElement.textContent = doc.size || '—';
+
+                openModal(downloadModal);
+            };
+
+            // Perform actual download
+            window.performDownload = function () {
+                console.log('performDownload called');
+                if (!currentDownloadDoc) {
+                    console.error('No current download document');
+                    return;
+                }
+
+                const docId = currentDownloadDoc.id || currentDownloadDoc.code;
+                if (!docId) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Download Failed',
+                        text: 'Document ID not found',
+                        confirmButtonColor: '#059669'
+                    });
+                    return;
+                }
+
+                // Create download link
+                const downloadUrl = "{{ route('document.download', ':id') }}".replace(':id', docId);
+
+                // Trigger download
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = currentDownloadDoc.name || 'document';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Show success message and close modal
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Download Failed',
-                    text: 'Document ID not found',
-                    confirmButtonColor: '#059669'
+                    icon: 'success',
+                    title: 'Download Started',
+                    text: `${currentDownloadDoc.name} is being downloaded.`,
+                    timer: 2000,
+                    showConfirmButton: false
                 });
-                return;
-            }
+                closeModal(downloadModal);
+            };
 
-            // Create download link
-            const downloadUrl = "{{ route('document.download', ':id') }}".replace(':id', docId);
-            
-            // Trigger download
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.download = currentDownloadDoc.name || 'document';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Show document details modal
+            window.showDocumentDetails = function (doc) {
+                console.log('showDocumentDetails called with:', doc);
 
-            // Show success message and close modal
-            Swal.fire({
-                icon: 'success',
-                title: 'Download Started',
-                text: `${currentDownloadDoc.name} is being downloaded.`,
-                timer: 2000,
-                showConfirmButton: false
-            });
-            closeModal(downloadModal);
-        };
+                const docId = doc.id || doc.code;
+                if (!docId) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Document ID not found',
+                        confirmButtonColor: '#059669'
+                    });
+                    return;
+                }
 
-        // Show document details modal
-        window.showDocumentDetails = function (doc) {
-            console.log('showDocumentDetails called with:', doc);
-            
-            const docId = doc.id || doc.code;
-            if (!docId) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Document ID not found',
-                    confirmButtonColor: '#059669'
-                });
-                return;
-            }
+                // Show loading state
+                const content = document.getElementById('documentDetailsContent');
+                if (!content) {
+                    console.error('Document details content not found');
+                    return;
+                }
 
-            // Show loading state
-            const content = document.getElementById('documentDetailsContent');
-            if (!content) {
-                console.error('Document details content not found');
-                return;
-            }
-            
-            content.innerHTML = `
+                content.innerHTML = `
                 <div class="text-center py-8">
                     <i class="bx bx-loader-alt animate-spin text-3xl text-gray-500"></i>
                     <p class="mt-2 text-gray-500">Loading document details...</p>
                 </div>
             `;
 
-            const documentModal = document.getElementById('documentModal');
-            if (documentModal) {
-                openModal(documentModal);
-            }
-
-            // Fetch document details from backend
-            const detailsUrl = "{{ route('document.details', ':id') }}".replace(':id', docId);
-            
-            fetch(detailsUrl, {
-                method: 'GET',
-                headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
-                    'Accept': 'application/json'
+                const documentModal = document.getElementById('documentModal');
+                if (documentModal) {
+                    openModal(documentModal);
                 }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const document = data.document;
-                    content.innerHTML = `
+
+                // Fetch document details from backend
+                const detailsUrl = "{{ route('document.details', ':id') }}".replace(':id', docId);
+
+                fetch(detailsUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'Accept': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const document = data.document;
+                            content.innerHTML = `
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
                                 <h4 class="text-lg font-medium text-gray-900">${document.name}</h4>
@@ -2532,276 +2543,276 @@
                             </button>
                         </div>
                     `;
-                } else {
-                    content.innerHTML = `
+                        } else {
+                            content.innerHTML = `
                         <div class="text-center py-8">
                             <i class="bx bx-error-circle text-3xl text-red-500"></i>
                             <p class="mt-2 text-gray-500">${data.message || 'Failed to load document details'}</p>
                         </div>
                     `;
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching document details:', error);
-                content.innerHTML = `
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching document details:', error);
+                        content.innerHTML = `
                     <div class="text-center py-8">
                         <i class="bx bx-error-circle text-3xl text-red-500"></i>
                         <p class="mt-2 text-gray-500">Error loading document details</p>
                     </div>
                 `;
-            });
-        };
-
-        // Show share document modal
-        window.showShareDocumentModal = function (doc) {
-            console.log('showShareDocumentModal called with:', doc);
-            currentShareDoc = doc;
-
-            const shareModal = document.getElementById('shareDocumentModal');
-            if (!shareModal) {
-                console.error('Share modal not found');
-                return;
-            }
-
-            const nameElement = document.getElementById('shareDocName');
-            const linkElement = document.getElementById('shareLink');
-            const emailElement = document.getElementById('shareEmail');
-
-            if (nameElement) nameElement.textContent = doc.name || '—';
-            if (linkElement) linkElement.value = `${window.location.origin}/documents/${doc.id || ''}`;
-            if (emailElement) emailElement.value = '';
-
-            openModal(shareModal);
-        };
-
-        // Show delete document confirmation
-        window.showDeleteDocumentConfirmation = function (docId) {
-            console.log('showDeleteDocumentConfirmation called with:', docId);
-            
-            if (!docId) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Document ID not found',
-                    confirmButtonColor: '#059669'
-                });
-                return;
-            }
-
-            Swal.fire({
-                title: 'Delete Document',
-                text: 'Are you sure you want to delete this document? This action cannot be undone.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#dc2626',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Delete',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show loading state
-                    Swal.fire({
-                        title: 'Deleting Document...',
-                        text: 'Please wait while we delete the document.',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
                     });
+            };
 
-                    // Send delete request to backend
-                    const deleteUrl = "{{ route('document.delete', ':id') }}".replace(':id', docId);
-                    
-                    fetch(deleteUrl, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': "{{ csrf_token() }}",
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        Swal.close();
-                        
-                        if (data.success) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted!',
-                                text: 'Document has been deleted successfully.',
-                                timer: 2000,
-                                showConfirmButton: false
-                            }).then(() => {
-                                // Remove the document row from table
-                                const row = document.querySelector(`tr[data-doc-id="${docId}"]`);
-                                if (row) {
-                                    row.style.opacity = '0';
-                                    row.style.transform = 'translateX(-20px)';
-                                    setTimeout(() => {
-                                        row.remove();
-                                        updateDocumentCounts();
-                                        
-                                        // Show no documents message if table is empty
-                                        const tbody = document.querySelector('#documentsTable tbody');
-                                        const remainingRows = tbody.querySelectorAll('tr:not([style*="display: none"])');
-                                        if (remainingRows.length === 0) {
-                                            const noResultsRow = document.createElement('tr');
-                                            noResultsRow.innerHTML = `
+            // Show share document modal
+            window.showShareDocumentModal = function (doc) {
+                console.log('showShareDocumentModal called with:', doc);
+                currentShareDoc = doc;
+
+                const shareModal = document.getElementById('shareDocumentModal');
+                if (!shareModal) {
+                    console.error('Share modal not found');
+                    return;
+                }
+
+                const nameElement = document.getElementById('shareDocName');
+                const linkElement = document.getElementById('shareLink');
+                const emailElement = document.getElementById('shareEmail');
+
+                if (nameElement) nameElement.textContent = doc.name || '—';
+                if (linkElement) linkElement.value = `${window.location.origin}/documents/${doc.id || ''}`;
+                if (emailElement) emailElement.value = '';
+
+                openModal(shareModal);
+            };
+
+            // Show delete document confirmation
+            window.showDeleteDocumentConfirmation = function (docId) {
+                console.log('showDeleteDocumentConfirmation called with:', docId);
+
+                if (!docId) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Document ID not found',
+                        confirmButtonColor: '#059669'
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Delete Document',
+                    text: 'Are you sure you want to delete this document? This action cannot be undone.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc2626',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Delete',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading state
+                        Swal.fire({
+                            title: 'Deleting Document...',
+                            text: 'Please wait while we delete the document.',
+                            allowOutsideClick: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+
+                        // Send delete request to backend
+                        const deleteUrl = "{{ route('document.delete', ':id') }}".replace(':id', docId);
+
+                        fetch(deleteUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                Swal.close();
+
+                                if (data.success) {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Deleted!',
+                                        text: 'Document has been deleted successfully.',
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    }).then(() => {
+                                        // Remove the document row from table
+                                        const row = document.querySelector(`tr[data-doc-id="${docId}"]`);
+                                        if (row) {
+                                            row.style.opacity = '0';
+                                            row.style.transform = 'translateX(-20px)';
+                                            setTimeout(() => {
+                                                row.remove();
+                                                updateDocumentCounts();
+
+                                                // Show no documents message if table is empty
+                                                const tbody = document.querySelector('#documentsTable tbody');
+                                                const remainingRows = tbody.querySelectorAll('tr:not([style*="display: none"])');
+                                                if (remainingRows.length === 0) {
+                                                    const noResultsRow = document.createElement('tr');
+                                                    noResultsRow.innerHTML = `
                                                 <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
                                                     No documents available. Click "Upload Documents" to add your first document.
                                                 </td>
                                             `;
-                                            tbody.appendChild(noResultsRow);
+                                                    tbody.appendChild(noResultsRow);
+                                                }
+                                            }, 300);
                                         }
-                                    }, 300);
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Delete Failed',
+                                        text: data.message || 'Failed to delete document',
+                                        confirmButtonColor: '#059669'
+                                    });
                                 }
+                            })
+                            .catch(error => {
+                                Swal.close();
+                                console.error('Error deleting document:', error);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Delete Failed',
+                                    text: 'An error occurred while deleting the document',
+                                    confirmButtonColor: '#059669'
+                                });
                             });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Delete Failed',
-                                text: data.message || 'Failed to delete document',
-                                confirmButtonColor: '#059669'
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        Swal.close();
-                        console.error('Error deleting document:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Delete Failed',
-                            text: 'An error occurred while deleting the document',
-                            confirmButtonColor: '#059669'
-                        });
-                    });
+                    }
+                });
+            };
+
+            // Perform download
+            window.performDownload = function () {
+                console.log('performDownload called');
+                if (currentDownloadDoc) {
+                    // Here you would typically trigger the download
+                    const link = document.createElement('a');
+                    link.href = `/document/${currentDownloadDoc.id || currentDownloadDoc.code}/download`;
+                    link.download = currentDownloadDoc.name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    closeModal(downloadModal);
+                } else {
+                    console.error('No current download document');
                 }
-            });
-        };
+            };
 
-        // Perform download
-        window.performDownload = function () {
-            console.log('performDownload called');
-            if (currentDownloadDoc) {
-                // Here you would typically trigger the download
-                const link = document.createElement('a');
-                link.href = `/document/${currentDownloadDoc.id || currentDownloadDoc.code}/download`;
-                link.download = currentDownloadDoc.name;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                closeModal(downloadModal);
-            } else {
-                console.error('No current download document');
-            }
-        };
-
-        // Copy share link
-        window.copyShareLink = function () {
-            console.log('copyShareLink called');
-            const shareLink = document.getElementById('shareLink');
-            if (!shareLink) {
-                console.error('Share link input not found');
-                return;
-            }
-
-            shareLink.select();
-            shareLink.setSelectionRange(0, 99999);
-
-            try {
-                document.execCommand('copy');
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Copied!',
-                    text: 'Share link copied to clipboard',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } catch (err) {
-                console.error('Failed to copy:', err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Failed',
-                    text: 'Could not copy share link',
-                    confirmButtonColor: '#059669'
-                });
-            }
-        };
-
-        // Send share invite
-        window.sendShareInvite = function () {
-            console.log('sendShareInvite called');
-            const email = document.getElementById('shareEmail');
-            if (!email) {
-                console.error('Share email input not found');
-                return;
-            }
-
-            const emailValue = email.value.trim();
-            if (!emailValue) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Email Required',
-                    text: 'Please enter an email address',
-                    confirmButtonColor: '#059669'
-                });
-                return;
-            }
-
-            if (!currentShareDoc) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No document selected for sharing',
-                    confirmButtonColor: '#059669'
-                });
-                return;
-            }
-
-            const docId = currentShareDoc.id || currentShareDoc.code;
-            if (!docId) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Document ID not found',
-                    confirmButtonColor: '#059669'
-                });
-                return;
-            }
-
-            // Show loading state
-            Swal.fire({
-                title: 'Sharing Document...',
-                text: 'Please wait while we share the document.',
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
+            // Copy share link
+            window.copyShareLink = function () {
+                console.log('copyShareLink called');
+                const shareLink = document.getElementById('shareLink');
+                if (!shareLink) {
+                    console.error('Share link input not found');
+                    return;
                 }
-            });
 
-            // Send share request to backend
-            const shareUrl = "{{ route('document.share', ':id') }}".replace(':id', docId);
-            
-            fetch(shareUrl, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': "{{ csrf_token() }}",
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: emailValue
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                Swal.close();
-                
-                if (data.success) {
+                shareLink.select();
+                shareLink.setSelectionRange(0, 99999);
+
+                try {
+                    document.execCommand('copy');
                     Swal.fire({
                         icon: 'success',
-                        title: 'Document Shared!',
-                        html: `
+                        title: 'Copied!',
+                        text: 'Share link copied to clipboard',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: 'Could not copy share link',
+                        confirmButtonColor: '#059669'
+                    });
+                }
+            };
+
+            // Send share invite
+            window.sendShareInvite = function () {
+                console.log('sendShareInvite called');
+                const email = document.getElementById('shareEmail');
+                if (!email) {
+                    console.error('Share email input not found');
+                    return;
+                }
+
+                const emailValue = email.value.trim();
+                if (!emailValue) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Email Required',
+                        text: 'Please enter an email address',
+                        confirmButtonColor: '#059669'
+                    });
+                    return;
+                }
+
+                if (!currentShareDoc) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'No document selected for sharing',
+                        confirmButtonColor: '#059669'
+                    });
+                    return;
+                }
+
+                const docId = currentShareDoc.id || currentShareDoc.code;
+                if (!docId) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Document ID not found',
+                        confirmButtonColor: '#059669'
+                    });
+                    return;
+                }
+
+                // Show loading state
+                Swal.fire({
+                    title: 'Sharing Document...',
+                    text: 'Please wait while we share the document.',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Send share request to backend
+                const shareUrl = "{{ route('document.share', ':id') }}".replace(':id', docId);
+
+                fetch(shareUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}",
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: emailValue
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        Swal.close();
+
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Document Shared!',
+                                html: `
                             <div class="text-center">
                                 <p class="text-gray-600 mb-3">Document has been shared with <strong>${emailValue}</strong></p>
                                 <div class="bg-gray-50 p-3 rounded-lg">
@@ -2810,74 +2821,74 @@
                                 </div>
                             </div>
                         `,
-                        confirmButtonColor: '#059669'
-                    }).then(() => {
-                        closeModal(shareModal);
+                                confirmButtonColor: '#059669'
+                            }).then(() => {
+                                closeModal(shareModal);
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Share Failed',
+                                text: data.message || 'Failed to share document',
+                                confirmButtonColor: '#059669'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.close();
+                        console.error('Error sharing document:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Share Failed',
+                            text: 'An error occurred while sharing the document',
+                            confirmButtonColor: '#059669'
+                        });
                     });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Share Failed',
-                        text: data.message || 'Failed to share document',
-                        confirmButtonColor: '#059669'
-                    });
-                }
-            })
-            .catch(error => {
-                Swal.close();
-                console.error('Error sharing document:', error);
+            };
+
+            // Profile and Settings buttons
+            document.getElementById('openProfileBtn').addEventListener('click', () => {
+                console.log('Profile button clicked');
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Share Failed',
-                    text: 'An error occurred while sharing the document',
+                    icon: 'info',
+                    title: 'Profile',
+                    text: 'Profile functionality coming soon!',
                     confirmButtonColor: '#059669'
                 });
             });
-        };
 
-        // Profile and Settings buttons
-        document.getElementById('openProfileBtn').addEventListener('click', () => {
-            console.log('Profile button clicked');
-            Swal.fire({
-                icon: 'info',
-                title: 'Profile',
-                text: 'Profile functionality coming soon!',
-                confirmButtonColor: '#059669'
-            });
-        });
-
-        document.getElementById('openAccountSettingsBtn').addEventListener('click', () => {
-            console.log('Account Settings button clicked');
-            Swal.fire({
-                icon: 'info',
-                title: 'Account Settings',
-                text: 'Account settings functionality coming soon!',
-                confirmButtonColor: '#059669'
-            });
-        });
-
-        // Test button functionality
-        console.log('All button event listeners attached');
-
-        // Test function to verify basic functionality
-        window.testButtons = function () {
-            console.log('Testing buttons...');
-            const uploadBtn = document.getElementById('uploadDocumentsBtn');
-            const exportBtn = document.getElementById('exportBtn');
-            const refreshBtn = document.getElementById('refreshBtn');
-
-            console.log('Button elements found:', {
-                uploadBtn: !!uploadBtn,
-                exportBtn: !!exportBtn,
-                refreshBtn: !!refreshBtn
+            document.getElementById('openAccountSettingsBtn').addEventListener('click', () => {
+                console.log('Account Settings button clicked');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Account Settings',
+                    text: 'Account settings functionality coming soon!',
+                    confirmButtonColor: '#059669'
+                });
             });
 
-            // Test click handler
-            if (uploadBtn) {
-                console.log('Testing upload button click...');
-                uploadBtn.click();
-            }
-        };
+            // Test button functionality
+            console.log('All button event listeners attached');
+
+            // Test function to verify basic functionality
+            window.testButtons = function () {
+                console.log('Testing buttons...');
+                const uploadBtn = document.getElementById('uploadDocumentsBtn');
+                const exportBtn = document.getElementById('exportBtn');
+                const refreshBtn = document.getElementById('refreshBtn');
+
+                console.log('Button elements found:', {
+                    uploadBtn: !!uploadBtn,
+                    exportBtn: !!exportBtn,
+                    refreshBtn: !!refreshBtn
+                });
+
+                // Test click handler
+                if (uploadBtn) {
+                    console.log('Testing upload button click...');
+                    uploadBtn.click();
+                }
+            };
         });
     </script>
 </body>

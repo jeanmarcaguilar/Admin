@@ -1,16 +1,19 @@
 @php
-// Get the authenticated user
-$user = auth()->user();
+    // Get the authenticated user
+    $user = auth()->user();
 @endphp
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Administrative</title>
-    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -28,7 +31,8 @@ $user = auth()->user();
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         /* Custom scrollbar */
         .custom-scrollbar::-webkit-scrollbar {
@@ -98,11 +102,11 @@ $user = auth()->user();
             border-radius: 50%;
         }
 
-        input:checked + .permission-toggle-slider {
+        input:checked+.permission-toggle-slider {
             background-color: #059669;
         }
 
-        input:checked + .permission-toggle-slider:before {
+        input:checked+.permission-toggle-slider:before {
             transform: translateX(20px);
         }
 
@@ -118,27 +122,28 @@ $user = auth()->user();
         }
     </style>
 </head>
+
 <body class="bg-brand-background-main min-h-screen">
 
     <!-- Overlay (mobile) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
+    </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar"
-        class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
                transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
         <div class="h-16 flex items-center px-4 border-b border-gray-100">
-            <a href="/dashboard"
-                class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+            <a href="/dashboard" class="flex items-center gap-3 w-full rounded-xl px-2 py-2
                        hover:bg-gray-100 active:bg-gray-200 transition group">
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-                        Microfinance HR
+                        Microfinance Admin
                     </div>
-                    <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        HUMAN RESOURCE III
+                    <div
+                        class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+                        Administrative
                     </div>
                 </div>
             </a>
@@ -168,23 +173,36 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
                     Visitor Management
                 </span>
-                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="visitor-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('visitors.registration') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitors.registration') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitors Registration
                     </a>
-                    <a href="{{ route('checkinout.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('checkinout.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Check In/Out Tracking
                     </a>
-                    <a href="{{ route('visitor.history.records') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitor.history.records') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitor History Records
                     </a>
                 </div>
@@ -199,29 +217,46 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
                     Document Management
                 </span>
-                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="document-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('document.upload.indexing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.upload.indexing') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Document Upload & Indexing
                     </a>
-                    <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.version.control') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Version Control
                     </a>
-                              <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
-            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-            Access Control & Permissions
-          </a>
-          <a href="{{ route('document.archival.retention.policy') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-            Archival & Retention Policy
-          </a>
+                    <a href="{{ route('document.access.control.permissions') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                        Access Control & Permissions
+                    </a>
+                    <a href="{{ route('document.archival.retention.policy') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
+                        Archival & Retention Policy
+                    </a>
                 </div>
             </div>
 
@@ -234,27 +269,44 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
                     Facilities Management
                 </span>
-                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="facilities-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('room-equipment') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Room & Equipment Booking
                     </a>
-                    <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('scheduling.calendar') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Scheduling & Calendar Integrations
                     </a>
-                    <a href="{{ route('approval.workflow') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('approval.workflow') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Approval Workflow
                     </a>
-                    <a href="{{ route('reservation.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('reservation.history') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Reservation History
                     </a>
                 </div>
@@ -269,27 +321,44 @@ $user = auth()->user();
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
                     Legal Management
                 </span>
-                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="legal-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('case.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('case.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Case Management
                     </a>
-                    <a href="{{ route('contract.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('contract.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Contract Management
                     </a>
-                    <a href="{{ route('compliance.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('compliance.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Compliance Tracking
                     </a>
-                    <a href="{{ route('deadline.hearing.alerts') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('deadline.hearing.alerts') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Deadline & Hearing Alerts
                     </a>
                 </div>
@@ -303,8 +372,8 @@ $user = auth()->user();
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © 2026<br/>
-                    Human Resource III System
+                    Microfinance Admin © 2026<br />
+                    Administrative System
                 </div>
             </div>
         </div>
@@ -325,7 +394,7 @@ $user = auth()->user();
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
                     ☰
                 </button>
-                <h1 class="text-lg font-bold text-gray-800 hidden md:block">Access Control</h1>
+
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">
@@ -339,33 +408,39 @@ $user = auth()->user();
 
                 <!-- User Profile Dropdown -->
                 <div class="relative">
-                    <button id="user-menu-button"
-                        class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                    <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
                                hover:bg-gray-100 active:bg-gray-200 transition">
-                        <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
-                            <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                        <div
+                            class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+                            <div
+                                class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         </div>
                         <div class="hidden md:flex flex-col items-start text-left">
-                            <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
                                 {{ $user->name }}
                             </span>
-                            <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
                                 Admin
                             </span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
                     </button>
 
-                    <div id="user-menu-dropdown"
-                        class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
+                    <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
                                absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
                                transition-all duration-200 z-50">
-                        <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</a>
-                        <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</a>
+                        <a href="#"
+                            class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</a>
+                        <a href="#"
+                            class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</a>
                         <div class="h-px bg-gray-100"></div>
                         <a href="#" class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</a>
                     </div>
@@ -379,42 +454,52 @@ $user = auth()->user();
                 <!-- Access Control Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <!-- Total Users Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">Total Users</p>
                                 <p class="font-bold text-4xl text-gray-900 mb-2">{{ App\Models\User::count() }}</p>
                                 <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <span
+                                        class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                         <i class="bx bx-user mr-2"></i>
                                         Active
                                     </span>
                                     <span class="text-sm text-gray-500">Users</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="bx bx-user text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- User Roles Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">User Roles</p>
                                 <p class="font-bold text-4xl text-gray-900 mb-2">4</p>
                                 <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
+                                    <span
+                                        class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-emerald-100 text-emerald-800">
                                         <i class="bx bx-shield mr-2"></i>
                                         Types
                                     </span>
                                     <span class="text-sm text-gray-500">Roles</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="bx bx-shield text-white text-2xl"></i>
                             </div>
                         </div>
@@ -432,7 +517,9 @@ $user = auth()->user();
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
-                            <input type="text" id="userSearch" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 pr-3 py-2.5" placeholder="Search users...">
+                            <input type="text" id="userSearch"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 pr-3 py-2.5"
+                                placeholder="Search users...">
                         </div>
                     </div>
                 </div>
@@ -443,56 +530,78 @@ $user = auth()->user();
                         <h2 class="text-lg font-semibold text-gray-900">User Access List</h2>
                         <p class="text-sm text-gray-500 mt-1">Manage individual user permissions</p>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Login</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        User</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Role</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Department</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Last Login</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach(App\Models\User::all() as $user)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="flex items-center">
-                                            <div class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                                                <span class="text-blue-600 text-sm font-medium">{{ strtoupper(substr($user->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $user->name)[1] ?? '', 0, 1)) }}</span>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div
+                                                    class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                                    <span
+                                                        class="text-blue-600 text-sm font-medium">{{ strtoupper(substr($user->name, 0, 1)) }}{{ strtoupper(substr(explode(' ', $user->name)[1] ?? '', 0, 1)) }}</span>
+                                                </div>
+                                                <div class="ml-3">
+                                                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                                                    <div class="text-xs text-gray-500">{{ $user->email }}</div>
+                                                </div>
                                             </div>
-                                            <div class="ml-3">
-                                                <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                                <div class="text-xs text-gray-500">{{ $user->email }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="text-sm font-medium text-gray-900">{{ $user->roles }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->department ?? 'Not Assigned' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <button class="view-user-btn text-brand-primary hover:text-brand-primary-hover" data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}" data-user-email="{{ $user->email }}" data-user-role="{{ $user->role }}" data-user-department="{{ $user->department ?? 'Not Assigned' }}" data-user-last-login="{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}">View</button>
-                                    </td>
-                                </tr>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-sm font-medium text-gray-900">{{ $user->roles }}</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                            {{ $user->department ?? 'Not Assigned' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="view-user-btn text-brand-primary hover:text-brand-primary-hover"
+                                                data-user-id="{{ $user->id }}" data-user-name="{{ $user->name }}"
+                                                data-user-email="{{ $user->email }}" data-user-role="{{ $user->role }}"
+                                                data-user-department="{{ $user->department ?? 'Not Assigned' }}"
+                                                data-user-last-login="{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never' }}">View</button>
+                                        </td>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                         <div class="flex items-center justify-between">
                             <div class="text-sm text-gray-500">
                                 Showing {{ App\Models\User::count() }} users
                             </div>
                             <div class="flex space-x-2">
-                                <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
+                                <button
+                                    class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
                                     Previous
                                 </button>
-                                <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
+                                <button
+                                    class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
                                     Next
                                 </button>
                             </div>
@@ -541,7 +650,7 @@ $user = auth()->user();
                 if (btn && submenu) {
                     btn.addEventListener("click", (e) => {
                         e.stopPropagation();
-                        
+
                         // Close all other dropdowns first
                         Object.entries(dropdowns).forEach(([otherBtnId, otherSubmenuId]) => {
                             if (otherBtnId !== btnId) {
@@ -555,10 +664,10 @@ $user = auth()->user();
                                 }
                             }
                         });
-                        
+
                         // Toggle current dropdown
                         const isHidden = submenu.classList.contains("hidden");
-                        
+
                         if (isHidden) {
                             submenu.classList.remove("hidden");
                             if (arrow) arrow.classList.add("rotate-180");
@@ -576,7 +685,7 @@ $user = auth()->user();
                     const btn = document.getElementById(btnId);
                     const submenu = document.getElementById(submenuId);
                     const arrow = document.getElementById(btnId.replace('-btn', '-arrow'));
-                    
+
                     if (btn && submenu && !btn.contains(e.target) && !submenu.contains(e.target)) {
                         submenu.classList.add("hidden");
                         if (arrow) arrow.classList.remove("rotate-180");
@@ -592,7 +701,7 @@ $user = auth()->user();
                 userMenuButton.addEventListener("click", (e) => {
                     e.stopPropagation();
                     const isHidden = userMenuDropdown.classList.contains("hidden");
-                    
+
                     if (isHidden) {
                         userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                         userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
@@ -632,13 +741,13 @@ $user = auth()->user();
 
             // Permission toggle functionality
             document.querySelectorAll('.permission-toggle input').forEach(toggle => {
-                toggle.addEventListener('change', function() {
+                toggle.addEventListener('change', function () {
                     const permissionName = this.closest('.flex').querySelector('span').textContent;
                     const isEnabled = this.checked;
-                    
+
                     // In a real application, you would make an API call here
                     console.log(`Permission "${permissionName}" ${isEnabled ? 'enabled' : 'disabled'}`);
-                    
+
                     // Update permission summary
                     updatePermissionSummary();
                 });
@@ -648,15 +757,15 @@ $user = auth()->user();
                 const totalPermissions = document.querySelectorAll('.permission-toggle input').length;
                 const enabledPermissions = document.querySelectorAll('.permission-toggle input:checked').length;
                 const percentage = Math.round((enabledPermissions / totalPermissions) * 100);
-                
+
                 // Update summary display
                 const summaryElement = document.querySelector('.text-green-600');
                 const progressBar = document.querySelector('.bg-green-500');
-                
+
                 if (summaryElement && progressBar) {
                     summaryElement.textContent = `${percentage}% Enabled`;
                     progressBar.style.width = `${percentage}%`;
-                    
+
                     // Also update the text
                     const textElement = document.querySelector('.text-xs.text-gray-500.mt-1');
                     if (textElement) {
@@ -671,18 +780,18 @@ $user = auth()->user();
             // User search functionality
             const userSearchInput = document.getElementById('userSearch');
             if (userSearchInput) {
-                userSearchInput.addEventListener('input', function() {
+                userSearchInput.addEventListener('input', function () {
                     const searchTerm = this.value.toLowerCase();
                     const userRows = document.querySelectorAll('tbody tr');
-                    
+
                     console.log('Search term:', searchTerm);
                     console.log('Found rows:', userRows.length);
-                    
+
                     userRows.forEach((row, index) => {
                         const text = row.textContent.toLowerCase();
                         const shouldShow = text.includes(searchTerm);
                         row.style.display = shouldShow ? '' : 'none';
-                        
+
                         if (searchTerm.length > 0) {
                             console.log(`Row ${index}: ${shouldShow ? 'SHOW' : 'HIDE'} - "${text.substring(0, 50)}..."`);
                         }
@@ -696,23 +805,23 @@ $user = auth()->user();
             const userModal = document.getElementById('userModal');
             const closeUserModal = document.getElementById('closeUserModal');
             const closeUserModalBtn = document.getElementById('closeUserModalBtn');
-            
+
             // View button click handlers
             document.querySelectorAll('.view-user-btn').forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const userId = this.dataset.userId;
                     const userName = this.dataset.userName;
                     const userEmail = this.dataset.userEmail;
                     const userRole = this.dataset.userRole;
                     const userDepartment = this.dataset.userDepartment;
                     const userLastLogin = this.dataset.userLastLogin;
-                    
+
                     // Generate user initials for avatar
                     const nameParts = userName.split(' ');
-                    const initials = nameParts.length > 1 
+                    const initials = nameParts.length > 1
                         ? nameParts[0][0].toUpperCase() + nameParts[1][0].toUpperCase()
                         : userName.substring(0, 2).toUpperCase();
-                    
+
                     // Populate modal with user data
                     document.getElementById('modalUserName').textContent = userName;
                     document.getElementById('modalUserRole').textContent = userRole;
@@ -720,7 +829,7 @@ $user = auth()->user();
                     document.getElementById('modalUserDepartment').textContent = userDepartment;
                     document.getElementById('modalUserLastLogin').textContent = userLastLogin;
                     document.getElementById('modalUserAvatar').textContent = initials;
-                    
+
                     // Show modal with animation
                     userModal.classList.remove('hidden');
                     setTimeout(() => {
@@ -730,21 +839,21 @@ $user = auth()->user();
                     }, 10);
                 });
             });
-            
+
             // Close modal handlers with animation
             function closeModal() {
                 const modalContent = document.getElementById('modalContent');
                 modalContent.classList.remove('scale-100', 'opacity-100');
                 modalContent.classList.add('scale-95', 'opacity-0');
-                
+
                 setTimeout(() => {
                     userModal.classList.add('hidden');
                 }, 300);
             }
-            
+
             closeUserModal.addEventListener('click', closeModal);
             closeUserModalBtn.addEventListener('click', closeModal);
-            
+
             // Close modal when clicking outside
             userModal.addEventListener('click', (e) => {
                 if (e.target === userModal) {
@@ -755,15 +864,21 @@ $user = auth()->user();
     </script>
 
     <!-- User Details Modal -->
-    <div id="userModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
-        <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full transform transition-all duration-500 scale-95 opacity-0" id="modalContent">
+    <div id="userModal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-lg w-full transform transition-all duration-500 scale-95 opacity-0"
+            id="modalContent">
             <!-- Modal Header with Enhanced Gradient -->
-            <div class="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
+            <div
+                class="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 px-6 py-6 rounded-t-3xl relative overflow-hidden">
                 <!-- Background Pattern -->
                 <div class="absolute inset-0 opacity-10">
-                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.4"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
+                    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=" 60"
+                        height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" %3E%3Cg fill="none"
+                        fill-rule="evenodd" %3E%3Cg fill="%23ffffff" fill-opacity="0.4" %3E%3Ccircle cx="30" cy="30"
+                        r="2" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-size: 60px 60px;"></div>
                 </div>
-                
+
                 <div class="relative flex justify-between items-center">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
@@ -771,54 +886,64 @@ $user = auth()->user();
                         </div>
                         <h3 class="text-2xl font-bold text-white">User Details</h3>
                     </div>
-                    <button id="closeUserModal" class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
+                    <button id="closeUserModal"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-xl p-2 transition-all duration-200 backdrop-blur-sm">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Body with Enhanced Design -->
             <div class="p-8 bg-gradient-to-br from-gray-50 to-white space-y-6">
                 <!-- Enhanced User Avatar and Basic Info -->
                 <div class="flex items-center gap-5 pb-6 border-b border-gray-200">
                     <div class="relative">
-                        <div class="w-20 h-20 bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-white/50">
+                        <div
+                            class="w-20 h-20 bg-gradient-to-br from-violet-500 via-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center shadow-xl ring-4 ring-white/50">
                             <span id="modalUserAvatar" class="text-white text-2xl font-bold"></span>
                         </div>
-                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-lg"></div>
+                        <div
+                            class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-lg">
+                        </div>
                     </div>
                     <div class="flex-1">
                         <h4 id="modalUserName" class="text-xl font-bold text-gray-900 mb-1"></h4>
                         <div class="flex items-center gap-2">
-                            <p id="modalUserRole" class="text-sm text-purple-600 font-semibold bg-purple-100 px-3 py-1 rounded-full"></p>
+                            <p id="modalUserRole"
+                                class="text-sm text-purple-600 font-semibold bg-purple-100 px-3 py-1 rounded-full"></p>
                             <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Enhanced User Information Grid -->
                 <div class="grid grid-cols-1 gap-4">
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100 hover:shadow-md transition-all duration-200">
+                    <div
+                        class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100 hover:shadow-md transition-all duration-200">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-envelope text-white text-sm"></i>
                             </div>
-                            <label class="text-xs font-bold text-blue-600 uppercase tracking-wider">Email Address</label>
+                            <label class="text-xs font-bold text-blue-600 uppercase tracking-wider">Email
+                                Address</label>
                         </div>
                         <p id="modalUserEmail" class="text-gray-900 font-semibold text-sm mt-1"></p>
                     </div>
-                    
-                    <div class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 hover:shadow-md transition-all duration-200">
+
+                    <div
+                        class="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 hover:shadow-md transition-all duration-200">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-building text-white text-sm"></i>
                             </div>
-                            <label class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Department</label>
+                            <label
+                                class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Department</label>
                         </div>
                         <p id="modalUserDepartment" class="text-gray-900 font-semibold text-sm mt-1"></p>
                     </div>
-                    
-                    <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100 hover:shadow-md transition-all duration-200">
+
+                    <div
+                        class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-100 hover:shadow-md transition-all duration-200">
                         <div class="flex items-center gap-3 mb-2">
                             <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-clock text-white text-sm"></i>
@@ -829,7 +954,7 @@ $user = auth()->user();
                     </div>
                 </div>
             </div>
-            
+
             <!-- Enhanced Modal Footer -->
             <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 rounded-b-3xl border-t border-gray-200">
                 <div class="flex justify-between items-center">
@@ -837,7 +962,8 @@ $user = auth()->user();
                         <i class="fas fa-shield-alt text-green-500"></i>
                         <span>Secure Information</span>
                     </div>
-                    <button id="closeUserModalBtn" class="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-violet-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <button id="closeUserModalBtn"
+                        class="px-6 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-violet-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center gap-2">
                         <i class="fas fa-check"></i>
                         Close
                     </button>
@@ -846,4 +972,5 @@ $user = auth()->user();
         </div>
     </div>
 </body>
+
 </html>

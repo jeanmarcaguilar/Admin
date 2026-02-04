@@ -346,7 +346,7 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
                     ☰
                 </button>
-                <h1 class="text-lg font-bold text-gray-800 hidden md:block">Visitor History Records</h1>
+                
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">

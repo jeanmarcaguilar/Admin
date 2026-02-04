@@ -203,11 +203,11 @@
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-                        Microfinance HR
+                        Microfinance Admin
                     </div>
                     <div
                         class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        HUMAN RESOURCE III
+                        Administrative
                     </div>
                 </div>
             </a>
@@ -435,8 +435,8 @@
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © {{ date('Y') }}<br />
-                    Human Resource III System
+                    Microfinance Admin © {{ date('Y') }}<br />
+                    Administrative System
                 </div>
             </div>
         </div>
@@ -457,14 +457,14 @@
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
                     ☰
                 </button>
-                <h1 class="text-lg font-bold text-gray-800 hidden md:block">Scheduling & Calendar Integrations</h1>
+
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">
                 <!-- Clock pill -->
                 <span id="real-time-clock"
                     class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                    {{ now()->format('H:i:s') }}
+                    {{ now()->format('h:i:s A') }}
                 </span>
 
                 <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
@@ -824,11 +824,14 @@
             // Real-time clock with accurate time
             function updateClock() {
                 const now = new Date();
-                // Use local time with proper 24-hour format
-                const hours = now.getHours().toString().padStart(2, '0');
+                let hours = now.getHours();
                 const minutes = now.getMinutes().toString().padStart(2, '0');
                 const seconds = now.getSeconds().toString().padStart(2, '0');
-                const timeString = `${hours}:${minutes}:${seconds}`;
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                const hoursStr = hours.toString().padStart(2, '0');
+                const timeString = `${hoursStr}:${minutes}:${seconds} ${ampm}`;
 
                 const clockElement = document.getElementById('real-time-clock');
                 if (clockElement) {

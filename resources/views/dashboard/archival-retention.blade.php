@@ -153,10 +153,10 @@ $user = auth()->user();
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-                        Microfinance HR
+                        Microfinance Admin 
                     </div>
                     <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        HUMAN RESOURCE III
+                        Administrative
                     </div>
                 </div>
             </a>
@@ -321,8 +321,8 @@ $user = auth()->user();
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © 2026<br/>
-                    Human Resource III System
+                    Microfinance Admin © 2026<br/>
+                    Administrative System
                 </div>
             </div>
         </div>
@@ -343,7 +343,7 @@ $user = auth()->user();
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
                     ☰
                 </button>
-                <h1 class="text-lg font-bold text-gray-800 hidden md:block">Access Control</h1>
+                
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">

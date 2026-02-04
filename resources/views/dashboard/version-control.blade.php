@@ -1,19 +1,22 @@
 @php
-// Get the authenticated user
-$user = auth()->user();
-// Use variables passed from route if available; otherwise fallback to session
-$documents = isset($documents) ? $documents : session('uploaded_documents', []);
+    // Get the authenticated user
+    $user = auth()->user();
+    // Use variables passed from route if available; otherwise fallback to session
+    $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 @endphp
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Administrative</title>
-    <link rel="icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
+    <link rel="shortcut icon" type="image/png"
+        href="{{ asset('golden-arc.png') }}?v={{ @filemtime(public_path('golden-arc.png')) }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -31,7 +34,8 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -122,8 +126,15 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .fade-in {
@@ -131,27 +142,28 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
         }
     </style>
 </head>
+
 <body class="bg-brand-background-main min-h-screen">
 
     <!-- Overlay (mobile) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
+    </div>
 
     <!-- SIDEBAR -->
-    <aside id="sidebar"
-        class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
                transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
         <div class="h-16 flex items-center px-4 border-b border-gray-100">
-            <a href="{{ route('admin.dashboard') }}"
-                class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 w-full rounded-xl px-2 py-2
                        hover:bg-gray-100 active:bg-gray-200 transition group">
                 <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                 <div class="leading-tight">
                     <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-                        Microfinance HR
+                        Microfinance Admin
                     </div>
-                    <div class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        HUMAN RESOURCE III
+                    <div
+                        class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+                        Administrative
                     </div>
                 </div>
             </a>
@@ -180,23 +192,36 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
                     Visitor Management
                 </span>
-                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="visitor-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('visitors.registration') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitors.registration') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitors Registration
                     </a>
-                    <a href="{{ route('checkinout.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('checkinout.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Check In/Out Tracking
                     </a>
-                    <a href="{{ route('visitor.history.records') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('visitor.history.records') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Visitor History Records
                     </a>
                 </div>
@@ -211,27 +236,44 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
                     Document Management
                 </span>
-                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="document-submenu" class="submenu mt-1">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('document.upload.indexing') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.upload.indexing') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Document Upload & Indexing
                     </a>
-                    <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.version.control') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Version Control
                     </a>
-                    <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.access.control.permissions') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Access Control & Permissions
                     </a>
-                    <a href="{{ route('document.archival.retention.policy') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('document.archival.retention.policy') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Archival & Retention Policy
                     </a>
                 </div>
@@ -246,27 +288,44 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
                     Facilities Management
                 </span>
-                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="facilities-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('room-equipment') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Room & Equipment Booking
                     </a>
-                    <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('scheduling.calendar') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Scheduling & Calendar Integrations
                     </a>
-                    <a href="{{ route('approval.workflow') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('approval.workflow') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Approval Workflow
                     </a>
-                    <a href="{{ route('reservation.history') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('reservation.history') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Reservation History
                     </a>
                 </div>
@@ -281,27 +340,44 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
                     Legal Management
                 </span>
-                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                 </svg>
             </button>
 
             <div id="legal-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('case.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('case.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Case Management
                     </a>
-                    <a href="{{ route('contract.management') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('contract.management') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Contract Management
                     </a>
-                    <a href="{{ route('compliance.tracking') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('compliance.tracking') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Compliance Tracking
                     </a>
-                    <a href="{{ route('deadline.hearing.alerts') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    <a href="{{ route('deadline.hearing.alerts') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                            </path>
+                        </svg>
                         Deadline & Hearing Alerts
                     </a>
                 </div>
@@ -315,8 +391,8 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance HR © {{ date('Y') }}<br/>
-                    Human Resource III System
+                    Microfinance Admin © {{ date('Y') }}<br />
+                    Administrative System
                 </div>
             </div>
         </div>
@@ -328,7 +404,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
         <!-- TOP HEADER -->
         <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
                     shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-            
+
             <!-- BORDER COVER -->
             <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
 
@@ -337,7 +413,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
                     ☰
                 </button>
-                <h1 class="text-lg font-bold text-gray-800 hidden md:block">Document Version Control</h1>
+
             </div>
 
             <div class="flex items-center gap-3 sm:gap-5">
@@ -351,37 +427,44 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
                 <!-- User Profile Dropdown -->
                 <div class="relative">
-                    <button id="user-menu-button"
-                        class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                    <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
                             hover:bg-gray-100 active:bg-gray-200 transition">
-                        <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
-                            <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                        <div
+                            class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+                            <div
+                                class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
                                 {{ strtoupper(substr($user->name, 0, 1)) }}
                             </div>
                         </div>
                         <div class="hidden md:flex flex-col items-start text-left">
-                            <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
                                 {{ $user->name }}
                             </span>
-                            <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                            <span
+                                class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
                                 Administrator
                             </span>
                         </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
+                            </path>
                         </svg>
                     </button>
 
-                    <div id="user-menu-dropdown"
-                        class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
+                    <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
                             absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
                             transition-all duration-200 z-50">
-                        <button id="openProfileBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
+                        <button id="openProfileBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
+                        <button id="openAccountSettingsBtn"
+                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
                         <div class="h-px bg-gray-100"></div>
                         <form method="POST" action="{{ route('logout') }}" class="w-full">
                             @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
+                            <button type="submit"
+                                class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
                         </form>
                     </div>
                 </div>
@@ -399,13 +482,16 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             <p class="text-gray-600 mt-1">Track and manage different versions of your documents</p>
                         </div>
                         <div class="mt-4 md:mt-0 flex space-x-3">
-                            <button id="exportBtn" class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
+                            <button id="exportBtn"
+                                class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
                                 <i class="fas fa-download mr-2"></i> Export
                             </button>
-                            <button id="printBtn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
+                            <button id="printBtn"
+                                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
                                 <i class="fas fa-print mr-2"></i> Print
                             </button>
-                            <button id="newVersionBtn" onclick="openNewVersionModal()" class="px-4 py-2 bg-white border border-brand-primary text-brand-primary rounded-lg hover:bg-brand-background-main transition-colors font-medium flex items-center cursor-pointer">
+                            <button id="newVersionBtn" onclick="openNewVersionModal()"
+                                class="px-4 py-2 bg-white border border-brand-primary text-brand-primary rounded-lg hover:bg-brand-background-main transition-colors font-medium flex items-center cursor-pointer">
                                 <i class="fas fa-plus mr-2"></i> New Version
                             </button>
                         </div>
@@ -415,42 +501,53 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                 <!-- Enhanced Document Version Stats -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <!-- Total Documents Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">Total Documents</p>
                                 <p class="font-bold text-4xl text-gray-900 mb-2">{{ count($documents) }}</p>
                                 <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                    <span
+                                        class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
                                         <i class="bx bx-file mr-2"></i>
                                         Files
                                     </span>
                                     <span class="text-sm text-gray-500">Total</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="bx bx-file text-white text-2xl"></i>
                             </div>
                         </div>
                     </div>
 
                     <!-- Categories Card -->
-                    <div class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity"></div>
+                    <div
+                        class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                        <div
+                            class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
+                        </div>
                         <div class="relative flex justify-between items-start">
                             <div class="flex-1">
                                 <p class="text-gray-600 font-semibold text-base mb-3">Categories</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ count(array_unique(array_column($documents, 'category'))) }}</p>
+                                <p class="font-bold text-4xl text-gray-900 mb-2">
+                                    {{ count(array_unique(array_column($documents, 'category'))) }}</p>
                                 <div class="flex items-center gap-3">
-                                    <span class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
+                                    <span
+                                        class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
                                         <i class="bx bx-category-alt mr-2"></i>
                                         Types
                                     </span>
                                     <span class="text-sm text-gray-500">Groups</span>
                                 </div>
                             </div>
-                            <div class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                            <div
+                                class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                 <i class="bx bx-category-alt text-white text-2xl"></i>
                             </div>
                         </div>
@@ -463,8 +560,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         <i class='bx bx-category mr-2'></i>Browse by Category
                     </h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3 active" data-category="all">
-                            <div class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3 active"
+                            data-category="all">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
                                 <i class="bx bx-grid-alt text-xl"></i>
                             </div>
                             <div>
@@ -472,8 +572,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">View all documents</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="financial">
-                            <div class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="financial">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
                                 <i class="bx bx-dollar text-xl"></i>
                             </div>
                             <div>
@@ -481,8 +584,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Budgets, invoices, reports</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="hr">
-                            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="hr">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
                                 <i class="bx bx-id-card text-xl"></i>
                             </div>
                             <div>
@@ -490,8 +596,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Employee files, policies</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="legal">
-                            <div class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="legal">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center">
                                 <i class="bx bx-gavel text-xl"></i>
                             </div>
                             <div>
@@ -499,8 +608,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Contracts, case files</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="operations">
-                            <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="operations">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
                                 <i class="bx bx-cog text-xl"></i>
                             </div>
                             <div>
@@ -508,7 +620,9 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Processes, procedures</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="contracts">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="contracts">
                             <div class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
                                 <i class="bx bx-file text-xl"></i>
                             </div>
@@ -517,8 +631,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Agreements, NDAs</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="utilities">
-                            <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="utilities">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
                                 <i class="bx bx-bolt text-xl"></i>
                             </div>
                             <div>
@@ -526,8 +643,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Electricity, water, gas</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="projects">
-                            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="projects">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
                                 <i class="bx bx-folder text-xl"></i>
                             </div>
                             <div>
@@ -535,8 +655,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Project plans, reports</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="procurement">
-                            <div class="w-10 h-10 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="procurement">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center">
                                 <i class="bx bx-shopping-bag text-xl"></i>
                             </div>
                             <div>
@@ -544,8 +667,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Vendors, purchases</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="it">
-                            <div class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="it">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
                                 <i class="bx bx-laptop text-xl"></i>
                             </div>
                             <div>
@@ -553,8 +679,11 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <div class="text-xs text-gray-500">Software, hardware</div>
                             </div>
                         </button>
-                        <button type="button" class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3" data-category="payroll">
-                            <div class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
+                        <button type="button"
+                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                            data-category="payroll">
+                            <div
+                                class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
                                 <i class="bx bx-money text-xl"></i>
                             </div>
                             <div>
@@ -572,10 +701,13 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <i class="fas fa-search text-gray-400"></i>
                             </div>
-                            <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5" placeholder="Search documents by name, type or category...">
+                            <input type="text" id="searchInput"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5"
+                                placeholder="Search documents by name, type or category...">
                         </div>
                         <div class="flex flex-wrap gap-2">
-                            <select id="categoryFilter" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
+                            <select id="categoryFilter"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
                                 <option value="">All Categories</option>
                                 <option value="legal">Legal</option>
                                 <option value="financial">Financial</option>
@@ -585,7 +717,8 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 <option value="it">IT</option>
                                 <option value="other">Other</option>
                             </select>
-                            <select id="statusFilter" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
+                            <select id="statusFilter"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
                                 <option value="">All Status</option>
                                 <option value="approved">Approved</option>
                                 <option value="pending">Pending</option>
@@ -606,65 +739,95 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             <span id="visibleCount">{{ count($documents) }}</span> documents
                         </div>
                     </div>
-                    
+
                     <div class="overflow-x-auto">
                         <table id="documentsTable" class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Modified</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Modified By</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Document</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Type</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Category</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Last Modified</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Modified By</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Status</th>
+                                    <th scope="col"
+                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @php
                                     $userName = $user->name ?? 'User';
-                                    $initials = collect(explode(' ', $userName))->map(fn($p) => strtoupper(substr($p,0,1)))->implode('');
+                                    $initials = collect(explode(' ', $userName))->map(fn($p) => strtoupper(substr($p, 0, 1)))->implode('');
                                 @endphp
                                 @forelse($documents as $doc)
-                                    <tr class="document-row" data-doc-id="{{ $doc['id'] ?? '' }}" data-name="{{ strtolower($doc['name'] ?? '') }}" data-type="{{ strtolower($doc['type'] ?? '') }}" data-category="{{ strtolower($doc['category'] ?? 'other') }}" data-status="{{ strtolower($doc['status'] ?? 'indexed') }}">
+                                    <tr class="document-row" data-doc-id="{{ $doc['id'] ?? '' }}"
+                                        data-name="{{ strtolower($doc['name'] ?? '') }}"
+                                        data-type="{{ strtolower($doc['type'] ?? '') }}"
+                                        data-category="{{ strtolower($doc['category'] ?? 'other') }}"
+                                        data-status="{{ strtolower($doc['status'] ?? 'indexed') }}">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                <div
+                                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                                                     @php
                                                         $dtype = strtoupper($doc['type'] ?? '');
-                                                        $icon = in_array($dtype, ['PDF']) ? 'bxs-file-pdf text-red-600' : (in_array($dtype, ['WORD','DOC','DOCX']) ? 'bxs-file-doc text-blue-600' : (in_array($dtype, ['EXCEL','XLS','XLSX']) ? 'bxs-file-txt text-green-600' : 'bxs-file text-gray-600'));
+                                                        $icon = in_array($dtype, ['PDF']) ? 'bxs-file-pdf text-red-600' : (in_array($dtype, ['WORD', 'DOC', 'DOCX']) ? 'bxs-file-doc text-blue-600' : (in_array($dtype, ['EXCEL', 'XLS', 'XLSX']) ? 'bxs-file-txt text-green-600' : 'bxs-file text-gray-600'));
                                                     @endphp
                                                     <i class='bx {{ $icon }}'></i>
                                                 </div>
                                                 <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900"><span class="doc-name" data-name="{{ $doc['name'] }}">{{ $doc['name'] }}</span></div>
+                                                    <div class="text-sm font-medium text-gray-900"><span class="doc-name"
+                                                            data-name="{{ $doc['name'] }}">{{ $doc['name'] }}</span></div>
                                                     <div class="text-sm text-gray-500">{{ $doc['size'] ?? '' }}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $doc['type'] ?? 'File' }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst(strtolower($doc['category'] ?? 'Other')) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ isset($doc['uploaded']) ? \Carbon\Carbon::parse($doc['uploaded'])->diffForHumans() : \Carbon\Carbon::now()->diffForHumans() }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ $doc['type'] ?? 'File' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ ucfirst(strtolower($doc['category'] ?? 'Other')) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {{ isset($doc['uploaded']) ? \Carbon\Carbon::parse($doc['uploaded'])->diffForHumans() : \Carbon\Carbon::now()->diffForHumans() }}
+                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             <div class="flex items-center">
-                                                <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">{{ $initials }}</div>
+                                                <div
+                                                    class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
+                                                    {{ $initials }}</div>
                                                 <span class="ml-2">{{ $userName }}</span>
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ ($doc['status'] ?? '') == 'Approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                            <span
+                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ ($doc['status'] ?? '') == 'Approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                                 {{ $doc['status'] ?? 'Indexed' }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button onclick="showVersionDetails({{ json_encode($doc) }})" class="text-brand-primary hover:text-brand-primary-hover mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
-                                            <button onclick="showDeleteDocumentConfirmation('{{ $doc['id'] ?? '' }}')" class="text-red-600 hover:text-red-800 bg-transparent border-none p-0 cursor-pointer">Delete</button>
+                                            <button onclick="showVersionDetails({{ json_encode($doc) }})"
+                                                class="text-brand-primary hover:text-brand-primary-hover mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
+                                            <button onclick="showDeleteDocumentConfirmation('{{ $doc['id'] ?? '' }}')"
+                                                class="text-red-600 hover:text-red-800 bg-transparent border-none p-0 cursor-pointer">Delete</button>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
                                         <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">
-                                            No documents found. Upload documents in "Document Upload & Indexing" to track versions.
+                                            No documents found. Upload documents in "Document Upload & Indexing" to track
+                                            versions.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -678,8 +841,10 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
     <!-- Modals -->
     <!-- Version Details Modal -->
-    <div id="versionDetailsModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="version-details-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300" role="document">
+    <div id="versionDetailsModal" class="modal hidden" aria-modal="true" role="dialog"
+        aria-labelledby="version-details-title">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -689,12 +854,14 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         </div>
                         <h3 id="version-details-title" class="text-xl font-bold text-white">Document Details</h3>
                     </div>
-                    <button id="closeVersionDetailsBtn" type="button" class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm" aria-label="Close">
+                    <button id="closeVersionDetailsBtn" type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        aria-label="Close">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
             <div id="versionDetailsContent" class="p-6 bg-gradient-to-br from-indigo-50 to-white">
                 <!-- Populated dynamically by showVersionDetails(doc) -->
@@ -704,7 +871,8 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
     <!-- New Version Modal -->
     <div id="newVersionModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="new-version-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300" role="document">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -714,22 +882,27 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         </div>
                         <h3 id="new-version-title" class="text-xl font-bold text-white">Upload New Version</h3>
                     </div>
-                    <button id="closeNewVersionBtn" type="button" class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm" aria-label="Close">
+                    <button id="closeNewVersionBtn" type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        aria-label="Close">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
-            <form id="newVersionForm" class="p-6 bg-gradient-to-br from-emerald-50 to-white" action="{{ route('document.version.upload') }}" method="POST" enctype="multipart/form-data">
+            <form id="newVersionForm" class="p-6 bg-gradient-to-br from-emerald-50 to-white"
+                action="{{ route('document.version.upload') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="space-y-5">
                     <div>
-                        <label for="documentSelect" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <label for="documentSelect"
+                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                             <i class="fas fa-file text-emerald-500 mr-2"></i>
                             Select Document
                         </label>
-                        <select id="documentSelect" name="document_id" required class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200">
+                        <select id="documentSelect" name="document_id" required
+                            class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200">
                             <option value="">Select a document...</option>
                             @foreach($documents as $doc)
                                 <option value="{{ $doc['id'] ?? '' }}">{{ $doc['name'] ?? 'Document' }}</option>
@@ -737,31 +910,41 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         </select>
                     </div>
                     <div>
-                        <label for="versionNumber" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <label for="versionNumber"
+                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                             <i class="fas fa-code-branch text-emerald-500 mr-2"></i>
                             Version Number
                         </label>
-                        <input type="text" id="versionNumber" name="version_number" required class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="e.g., 2.0" value="1.1">
+                        <input type="text" id="versionNumber" name="version_number" required
+                            class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                            placeholder="e.g., 2.0" value="1.1">
                     </div>
                     <div>
-                        <label for="versionNotes" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <label for="versionNotes"
+                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                             <i class="fas fa-sticky-note text-emerald-500 mr-2"></i>
                             Version Notes
                         </label>
-                        <textarea id="versionNotes" name="version_notes" rows="3" class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200" placeholder="Describe the changes in this version..."></textarea>
+                        <textarea id="versionNotes" name="version_notes" rows="3"
+                            class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                            placeholder="Describe the changes in this version..."></textarea>
                     </div>
                     <div>
-                        <label for="file-upload" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                        <label for="file-upload"
+                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
                             <i class="fas fa-cloud-upload-alt text-emerald-500 mr-2"></i>
                             Upload File
                         </label>
-                        <div class="border-2 border-dashed border-emerald-300 rounded-xl p-8 text-center hover:border-emerald-400 transition-colors duration-200 bg-emerald-50/50">
+                        <div
+                            class="border-2 border-dashed border-emerald-300 rounded-xl p-8 text-center hover:border-emerald-400 transition-colors duration-200 bg-emerald-50/50">
                             <div class="space-y-3">
-                                <div class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto">
+                                <div
+                                    class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto">
                                     <i class="fas fa-cloud-upload-alt text-emerald-600 text-2xl"></i>
                                 </div>
                                 <div class="text-sm text-gray-600">
-                                    <label for="file-upload" class="relative cursor-pointer bg-emerald-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-emerald-700 transition-colors duration-200 inline-flex items-center">
+                                    <label for="file-upload"
+                                        class="relative cursor-pointer bg-emerald-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-emerald-700 transition-colors duration-200 inline-flex items-center">
                                         <i class="fas fa-upload mr-2"></i>
                                         Choose File
                                         <input id="file-upload" name="file" type="file" required class="sr-only">
@@ -774,11 +957,13 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 mt-8">
-                    <button type="button" id="cancelNewVersionBtn" class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                    <button type="button" id="cancelNewVersionBtn"
+                        class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
                         <i class="fas fa-times mr-2"></i>
                         Cancel
                     </button>
-                    <button type="submit" class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                    <button type="submit"
+                        class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
                         <i class="fas fa-upload mr-2"></i>
                         Upload Version
                     </button>
@@ -788,8 +973,10 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
     </div>
 
     <!-- Delete Document Confirmation Modal -->
-    <div id="deleteDocumentModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="delete-document-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300" role="document">
+    <div id="deleteDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
+        aria-labelledby="delete-document-title">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300"
+            role="document">
             <!-- Modal Header with Gradient -->
             <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-t-2xl px-6 py-5">
                 <div class="flex justify-between items-center">
@@ -799,33 +986,38 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         </div>
                         <h3 id="delete-document-title" class="text-xl font-bold text-white">Delete Document</h3>
                     </div>
-                    <button id="closeDeleteDocumentBtn" type="button" class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm" aria-label="Close">
+                    <button id="closeDeleteDocumentBtn" type="button"
+                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                        aria-label="Close">
                         <i class="fas fa-times text-lg"></i>
                     </button>
                 </div>
             </div>
-            
+
             <!-- Modal Content -->
             <div class="p-6 bg-gradient-to-br from-red-50 to-white text-center">
                 <!-- Warning Icon -->
-                <div class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                <div
+                    class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
                     <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"></i>
                 </div>
-                
+
                 <!-- Warning Message -->
                 <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
                 <p class="text-gray-600 mb-8 leading-relaxed">
-                    This action <span class="font-semibold text-red-600">cannot be undone</span>. 
+                    This action <span class="font-semibold text-red-600">cannot be undone</span>.
                     This will permanently delete the document and remove it from your records.
                 </p>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex justify-center space-x-4">
-                    <button id="cancelDeleteDocumentBtn" type="button" class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                    <button id="cancelDeleteDocumentBtn" type="button"
+                        class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
                         <i class="fas fa-shield-alt mr-2"></i>
                         No, Keep It
                     </button>
-                    <button id="confirmDeleteDocumentBtn" type="button" class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                    <button id="confirmDeleteDocumentBtn" type="button"
+                        class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
                         <i class="fas fa-trash mr-2"></i>
                         Yes, Delete Document
                     </button>
@@ -872,7 +1064,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                 if (btn && submenu) {
                     btn.addEventListener("click", () => {
                         const isHidden = submenu.classList.contains("hidden");
-                        
+
                         // Close all other dropdowns
                         Object.values(dropdowns).forEach(id => {
                             const otherSubmenu = document.getElementById(id);
@@ -905,7 +1097,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                 userMenuButton.addEventListener("click", (e) => {
                     e.stopPropagation();
                     const isHidden = userMenuDropdown.classList.contains("hidden");
-                    
+
                     if (isHidden) {
                         userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                         userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
@@ -945,7 +1137,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             // Open "Document Management" dropdown by default
             const documentSubmenu = document.getElementById('document-submenu');
             const documentArrow = document.getElementById('document-arrow');
-            
+
             if (documentSubmenu && !documentSubmenu.classList.contains('hidden')) {
                 documentSubmenu.classList.remove('hidden');
                 if (documentArrow) documentArrow.classList.add('rotate-180');
@@ -968,10 +1160,10 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     const category = row.dataset.category || '';
                     const status = row.dataset.status || '';
 
-                    const matchesSearch = !searchTerm || 
-                                          name.includes(searchTerm) || 
-                                          type.includes(searchTerm) || 
-                                          category.includes(searchTerm);
+                    const matchesSearch = !searchTerm ||
+                        name.includes(searchTerm) ||
+                        type.includes(searchTerm) ||
+                        category.includes(searchTerm);
                     const matchesCategory = !selectedCategory || category === selectedCategory;
                     const matchesStatus = !selectedStatus || status === selectedStatus;
 
@@ -986,7 +1178,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             // Export functionality
             const exportBtn = document.getElementById('exportBtn');
             if (exportBtn) {
-                exportBtn.addEventListener('click', function() {
+                exportBtn.addEventListener('click', function () {
                     Swal.fire({
                         icon: 'success',
                         title: 'Export Started',
@@ -1000,7 +1192,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             // Print functionality
             const printBtn = document.getElementById('printBtn');
             if (printBtn) {
-                printBtn.addEventListener('click', function() {
+                printBtn.addEventListener('click', function () {
                     window.print();
                 });
             }
@@ -1036,12 +1228,12 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             }
 
             // View Version Details
-            window.showVersionDetails = function(doc) {
+            window.showVersionDetails = function (doc) {
                 const contentDiv = document.getElementById('versionDetailsContent');
                 const uploadedDate = doc.uploaded ? new Date(doc.uploaded) : new Date();
-                const formattedDate = uploadedDate.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
+                const formattedDate = uploadedDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
@@ -1095,7 +1287,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                 console.log('New Version button found:', newVersionBtn);
                 newVersionBtn.addEventListener('click', () => {
                     console.log('New Version button clicked!');
-                    
+
                     const form = document.getElementById('newVersionForm');
                     if (form) {
                         console.log('Resetting form');
@@ -1106,7 +1298,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             versionNumber.value = '1.1';
                         }
                     }
-                    
+
                     if (newVersionModal) {
                         console.log('Opening new version modal');
                         openModal(newVersionModal);
@@ -1121,17 +1313,17 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             // Handle new version form submission
             const newVersionForm = document.getElementById('newVersionForm');
             if (newVersionForm) {
-                newVersionForm.addEventListener('submit', async function(e) {
+                newVersionForm.addEventListener('submit', async function (e) {
                     e.preventDefault();
-                    
+
                     const submitBtn = this.querySelector('button[type="submit"]');
                     const originalText = submitBtn.textContent;
-                    
+
                     // Client-side validation
                     const documentSelect = document.getElementById('documentSelect');
                     const versionNumber = document.getElementById('versionNumber');
                     const fileInput = document.getElementById('file-upload');
-                    
+
                     if (!documentSelect.value) {
                         Swal.fire({
                             icon: 'error',
@@ -1141,7 +1333,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         });
                         return;
                     }
-                    
+
                     if (!versionNumber.value.trim()) {
                         Swal.fire({
                             icon: 'error',
@@ -1152,7 +1344,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         versionNumber.focus();
                         return;
                     }
-                    
+
                     if (!fileInput.files || fileInput.files.length === 0) {
                         Swal.fire({
                             icon: 'error',
@@ -1162,23 +1354,23 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         });
                         return;
                     }
-                    
+
                     try {
                         submitBtn.disabled = true;
                         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
-                        
+
                         const formData = new FormData(this);
-                        
+
                         // Debug: Log form data
                         console.log('Form data being sent:');
                         for (let [key, value] of formData.entries()) {
                             console.log(key, value);
                         }
-                        
+
                         // Try the version upload route first, then fallback to document upload
                         let uploadUrl = this.action;
                         let response;
-                        
+
                         try {
                             response = await fetch(uploadUrl, {
                                 method: 'POST',
@@ -1201,12 +1393,12 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 }
                             });
                         }
-                        
+
                         const data = await response.json();
-                        
+
                         // Debug: Log response
                         console.log('Server response:', data);
-                        
+
                         if (data.success) {
                             console.log('Upload successful, closing modal and adding to table');
                             closeModal(newVersionModal);
@@ -1217,7 +1409,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                                 timer: 2000,
                                 showConfirmButton: false
                             });
-                            
+
                             // Add the new version to the table
                             if (data.document) {
                                 console.log('Adding document to table:', data.document);
@@ -1225,10 +1417,10 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             } else {
                                 console.log('No document data received from server');
                             }
-                            
+
                             // Reset form
                             this.reset();
-                            
+
                             // Reset file display
                             const dropZoneText = document.querySelector('.border-dashed .text-center');
                             if (dropZoneText) {
@@ -1272,29 +1464,29 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             // Drag and drop functionality
             const dropZone = document.querySelector('.border-dashed');
             const fileInput = document.getElementById('file-upload');
-            
+
             if (dropZone && fileInput) {
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                     dropZone.addEventListener(eventName, preventDefaults, false);
                 });
-                
+
                 function preventDefaults(e) {
                     e.preventDefault();
                     e.stopPropagation();
                 }
-                
+
                 ['dragenter', 'dragover'].forEach(eventName => {
                     dropZone.addEventListener(eventName, () => {
                         dropZone.classList.add('border-brand-primary', 'bg-brand-background-main');
                     }, false);
                 });
-                
+
                 ['dragleave', 'drop'].forEach(eventName => {
                     dropZone.addEventListener(eventName, () => {
                         dropZone.classList.remove('border-brand-primary', 'bg-brand-background-main');
                     }, false);
                 });
-                
+
                 dropZone.addEventListener('drop', (e) => {
                     const files = e.dataTransfer.files;
                     if (files.length > 0) {
@@ -1302,13 +1494,13 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         updateFileDisplay(files[0]);
                     }
                 }, false);
-                
+
                 fileInput.addEventListener('change', (e) => {
                     if (e.target.files.length > 0) {
                         updateFileDisplay(e.target.files[0]);
                     }
                 });
-                
+
                 function updateFileDisplay(file) {
                     const dropZoneText = dropZone.querySelector('.text-center');
                     if (dropZoneText) {
@@ -1323,7 +1515,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         `;
                     }
                 }
-                
+
                 function formatFileSize(bytes) {
                     if (bytes === 0) return '0 Bytes';
                     const k = 1024;
@@ -1342,7 +1534,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
             // Delete document functionality
             let currentDeleteDocumentId = '';
-            window.showDeleteDocumentConfirmation = function(docId) {
+            window.showDeleteDocumentConfirmation = function (docId) {
                 currentDeleteDocumentId = docId;
                 openModal(deleteDocumentModal);
             };
@@ -1350,20 +1542,20 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             document.getElementById('confirmDeleteDocumentBtn')?.addEventListener('click', async () => {
                 const btn = document.getElementById('confirmDeleteDocumentBtn');
                 const originalText = btn.textContent;
-                
+
                 try {
                     btn.disabled = true;
                     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
-                    
+
                     // In a real app, this would be an API call
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    
+
                     // Remove the row from table
                     const row = document.querySelector(`tr[data-doc-id="${currentDeleteDocumentId}"]`);
                     if (row) {
                         row.remove();
                     }
-                    
+
                     closeModal(deleteDocumentModal);
                     Swal.fire({
                         icon: 'success',
@@ -1387,7 +1579,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             // Close modals when clicking outside
             const modals = [versionDetailsModal, newVersionModal, deleteDocumentModal];
             modals.forEach(modal => {
-                modal?.addEventListener('click', function(e) {
+                modal?.addEventListener('click', function (e) {
                     if (e.target === this) {
                         closeModal(this);
                     }
@@ -1397,13 +1589,13 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             // Category filtering
             const categoryCards = document.querySelectorAll('.category-card');
             categoryCards.forEach(card => {
-                card.addEventListener('click', function() {
+                card.addEventListener('click', function () {
                     const selectedCategory = this.dataset.category;
-                    
+
                     // Update active state
                     categoryCards.forEach(c => c.classList.remove('active'));
                     this.classList.add('active');
-                    
+
                     // Filter documents
                     filterDocumentsByCategory(selectedCategory);
                 });
@@ -1412,13 +1604,13 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             function filterDocumentsByCategory(category) {
                 const rows = document.querySelectorAll('#documentsTable tbody tr');
                 let visibleCount = 0;
-                
+
                 // Show loading state
                 const tableContainer = document.querySelector('#documentsTable');
                 if (tableContainer) {
                     tableContainer.style.opacity = '0.7';
                 }
-                
+
                 // Small delay for visual feedback
                 setTimeout(() => {
                     rows.forEach(row => {
@@ -1426,9 +1618,9 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             // Skip "No documents" row
                             return;
                         }
-                        
+
                         const docCategory = row.dataset.category || '';
-                        
+
                         if (category === 'all') {
                             row.style.display = '';
                             visibleCount++;
@@ -1442,22 +1634,22 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                             }
                         }
                     });
-                    
+
                     // Update count
                     const visibleCountElement = document.getElementById('visibleCount');
                     if (visibleCountElement) {
                         visibleCountElement.textContent = visibleCount;
                     }
-                    
+
                     // Reset opacity
                     if (tableContainer) {
                         tableContainer.style.opacity = '1';
                     }
-                    
+
                     // Show no results message if needed
                     const tbody = document.querySelector('#documentsTable tbody');
                     const noResultsRow = tbody.querySelector('.no-results-row');
-                    
+
                     if (visibleCount === 0 && !noResultsRow) {
                         const noResultsRow = document.createElement('tr');
                         noResultsRow.className = 'no-results-row';
@@ -1477,21 +1669,21 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             }
 
             // Global modal functions
-            window.closeVersionDetailsModal = function() {
+            window.closeVersionDetailsModal = function () {
                 const modal = document.getElementById('versionDetailsModal');
                 if (modal) {
                     closeModal(modal);
                 }
             };
 
-            window.closeNewVersionModal = function() {
+            window.closeNewVersionModal = function () {
                 const modal = document.getElementById('newVersionModal');
                 if (modal) {
                     closeModal(modal);
                 }
             };
 
-            window.closeDeleteDocumentModal = function() {
+            window.closeDeleteDocumentModal = function () {
                 const modal = document.getElementById('deleteDocumentModal');
                 if (modal) {
                     closeModal(modal);
@@ -1499,7 +1691,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             };
 
             // Global function to open new version modal
-            window.openNewVersionModal = function() {
+            window.openNewVersionModal = function () {
                 console.log('Global openNewVersionModal called');
                 const form = document.getElementById('newVersionForm');
                 if (form) {
@@ -1511,7 +1703,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         versionNumber.value = '1.1';
                     }
                 }
-                
+
                 const modal = document.getElementById('newVersionModal');
                 if (modal) {
                     console.log('Opening new version modal from global function');
@@ -1522,9 +1714,9 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
             };
 
             // Add document to table dynamically
-            window.addDocumentToTable = function(doc) {
+            window.addDocumentToTable = function (doc) {
                 console.log('addDocumentToTable called with:', doc);
-                
+
                 const tbody = document.querySelector('#documentsTable tbody');
                 if (!tbody) {
                     console.error('Table tbody not found');
@@ -1542,7 +1734,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
                 // Get user info for the row
                 const userName = '{{ $user->name }}' || 'User';
-                const initials = '{{ collect(explode(" ", $user->name))->map(fn($p) => strtoupper(substr($p,0,1)))->implode("") }}' || 'U';
+                const initials = '{{ collect(explode(" ", $user->name))->map(fn($p) => strtoupper(substr($p, 0, 1)))->implode("") }}' || 'U';
 
                 console.log('User info:', { userName, initials });
 
@@ -1561,9 +1753,9 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
                 // Format uploaded date
                 const uploadedDate = doc.uploaded ? new Date(doc.uploaded) : new Date();
-                const formattedDate = uploadedDate.toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
+                const formattedDate = uploadedDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
                     day: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
@@ -1579,7 +1771,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                 row.setAttribute('data-type', (doc.type || '').toLowerCase());
                 row.setAttribute('data-category', (doc.category || 'other').toLowerCase());
                 row.setAttribute('data-status', (doc.status || 'indexed').toLowerCase());
-                
+
                 console.log('Creating row with attributes:', {
                     id: doc.id || '',
                     name: doc.name || '',
@@ -1587,7 +1779,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                     category: doc.category || 'other',
                     status: doc.status || 'indexed'
                 });
-                
+
                 row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
@@ -1639,7 +1831,7 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
 
                 // Show success animation
                 showUploadSuccessAnimation();
-                
+
                 console.log('addDocumentToTable completed successfully');
             };
 
@@ -1653,9 +1845,9 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
                         <span>New version added to table</span>
                     </div>
                 `;
-                
+
                 document.body.appendChild(toast);
-                
+
                 setTimeout(() => {
                     toast.style.opacity = '0';
                     setTimeout(() => toast.remove(), 300);
@@ -1664,4 +1856,5 @@ $documents = isset($documents) ? $documents : session('uploaded_documents', []);
         });
     </script>
 </body>
+
 </html>
