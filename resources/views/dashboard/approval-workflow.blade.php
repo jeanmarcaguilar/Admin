@@ -1124,7 +1124,7 @@
                 if (modal) {
                     modal.classList.remove('hidden');
                     document.body.style.overflow = 'hidden';
- // Add animation
+                    // Add animation
                     setTimeout(() => {
                         const modalContent = modal.querySelector('.transform');
                         if (modalContent) {
@@ -1143,7 +1143,7 @@
                         modalContent.classList.remove('scale-100', 'opacity-100');
                         modalContent.classList.add('scale-95', 'opacity-0');
 
-                                               setTimeout(() => {
+                        setTimeout(() => {
                             modal.classList.add('hidden');
                             document.body.style.overflow = '';
                         }, 300);
@@ -1536,7 +1536,7 @@
                         const requestRow = document.querySelector(`tr[data-request-id="${currentRequestId}"]`);
 
                         if (requestRow) {
-                            const statusCell = requestRow.querySelector('td:nth-child(4)'); // Status column
+                            const statusCell = requestRow.querySelector('td:nth-child(7)'); // Status column
                             const statusClass = currentAction === 'approve' ? 'status-approved' : 'status-rejected';
                             const statusText = currentAction === 'approve' ? 'Approved' : 'Rejected';
                             const currentUser = '{{ auth()->user()->name }}';
@@ -1580,7 +1580,7 @@
                             statusCell.innerHTML = newStatusHTML;
 
                             // Remove action buttons
-                            const actionButtons = requestRow.querySelectorAll('td:nth-child(5) button');
+                            const actionButtons = requestRow.querySelectorAll('td:nth-child(8) button');
                             actionButtons.forEach(button => {
                                 if (button.textContent === 'Approve' || button.textContent === 'Reject') {
                                     button.remove();

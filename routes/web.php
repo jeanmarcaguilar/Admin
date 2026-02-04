@@ -954,10 +954,10 @@ Route::middleware('auth')->group(function () {
         $externalBookings = [];
         try {
             $response = \Illuminate\Support\Facades\Http::timeout(10)->get('https://hr2.microfinancial-1.com/api/training-room-bookings');
-            
+
             if ($response->successful()) {
                 $bookings = $response->json();
-                
+
                 if (!empty($bookings) && is_array($bookings)) {
                     $bookingsData = $bookings['data'] ?? $bookings;
                     $externalBookings = collect($bookingsData)->map(function ($booking) {
@@ -968,7 +968,7 @@ Route::middleware('auth')->group(function () {
                         $approvedAt = \Cache::get('external_booking_approved_at_' . $booking['id']);
                         $rejectedAt = \Cache::get('external_booking_rejected_at_' . $booking['id']);
                         $rejectionReason = \Cache::get('external_booking_reason_' . $booking['id']);
-                        
+
                         return [
                             'id' => 'EXT-' . ($booking['id'] ?? uniqid()),
                             'code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
@@ -1213,20 +1213,12 @@ Route::middleware('auth')->group(function () {
                 if (!empty($bookings) && is_array($bookings)) {
                     $bookingsData = $bookings['data'] ?? $bookings;
                     $externalBookings = collect($bookingsData)->map(function ($booking) {
-                        // Check if we have stored status for this external booking
-                        $storedStatus = \Cache::get('external_booking_status_' . $booking['id'], $booking['status'] ?? 'pending');
-                        $approvedBy = \Cache::get('external_booking_approved_by_' . $booking['id']);
-                        $rejectedBy = \Cache::get('external_booking_rejected_by_' . $booking['id']);
-                        $approvedAt = \Cache::get('external_booking_approved_at_' . $booking['id']);
-                        $rejectedAt = \Cache::get('external_booking_rejected_at_' . $booking['id']);
-                        $rejectionReason = \Cache::get('external_booking_reason_' . $booking['id']);
-                        
                         return [
                             'id' => $booking['id'] ?? ('EXT-' . uniqid()),
                             'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
                             'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['course_name'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
                             'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
-                            'status' => $storedStatus,
+                            'status' => $booking['status'] ?? 'pending',
                             'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
                             'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
                             'request_id' => $booking['request_id'] ?? $booking['booking_code'] ?? ('TRB-' . ($booking['id'] ?? '000')),
@@ -1236,12 +1228,12 @@ Route::middleware('auth')->group(function () {
                             'date' => $booking['date'] ?? $booking['session_date'] ?? $booking['booking_date'] ?? now()->toDateString(),
                             'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
                             'description' => $booking['purpose'] ?? $booking['notes'] ?? $booking['description'] ?? 'External training session',
-                            'approved_by' => $approvedBy,
-                            'rejected_by' => $rejectedBy,
-                            'approved_at' => $approvedAt,
-                            'rejected_at' => $rejectedAt,
-                            'rejection_reason' => $rejectionReason,
-                            'is_external' => true, // Mark as external booking
+                            'approved_by' => $booking['approved_by'] ?? null,
+                            'rejected_by' => $booking['rejected_by'] ?? null,
+                            'approved_at' => $booking['approved_at'] ?? null,
+                            'rejected_at' => $booking['rejected_at'] ?? null,
+                            'rejection_reason' => $booking['reason'] ?? $booking['rejection_reason'] ?? null,
+                            'is_external' => true,
                         ];
                     })->toArray();
 
@@ -1255,53 +1247,36 @@ Route::middleware('auth')->group(function () {
         } catch (\Exception $e) {
             \Log::error('Failed to fetch external bookings: ' . $e->getMessage());
 
-            // Add sample external bookings for testing if API fails
-            $externalBookings = [
-                [
-                    'id' => 'EXT-001',
-                    'booking_code' => 'TRB-001',
-                    'location' => 'External Training Room A',
-                    'facilitator' => 'External Trainer',
-                    'status' => \Cache::get('external_booking_status_EXT-001', 'approved'),
-                    'start_time' => '10:00',
-                    'end_time' => '16:00',
-                    'request_id' => 'TRB-001',
-                    'title' => 'External Training Room A',
-                    'type' => 'room',
-                    'requested_by' => 'External Trainer',
-                    'date' => '2025-02-05',
-                    'lead_time' => 2,
-                    'description' => 'External API Training Session - Advanced workshop on modern development practices',
-                    'approved_by' => \Cache::get('external_booking_approved_by_EXT-001'),
-                    'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-001'),
-                    'approved_at' => \Cache::get('external_booking_approved_at_EXT-001'),
-                    'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-001'),
-                    'rejection_reason' => \Cache::get('external_booking_reason_EXT-001'),
-                    'is_external' => true,
-                ],
-                [
-                    'id' => 'EXT-002',
-                    'booking_code' => 'TRB-002',
-                    'location' => 'Conference Hall B',
-                    'facilitator' => 'Guest Speaker',
-                    'status' => \Cache::get('external_booking_status_EXT-002', 'pending'),
-                    'start_time' => '13:00',
-                    'end_time' => '17:00',
-                    'request_id' => 'TRB-002',
-                    'title' => 'Conference Hall B',
-                    'type' => 'room',
-                    'requested_by' => 'Guest Speaker',
-                    'date' => '2025-02-06',
-                    'lead_time' => 3,
-                    'description' => 'Workshop from External System - Leadership and management training',
-                    'approved_by' => \Cache::get('external_booking_approved_by_EXT-002'),
-                    'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-002'),
-                    'approved_at' => \Cache::get('external_booking_approved_at_EXT-002'),
-                    'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-002'),
-                    'rejection_reason' => \Cache::get('external_booking_reason_EXT-002'),
-                    'is_external' => true,
-                ]
-            ];
+            $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings';
+
+            $response = \Illuminate\Support\Facades\Http::timeout(5)->get($apiUrl);
+
+            if ($response->successful()) {
+                $bookings = $response->json();
+
+                if (!empty($bookings) && is_array($bookings)) {
+                    $bookingsData = $bookings['data'] ?? $bookings;
+                    $externalBookings = collect($bookingsData)->map(function ($booking) {
+                        return [
+                            'id' => $booking['id'] ?? ('EXT-' . uniqid()),
+                            'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
+                            'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['course_name'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
+                            'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
+                            'status' => $booking['status'] ?? 'pending',
+                            'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
+                            'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
+                            'is_external' => true,
+                            'approved_by' => $booking['approved_by'] ?? null,
+                            'rejected_by' => $booking['rejected_by'] ?? null,
+                            'approved_at' => $booking['approved_at'] ?? null,
+                            'rejected_at' => $booking['rejected_at'] ?? null,
+                            'rejection_reason' => $booking['reason'] ?? $booking['rejection_reason'] ?? null,
+                        ];
+                    })->toArray();
+                }
+            } else {
+                \Log::error('External API debug request failed: ' . $response->status());
+            }
 
             \Log::info('Using sample external bookings for testing: ' . count($externalBookings));
         }
@@ -1346,65 +1321,23 @@ Route::middleware('auth')->group(function () {
                 if (!empty($bookings) && is_array($bookings)) {
                     $bookingsData = $bookings['data'] ?? $bookings;
                     $externalBookings = collect($bookingsData)->map(function ($booking) {
-                        // Check if we have stored status for this external booking
-                        $storedStatus = \Cache::get('external_booking_status_' . $booking['id'], $booking['status'] ?? 'pending');
-                        $approvedBy = \Cache::get('external_booking_approved_by_' . $booking['id']);
-                        $rejectedBy = \Cache::get('external_booking_rejected_by_' . $booking['id']);
-                        $approvedAt = \Cache::get('external_booking_approved_at_' . $booking['id']);
-                        $rejectedAt = \Cache::get('external_booking_rejected_at_' . $booking['id']);
-                        $rejectionReason = \Cache::get('external_booking_reason_' . $booking['id']);
-
                         return [
                             'id' => $booking['id'] ?? ('EXT-' . uniqid()),
                             'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
                             'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['course_name'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
                             'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
-                            'status' => $storedStatus,
+                            'status' => $booking['status'] ?? 'pending',
                             'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
                             'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
                             'is_external' => true,
-                            'approved_by' => $approvedBy,
-                            'rejected_by' => $rejectedBy,
-                            'approved_at' => $approvedAt,
-                            'rejected_at' => $rejectedAt,
-                            'rejection_reason' => $rejectionReason,
+                            'approved_by' => $booking['approved_by'] ?? null,
+                            'rejected_by' => $booking['rejected_by'] ?? null,
+                            'approved_at' => $booking['approved_at'] ?? null,
+                            'rejected_at' => $booking['rejected_at'] ?? null,
+                            'rejection_reason' => $booking['reason'] ?? $booking['rejection_reason'] ?? null,
                         ];
                     })->toArray();
                 }
-            } else {
-                // Use sample data if API fails
-                $externalBookings = [
-                    [
-                        'id' => 'EXT-001',
-                        'booking_code' => 'TRB-001',
-                        'location' => 'External Training Room A',
-                        'facilitator' => 'External Trainer',
-                        'status' => \Cache::get('external_booking_status_EXT-001', 'approved'),
-                        'start_time' => '10:00',
-                        'end_time' => '16:00',
-                        'is_external' => true,
-                        'approved_by' => \Cache::get('external_booking_approved_by_EXT-001'),
-                        'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-001'),
-                        'approved_at' => \Cache::get('external_booking_approved_at_EXT-001'),
-                        'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-001'),
-                        'rejection_reason' => \Cache::get('external_booking_reason_EXT-001'),
-                    ],
-                    [
-                        'id' => 'EXT-002',
-                        'booking_code' => 'TRB-002',
-                        'location' => 'Conference Hall B',
-                        'facilitator' => 'Guest Speaker',
-                        'status' => \Cache::get('external_booking_status_EXT-002', 'pending'),
-                        'start_time' => '13:00',
-                        'end_time' => '17:00',
-                        'is_external' => true,
-                        'approved_by' => \Cache::get('external_booking_approved_by_EXT-002'),
-                        'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-002'),
-                        'approved_at' => \Cache::get('external_booking_approved_at_EXT-002'),
-                        'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-002'),
-                        'rejection_reason' => \Cache::get('external_booking_reason_EXT-002'),
-                    ]
-                ];
             }
 
             return response()->json([
@@ -1445,7 +1378,7 @@ Route::middleware('auth')->group(function () {
             }
 
             // Validate date is not in the past for room/equipment bookings
-            if ($approval->date && $approval->date->isPast()) {
+            if ($approval->date && \Carbon\Carbon::parse($approval->date)->isPast()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Cannot approve requests with past dates'
@@ -1526,21 +1459,29 @@ Route::middleware('auth')->group(function () {
     // External Approval Workflow Actions
     Route::post('/approval/external/approve/{id}', function ($id, Request $request) {
         try {
+            // First, attempt to update the status in the external API
+            // Corrected endpoint: PATCH /api/training-room-bookings/{id}
+            $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings/' . $id;
+
+            $apiResponse = \Illuminate\Support\Facades\Http::timeout(5)->patch($apiUrl, [
+                'status' => 'approved',
+                'approved_by' => auth()->user()->name,
+                'approved_at' => now()->toDateTimeString()
+            ]);
+
+            \Log::info('External API Approval Response: ' . $apiResponse->status() . ' - ' . $apiResponse->body());
+
+            if (!$apiResponse->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'External API failed to update booking: ' . ($apiResponse->json('message') ?? 'Unknown error')
+                ], $apiResponse->status());
+            }
+
             // For external bookings, we'll store the approval status in cache
-            // In a real implementation, you would make an API call back to the external system
-            
-            // Store approval status in cache for persistence
-            \Cache::put('external_booking_status_' . $id, 'approved', now()->addDays(30));
-            \Cache::put('external_booking_approved_by_' . $id, auth()->user()->name, now()->addDays(30));
-            \Cache::put('external_booking_approved_at_' . $id, now()->toDateTimeString(), now()->addDays(30));
-            
-            // Clear any rejection data
-            \Cache::forget('external_booking_rejected_by_' . $id);
-            \Cache::forget('external_booking_rejected_at_' . $id);
-            \Cache::forget('external_booking_reason_' . $id);
-            
+
             // Log the external approval action
-            \Log::info('External booking approved', [
+            \Log::info('External booking approved locally', [
                 'booking_id' => $id,
                 'approved_by' => auth()->user()->name,
                 'approved_at' => now()->toDateTimeString()
@@ -1566,21 +1507,29 @@ Route::middleware('auth')->group(function () {
                 'reason' => 'required|string|max:500'
             ]);
 
-            // For external bookings, we'll store the rejection status in cache
-            // In a real implementation, you would make an API call back to the external system
-            
-            // Store rejection status in cache for persistence
-            \Cache::put('external_booking_status_' . $id, 'rejected', now()->addDays(30));
-            \Cache::put('external_booking_rejected_by_' . $id, auth()->user()->name, now()->addDays(30));
-            \Cache::put('external_booking_rejected_at_' . $id, now()->toDateTimeString(), now()->addDays(30));
-            \Cache::put('external_booking_reason_' . $id, $request->reason, now()->addDays(30));
-            
-            // Clear any approval data
-            \Cache::forget('external_booking_approved_by_' . $id);
-            \Cache::forget('external_booking_approved_at_' . $id);
-            
+            // First, attempt to update the status in the external API
+            // Corrected endpoint: PATCH /api/training-room-bookings/{id}
+            $apiUrl = 'https://hr2.microfinancial-1.com/api/training-room-bookings/' . $id;
+
+            $apiResponse = \Illuminate\Support\Facades\Http::timeout(5)->patch($apiUrl, [
+                'status' => 'rejected',
+                'rejected_by' => auth()->user()->name,
+                'rejected_at' => now()->toDateTimeString(),
+                'reason' => $request->reason
+            ]);
+
+            \Log::info('External API Rejection Response: ' . $apiResponse->status() . ' - ' . $apiResponse->body());
+
+            if (!$apiResponse->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'External API failed to reject booking: ' . ($apiResponse->json('message') ?? 'Unknown error')
+                ], $apiResponse->status());
+            }
+
+
             // Log the external rejection action
-            \Log::info('External booking rejected', [
+            \Log::info('External booking rejected locally', [
                 'booking_id' => $id,
                 'rejected_by' => auth()->user()->name,
                 'rejected_at' => now()->toDateTimeString(),
@@ -1682,20 +1631,12 @@ Route::middleware('auth')->group(function () {
                 if (!empty($bookings) && is_array($bookings)) {
                     $bookingsData = $bookings['data'] ?? $bookings;
                     $externalBookings = collect($bookingsData)->map(function ($booking) {
-                        // Check if we have stored status for this external booking
-                        $storedStatus = \Cache::get('external_booking_status_' . $booking['id'], $booking['status'] ?? 'pending');
-                        $approvedBy = \Cache::get('external_booking_approved_by_' . $booking['id']);
-                        $rejectedBy = \Cache::get('external_booking_rejected_by_' . $booking['id']);
-                        $approvedAt = \Cache::get('external_booking_approved_at_' . $booking['id']);
-                        $rejectedAt = \Cache::get('external_booking_rejected_at_' . $booking['id']);
-                        $rejectionReason = \Cache::get('external_booking_reason_' . $booking['id']);
-                        
                         return [
                             'id' => $booking['id'] ?? ('EXT-' . uniqid()),
                             'booking_code' => $booking['booking_code'] ?? $booking['code'] ?? $booking['request_id'] ?? ('TRB-' . ($booking['id'] ?? '000')),
                             'location' => $booking['location'] ?? $booking['venue'] ?? $booking['room'] ?? $booking['course_name'] ?? $booking['title'] ?? $booking['name'] ?? 'Training Room',
                             'facilitator' => $booking['facilitator'] ?? $booking['instructor'] ?? $booking['trainer'] ?? $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
-                            'status' => $storedStatus,
+                            'status' => $booking['status'] ?? 'pending',
                             'start_time' => $booking['start_time'] ?? $booking['time_start'] ?? $booking['begin_time'] ?? $booking['start'] ?? '09:00',
                             'end_time' => $booking['end_time'] ?? $booking['time_end'] ?? $booking['finish_time'] ?? $booking['end'] ?? '17:00',
                             'name' => $booking['title'] ?? $booking['course_name'] ?? $booking['name'] ?? 'Training Room',
@@ -1704,12 +1645,12 @@ Route::middleware('auth')->group(function () {
                             'lead_time' => $booking['lead_time'] ?? $booking['duration'] ?? 1,
                             'purpose' => $booking['purpose'] ?? $booking['notes'] ?? $booking['description'] ?? 'External training session',
                             'requested_by' => $booking['requested_by'] ?? $booking['created_by'] ?? $booking['user'] ?? null,
-                            'is_external' => true, // Mark as external booking
-                            'approved_by' => $approvedBy,
-                            'rejected_by' => $rejectedBy,
-                            'approved_at' => $approvedAt,
-                            'rejected_at' => $rejectedAt,
-                            'rejection_reason' => $rejectionReason,
+                            'is_external' => true,
+                            'approved_by' => $booking['approved_by'] ?? null,
+                            'rejected_by' => $booking['rejected_by'] ?? null,
+                            'approved_at' => $booking['approved_at'] ?? null,
+                            'rejected_at' => $booking['rejected_at'] ?? null,
+                            'rejection_reason' => $booking['reason'] ?? $booking['rejection_reason'] ?? null,
                         ];
                     })->toArray();
 
@@ -1723,54 +1664,7 @@ Route::middleware('auth')->group(function () {
         } catch (\Exception $e) {
             \Log::error('Failed to fetch external bookings: ' . $e->getMessage());
             \Log::error('Exception trace: ' . $e->getTraceAsString());
-
-            // Add sample external bookings for testing if API fails
-            $externalBookings = [
-                [
-                    'id' => 'EXT-001',
-                    'booking_code' => 'TRB-001',
-                    'location' => 'External Training Room A',
-                    'facilitator' => 'External Trainer',
-                    'status' => \Cache::get('external_booking_status_EXT-001', 'approved'),
-                    'start_time' => '10:00',
-                    'end_time' => '16:00',
-                    'name' => 'External Training Room A',
-                    'type' => 'room',
-                    'date' => '2025-02-05',
-                    'lead_time' => 2,
-                    'purpose' => 'External API Training Session',
-                    'requested_by' => 'External Trainer',
-                    'is_external' => true,
-                    'approved_by' => \Cache::get('external_booking_approved_by_EXT-001'),
-                    'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-001'),
-                    'approved_at' => \Cache::get('external_booking_approved_at_EXT-001'),
-                    'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-001'),
-                    'rejection_reason' => \Cache::get('external_booking_reason_EXT-001'),
-                ],
-                [
-                    'id' => 'EXT-002',
-                    'booking_code' => 'TRB-002',
-                    'location' => 'Conference Hall B',
-                    'facilitator' => 'Guest Speaker',
-                    'status' => \Cache::get('external_booking_status_EXT-002', 'pending'),
-                    'start_time' => '13:00',
-                    'end_time' => '17:00',
-                    'name' => 'Conference Hall B',
-                    'type' => 'room',
-                    'date' => '2025-02-06',
-                    'lead_time' => 3,
-                    'purpose' => 'Workshop from External System',
-                    'requested_by' => 'Guest Speaker',
-                    'is_external' => true,
-                    'approved_by' => \Cache::get('external_booking_approved_by_EXT-002'),
-                    'rejected_by' => \Cache::get('external_booking_rejected_by_EXT-002'),
-                    'approved_at' => \Cache::get('external_booking_approved_at_EXT-002'),
-                    'rejected_at' => \Cache::get('external_booking_rejected_at_EXT-002'),
-                    'rejection_reason' => \Cache::get('external_booking_reason_EXT-002'),
-                ]
-            ];
-
-            \Log::info('Using sample external bookings for testing: ' . count($externalBookings));
+            \Log::warning('External API request failed in reservation history');
         }
 
         // Get approval requests from database
@@ -2694,7 +2588,7 @@ Route::middleware('auth')->group(function () {
         Cache::put('password_change_' . $user->id, $code, now()->addMinutes(10));
 
         // Send code to user's email
-        Mail::to($user->email)->send(new TwoFactorCodeMail($code));
+        Mail::to($user->email)->send(new TwoFactorCodeMail($user->name, $code));
 
         return back()->with('success', 'Verification code sent to your email.');
     })->name('account.password.change.request');
