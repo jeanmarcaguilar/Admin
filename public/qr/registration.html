@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Registration - VIP Access Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/qr-display.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <custom-navbar></custom-navbar>
+    <div class="min-h-screen pt-16">
+        <main class="p-6 overflow-auto">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">Visitor Registration</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Register new visitors and generate access QR codes</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Registration Form -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
+                            <i data-feather="user-plus" class="w-5 h-5 mr-2 text-indigo-600"></i>
+                            New Visitor
+                        </h2>
+                        
+                        <form id="visitorForm" class="space-y-6">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">First Name</label>
+                                    <input type="text" id="firstName" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="John">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Last Name</label>
+                                    <input type="text" id="lastName" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="Doe">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
+                                <input type="email" id="email" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="john.doe@company.com">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Phone Number</label>
+                                <input type="tel" id="phone" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="+1 (555) 123-4567">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Company/Organization</label>
+                                <input type="text" id="company" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="Acme Corporation">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Access Level</label>
+                                    <select id="accessLevel" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                                        <option value="standard">Standard</option>
+                                        <option value="vip">VIP</option>
+                                        <option value="restricted">Restricted Areas</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Visit Date</label>
+                                    <input type="date" id="visitDate" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Purpose of Visit</label>
+                                <textarea id="purpose" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="Meeting with sales team..."></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                <i data-feather="qr-code" class="w-5 h-5 mr-2"></i>
+                                Generate QR Code
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- QR Code Display -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col items-center justify-center min-h-[500px]">
+                        <div id="qrPlaceholder" class="text-center">
+                            <div class="w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                                <i data-feather="qr-code" class="w-16 h-16 text-gray-400"></i>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400">Fill out the form to generate a QR code</p>
+                        </div>
+                        
+                        <div id="qrContainer" class="hidden text-center w-full">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Access QR Code</h3>
+                            <div id="qrcode" class="flex justify-center mb-6 bg-white p-4 rounded-xl inline-block"></div>
+                            
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4 text-left">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Visitor ID:</span>
+                                    <span id="visitorId" class="text-sm font-mono font-semibold text-indigo-600 dark:text-indigo-400"></span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Name:</span>
+                                    <span id="displayName" class="text-sm font-semibold text-gray-800 dark:text-white"></span>
+                                </div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Access Level:</span>
+                                    <span id="displayAccess" class="text-sm font-semibold"></span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">Valid Until:</span>
+                                    <span id="displayDate" class="text-sm font-semibold text-gray-800 dark:text-white"></span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-3 w-full">
+                                <button onclick="downloadQR()" class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                    <i data-feather="download" class="w-4 h-4 mr-2"></i>
+                                    Download
+                                </button>
+                                <button onclick="printQR()" class="flex-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                    <i data-feather="printer" class="w-4 h-4 mr-2"></i>
+                                    Print
+                                </button>
+                                <button onclick="emailQR()" class="flex-1 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                    <i data-feather="mail" class="w-4 h-4 mr-2"></i>
+                                    Email
+                                </button>
+                            </div>
+                            
+                            <button onclick="resetForm()" class="mt-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-sm">
+                                Register Another Visitor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Registrations -->
+                <div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                        <i data-feather="clock" class="w-5 h-5 mr-2 text-indigo-600"></i>
+                        Recent Registrations
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-tl-lg">Name</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">Company</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">Access</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">Date</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-tr-lg">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentVisitors" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        No recent registrations
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Set today's date as default
+        document.getElementById('visitDate').valueAsDate = new Date();
+        feather.replace();
+        
+        // Handle form submission
+        document.getElementById('visitorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generateVisitorQR();
+        });
+        
+        let currentQRCode = null;
+        let visitorData = null;
+        
+        function generateVisitorQR() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const company = document.getElementById('company').value;
+            const accessLevel = document.getElementById('accessLevel').value;
+            const visitDate = document.getElementById('visitDate').value;
+            const purpose = document.getElementById('purpose').value;
+            
+            // Generate unique visitor ID
+            const visitorId = 'VIS-' + Date.now().toString(36).toUpperCase();
+            
+            // Create visitor data object
+            visitorData = {
+                id: visitorId,
+                firstName,
+                lastName,
+                email,
+                phone,
+                company,
+                accessLevel,
+                visitDate,
+                purpose,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Save to localStorage
+            saveVisitor(visitorData);
+            
+            // Generate QR Code data
+            const qrData = JSON.stringify({
+                id: visitorId,
+                name: `${firstName} ${lastName}`,
+                access: accessLevel,
+                date: visitDate,
+                hash: btoa(visitorId + visitDate).substring(0, 16)
+            });
+            
+            // Show QR container
+            document.getElementById('qrPlaceholder').classList.add('hidden');
+            document.getElementById('qrContainer').classList.remove('hidden');
+            
+            // Clear previous QR
+            document.getElementById('qrcode').innerHTML = '';
+            
+            // Generate new QR
+            currentQRCode = new QRCode(document.getElementById('qrcode'), {
+                text: qrData,
+                width: 200,
+                height: 200,
+                colorDark: '#1f2937',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Update display info
+            document.getElementById('visitorId').textContent = visitorId;
+            document.getElementById('displayName').textContent = `${firstName} ${lastName}`;
+            
+            const accessColors = {
+                standard: 'text-blue-600 dark:text-blue-400',
+                vip: 'text-amber-600 dark:text-amber-400',
+                restricted: 'text-red-600 dark:text-red-400'
+            };
+            const accessDisplay = document.getElementById('displayAccess');
+            accessDisplay.textContent = accessLevel.toUpperCase();
+            accessDisplay.className = `text-sm font-semibold ${accessColors[accessLevel]}`;
+            
+            document.getElementById('displayDate').textContent = new Date(visitDate).toLocaleDateString();
+            
+            // Update recent list
+            updateRecentList();
+        }
+        
+        function saveVisitor(data) {
+            let visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            visitors.unshift(data);
+            localStorage.setItem('visitors', JSON.stringify(visitors));
+        }
+        
+        function updateRecentList() {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const tbody = document.getElementById('recentVisitors');
+            
+            if (visitors.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No recent registrations</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = visitors.slice(0, 5).map(v => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td class="px-4 py-3 text-sm text-gray-800 dark:text-white font-medium">${v.firstName} ${v.lastName}</td>
+                    <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">${v.company || '-'}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                            v.accessLevel === 'vip' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' :
+                            v.accessLevel === 'restricted' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
+                            'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                        }">${v.accessLevel.toUpperCase()}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">${new Date(v.visitDate).toLocaleDateString()}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300">Active</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function downloadQR() {
+            const canvas = document.querySelector('#qrcode canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = `QR-${visitorData.id}.png`;
+                link.href = canvas.toDataURL();
+                link.click();
+            }
+        }
+        
+        function printQR() {
+            const printWindow = window.open('', '_blank');
+            const canvas = document.querySelector('#qrcode canvas');
+            const qrImage = canvas ? canvas.toDataURL() : '';
+            
+            printWindow.document.write(`
+                <html>
+                <head><title>Visitor Pass - ${visitorData.firstName} ${visitorData.lastName}</title></head>
+                <body style="font-family: Arial, sans-serif; text-align: center; padding: 40px;">
+                    <h1>VISITOR ACCESS PASS</h1>
+                    <img src="${qrImage}" style="margin: 20px auto; display: block;">
+                    <h2>${visitorData.firstName} ${visitorData.lastName}</h2>
+                    <p><strong>ID:</strong> ${visitorData.id}</p>
+                    <p><strong>Access Level:</strong> ${visitorData.accessLevel.toUpperCase()}</p>
+                    <p><strong>Valid Date:</strong> ${new Date(visitorData.visitDate).toLocaleDateString()}</p>
+                    <hr style="margin: 30px 0; border: 1px dashed #ccc;">
+                    <p style="font-size: 12px; color: #666;">This pass must be presented at security. Valid only for the date specified.</p>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        function emailQR() {
+            const subject = `Your Visitor Access Pass - ${visitorData.id}`;
+            const body = `Dear ${visitorData.firstName} ${visitorData.lastName},\n\nYour visitor access has been registered.\n\nVisitor ID: ${visitorData.id}\nAccess Level: ${visitorData.accessLevel.toUpperCase()}\nVisit Date: ${new Date(visitorData.visitDate).toLocaleDateString()}\n\nPlease present your QR code at the reception.\n\nBest regards,\nVIP Access Portal`;
+            window.location.href = `mailto:${visitorData.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+        
+        function resetForm() {
+            document.getElementById('visitorForm').reset();
+            document.getElementById('visitDate').valueAsDate = new Date();
+            document.getElementById('qrPlaceholder').classList.remove('hidden');
+            document.getElementById('qrContainer').classList.add('hidden');
+            document.getElementById('qrcode').innerHTML = '';
+            currentQRCode = null;
+            visitorData = null;
+        }
+        
+        // Load recent visitors on page load
+        updateRecentList();
+    </script>
+</body>
+</html>

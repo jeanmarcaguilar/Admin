@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
 use App\Mail\TwoFactorCodeMail;
 use App\Models\Visitor;
+use App\Http\Controllers\QRController;
 
 if (!function_exists('formatBytes')) {
     function formatBytes($bytes, $precision = 2)
@@ -137,7 +138,70 @@ Route::get('/api/server-time', function () {
     ]);
 })->middleware('auth')->name('api.server-time');
 
+// Session timeout routes
+Route::post('/session/extend', function () {
+    if (Auth::check()) {
+        session(['last_activity' => time()]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Session extended'
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Not authenticated'
+    ], 401);
+})->name('session.extend');
+
+Route::get('/session/check', function () {
+    if (Auth::check()) {
+        return response()->json([
+            'authenticated' => true,
+            'last_activity' => session('last_activity'),
+            'timeout' => config('session.lifetime') * 60
+        ]);
+    }
+
+    return response()->json([
+        'authenticated' => false
+    ], 401);
+})->name('session.check');
+
 Route::middleware('auth')->group(function () {
+
+    // Financial proposal status overrides (persist across refresh)
+    Route::get('/api/financial-proposals/status-overrides', function (Request $request) {
+        $overrides = \App\Models\FinancialProposalStatusOverride::query()
+            ->get(['ref_no', 'status'])
+            ->mapWithKeys(fn($row) => [trim((string) $row->ref_no) => $row->status])
+            ->toArray();
+
+        return response()->json([
+            'success' => true,
+            'overrides' => $overrides,
+        ]);
+    })->name('api.financial.status_overrides');
+
+    Route::post('/api/financial-proposals/{refNo}/status', function (Request $request, string $refNo) {
+        $request->validate([
+            'status' => 'required|string|max:50',
+        ]);
+
+        $status = $request->input('status');
+        $normalizedRefNo = trim($refNo);
+
+        $row = \App\Models\FinancialProposalStatusOverride::updateOrCreate(
+            ['ref_no' => $normalizedRefNo],
+            ['status' => $status, 'updated_by' => auth()->id()]
+        );
+
+        return response()->json([
+            'success' => true,
+            'ref_no' => $row->ref_no,
+            'status' => $row->status,
+        ]);
+    })->name('api.financial.set_status');
 
     // Document Upload & Indexing
     Route::get('/document-upload-indexing', function () {
@@ -262,7 +326,45 @@ Route::middleware('auth')->group(function () {
         $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
 
         if (!$document) {
-            error_log("Document not found with ID: " . $id);
+            error_log("Document not found in database with ID: " . $id);
+
+            // Handle virtual documents for integrated financial proposals
+            if (str_starts_with($id, 'PROP-') || str_starts_with($id, 'financial_')) {
+                try {
+                    $apiUrl = 'https://finance.microfinancial-1.com/api/manage_proposals.php';
+                    $apiResponse = @file_get_contents($apiUrl);
+                    if ($apiResponse) {
+                        $apiData = json_decode($apiResponse, true);
+                        $proposals = $apiData['data'] ?? [];
+
+                        $proposal = collect($proposals)->firstWhere('ref_no', $id);
+
+                        if ($proposal) {
+                            $projName = $proposal['project'] ?? 'Proposal';
+                            $content = "FINANCIAL PROPOSAL DETAILS\n";
+                            $content .= "==========================\n\n";
+                            $content .= "Project Name:    " . $projName . "\n";
+                            $content .= "Reference ID:    " . ($proposal['ref_no'] ?? $id) . "\n";
+                            $content .= "Department:      " . ($proposal['department'] ?? 'N/A') . "\n";
+                            $content .= "Proposed Amount: PHP " . number_format(floatval($proposal['amount'] ?? 0), 2) . "\n";
+                            $content .= "Current Status:  " . ($proposal['status'] ?? 'Pending') . "\n";
+                            $content .= "Date Posted:     " . ($proposal['date_posted'] ?? 'N/A') . "\n";
+                            $content .= "\n------------------------------------------\n";
+                            $content .= "Generated from Admin Dashboard\n";
+                            $content .= "Date: " . now()->format('F d, Y H:i:s') . "\n";
+
+                            $filename = $projName . "_" . $id . ".txt";
+                            $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $filename);
+
+                            return response($content)
+                                ->header('Content-Type', 'text/plain')
+                                ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+                        }
+                    }
+                } catch (\Exception $e) {
+                    error_log("Error generating virtual document: " . $e->getMessage());
+                }
+            }
             abort(404, 'Document not found');
         }
 
@@ -428,6 +530,66 @@ Route::middleware('auth')->group(function () {
             ], 500);
         }
     })->name('document.share');
+
+    // Document Approve Route
+    Route::post('/document/{id}/approve', function ($id) {
+        try {
+            // Find document by code or ID
+            $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
+
+            if (!$document) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Document not found'
+                ], 404);
+            }
+
+            // Update document status to approved
+            $document->status = 'Approved';
+            $document->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Document approved successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error approving document: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('document.approve');
+
+    // Document Reject Route
+    Route::post('/document/{id}/reject', function ($id) {
+        try {
+            // Find document by code or ID
+            $document = \App\Models\Document::where('code', $id)->orWhere('id', $id)->first();
+
+            if (!$document) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Document not found'
+                ], 404);
+            }
+
+            // Update document status to rejected
+            $document->status = 'Rejected';
+            $document->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Document rejected successfully'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error rejecting document: ' . $e->getMessage()
+            ], 500);
+        }
+    })->name('document.reject');
 
     // Test Download Route (for debugging)
     Route::get('/test-download', function () {
@@ -782,6 +944,16 @@ Route::middleware('auth')->group(function () {
             'message' => 'Permission deleted successfully!'
         ]);
     })->name('permissions.destroy');
+
+    // QR AI Routes
+    Route::get('/qr-ai', [QRController::class, 'index'])->name('qr.dashboard');
+    Route::get('/qr-ai/registration', [QRController::class, 'registration'])->name('qr.registration');
+    Route::get('/qr-ai/scanner', [QRController::class, 'scanner'])->name('qr.scanner');
+
+    // QR AI API Routes
+    Route::post('/api/qr/register', [QRController::class, 'storeRegistration'])->name('api.qr.register');
+    Route::post('/api/qr/verify', [QRController::class, 'verifyQR'])->name('api.qr.verify');
+    Route::get('/api/qr/recent', [QRController::class, 'getRecentRegistrations'])->name('api.qr.recent');
 
     Route::get('/permissions/{id}', function ($id) {
         $permission = \App\Models\Permission::find($id);

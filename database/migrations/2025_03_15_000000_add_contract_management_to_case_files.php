@@ -11,12 +11,26 @@ class AddContractManagementToCaseFiles extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('case_files')) {
+            return;
+        }
+
         Schema::table('case_files', function (Blueprint $table) {
-            $table->string('contract_type')->nullable()->after('hearing_time');
-            $table->string('contract_number')->nullable()->after('contract_type');
-            $table->date('contract_date')->nullable()->after('contract_number');
-            $table->date('contract_expiration')->nullable()->after('contract_date');
-            $table->text('contract_notes')->nullable()->after('contract_expiration');
+            if (!Schema::hasColumn('case_files', 'contract_type')) {
+                $table->string('contract_type')->nullable()->after('hearing_time');
+            }
+            if (!Schema::hasColumn('case_files', 'contract_number')) {
+                $table->string('contract_number')->nullable()->after('contract_type');
+            }
+            if (!Schema::hasColumn('case_files', 'contract_date')) {
+                $table->date('contract_date')->nullable()->after('contract_number');
+            }
+            if (!Schema::hasColumn('case_files', 'contract_expiration')) {
+                $table->date('contract_expiration')->nullable()->after('contract_date');
+            }
+            if (!Schema::hasColumn('case_files', 'contract_notes')) {
+                $table->text('contract_notes')->nullable()->after('contract_expiration');
+            }
         });
     }
 
@@ -25,14 +39,21 @@ class AddContractManagementToCaseFiles extends Migration
      */
     public function down(): void
     {
-        Schema::table('case_files', function (Blueprint $table) {
-            $table->dropColumn([
-                'contract_type',
-                'contract_number',
-                'contract_date',
-                'contract_expiration',
-                'contract_notes'
-            ]);
-        });
+        if (!Schema::hasTable('case_files')) {
+            return;
+        }
+
+        $cols = [];
+        foreach (['contract_type', 'contract_number', 'contract_date', 'contract_expiration', 'contract_notes'] as $col) {
+            if (Schema::hasColumn('case_files', $col)) {
+                $cols[] = $col;
+            }
+        }
+
+        if (!empty($cols)) {
+            Schema::table('case_files', function (Blueprint $table) use ($cols) {
+                $table->dropColumn($cols);
+            });
+        }
     }
 };

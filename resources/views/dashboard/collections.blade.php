@@ -153,5 +153,10 @@ $kpis = [
       applyInitial();
     })();
   </script>
+
+    @auth
+        @include('partials.session-timeout-modal')
+    @endauth
 </body>
 </html>
+

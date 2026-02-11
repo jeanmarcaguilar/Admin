@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('compliance_tracking')) {
+            return;
+        }
+
         Schema::create('compliance_tracking', function (Blueprint $table) {
             $table->id();
             $table->string('code')->unique();

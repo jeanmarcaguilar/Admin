@@ -1,4 +1,4 @@
-﻿@php
+@php
     // Get the authenticated user
     $user = auth()->user();
     // Get calendar bookings from database (passed from route)
@@ -9,6 +9,7 @@
 <html lang="en">
 
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Administrative</title>
@@ -184,10 +185,80 @@
             border: 1px dashed #e5e7eb;
             opacity: 0.6;
         }
+
+        /* Loading screen progress animation */
+        @keyframes progress {
+            0% {
+                width: 0%;
+                opacity: 0.5;
+            }
+            50% {
+                width: 80%;
+                opacity: 1;
+            }
+            100% {
+                width: 100%;
+                opacity: 0.5;
+            }
+        }
+
+        /* Loading screen transitions */
+        #loadingScreen {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        #loadingScreen.opacity-100 {
+            opacity: 1;
+        }
+        
+        #loadingScreen.opacity-0 {
+            opacity: 0;
+        }
     </style>
 </head>
 
 <body class="bg-brand-background-main min-h-screen">
+
+  <!-- Loading Screen (Login Style) -->
+  <div id="loadingScreen" class="fixed inset-0 z-[9999]">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-gradient-to-br from-brand-primary via-emerald-600 to-teal-600"></div>
+    
+    <!-- Loading Content -->
+    <div class="fixed inset-0 flex flex-col items-center justify-center p-4">
+      <!-- Logo -->
+      <div class="mb-8">
+        <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-24 h-24 mx-auto rounded-full border-4 border-white/30 shadow-2xl animate-pulse">
+      </div>
+      
+      <!-- Lottie Animation -->
+      <div class="mb-8">
+        <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js" type="module"></script>
+        <dotlottie-wc src="https://lottie.host/5378ba62-7703-4273-a14a-3a999385cf7f/s5Vm9nkLqj.lottie" style="width: 300px;height: 300px" autoplay loop></dotlottie-wc>
+      </div>
+      
+      <!-- Loading Text -->
+      <div class="text-center text-white">
+        <h2 class="text-2xl font-bold mb-2">Loading Scheduling Calendar</h2>
+        <p class="text-white/80 text-sm mb-4">Preparing calendar system and loading scheduled events...</p>
+        
+        <!-- Loading Dots -->
+        <div class="flex justify-center space-x-2">
+          <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+          <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+          <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+        </div>
+      </div>
+      
+      <!-- Progress Bar -->
+      <div class="w-64 h-1 bg-white/20 rounded-full mt-8 overflow-hidden">
+        <div class="h-full bg-white rounded-full animate-pulse" style="width: 60%; animation: progress 2s ease-in-out infinite;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content (initially hidden) -->
+  <div id="mainContent" class="opacity-0 transition-opacity duration-500">
 
     <!-- Overlay (mobile) -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
@@ -222,7 +293,7 @@
                 class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📊</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
                     Dashboard
                 </span>
             </a>
@@ -233,7 +304,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
                     Visitor Management
                 </span>
                 <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
@@ -277,7 +348,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
                     Document Management
                 </span>
                 <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
@@ -329,7 +400,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
                     Facilities Management
                 </span>
                 <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180"
@@ -381,7 +452,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
                     Legal Management
                 </span>
                 <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
@@ -435,7 +506,7 @@
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance Admin © {{ date('Y') }}<br />
+                    Microfinance Admin � {{ date('Y') }}<br />
                     Administrative System
                 </div>
             </div>
@@ -455,7 +526,7 @@
             <div class="flex items-center gap-3">
                 <button id="mobile-menu-btn"
                     class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
-                    ☰
+                    ?
                 </button>
 
             </div>
@@ -670,7 +741,7 @@
                                                             </span>
                                                         </div>
                                                         <p class="text-xs text-gray-500 mt-1">{{ $day }} {{ $monthShort }}
-                                                            @if($time) · {{ $time }} @endif
+                                                            @if($time) � {{ $time }} @endif
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1168,6 +1239,67 @@
             });
         });
     </script>
+    
+  </div>
+  
+  <!-- Loading Screen JavaScript -->
+  <script>
+    // Loading Screen Functions (matching login page style)
+    function showLoadingScreen() {
+      const loadingScreen = document.getElementById('loadingScreen');
+      loadingScreen.classList.remove('hidden');
+      // Add fade-in animation
+      setTimeout(() => {
+        loadingScreen.classList.add('opacity-100');
+      }, 10);
+    }
+
+    function hideLoadingScreen() {
+      const loadingScreen = document.getElementById('loadingScreen');
+      const mainContent = document.getElementById('mainContent');
+      
+      loadingScreen.classList.add('opacity-0');
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+        if (mainContent) {
+          mainContent.style.opacity = '1';
+        }
+      }, 300);
+    }
+
+    // Hide loading screen and show main content after page loads
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        hideLoadingScreen();
+      }, 2000); // 2 second delay for better UX
+    });
+    
+    // Fallback in case window.load doesn't fire properly
+    document.addEventListener('DOMContentLoaded', function() {
+      // Additional fallback after 5 seconds
+      setTimeout(function() {
+        const loadingScreen = document.getElementById('loadingScreen');
+        const mainContent = document.getElementById('mainContent');
+        
+        if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+          hideLoadingScreen();
+        }
+      }, 5000);
+    });
+
+    // Initialize loading screen on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      showLoadingScreen();
+    });
+  </script>
+    
+    <!-- Global Loading Scripts -->
+    @include('components.loading-scripts')
+
+    @auth
+        @include('partials.session-timeout-modal')
+    @endauth
 </body>
 
 </html>
+

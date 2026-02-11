@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP Access Portal - Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/visitor-card.js"></script>
+    <script src="components/qr-display.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <custom-navbar></custom-navbar>
+    <div class="min-h-screen pt-16">
+        <main class="p-6 overflow-auto">
+            <!-- Dashboard Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Total Visitors Today</p>
+                            <h3 class="text-3xl font-bold text-gray-800 dark:text-white mt-1" id="totalVisitors">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-feather="users" class="text-indigo-600 dark:text-indigo-400"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-emerald-500 flex items-center">
+                            <i data-feather="trending-up" class="w-4 h-4 mr-1"></i>
+                            +12%
+                        </span>
+                        <span class="text-gray-400 ml-2">vs yesterday</span>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">VIP Guests</p>
+                            <h3 class="text-3xl font-bold text-gray-800 dark:text-white mt-1" id="vipCount">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-feather="crown" class="text-amber-600 dark:text-amber-400"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-emerald-500 flex items-center">
+                            <i data-feather="star" class="w-4 h-4 mr-1"></i>
+                            Premium
+                        </span>
+                        <span class="text-gray-400 ml-2">exclusive access</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Pending Approvals</p>
+                            <h3 class="text-3xl font-bold text-gray-800 dark:text-white mt-1" id="pendingCount">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-rose-100 dark:bg-rose-900 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-feather="clock" class="text-rose-600 dark:text-rose-400"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-rose-500 flex items-center">
+                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                            Requires action
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">QR Scans Today</p>
+                            <h3 class="text-3xl font-bold text-gray-800 dark:text-white mt-1" id="scanCount">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-feather="check-circle" class="text-emerald-600 dark:text-emerald-400"></i>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-emerald-500 flex items-center">
+                            <i data-feather="activity" class="w-4 h-4 mr-1"></i>
+                            Successful entries
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <a href="registration.html" class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1">New Registration</h3>
+                            <p class="text-indigo-100 text-sm">Register visitor & generate QR</p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-feather="plus" class="text-white"></i>
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="scanner.html" class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group text-white">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold mb-1">Scan QR Code</h3>
+                            <p class="text-emerald-100 text-sm">Verify visitor access</p>
+                        </div>
+                        <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-feather="camera" class="text-white"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Recent Activity</h2>
+                    <a href="#" class="text-indigo-600 dark:text-indigo-400 text-sm hover:underline">View All</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-50 dark:bg-gray-700">
+                            <tr>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-tl-lg">Visitor</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">Action</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">Time</th>
+                                <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-tr-lg">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityLog" class="divide-y divide-gray-100 dark:divide-gray-700">
+                            <tr>
+                                <td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                    Loading activity...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Initialize dashboard data
+        function updateDashboard() {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const logs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
+            const today = new Date().toDateString();
+            
+            // Update counts
+            const todayVisitors = visitors.filter(v => new Date(v.createdAt).toDateString() === today);
+            document.getElementById('totalVisitors').textContent = todayVisitors.length;
+            document.getElementById('vipCount').textContent = todayVisitors.filter(v => v.accessLevel === 'vip').length;
+            document.getElementById('scanCount').textContent = logs.filter(l => new Date(l.timestamp).toDateString() === today && l.status === 'GRANTED').length;
+            
+            // Update activity table
+            const tbody = document.getElementById('activityLog');
+            const recentLogs = logs.slice(0, 5);
+            
+            if (recentLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No recent activity</td></tr>';
+            } else {
+                tbody.innerHTML = recentLogs.map(log => `
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td class="px-4 py-3">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-3">
+                                    <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">${log.visitor.firstName[0]}${log.visitor.lastName[0]}</span>
+                                </div>
+                                <span class="text-sm font-medium text-gray-800 dark:text-white">${log.visitor.firstName} ${log.visitor.lastName}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">QR Scan</td>
+                        <td class="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">${new Date(log.timestamp).toLocaleTimeString()}</td>
+                        <td class="px-4 py-3">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${log.status === 'GRANTED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'}">${log.status}</span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+        
+        // Update on load
+        updateDashboard();
+        feather.replace();
+    </script>
+</body>
+</html>

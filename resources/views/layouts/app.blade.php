@@ -102,6 +102,9 @@
     </style>
 </head>
 <body class="bg-gray-100">
+    <!-- Global Loading Screen -->
+    @include('components.loading-screen')
+    
     <div id="app">
         @include('layouts.navigation')
 
@@ -150,5 +153,13 @@
             });
         });
     </script>
+    
+    <!-- Global Loading Scripts -->
+    @include('components.loading-scripts')
+    
+    <!-- Session Timeout Modal (only for authenticated users) -->
+    @auth
+        @include('partials.session-timeout-modal')
+    @endauth
 </body>
 </html>

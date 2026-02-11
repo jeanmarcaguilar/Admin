@@ -140,1106 +140,1199 @@
         .fade-in {
             animation: fadeIn 0.3s ease-in-out;
         }
+
+        /* Loading screen progress animation */
+        @keyframes progress {
+            0% {
+                width: 0%;
+                opacity: 0.5;
+            }
+
+            50% {
+                width: 80%;
+                opacity: 1;
+            }
+
+            100% {
+                width: 100%;
+                opacity: 0.5;
+            }
+        }
+
+        /* Loading screen transitions */
+        #loadingScreen {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #loadingScreen.opacity-100 {
+            opacity: 1;
+        }
+
+        #loadingScreen.opacity-0 {
+            opacity: 0;
+        }
     </style>
 </head>
 
 <body class="bg-brand-background-main min-h-screen">
 
-    <!-- Overlay (mobile) -->
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
+    <!-- Loading Screen (Login Style) -->
+    <div id="loadingScreen" class="fixed inset-0 z-[9999]">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-gradient-to-br from-brand-primary via-emerald-600 to-teal-600"></div>
+
+        <!-- Loading Content -->
+        <div class="fixed inset-0 flex flex-col items-center justify-center p-4">
+            <!-- Logo -->
+            <div class="mb-8">
+                <img src="{{ asset('golden-arc.png') }}" alt="Logo"
+                    class="w-24 h-24 mx-auto rounded-full border-4 border-white/30 shadow-2xl animate-pulse">
+            </div>
+
+            <!-- Lottie Animation -->
+            <div class="mb-8">
+                <script src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.8.11/dist/dotlottie-wc.js"
+                    type="module"></script>
+                <dotlottie-wc src="https://lottie.host/5378ba62-7703-4273-a14a-3a999385cf7f/s5Vm9nkLqj.lottie"
+                    style="width: 300px;height: 300px" autoplay loop></dotlottie-wc>
+            </div>
+
+            <!-- Loading Text -->
+            <div class="text-center text-white">
+                <h2 class="text-2xl font-bold mb-2">Loading Version Control</h2>
+                <p class="text-white/80 text-sm mb-4">Preparing version management system and loading document
+                    history...</p>
+
+                <!-- Loading Dots -->
+                <div class="flex justify-center space-x-2">
+                    <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0ms"></div>
+                    <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 150ms"></div>
+                    <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 300ms"></div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-64 h-1 bg-white/20 rounded-full mt-8 overflow-hidden">
+                <div class="h-full bg-white rounded-full animate-pulse"
+                    style="width: 60%; animation: progress 2s ease-in-out infinite;"></div>
+            </div>
+        </div>
     </div>
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
+    <!-- Main Content (initially hidden) -->
+    <div id="mainContent" class="opacity-0 transition-opacity duration-500">
+
+        <!-- Overlay (mobile) -->
+        <div id="sidebar-overlay"
+            class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40">
+        </div>
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar" class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
                transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 
-        <div class="h-16 flex items-center px-4 border-b border-gray-100">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 w-full rounded-xl px-2 py-2
+            <div class="h-16 flex items-center px-4 border-b border-gray-100">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 w-full rounded-xl px-2 py-2
                        hover:bg-gray-100 active:bg-gray-200 transition group">
-                <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
-                <div class="leading-tight">
-                    <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
-                        Microfinance Admin
+                    <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
+                    <div class="leading-tight">
+                        <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
+                            Microfinance Admin
+                        </div>
+                        <div
+                            class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+                            Administrative
+                        </div>
                     </div>
-                    <div
-                        class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
-                        Administrative
-                    </div>
-                </div>
-            </a>
-        </div>
+                </a>
+            </div>
 
-        <!-- Sidebar content -->
-        <div class="px-4 py-4 overflow-y-auto h-[calc(100%-4rem)] custom-scrollbar">
-            <div class="text-xs font-bold text-gray-400 tracking-wider px-2">ADMINISTRATIVE DEPARTMENT</div>
+            <!-- Sidebar content -->
+            <div class="px-4 py-4 overflow-y-auto h-[calc(100%-4rem)] custom-scrollbar">
+                <div class="text-xs font-bold text-gray-400 tracking-wider px-2">ADMINISTRATIVE DEPARTMENT</div>
 
-            <!-- Dashboard -->
-            <a href="{{ route('admin.dashboard') }}"
-                class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-brand-primary
+                <!-- Dashboard -->
+                <a href="{{ route('admin.dashboard') }}"
+                    class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
-                <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📊</span>
-                    Dashboard
-                </span>
-            </a>
+                    <span class="flex items-center gap-3">
+                        <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📊</span>
+                        Dashboard
+                    </span>
+                </a>
 
-            <!-- Visitor Management Dropdown -->
-            <button id="visitor-management-btn"
-                class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+                <!-- Visitor Management Dropdown -->
+                <button id="visitor-management-btn"
+                    class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
-                <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
-                    Visitor Management
-                </span>
-                <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div id="visitor-submenu" class="submenu mt-1 hidden">
-                <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('visitors.registration') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Visitors Registration
-                    </a>
-                    <a href="{{ route('checkinout.tracking') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Check In/Out Tracking
-                    </a>
-                    <a href="{{ route('visitor.history.records') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Visitor History Records
-                    </a>
-                </div>
-            </div>
-
-            <!-- Document Management Dropdown -->
-            <button id="document-management-btn"
-                class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
-                    text-gray-700 hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
-                <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
-                    Document Management
-                </span>
-                <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div id="document-submenu" class="submenu mt-1">
-                <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('document.upload.indexing') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Document Upload & Indexing
-                    </a>
-                    <a href="{{ route('document.version.control') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Version Control
-                    </a>
-                    <a href="{{ route('document.access.control.permissions') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Access Control & Permissions
-                    </a>
-                    <a href="{{ route('document.archival.retention.policy') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Archival & Retention Policy
-                    </a>
-                </div>
-            </div>
-
-            <!-- Facilities Management Dropdown -->
-            <button id="facilities-management-btn"
-                class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
-                    text-gray-700 hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
-                <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
-                    Facilities Management
-                </span>
-                <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div id="facilities-submenu" class="submenu mt-1 hidden">
-                <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Room & Equipment Booking
-                    </a>
-                    <a href="{{ route('scheduling.calendar') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Scheduling & Calendar Integrations
-                    </a>
-                    <a href="{{ route('approval.workflow') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Approval Workflow
-                    </a>
-                    <a href="{{ route('reservation.history') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Reservation History
-                    </a>
-                </div>
-            </div>
-
-            <!-- Legal Management Dropdown -->
-            <button id="legal-management-btn"
-                class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
-                    text-gray-700 hover:bg-green-50 hover:text-brand-primary
-                    transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
-                <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
-                    Legal Management
-                </span>
-                <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
-                    stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-            </button>
-
-            <div id="legal-submenu" class="submenu mt-1 hidden">
-                <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('case.management') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Case Management
-                    </a>
-                    <a href="{{ route('contract.management') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Contract Management
-                    </a>
-                    <a href="{{ route('compliance.tracking') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Compliance Tracking
-                    </a>
-                    <a href="{{ route('deadline.hearing.alerts') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Deadline & Hearing Alerts
-                    </a>
-                </div>
-            </div>
-
-            <!-- Administrator -->
-
-            <div class="mt-8 px-2">
-                <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    SYSTEM ONLINE
-                </div>
-                <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance Admin © {{ date('Y') }}<br />
-                    Administrative System
-                </div>
-            </div>
-        </div>
-    </aside>
-
-    <!-- MAIN WRAPPER -->
-    <div class="md:pl-72">
-
-        <!-- TOP HEADER -->
-        <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
-                    shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-
-            <!-- BORDER COVER -->
-            <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
-
-            <div class="flex items-center gap-3">
-                <button id="mobile-menu-btn"
-                    class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
-                    ☰
+                    <span class="flex items-center gap-3">
+                        <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
+                        Visitor Management
+                    </span>
+                    <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </button>
 
+                <div id="visitor-submenu" class="submenu mt-1 hidden">
+                    <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+                        <a href="{{ route('visitors.registration') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Visitors Registration
+                        </a>
+                        <a href="{{ route('checkinout.tracking') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Check In/Out Tracking
+                        </a>
+                        <a href="{{ route('visitor.history.records') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Visitor History Records
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Document Management Dropdown -->
+                <button id="document-management-btn"
+                    class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+                    text-gray-700 hover:bg-green-50 hover:text-brand-primary
+                    transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+                    <span class="flex items-center gap-3">
+                        <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📄</span>
+                        Document Management
+                    </span>
+                    <svg id="document-arrow"
+                        class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="document-submenu" class="submenu mt-1">
+                    <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+                        <a href="{{ route('document.upload.indexing') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Document Upload & Indexing
+                        </a>
+                        <a href="{{ route('document.version.control') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Version Control
+                        </a>
+                        <a href="{{ route('document.access.control.permissions') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Access Control & Permissions
+                        </a>
+                        <a href="{{ route('document.archival.retention.policy') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Archival & Retention Policy
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Facilities Management Dropdown -->
+                <button id="facilities-management-btn"
+                    class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+                    text-gray-700 hover:bg-green-50 hover:text-brand-primary
+                    transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+                    <span class="flex items-center gap-3">
+                        <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
+                        Facilities Management
+                    </span>
+                    <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="facilities-submenu" class="submenu mt-1 hidden">
+                    <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+                        <a href="{{ route('room-equipment') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Room & Equipment Booking
+                        </a>
+                        <a href="{{ route('scheduling.calendar') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Scheduling & Calendar Integrations
+                        </a>
+                        <a href="{{ route('approval.workflow') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Approval Workflow
+                        </a>
+                        <a href="{{ route('reservation.history') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Reservation History
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Legal Management Dropdown -->
+                <button id="legal-management-btn"
+                    class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
+                    text-gray-700 hover:bg-green-50 hover:text-brand-primary
+                    transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
+                    <span class="flex items-center gap-3">
+                        <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
+                        Legal Management
+                    </span>
+                    <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <div id="legal-submenu" class="submenu mt-1 hidden">
+                    <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
+                        <a href="{{ route('case.management') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Case Management
+                        </a>
+                        <a href="{{ route('contract.management') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Contract Management
+                        </a>
+                        <a href="{{ route('compliance.tracking') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Compliance Tracking
+                        </a>
+                        <a href="{{ route('deadline.hearing.alerts') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
+                            </svg>
+                            Deadline & Hearing Alerts
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Administrator -->
+
+                <div class="mt-8 px-2">
+                    <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        SYSTEM ONLINE
+                    </div>
+                    <div class="text-[11px] text-gray-400 mt-2 leading-snug">
+                        Microfinance Admin © {{ date('Y') }}<br />
+                        Administrative System
+                    </div>
+                </div>
             </div>
+        </aside>
 
-            <div class="flex items-center gap-3 sm:gap-5">
-                <!-- Clock pill -->
-                <span id="real-time-clock"
-                    class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
-                    {{ now()->format('g:i:s A') }}
-                </span>
+        <!-- MAIN WRAPPER -->
+        <div class="md:pl-72">
 
-                <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
+            <!-- TOP HEADER -->
+            <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
+                    shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
 
-                <!-- User Profile Dropdown -->
-                <div class="relative">
-                    <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
-                            hover:bg-gray-100 active:bg-gray-200 transition">
-                        <div
-                            class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
-                            <div
-                                class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
-                            </div>
-                        </div>
-                        <div class="hidden md:flex flex-col items-start text-left">
-                            <span
-                                class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
-                                {{ $user->name }}
-                            </span>
-                            <span
-                                class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
-                                Administrator
-                            </span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7">
-                            </path>
-                        </svg>
+                <!-- BORDER COVER -->
+                <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
+
+                <div class="flex items-center gap-3">
+                    <button id="mobile-menu-btn"
+                        class="md:hidden w-10 h-10 rounded-xl hover:bg-gray-100 active:bg-gray-200 transition flex items-center justify-center">
+                        ☰
                     </button>
 
-                    <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
+                </div>
+
+                <div class="flex items-center gap-3 sm:gap-5">
+                    <!-- Clock pill -->
+                    <span id="real-time-clock"
+                        class="text-xs font-bold text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200">
+                        {{ now()->format('g:i:s A') }}
+                    </span>
+
+                    <div class="h-8 w-px bg-gray-200 hidden sm:block"></div>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="relative">
+                        <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                            hover:bg-gray-100 active:bg-gray-200 transition">
+                            <div
+                                class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+                                <div
+                                    class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                </div>
+                            </div>
+                            <div class="hidden md:flex flex-col items-start text-left">
+                                <span
+                                    class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                                    {{ $user->name }}
+                                </span>
+                                <span
+                                    class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                                    Administrator
+                                </span>
+                            </div>
+                            <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7">
+                                </path>
+                            </svg>
+                        </button>
+
+                        <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
                             absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
                             transition-all duration-200 z-50">
-                        <button id="openProfileBtn"
-                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn"
-                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
-                        <div class="h-px bg-gray-100"></div>
-                        <form method="POST" action="{{ route('logout') }}" class="w-full">
-                            @csrf
-                            <button type="submit"
-                                class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- MAIN CONTENT -->
-        <main class="p-4 sm:p-6">
-            <div class="max-w-7xl mx-auto">
-                <!-- Page Header -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between">
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Document Version Control</h1>
-                            <p class="text-gray-600 mt-1">Track and manage different versions of your documents</p>
-                        </div>
-                        <div class="mt-4 md:mt-0 flex space-x-3">
-                            <button id="exportBtn"
-                                class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
-                                <i class="fas fa-download mr-2"></i> Export
-                            </button>
-                            <button id="printBtn"
-                                class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
-                                <i class="fas fa-print mr-2"></i> Print
-                            </button>
-                            <button id="newVersionBtn" onclick="openNewVersionModal()"
-                                class="px-4 py-2 bg-white border border-brand-primary text-brand-primary rounded-lg hover:bg-brand-background-main transition-colors font-medium flex items-center cursor-pointer">
-                                <i class="fas fa-plus mr-2"></i> New Version
-                            </button>
+                            <button id="openProfileBtn"
+                                class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
+                            <button id="openAccountSettingsBtn"
+                                class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
+                            <div class="h-px bg-gray-100"></div>
+                            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                @csrf
+                                <button type="submit"
+                                    class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
+                            </form>
                         </div>
                     </div>
                 </div>
+            </header>
 
-                <!-- Enhanced Document Version Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <!-- Total Documents Card -->
-                    <div
-                        class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+            <!-- MAIN CONTENT -->
+            <main class="p-4 sm:p-6">
+                <div class="max-w-7xl mx-auto">
+                    <!-- Page Header -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between">
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900">Document Version Control</h1>
+                                <p class="text-gray-600 mt-1">Track and manage different versions of your documents</p>
+                            </div>
+                            <div class="mt-4 md:mt-0 flex space-x-3">
+                                <button id="exportBtn"
+                                    class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
+                                    <i class="fas fa-download mr-2"></i> Export
+                                </button>
+                                <button id="printBtn"
+                                    class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
+                                    <i class="fas fa-print mr-2"></i> Print
+                                </button>
+                                <button id="newVersionBtn" onclick="openNewVersionModal()"
+                                    class="px-4 py-2 bg-white border border-brand-primary text-brand-primary rounded-lg hover:bg-brand-background-main transition-colors font-medium flex items-center cursor-pointer">
+                                    <i class="fas fa-plus mr-2"></i> New Version
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Document Version Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <!-- Total Documents Card -->
                         <div
-                            class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
-                        </div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-base mb-3">Total Documents</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">{{ count($documents) }}</p>
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                                        <i class="bx bx-file mr-2"></i>
-                                        Files
-                                    </span>
-                                    <span class="text-sm text-gray-500">Total</span>
+                            class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-base mb-3">Total Documents</p>
+                                    <p class="font-bold text-4xl text-gray-900 mb-2">{{ count($documents) }}</p>
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                            <i class="bx bx-file mr-2"></i>
+                                            Files
+                                        </span>
+                                        <span class="text-sm text-gray-500">Total</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div
-                                class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-file text-white text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Categories Card -->
-                    <div
-                        class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
-                        <div
-                            class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
-                        </div>
-                        <div class="relative flex justify-between items-start">
-                            <div class="flex-1">
-                                <p class="text-gray-600 font-semibold text-base mb-3">Categories</p>
-                                <p class="font-bold text-4xl text-gray-900 mb-2">
-                                    {{ count(array_unique(array_column($documents, 'category'))) }}</p>
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
-                                        <i class="bx bx-category-alt mr-2"></i>
-                                        Types
-                                    </span>
-                                    <span class="text-sm text-gray-500">Groups</span>
-                                </div>
-                            </div>
-                            <div
-                                class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                <i class="bx bx-category-alt text-white text-2xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Category Browse -->
-                <div class="mb-8">
-                    <h3 class="font-semibold text-lg text-gray-900 mb-4">
-                        <i class='bx bx-category mr-2'></i>Browse by Category
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3 active"
-                            data-category="all">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
-                                <i class="bx bx-grid-alt text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-semibold text-gray-900">All Documents</div>
-                                <div class="text-xs text-gray-500">View all documents</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="financial">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
-                                <i class="bx bx-dollar text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Financial</div>
-                                <div class="text-xs text-gray-500">Budgets, invoices, reports</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="hr">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
-                                <i class="bx bx-id-card text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Human Resources</div>
-                                <div class="text-xs text-gray-500">Employee files, policies</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="legal">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center">
-                                <i class="bx bx-gavel text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Legal</div>
-                                <div class="text-xs text-gray-500">Contracts, case files</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="operations">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
-                                <i class="bx bx-cog text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Operations</div>
-                                <div class="text-xs text-gray-500">Processes, procedures</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="contracts">
-                            <div class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
-                                <i class="bx bx-file text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Contracts</div>
-                                <div class="text-xs text-gray-500">Agreements, NDAs</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="utilities">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
-                                <i class="bx bx-bolt text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Utilities</div>
-                                <div class="text-xs text-gray-500">Electricity, water, gas</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="projects">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
-                                <i class="bx bx-folder text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Projects</div>
-                                <div class="text-xs text-gray-500">Project plans, reports</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="procurement">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center">
-                                <i class="bx bx-shopping-bag text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Procurement</div>
-                                <div class="text-xs text-gray-500">Vendors, purchases</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="it">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
-                                <i class="bx bx-laptop text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">IT</div>
-                                <div class="text-xs text-gray-500">Software, hardware</div>
-                            </div>
-                        </button>
-                        <button type="button"
-                            class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                            data-category="payroll">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
-                                <i class="bx bx-money text-xl"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium">Payroll</div>
-                                <div class="text-xs text-gray-500">Salaries, compensation</div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Search and Filters -->
-                <div class="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div class="relative flex-1 max-w-md">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i class="fas fa-search text-gray-400"></i>
-                            </div>
-                            <input type="text" id="searchInput"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5"
-                                placeholder="Search documents by name, type or category...">
-                        </div>
-                        <div class="flex flex-wrap gap-2">
-                            <select id="categoryFilter"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
-                                <option value="">All Categories</option>
-                                <option value="legal">Legal</option>
-                                <option value="financial">Financial</option>
-                                <option value="hr">Human Resources</option>
-                                <option value="operations">Operations</option>
-                                <option value="marketing">Marketing</option>
-                                <option value="it">IT</option>
-                                <option value="other">Other</option>
-                            </select>
-                            <select id="statusFilter"
-                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
-                                <option value="">All Status</option>
-                                <option value="approved">Approved</option>
-                                <option value="pending">Pending</option>
-                                <option value="indexed">Indexed</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Document Versions Table -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
-                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                        <div>
-                            <h3 class="font-semibold text-lg text-gray-900">Document Versions</h3>
-                            <p class="text-sm text-gray-500">Track all document versions and their status</p>
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            <span id="visibleCount">{{ count($documents) }}</span> documents
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table id="documentsTable" class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Document</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Type</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Category</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Last Modified</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Modified By</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status</th>
-                                    <th scope="col"
-                                        class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @php
-                                    $userName = $user->name ?? 'User';
-                                    $initials = collect(explode(' ', $userName))->map(fn($p) => strtoupper(substr($p, 0, 1)))->implode('');
-                                @endphp
-                                @forelse($documents as $doc)
-                                    <tr class="document-row" data-doc-id="{{ $doc['id'] ?? '' }}"
-                                        data-name="{{ strtolower($doc['name'] ?? '') }}"
-                                        data-type="{{ strtolower($doc['type'] ?? '') }}"
-                                        data-category="{{ strtolower($doc['category'] ?? 'other') }}"
-                                        data-status="{{ strtolower($doc['status'] ?? 'indexed') }}">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                                    @php
-                                                        $dtype = strtoupper($doc['type'] ?? '');
-                                                        $icon = in_array($dtype, ['PDF']) ? 'bxs-file-pdf text-red-600' : (in_array($dtype, ['WORD', 'DOC', 'DOCX']) ? 'bxs-file-doc text-blue-600' : (in_array($dtype, ['EXCEL', 'XLS', 'XLSX']) ? 'bxs-file-txt text-green-600' : 'bxs-file text-gray-600'));
-                                                    @endphp
-                                                    <i class='bx {{ $icon }}'></i>
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900"><span class="doc-name"
-                                                            data-name="{{ $doc['name'] }}">{{ $doc['name'] }}</span></div>
-                                                    <div class="text-sm text-gray-500">{{ $doc['size'] ?? '' }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $doc['type'] ?? 'File' }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ ucfirst(strtolower($doc['category'] ?? 'Other')) }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ isset($doc['uploaded']) ? \Carbon\Carbon::parse($doc['uploaded'])->diffForHumans() : \Carbon\Carbon::now()->diffForHumans() }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            <div class="flex items-center">
-                                                <div
-                                                    class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
-                                                    {{ $initials }}</div>
-                                                <span class="ml-2">{{ $userName }}</span>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span
-                                                class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ ($doc['status'] ?? '') == 'Approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                                {{ $doc['status'] ?? 'Indexed' }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <button onclick="showVersionDetails({{ json_encode($doc) }})"
-                                                class="text-brand-primary hover:text-brand-primary-hover mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
-                                            <button onclick="showDeleteDocumentConfirmation('{{ $doc['id'] ?? '' }}')"
-                                                class="text-red-600 hover:text-red-800 bg-transparent border-none p-0 cursor-pointer">Delete</button>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">
-                                            No documents found. Upload documents in "Document Upload & Indexing" to track
-                                            versions.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- Modals -->
-    <!-- Version Details Modal -->
-    <div id="versionDetailsModal" class="modal hidden" aria-modal="true" role="dialog"
-        aria-labelledby="version-details-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300"
-            role="document">
-            <!-- Modal Header with Gradient -->
-            <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-2xl px-6 py-5">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                            <i class="fas fa-file-alt text-white text-lg"></i>
-                        </div>
-                        <h3 id="version-details-title" class="text-xl font-bold text-white">Document Details</h3>
-                    </div>
-                    <button id="closeVersionDetailsBtn" type="button"
-                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
-                        aria-label="Close">
-                        <i class="fas fa-times text-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modal Content -->
-            <div id="versionDetailsContent" class="p-6 bg-gradient-to-br from-indigo-50 to-white">
-                <!-- Populated dynamically by showVersionDetails(doc) -->
-            </div>
-        </div>
-    </div>
-
-    <!-- New Version Modal -->
-    <div id="newVersionModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="new-version-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300"
-            role="document">
-            <!-- Modal Header with Gradient -->
-            <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-t-2xl px-6 py-5">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                            <i class="fas fa-upload text-white text-lg"></i>
-                        </div>
-                        <h3 id="new-version-title" class="text-xl font-bold text-white">Upload New Version</h3>
-                    </div>
-                    <button id="closeNewVersionBtn" type="button"
-                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
-                        aria-label="Close">
-                        <i class="fas fa-times text-lg"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modal Content -->
-            <form id="newVersionForm" class="p-6 bg-gradient-to-br from-emerald-50 to-white"
-                action="{{ route('document.version.upload') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="space-y-5">
-                    <div>
-                        <label for="documentSelect"
-                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-file text-emerald-500 mr-2"></i>
-                            Select Document
-                        </label>
-                        <select id="documentSelect" name="document_id" required
-                            class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200">
-                            <option value="">Select a document...</option>
-                            @foreach($documents as $doc)
-                                <option value="{{ $doc['id'] ?? '' }}">{{ $doc['name'] ?? 'Document' }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="versionNumber"
-                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-code-branch text-emerald-500 mr-2"></i>
-                            Version Number
-                        </label>
-                        <input type="text" id="versionNumber" name="version_number" required
-                            class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
-                            placeholder="e.g., 2.0" value="1.1">
-                    </div>
-                    <div>
-                        <label for="versionNotes"
-                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-sticky-note text-emerald-500 mr-2"></i>
-                            Version Notes
-                        </label>
-                        <textarea id="versionNotes" name="version_notes" rows="3"
-                            class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
-                            placeholder="Describe the changes in this version..."></textarea>
-                    </div>
-                    <div>
-                        <label for="file-upload"
-                            class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-cloud-upload-alt text-emerald-500 mr-2"></i>
-                            Upload File
-                        </label>
-                        <div
-                            class="border-2 border-dashed border-emerald-300 rounded-xl p-8 text-center hover:border-emerald-400 transition-colors duration-200 bg-emerald-50/50">
-                            <div class="space-y-3">
                                 <div
-                                    class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto">
-                                    <i class="fas fa-cloud-upload-alt text-emerald-600 text-2xl"></i>
+                                    class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="bx bx-file text-white text-2xl"></i>
                                 </div>
-                                <div class="text-sm text-gray-600">
-                                    <label for="file-upload"
-                                        class="relative cursor-pointer bg-emerald-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-emerald-700 transition-colors duration-200 inline-flex items-center">
-                                        <i class="fas fa-upload mr-2"></i>
-                                        Choose File
-                                        <input id="file-upload" name="file" type="file" required class="sr-only">
-                                    </label>
-                                    <p class="mt-2 text-xs text-gray-500">or drag and drop</p>
+                            </div>
+                        </div>
+
+                        <!-- Categories Card -->
+                        <div
+                            class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-violet-50 to-violet-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-base mb-3">Categories</p>
+                                    <p class="font-bold text-4xl text-gray-900 mb-2">
+                                        {{ count(array_unique(array_column($documents, 'category'))) }}
+                                    </p>
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-violet-100 text-violet-800">
+                                            <i class="bx bx-category-alt mr-2"></i>
+                                            Types
+                                        </span>
+                                        <span class="text-sm text-gray-500">Groups</span>
+                                    </div>
                                 </div>
-                                <p class="text-xs text-gray-500">PDF, DOCX, XLSX up to 50MB</p>
+                                <div
+                                    class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="bx bx-category-alt text-white text-2xl"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="flex justify-end space-x-3 mt-8">
-                    <button type="button" id="cancelNewVersionBtn"
-                        class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
-                        <i class="fas fa-times mr-2"></i>
-                        Cancel
-                    </button>
-                    <button type="submit"
-                        class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
-                        <i class="fas fa-upload mr-2"></i>
-                        Upload Version
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <!-- Delete Document Confirmation Modal -->
-    <div id="deleteDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
-        aria-labelledby="delete-document-title">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300"
-            role="document">
-            <!-- Modal Header with Gradient -->
-            <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-t-2xl px-6 py-5">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                            <i class="fas fa-trash text-white text-lg"></i>
+                    <!-- Category Browse -->
+                    <div class="mb-8">
+                        <h3 class="font-semibold text-lg text-gray-900 mb-4">
+                            <i class='bx bx-category mr-2'></i>Browse by Category
+                        </h3>
+                        <div
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3 active"
+                                data-category="all">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center">
+                                    <i class="bx bx-grid-alt text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-gray-900">All Documents</div>
+                                    <div class="text-xs text-gray-500">View all documents</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="financial">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-green-100 text-green-700 flex items-center justify-center">
+                                    <i class="bx bx-dollar text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Financial</div>
+                                    <div class="text-xs text-gray-500">Budgets, invoices, reports</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="hr">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center">
+                                    <i class="bx bx-id-card text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Human Resources</div>
+                                    <div class="text-xs text-gray-500">Employee files, policies</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="legal">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-yellow-100 text-yellow-700 flex items-center justify-center">
+                                    <i class="bx bx-gavel text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Legal</div>
+                                    <div class="text-xs text-gray-500">Contracts, case files</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="operations">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center">
+                                    <i class="bx bx-cog text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Operations</div>
+                                    <div class="text-xs text-gray-500">Processes, procedures</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="contracts">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-red-100 text-red-700 flex items-center justify-center">
+                                    <i class="bx bx-file text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Contracts</div>
+                                    <div class="text-xs text-gray-500">Agreements, NDAs</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="utilities">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center">
+                                    <i class="bx bx-bolt text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Utilities</div>
+                                    <div class="text-xs text-gray-500">Electricity, water, gas</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="projects">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                                    <i class="bx bx-folder text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Projects</div>
+                                    <div class="text-xs text-gray-500">Project plans, reports</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="procurement">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-lime-100 text-lime-700 flex items-center justify-center">
+                                    <i class="bx bx-shopping-bag text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Procurement</div>
+                                    <div class="text-xs text-gray-500">Vendors, purchases</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="it">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
+                                    <i class="bx bx-laptop text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">IT</div>
+                                    <div class="text-xs text-gray-500">Software, hardware</div>
+                                </div>
+                            </button>
+                            <button type="button"
+                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
+                                data-category="payroll">
+                                <div
+                                    class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
+                                    <i class="bx bx-money text-xl"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium">Payroll</div>
+                                    <div class="text-xs text-gray-500">Salaries, compensation</div>
+                                </div>
+                            </button>
                         </div>
-                        <h3 id="delete-document-title" class="text-xl font-bold text-white">Delete Document</h3>
                     </div>
-                    <button id="closeDeleteDocumentBtn" type="button"
-                        class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
-                        aria-label="Close">
-                        <i class="fas fa-times text-lg"></i>
-                    </button>
+
+                    <!-- Search and Filters -->
+                    <div class="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="relative flex-1 max-w-md">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" id="searchInput"
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-10 p-2.5"
+                                    placeholder="Search documents by name, type or category...">
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <select id="categoryFilter"
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
+                                    <option value="">All Categories</option>
+                                    <option value="legal">Legal</option>
+                                    <option value="financial">Financial</option>
+                                    <option value="hr">Human Resources</option>
+                                    <option value="operations">Operations</option>
+                                    <option value="marketing">Marketing</option>
+                                    <option value="it">IT</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                <select id="statusFilter"
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block p-2.5">
+                                    <option value="">All Status</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="indexed">Indexed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Document Versions Table -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+                        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                            <div>
+                                <h3 class="font-semibold text-lg text-gray-900">Document Versions</h3>
+                                <p class="text-sm text-gray-500">Track all document versions and their status</p>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <span id="visibleCount">{{ count($documents) }}</span> documents
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table id="documentsTable" class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Document</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Type</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Category</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Last Modified</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Modified By</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @php
+                                        $userName = $user->name ?? 'User';
+                                        $initials = collect(explode(' ', $userName))->map(fn($p) => strtoupper(substr($p, 0, 1)))->implode('');
+                                    @endphp
+                                    @forelse($documents as $doc)
+                                        <tr class="document-row" data-doc-id="{{ $doc['id'] ?? '' }}"
+                                            data-name="{{ strtolower($doc['name'] ?? '') }}"
+                                            data-type="{{ strtolower($doc['type'] ?? '') }}"
+                                            data-category="{{ strtolower($doc['category'] ?? 'other') }}"
+                                            data-status="{{ strtolower($doc['status'] ?? 'indexed') }}">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div
+                                                        class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                        @php
+                                                            $dtype = strtoupper($doc['type'] ?? '');
+                                                            $icon = in_array($dtype, ['PDF']) ? 'bxs-file-pdf text-red-600' : (in_array($dtype, ['WORD', 'DOC', 'DOCX']) ? 'bxs-file-doc text-blue-600' : (in_array($dtype, ['EXCEL', 'XLS', 'XLSX']) ? 'bxs-file-txt text-green-600' : 'bxs-file text-gray-600'));
+                                                        @endphp
+                                                        <i class='bx {{ $icon }}'></i>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <div class="text-sm font-medium text-gray-900"><span
+                                                                class="doc-name"
+                                                                data-name="{{ $doc['name'] }}">{{ $doc['name'] }}</span>
+                                                        </div>
+                                                        <div class="text-sm text-gray-500">{{ $doc['size'] ?? '' }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $doc['type'] ?? 'File' }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ ucfirst(strtolower($doc['category'] ?? 'Other')) }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ isset($doc['uploaded']) ? \Carbon\Carbon::parse($doc['uploaded'])->diffForHumans() : \Carbon\Carbon::now()->diffForHumans() }}
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <div class="flex items-center">
+                                                    <div
+                                                        class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-medium">
+                                                        {{ $initials }}
+                                                    </div>
+                                                    <span class="ml-2">{{ $userName }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ ($doc['status'] ?? '') == 'Approved' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                    {{ $doc['status'] ?? 'Indexed' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                <button onclick="showVersionDetails({{ json_encode($doc) }})"
+                                                    class="text-brand-primary hover:text-brand-primary-hover mr-3 bg-transparent border-none p-0 cursor-pointer">View</button>
+                                                <button onclick="showDeleteDocumentConfirmation('{{ $doc['id'] ?? '' }}')"
+                                                    class="text-red-600 hover:text-red-800 bg-transparent border-none p-0 cursor-pointer">Delete</button>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">
+                                                No documents found. Upload documents in "Document Upload & Indexing" to
+                                                track
+                                                versions.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            </main>
+        </div>
 
-            <!-- Modal Content -->
-            <div class="p-6 bg-gradient-to-br from-red-50 to-white text-center">
-                <!-- Warning Icon -->
-                <div
-                    class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
-                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"></i>
+        <!-- Modals -->
+        <!-- Version Details Modal -->
+        <div id="versionDetailsModal" class="modal hidden" aria-modal="true" role="dialog"
+            aria-labelledby="version-details-title">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300"
+                role="document">
+                <!-- Modal Header with Gradient -->
+                <div class="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-t-2xl px-6 py-5">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div
+                                class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-alt text-white text-lg"></i>
+                            </div>
+                            <h3 id="version-details-title" class="text-xl font-bold text-white">Document Details</h3>
+                        </div>
+                        <button id="closeVersionDetailsBtn" type="button"
+                            class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                            aria-label="Close">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Warning Message -->
-                <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
-                <p class="text-gray-600 mb-8 leading-relaxed">
-                    This action <span class="font-semibold text-red-600">cannot be undone</span>.
-                    This will permanently delete the document and remove it from your records.
-                </p>
-
-                <!-- Action Buttons -->
-                <div class="flex justify-center space-x-4">
-                    <button id="cancelDeleteDocumentBtn" type="button"
-                        class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
-                        <i class="fas fa-shield-alt mr-2"></i>
-                        No, Keep It
-                    </button>
-                    <button id="confirmDeleteDocumentBtn" type="button"
-                        class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
-                        <i class="fas fa-trash mr-2"></i>
-                        Yes, Delete Document
-                    </button>
+                <!-- Modal Content -->
+                <div id="versionDetailsContent" class="p-6 bg-gradient-to-br from-indigo-50 to-white">
+                    <!-- Populated dynamically by showVersionDetails(doc) -->
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- JavaScript -->
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Sidebar functionality
-            const sidebar = document.getElementById("sidebar");
-            const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-            const sidebarOverlay = document.getElementById("sidebar-overlay");
+        <!-- New Version Modal -->
+        <div id="newVersionModal" class="modal hidden" aria-modal="true" role="dialog"
+            aria-labelledby="new-version-title">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 fade-in transform transition-all duration-300"
+                role="document">
+                <!-- Modal Header with Gradient -->
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-t-2xl px-6 py-5">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div
+                                class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                                <i class="fas fa-upload text-white text-lg"></i>
+                            </div>
+                            <h3 id="new-version-title" class="text-xl font-bold text-white">Upload New Version</h3>
+                        </div>
+                        <button id="closeNewVersionBtn" type="button"
+                            class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                            aria-label="Close">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+                </div>
 
-            // Mobile sidebar toggle
-            mobileMenuBtn.addEventListener("click", () => {
-                sidebar.classList.remove("-translate-x-full");
-                sidebarOverlay.classList.remove("hidden", "opacity-0");
-                sidebarOverlay.classList.add("opacity-100");
-            });
+                <!-- Modal Content -->
+                <form id="newVersionForm" class="p-6 bg-gradient-to-br from-emerald-50 to-white"
+                    action="{{ route('document.version.upload') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="space-y-5">
+                        <div>
+                            <label for="documentSelect"
+                                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-file text-emerald-500 mr-2"></i>
+                                Select Document
+                            </label>
+                            <select id="documentSelect" name="document_id" required
+                                class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200">
+                                <option value="">Select a document...</option>
+                                @foreach($documents as $doc)
+                                    <option value="{{ $doc['id'] ?? '' }}">{{ $doc['name'] ?? 'Document' }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label for="versionNumber"
+                                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-code-branch text-emerald-500 mr-2"></i>
+                                Version Number
+                            </label>
+                            <input type="text" id="versionNumber" name="version_number" required
+                                class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                                placeholder="e.g., 2.0" value="1.1">
+                        </div>
+                        <div>
+                            <label for="versionNotes"
+                                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-sticky-note text-emerald-500 mr-2"></i>
+                                Version Notes
+                            </label>
+                            <textarea id="versionNotes" name="version_notes" rows="3"
+                                class="w-full border-2 border-emerald-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                                placeholder="Describe the changes in this version..."></textarea>
+                        </div>
+                        <div>
+                            <label for="file-upload"
+                                class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-cloud-upload-alt text-emerald-500 mr-2"></i>
+                                Upload File
+                            </label>
+                            <div
+                                class="border-2 border-dashed border-emerald-300 rounded-xl p-8 text-center hover:border-emerald-400 transition-colors duration-200 bg-emerald-50/50">
+                                <div class="space-y-3">
+                                    <div
+                                        class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center mx-auto">
+                                        <i class="fas fa-cloud-upload-alt text-emerald-600 text-2xl"></i>
+                                    </div>
+                                    <div class="text-sm text-gray-600">
+                                        <label for="file-upload"
+                                            class="relative cursor-pointer bg-emerald-600 text-white rounded-lg px-4 py-2 font-medium hover:bg-emerald-700 transition-colors duration-200 inline-flex items-center">
+                                            <i class="fas fa-upload mr-2"></i>
+                                            Choose File
+                                            <input id="file-upload" name="file" type="file" required class="sr-only">
+                                        </label>
+                                        <p class="mt-2 text-xs text-gray-500">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PDF, DOCX, XLSX up to 50MB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-8">
+                        <button type="button" id="cancelNewVersionBtn"
+                            class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                            <i class="fas fa-times mr-2"></i>
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl text-sm font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                            <i class="fas fa-upload mr-2"></i>
+                            Upload Version
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-            sidebarOverlay.addEventListener("click", () => {
-                sidebar.classList.add("-translate-x-full");
-                sidebarOverlay.classList.remove("opacity-100");
-                sidebarOverlay.classList.add("opacity-0");
-                setTimeout(() => sidebarOverlay.classList.add("hidden"), 300);
-            });
+        <!-- Delete Document Confirmation Modal -->
+        <div id="deleteDocumentModal" class="modal hidden" aria-modal="true" role="dialog"
+            aria-labelledby="delete-document-title">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 fade-in transform transition-all duration-300"
+                role="document">
+                <!-- Modal Header with Gradient -->
+                <div class="bg-gradient-to-r from-red-500 to-rose-600 rounded-t-2xl px-6 py-5">
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div
+                                class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                                <i class="fas fa-trash text-white text-lg"></i>
+                            </div>
+                            <h3 id="delete-document-title" class="text-xl font-bold text-white">Delete Document</h3>
+                        </div>
+                        <button id="closeDeleteDocumentBtn" type="button"
+                            class="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200 backdrop-blur-sm"
+                            aria-label="Close">
+                            <i class="fas fa-times text-lg"></i>
+                        </button>
+                    </div>
+                </div>
 
-            // Dropdown functionality
-            const dropdowns = {
-                'visitor-management-btn': 'visitor-submenu',
-                'document-management-btn': 'document-submenu',
-                'facilities-management-btn': 'facilities-submenu',
-                'legal-management-btn': 'legal-submenu'
-            };
+                <!-- Modal Content -->
+                <div class="p-6 bg-gradient-to-br from-red-50 to-white text-center">
+                    <!-- Warning Icon -->
+                    <div
+                        class="mx-auto w-20 h-20 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-6 shadow-lg">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-3xl animate-pulse"></i>
+                    </div>
 
-            Object.entries(dropdowns).forEach(([btnId, submenuId]) => {
-                const btn = document.getElementById(btnId);
-                const submenu = document.getElementById(submenuId);
-                const arrow = document.getElementById(btnId.replace('-btn', '-arrow'));
+                    <!-- Warning Message -->
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">Are you absolutely sure?</h3>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        This action <span class="font-semibold text-red-600">cannot be undone</span>.
+                        This will permanently delete the document and remove it from your records.
+                    </p>
 
-                if (btn && submenu) {
-                    btn.addEventListener("click", () => {
-                        const isHidden = submenu.classList.contains("hidden");
+                    <!-- Action Buttons -->
+                    <div class="flex justify-center space-x-4">
+                        <button id="cancelDeleteDocumentBtn" type="button"
+                            class="px-6 py-3 border-2 border-gray-300 rounded-xl text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 transition-all duration-200 shadow-sm">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            No, Keep It
+                        </button>
+                        <button id="confirmDeleteDocumentBtn" type="button"
+                            class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl text-sm font-semibold hover:from-red-600 hover:to-rose-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center">
+                            <i class="fas fa-trash mr-2"></i>
+                            Yes, Delete Document
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        // Close all other dropdowns
-                        Object.values(dropdowns).forEach(id => {
-                            const otherSubmenu = document.getElementById(id);
-                            const otherArrow = document.getElementById(id.replace('-submenu', '-arrow'));
-                            if (otherSubmenu && otherSubmenu !== submenu) {
-                                otherSubmenu.classList.add("hidden");
-                                if (otherArrow) {
-                                    otherArrow.classList.remove("rotate-180");
+        <!-- JavaScript -->
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                // Sidebar functionality
+                const sidebar = document.getElementById("sidebar");
+                const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+                const sidebarOverlay = document.getElementById("sidebar-overlay");
+
+                // Mobile sidebar toggle
+                mobileMenuBtn.addEventListener("click", () => {
+                    sidebar.classList.remove("-translate-x-full");
+                    sidebarOverlay.classList.remove("hidden", "opacity-0");
+                    sidebarOverlay.classList.add("opacity-100");
+                });
+
+                sidebarOverlay.addEventListener("click", () => {
+                    sidebar.classList.add("-translate-x-full");
+                    sidebarOverlay.classList.remove("opacity-100");
+                    sidebarOverlay.classList.add("opacity-0");
+                    setTimeout(() => sidebarOverlay.classList.add("hidden"), 300);
+                });
+
+                // Dropdown functionality
+                const dropdowns = {
+                    'visitor-management-btn': 'visitor-submenu',
+                    'document-management-btn': 'document-submenu',
+                    'facilities-management-btn': 'facilities-submenu',
+                    'legal-management-btn': 'legal-submenu'
+                };
+
+                Object.entries(dropdowns).forEach(([btnId, submenuId]) => {
+                    const btn = document.getElementById(btnId);
+                    const submenu = document.getElementById(submenuId);
+                    const arrow = document.getElementById(btnId.replace('-btn', '-arrow'));
+
+                    if (btn && submenu) {
+                        btn.addEventListener("click", () => {
+                            const isHidden = submenu.classList.contains("hidden");
+
+                            // Close all other dropdowns
+                            Object.values(dropdowns).forEach(id => {
+                                const otherSubmenu = document.getElementById(id);
+                                const otherArrow = document.getElementById(id.replace('-submenu', '-arrow'));
+                                if (otherSubmenu && otherSubmenu !== submenu) {
+                                    otherSubmenu.classList.add("hidden");
+                                    if (otherArrow) {
+                                        otherArrow.classList.remove("rotate-180");
+                                    }
                                 }
+                            });
+
+                            // Toggle current dropdown
+                            if (isHidden) {
+                                submenu.classList.remove("hidden");
+                                if (arrow) arrow.classList.add("rotate-180");
+                            } else {
+                                submenu.classList.add("hidden");
+                                if (arrow) arrow.classList.remove("rotate-180");
                             }
                         });
+                    }
+                });
 
-                        // Toggle current dropdown
+                // User menu dropdown
+                const userMenuButton = document.getElementById("user-menu-button");
+                const userMenuDropdown = document.getElementById("user-menu-dropdown");
+
+                if (userMenuButton && userMenuDropdown) {
+                    userMenuButton.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        const isHidden = userMenuDropdown.classList.contains("hidden");
+
                         if (isHidden) {
-                            submenu.classList.remove("hidden");
-                            if (arrow) arrow.classList.add("rotate-180");
+                            userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                            userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
                         } else {
-                            submenu.classList.add("hidden");
-                            if (arrow) arrow.classList.remove("rotate-180");
+                            userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                            setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                        }
+                    });
+
+                    // Close dropdown when clicking outside
+                    document.addEventListener("click", (e) => {
+                        if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                            userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                            setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
                         }
                     });
                 }
-            });
 
-            // User menu dropdown
-            const userMenuButton = document.getElementById("user-menu-button");
-            const userMenuDropdown = document.getElementById("user-menu-dropdown");
-
-            if (userMenuButton && userMenuDropdown) {
-                userMenuButton.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    const isHidden = userMenuDropdown.classList.contains("hidden");
-
-                    if (isHidden) {
-                        userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-                    } else {
-                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
-                    }
-                });
-
-                // Close dropdown when clicking outside
-                document.addEventListener("click", (e) => {
-                    if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
-                    }
-                });
-            }
-
-            // Real-time clock with accurate time
-            function updateClock() {
-                const now = new Date();
-                // Use local time with proper formatting
-                const timeString = now.toLocaleTimeString('en-US', {
-                    hour12: true,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-                const clockElement = document.getElementById('real-time-clock');
-                if (clockElement) {
-                    clockElement.textContent = timeString;
-                }
-            }
-            updateClock();
-            setInterval(updateClock, 1000);
-
-            // Open "Document Management" dropdown by default
-            const documentSubmenu = document.getElementById('document-submenu');
-            const documentArrow = document.getElementById('document-arrow');
-
-            if (documentSubmenu && !documentSubmenu.classList.contains('hidden')) {
-                documentSubmenu.classList.remove('hidden');
-                if (documentArrow) documentArrow.classList.add('rotate-180');
-            }
-
-            // Search and filter functionality
-            const searchInput = document.getElementById('searchInput');
-            const categoryFilter = document.getElementById('categoryFilter');
-            const statusFilter = document.getElementById('statusFilter');
-            const documentRows = document.querySelectorAll('.document-row');
-
-            function filterDocuments() {
-                const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-                const selectedCategory = categoryFilter ? categoryFilter.value.toLowerCase() : '';
-                const selectedStatus = statusFilter ? statusFilter.value.toLowerCase() : '';
-
-                documentRows.forEach(row => {
-                    const name = row.dataset.name || '';
-                    const type = row.dataset.type || '';
-                    const category = row.dataset.category || '';
-                    const status = row.dataset.status || '';
-
-                    const matchesSearch = !searchTerm ||
-                        name.includes(searchTerm) ||
-                        type.includes(searchTerm) ||
-                        category.includes(searchTerm);
-                    const matchesCategory = !selectedCategory || category === selectedCategory;
-                    const matchesStatus = !selectedStatus || status === selectedStatus;
-
-                    row.style.display = matchesSearch && matchesCategory && matchesStatus ? '' : 'none';
-                });
-            }
-
-            if (searchInput) searchInput.addEventListener('input', filterDocuments);
-            if (categoryFilter) categoryFilter.addEventListener('change', filterDocuments);
-            if (statusFilter) statusFilter.addEventListener('change', filterDocuments);
-
-            // Export functionality
-            const exportBtn = document.getElementById('exportBtn');
-            if (exportBtn) {
-                exportBtn.addEventListener('click', function () {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Export Started',
-                        text: 'Your document version data is being exported. You will receive an email when it\'s ready.',
-                        timer: 2000,
-                        showConfirmButton: false
+                // Real-time clock with accurate time
+                function updateClock() {
+                    const now = new Date();
+                    // Use local time with proper formatting
+                    const timeString = now.toLocaleTimeString('en-US', {
+                        hour12: true,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
                     });
-                });
-            }
-
-            // Print functionality
-            const printBtn = document.getElementById('printBtn');
-            if (printBtn) {
-                printBtn.addEventListener('click', function () {
-                    window.print();
-                });
-            }
-
-            // Modal Management
-            const versionDetailsModal = document.getElementById("versionDetailsModal");
-            const newVersionModal = document.getElementById("newVersionModal");
-            const deleteDocumentModal = document.getElementById("deleteDocumentModal");
-            const newVersionBtn = document.getElementById("newVersionBtn");
-
-            function openModal(modal) {
-                console.log('Opening modal:', modal);
-                if (!modal) {
-                    console.error('Modal is null or undefined');
-                    return;
+                    const clockElement = document.getElementById('real-time-clock');
+                    if (clockElement) {
+                        clockElement.textContent = timeString;
+                    }
                 }
-                modal.classList.add("active");
-                modal.style.display = "flex";
-                console.log('Modal opened successfully');
-            }
+                updateClock();
+                setInterval(updateClock, 1000);
 
-            function closeModal(modal) {
-                console.log('Closing modal:', modal);
-                if (!modal) {
-                    console.error('Modal is null or undefined');
-                    return;
+                // Open "Document Management" dropdown by default
+                const documentSubmenu = document.getElementById('document-submenu');
+                const documentArrow = document.getElementById('document-arrow');
+
+                if (documentSubmenu && !documentSubmenu.classList.contains('hidden')) {
+                    documentSubmenu.classList.remove('hidden');
+                    if (documentArrow) documentArrow.classList.add('rotate-180');
                 }
-                modal.classList.remove("active");
-                setTimeout(() => {
-                    modal.style.display = "none";
-                    console.log('Modal closed successfully');
-                }, 300);
-            }
 
-            // View Version Details
-            window.showVersionDetails = function (doc) {
-                const contentDiv = document.getElementById('versionDetailsContent');
-                const uploadedDate = doc.uploaded ? new Date(doc.uploaded) : new Date();
-                const formattedDate = uploadedDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                // Search and filter functionality
+                const searchInput = document.getElementById('searchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const statusFilter = document.getElementById('statusFilter');
+                const documentRows = document.querySelectorAll('.document-row');
 
-                contentDiv.innerHTML = `
+                function filterDocuments() {
+                    const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+                    const selectedCategory = categoryFilter ? categoryFilter.value.toLowerCase() : '';
+                    const selectedStatus = statusFilter ? statusFilter.value.toLowerCase() : '';
+
+                    documentRows.forEach(row => {
+                        const name = row.dataset.name || '';
+                        const type = row.dataset.type || '';
+                        const category = row.dataset.category || '';
+                        const status = row.dataset.status || '';
+
+                        const matchesSearch = !searchTerm ||
+                            name.includes(searchTerm) ||
+                            type.includes(searchTerm) ||
+                            category.includes(searchTerm);
+                        const matchesCategory = !selectedCategory || category === selectedCategory;
+                        const matchesStatus = !selectedStatus || status === selectedStatus;
+
+                        row.style.display = matchesSearch && matchesCategory && matchesStatus ? '' : 'none';
+                    });
+                }
+
+                if (searchInput) searchInput.addEventListener('input', filterDocuments);
+                if (categoryFilter) categoryFilter.addEventListener('change', filterDocuments);
+                if (statusFilter) statusFilter.addEventListener('change', filterDocuments);
+
+                // Export functionality
+                const exportBtn = document.getElementById('exportBtn');
+                if (exportBtn) {
+                    exportBtn.addEventListener('click', function () {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Export Started',
+                            text: 'Your document version data is being exported. You will receive an email when it\'s ready.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    });
+                }
+
+                // Print functionality
+                const printBtn = document.getElementById('printBtn');
+                if (printBtn) {
+                    printBtn.addEventListener('click', function () {
+                        window.print();
+                    });
+                }
+
+                // Modal Management
+                const versionDetailsModal = document.getElementById("versionDetailsModal");
+                const newVersionModal = document.getElementById("newVersionModal");
+                const deleteDocumentModal = document.getElementById("deleteDocumentModal");
+                const newVersionBtn = document.getElementById("newVersionBtn");
+
+                function openModal(modal) {
+                    console.log('Opening modal:', modal);
+                    if (!modal) {
+                        console.error('Modal is null or undefined');
+                        return;
+                    }
+                    modal.classList.add("active");
+                    modal.style.display = "flex";
+                    console.log('Modal opened successfully');
+                }
+
+                function closeModal(modal) {
+                    console.log('Closing modal:', modal);
+                    if (!modal) {
+                        console.error('Modal is null or undefined');
+                        return;
+                    }
+                    modal.classList.remove("active");
+                    setTimeout(() => {
+                        modal.style.display = "none";
+                        console.log('Modal closed successfully');
+                    }, 300);
+                }
+
+                // View Version Details
+                window.showVersionDetails = function (doc) {
+                    const contentDiv = document.getElementById('versionDetailsContent');
+                    const uploadedDate = doc.uploaded ? new Date(doc.uploaded) : new Date();
+                    const formattedDate = uploadedDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+
+                    contentDiv.innerHTML = `
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <h4 class="font-medium text-gray-900">${doc.name || 'Document'}</h4>
@@ -1279,152 +1372,152 @@
                         <button type="button" onclick="showDeleteDocumentConfirmation('${doc.id || ''}')" class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
                     </div>
                 `;
-                openModal(versionDetailsModal);
-            };
+                    openModal(versionDetailsModal);
+                };
 
-            // New Version Modal
-            if (newVersionBtn) {
-                console.log('New Version button found:', newVersionBtn);
-                newVersionBtn.addEventListener('click', () => {
-                    console.log('New Version button clicked!');
+                // New Version Modal
+                if (newVersionBtn) {
+                    console.log('New Version button found:', newVersionBtn);
+                    newVersionBtn.addEventListener('click', () => {
+                        console.log('New Version button clicked!');
 
-                    const form = document.getElementById('newVersionForm');
-                    if (form) {
-                        console.log('Resetting form');
-                        form.reset();
-                        // Reset version number to default
+                        const form = document.getElementById('newVersionForm');
+                        if (form) {
+                            console.log('Resetting form');
+                            form.reset();
+                            // Reset version number to default
+                            const versionNumber = document.getElementById('versionNumber');
+                            if (versionNumber) {
+                                versionNumber.value = '1.1';
+                            }
+                        }
+
+                        if (newVersionModal) {
+                            console.log('Opening new version modal');
+                            openModal(newVersionModal);
+                        } else {
+                            console.error('New version modal not found');
+                        }
+                    });
+                } else {
+                    console.error('New Version button not found!');
+                }
+
+                // Handle new version form submission
+                const newVersionForm = document.getElementById('newVersionForm');
+                if (newVersionForm) {
+                    newVersionForm.addEventListener('submit', async function (e) {
+                        e.preventDefault();
+
+                        const submitBtn = this.querySelector('button[type="submit"]');
+                        const originalText = submitBtn.textContent;
+
+                        // Client-side validation
+                        const documentSelect = document.getElementById('documentSelect');
                         const versionNumber = document.getElementById('versionNumber');
-                        if (versionNumber) {
-                            versionNumber.value = '1.1';
-                        }
-                    }
+                        const fileInput = document.getElementById('file-upload');
 
-                    if (newVersionModal) {
-                        console.log('Opening new version modal');
-                        openModal(newVersionModal);
-                    } else {
-                        console.error('New version modal not found');
-                    }
-                });
-            } else {
-                console.error('New Version button not found!');
-            }
-
-            // Handle new version form submission
-            const newVersionForm = document.getElementById('newVersionForm');
-            if (newVersionForm) {
-                newVersionForm.addEventListener('submit', async function (e) {
-                    e.preventDefault();
-
-                    const submitBtn = this.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
-
-                    // Client-side validation
-                    const documentSelect = document.getElementById('documentSelect');
-                    const versionNumber = document.getElementById('versionNumber');
-                    const fileInput = document.getElementById('file-upload');
-
-                    if (!documentSelect.value) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validation Error',
-                            text: 'Please select a document.',
-                            confirmButtonColor: '#059669'
-                        });
-                        return;
-                    }
-
-                    if (!versionNumber.value.trim()) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validation Error',
-                            text: 'Version number is required.',
-                            confirmButtonColor: '#059669'
-                        });
-                        versionNumber.focus();
-                        return;
-                    }
-
-                    if (!fileInput.files || fileInput.files.length === 0) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Validation Error',
-                            text: 'Please select a file to upload.',
-                            confirmButtonColor: '#059669'
-                        });
-                        return;
-                    }
-
-                    try {
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
-
-                        const formData = new FormData(this);
-
-                        // Debug: Log form data
-                        console.log('Form data being sent:');
-                        for (let [key, value] of formData.entries()) {
-                            console.log(key, value);
+                        if (!documentSelect.value) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: 'Please select a document.',
+                                confirmButtonColor: '#059669'
+                            });
+                            return;
                         }
 
-                        // Try the version upload route first, then fallback to document upload
-                        let uploadUrl = this.action;
-                        let response;
+                        if (!versionNumber.value.trim()) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: 'Version number is required.',
+                                confirmButtonColor: '#059669'
+                            });
+                            versionNumber.focus();
+                            return;
+                        }
+
+                        if (!fileInput.files || fileInput.files.length === 0) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Validation Error',
+                                text: 'Please select a file to upload.',
+                                confirmButtonColor: '#059669'
+                            });
+                            return;
+                        }
 
                         try {
-                            response = await fetch(uploadUrl, {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
-                                    'Accept': 'application/json'
-                                }
-                            });
-                        } catch (error) {
-                            console.log('Version upload route failed, trying document upload route...');
-                            // Fallback to document upload route
-                            uploadUrl = "{{ route('document.upload.store') }}";
-                            response = await fetch(uploadUrl, {
-                                method: 'POST',
-                                body: formData,
-                                headers: {
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
-                                    'Accept': 'application/json'
-                                }
-                            });
-                        }
+                            submitBtn.disabled = true;
+                            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
 
-                        const data = await response.json();
+                            const formData = new FormData(this);
 
-                        // Debug: Log response
-                        console.log('Server response:', data);
-
-                        if (data.success) {
-                            console.log('Upload successful, closing modal and adding to table');
-                            closeModal(newVersionModal);
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Version Uploaded!',
-                                text: 'New version has been uploaded successfully.',
-                                timer: 2000,
-                                showConfirmButton: false
-                            });
-
-                            // Add the new version to the table
-                            if (data.document) {
-                                console.log('Adding document to table:', data.document);
-                                addDocumentToTable(data.document);
-                            } else {
-                                console.log('No document data received from server');
+                            // Debug: Log form data
+                            console.log('Form data being sent:');
+                            for (let [key, value] of formData.entries()) {
+                                console.log(key, value);
                             }
 
-                            // Reset form
-                            this.reset();
+                            // Try the version upload route first, then fallback to document upload
+                            let uploadUrl = this.action;
+                            let response;
 
-                            // Reset file display
-                            const dropZoneText = document.querySelector('.border-dashed .text-center');
-                            if (dropZoneText) {
-                                dropZoneText.innerHTML = `
+                            try {
+                                response = await fetch(uploadUrl, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                                        'Accept': 'application/json'
+                                    }
+                                });
+                            } catch (error) {
+                                console.log('Version upload route failed, trying document upload route...');
+                                // Fallback to document upload route
+                                uploadUrl = "{{ route('document.upload.store') }}";
+                                response = await fetch(uploadUrl, {
+                                    method: 'POST',
+                                    body: formData,
+                                    headers: {
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                                        'Accept': 'application/json'
+                                    }
+                                });
+                            }
+
+                            const data = await response.json();
+
+                            // Debug: Log response
+                            console.log('Server response:', data);
+
+                            if (data.success) {
+                                console.log('Upload successful, closing modal and adding to table');
+                                closeModal(newVersionModal);
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Version Uploaded!',
+                                    text: 'New version has been uploaded successfully.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+
+                                // Add the new version to the table
+                                if (data.document) {
+                                    console.log('Adding document to table:', data.document);
+                                    addDocumentToTable(data.document);
+                                } else {
+                                    console.log('No document data received from server');
+                                }
+
+                                // Reset form
+                                this.reset();
+
+                                // Reset file display
+                                const dropZoneText = document.querySelector('.border-dashed .text-center');
+                                if (dropZoneText) {
+                                    dropZoneText.innerHTML = `
                                     <div class="space-y-1 text-center">
                                         <div class="flex text-sm text-gray-600">
                                             <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-brand-primary hover:text-brand-primary-hover focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-primary">
@@ -1436,75 +1529,75 @@
                                         <p class="text-xs text-gray-500">PDF, DOCX, XLSX up to 50MB</p>
                                     </div>
                                 `;
+                                }
+                            } else {
+                                console.log('Upload failed:', data);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Upload Failed',
+                                    text: data.message || 'Failed to upload version. Please try again.',
+                                    confirmButtonColor: '#059669'
+                                });
                             }
-                        } else {
-                            console.log('Upload failed:', data);
+                        } catch (error) {
+                            console.error('Upload error:', error);
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Upload Failed',
-                                text: data.message || 'Failed to upload version. Please try again.',
+                                text: 'An error occurred while uploading. Please try again.',
                                 confirmButtonColor: '#059669'
                             });
+                        } finally {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
                         }
-                    } catch (error) {
-                        console.error('Upload error:', error);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Upload Failed',
-                            text: 'An error occurred while uploading. Please try again.',
-                            confirmButtonColor: '#059669'
-                        });
-                    } finally {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = originalText;
-                    }
-                });
-            }
-
-            // Drag and drop functionality
-            const dropZone = document.querySelector('.border-dashed');
-            const fileInput = document.getElementById('file-upload');
-
-            if (dropZone && fileInput) {
-                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, preventDefaults, false);
-                });
-
-                function preventDefaults(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
+                    });
                 }
 
-                ['dragenter', 'dragover'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.add('border-brand-primary', 'bg-brand-background-main');
-                    }, false);
-                });
+                // Drag and drop functionality
+                const dropZone = document.querySelector('.border-dashed');
+                const fileInput = document.getElementById('file-upload');
 
-                ['dragleave', 'drop'].forEach(eventName => {
-                    dropZone.addEventListener(eventName, () => {
-                        dropZone.classList.remove('border-brand-primary', 'bg-brand-background-main');
-                    }, false);
-                });
+                if (dropZone && fileInput) {
+                    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, preventDefaults, false);
+                    });
 
-                dropZone.addEventListener('drop', (e) => {
-                    const files = e.dataTransfer.files;
-                    if (files.length > 0) {
-                        fileInput.files = files;
-                        updateFileDisplay(files[0]);
+                    function preventDefaults(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
                     }
-                }, false);
 
-                fileInput.addEventListener('change', (e) => {
-                    if (e.target.files.length > 0) {
-                        updateFileDisplay(e.target.files[0]);
-                    }
-                });
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, () => {
+                            dropZone.classList.add('border-brand-primary', 'bg-brand-background-main');
+                        }, false);
+                    });
 
-                function updateFileDisplay(file) {
-                    const dropZoneText = dropZone.querySelector('.text-center');
-                    if (dropZoneText) {
-                        dropZoneText.innerHTML = `
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        dropZone.addEventListener(eventName, () => {
+                            dropZone.classList.remove('border-brand-primary', 'bg-brand-background-main');
+                        }, false);
+                    });
+
+                    dropZone.addEventListener('drop', (e) => {
+                        const files = e.dataTransfer.files;
+                        if (files.length > 0) {
+                            fileInput.files = files;
+                            updateFileDisplay(files[0]);
+                        }
+                    }, false);
+
+                    fileInput.addEventListener('change', (e) => {
+                        if (e.target.files.length > 0) {
+                            updateFileDisplay(e.target.files[0]);
+                        }
+                    });
+
+                    function updateFileDisplay(file) {
+                        const dropZoneText = dropZone.querySelector('.text-center');
+                        if (dropZoneText) {
+                            dropZoneText.innerHTML = `
                             <div class="space-y-1 text-center">
                                 <div class="flex text-sm text-gray-600">
                                     <span class="font-medium text-brand-primary">${file.name}</span>
@@ -1513,147 +1606,147 @@
                                 <p class="text-xs text-gray-400">Click to change file</p>
                             </div>
                         `;
+                        }
+                    }
+
+                    function formatFileSize(bytes) {
+                        if (bytes === 0) return '0 Bytes';
+                        const k = 1024;
+                        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                        const i = Math.floor(Math.log(bytes) / Math.log(k));
+                        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
                     }
                 }
 
-                function formatFileSize(bytes) {
-                    if (bytes === 0) return '0 Bytes';
-                    const k = 1024;
-                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                    const i = Math.floor(Math.log(bytes) / Math.log(k));
-                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-                }
-            }
+                // Close modal buttons
+                document.getElementById('closeVersionDetailsBtn')?.addEventListener('click', () => closeModal(versionDetailsModal));
+                document.getElementById('closeNewVersionBtn')?.addEventListener('click', () => closeModal(newVersionModal));
+                document.getElementById('closeDeleteDocumentBtn')?.addEventListener('click', () => closeModal(deleteDocumentModal));
+                document.getElementById('cancelNewVersionBtn')?.addEventListener('click', () => closeModal(newVersionModal));
+                document.getElementById('cancelDeleteDocumentBtn')?.addEventListener('click', () => closeModal(deleteDocumentModal));
 
-            // Close modal buttons
-            document.getElementById('closeVersionDetailsBtn')?.addEventListener('click', () => closeModal(versionDetailsModal));
-            document.getElementById('closeNewVersionBtn')?.addEventListener('click', () => closeModal(newVersionModal));
-            document.getElementById('closeDeleteDocumentBtn')?.addEventListener('click', () => closeModal(deleteDocumentModal));
-            document.getElementById('cancelNewVersionBtn')?.addEventListener('click', () => closeModal(newVersionModal));
-            document.getElementById('cancelDeleteDocumentBtn')?.addEventListener('click', () => closeModal(deleteDocumentModal));
+                // Delete document functionality
+                let currentDeleteDocumentId = '';
+                window.showDeleteDocumentConfirmation = function (docId) {
+                    currentDeleteDocumentId = docId;
+                    openModal(deleteDocumentModal);
+                };
 
-            // Delete document functionality
-            let currentDeleteDocumentId = '';
-            window.showDeleteDocumentConfirmation = function (docId) {
-                currentDeleteDocumentId = docId;
-                openModal(deleteDocumentModal);
-            };
+                document.getElementById('confirmDeleteDocumentBtn')?.addEventListener('click', async () => {
+                    const btn = document.getElementById('confirmDeleteDocumentBtn');
+                    const originalText = btn.textContent;
 
-            document.getElementById('confirmDeleteDocumentBtn')?.addEventListener('click', async () => {
-                const btn = document.getElementById('confirmDeleteDocumentBtn');
-                const originalText = btn.textContent;
+                    try {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
 
-                try {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Deleting...';
+                        // In a real app, this would be an API call
+                        await new Promise(resolve => setTimeout(resolve, 1000));
 
-                    // In a real app, this would be an API call
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-
-                    // Remove the row from table
-                    const row = document.querySelector(`tr[data-doc-id="${currentDeleteDocumentId}"]`);
-                    if (row) {
-                        row.remove();
-                    }
-
-                    closeModal(deleteDocumentModal);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Document Deleted',
-                        text: 'Document has been deleted successfully.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to delete document. Please try again.',
-                    });
-                } finally {
-                    btn.disabled = false;
-                    btn.textContent = originalText;
-                }
-            });
-
-            // Close modals when clicking outside
-            const modals = [versionDetailsModal, newVersionModal, deleteDocumentModal];
-            modals.forEach(modal => {
-                modal?.addEventListener('click', function (e) {
-                    if (e.target === this) {
-                        closeModal(this);
-                    }
-                });
-            });
-
-            // Category filtering
-            const categoryCards = document.querySelectorAll('.category-card');
-            categoryCards.forEach(card => {
-                card.addEventListener('click', function () {
-                    const selectedCategory = this.dataset.category;
-
-                    // Update active state
-                    categoryCards.forEach(c => c.classList.remove('active'));
-                    this.classList.add('active');
-
-                    // Filter documents
-                    filterDocumentsByCategory(selectedCategory);
-                });
-            });
-
-            function filterDocumentsByCategory(category) {
-                const rows = document.querySelectorAll('#documentsTable tbody tr');
-                let visibleCount = 0;
-
-                // Show loading state
-                const tableContainer = document.querySelector('#documentsTable');
-                if (tableContainer) {
-                    tableContainer.style.opacity = '0.7';
-                }
-
-                // Small delay for visual feedback
-                setTimeout(() => {
-                    rows.forEach(row => {
-                        if (row.querySelector('td[colspan]')) {
-                            // Skip "No documents" row
-                            return;
+                        // Remove the row from table
+                        const row = document.querySelector(`tr[data-doc-id="${currentDeleteDocumentId}"]`);
+                        if (row) {
+                            row.remove();
                         }
 
-                        const docCategory = row.dataset.category || '';
+                        closeModal(deleteDocumentModal);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Document Deleted',
+                            text: 'Document has been deleted successfully.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete document. Please try again.',
+                        });
+                    } finally {
+                        btn.disabled = false;
+                        btn.textContent = originalText;
+                    }
+                });
 
-                        if (category === 'all') {
-                            row.style.display = '';
-                            visibleCount++;
-                        } else {
-                            // Check for exact match or partial match for flexibility
-                            if (docCategory === category || docCategory.includes(category)) {
+                // Close modals when clicking outside
+                const modals = [versionDetailsModal, newVersionModal, deleteDocumentModal];
+                modals.forEach(modal => {
+                    modal?.addEventListener('click', function (e) {
+                        if (e.target === this) {
+                            closeModal(this);
+                        }
+                    });
+                });
+
+                // Category filtering
+                const categoryCards = document.querySelectorAll('.category-card');
+                categoryCards.forEach(card => {
+                    card.addEventListener('click', function () {
+                        const selectedCategory = this.dataset.category;
+
+                        // Update active state
+                        categoryCards.forEach(c => c.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // Filter documents
+                        filterDocumentsByCategory(selectedCategory);
+                    });
+                });
+
+                function filterDocumentsByCategory(category) {
+                    const rows = document.querySelectorAll('#documentsTable tbody tr');
+                    let visibleCount = 0;
+
+                    // Show loading state
+                    const tableContainer = document.querySelector('#documentsTable');
+                    if (tableContainer) {
+                        tableContainer.style.opacity = '0.7';
+                    }
+
+                    // Small delay for visual feedback
+                    setTimeout(() => {
+                        rows.forEach(row => {
+                            if (row.querySelector('td[colspan]')) {
+                                // Skip "No documents" row
+                                return;
+                            }
+
+                            const docCategory = row.dataset.category || '';
+
+                            if (category === 'all') {
                                 row.style.display = '';
                                 visibleCount++;
                             } else {
-                                row.style.display = 'none';
+                                // Check for exact match or partial match for flexibility
+                                if (docCategory === category || docCategory.includes(category)) {
+                                    row.style.display = '';
+                                    visibleCount++;
+                                } else {
+                                    row.style.display = 'none';
+                                }
                             }
+                        });
+
+                        // Update count
+                        const visibleCountElement = document.getElementById('visibleCount');
+                        if (visibleCountElement) {
+                            visibleCountElement.textContent = visibleCount;
                         }
-                    });
 
-                    // Update count
-                    const visibleCountElement = document.getElementById('visibleCount');
-                    if (visibleCountElement) {
-                        visibleCountElement.textContent = visibleCount;
-                    }
+                        // Reset opacity
+                        if (tableContainer) {
+                            tableContainer.style.opacity = '1';
+                        }
 
-                    // Reset opacity
-                    if (tableContainer) {
-                        tableContainer.style.opacity = '1';
-                    }
+                        // Show no results message if needed
+                        const tbody = document.querySelector('#documentsTable tbody');
+                        const noResultsRow = tbody.querySelector('.no-results-row');
 
-                    // Show no results message if needed
-                    const tbody = document.querySelector('#documentsTable tbody');
-                    const noResultsRow = tbody.querySelector('.no-results-row');
-
-                    if (visibleCount === 0 && !noResultsRow) {
-                        const noResultsRow = document.createElement('tr');
-                        noResultsRow.className = 'no-results-row';
-                        noResultsRow.innerHTML = `
+                        if (visibleCount === 0 && !noResultsRow) {
+                            const noResultsRow = document.createElement('tr');
+                            noResultsRow.className = 'no-results-row';
+                            noResultsRow.innerHTML = `
                             <td colspan="6" class="px-6 py-8 text-center">
                                 <div class="text-gray-500">
                                     <i class="bx bx-folder-open text-4xl mb-2"></i>
@@ -1661,126 +1754,126 @@
                                 </div>
                             </td>
                         `;
-                        tbody.appendChild(noResultsRow);
-                    } else if (visibleCount > 0 && noResultsRow) {
-                        noResultsRow.remove();
+                            tbody.appendChild(noResultsRow);
+                        } else if (visibleCount > 0 && noResultsRow) {
+                            noResultsRow.remove();
+                        }
+                    }, 150);
+                }
+
+                // Global modal functions
+                window.closeVersionDetailsModal = function () {
+                    const modal = document.getElementById('versionDetailsModal');
+                    if (modal) {
+                        closeModal(modal);
                     }
-                }, 150);
-            }
+                };
 
-            // Global modal functions
-            window.closeVersionDetailsModal = function () {
-                const modal = document.getElementById('versionDetailsModal');
-                if (modal) {
-                    closeModal(modal);
-                }
-            };
-
-            window.closeNewVersionModal = function () {
-                const modal = document.getElementById('newVersionModal');
-                if (modal) {
-                    closeModal(modal);
-                }
-            };
-
-            window.closeDeleteDocumentModal = function () {
-                const modal = document.getElementById('deleteDocumentModal');
-                if (modal) {
-                    closeModal(modal);
-                }
-            };
-
-            // Global function to open new version modal
-            window.openNewVersionModal = function () {
-                console.log('Global openNewVersionModal called');
-                const form = document.getElementById('newVersionForm');
-                if (form) {
-                    console.log('Resetting form from global function');
-                    form.reset();
-                    // Reset version number to default
-                    const versionNumber = document.getElementById('versionNumber');
-                    if (versionNumber) {
-                        versionNumber.value = '1.1';
+                window.closeNewVersionModal = function () {
+                    const modal = document.getElementById('newVersionModal');
+                    if (modal) {
+                        closeModal(modal);
                     }
-                }
+                };
 
-                const modal = document.getElementById('newVersionModal');
-                if (modal) {
-                    console.log('Opening new version modal from global function');
-                    openModal(modal);
-                } else {
-                    console.error('New version modal not found from global function');
-                }
-            };
+                window.closeDeleteDocumentModal = function () {
+                    const modal = document.getElementById('deleteDocumentModal');
+                    if (modal) {
+                        closeModal(modal);
+                    }
+                };
 
-            // Add document to table dynamically
-            window.addDocumentToTable = function (doc) {
-                console.log('addDocumentToTable called with:', doc);
+                // Global function to open new version modal
+                window.openNewVersionModal = function () {
+                    console.log('Global openNewVersionModal called');
+                    const form = document.getElementById('newVersionForm');
+                    if (form) {
+                        console.log('Resetting form from global function');
+                        form.reset();
+                        // Reset version number to default
+                        const versionNumber = document.getElementById('versionNumber');
+                        if (versionNumber) {
+                            versionNumber.value = '1.1';
+                        }
+                    }
 
-                const tbody = document.querySelector('#documentsTable tbody');
-                if (!tbody) {
-                    console.error('Table tbody not found');
-                    return;
-                }
+                    const modal = document.getElementById('newVersionModal');
+                    if (modal) {
+                        console.log('Opening new version modal from global function');
+                        openModal(modal);
+                    } else {
+                        console.error('New version modal not found from global function');
+                    }
+                };
 
-                console.log('Table tbody found:', tbody);
+                // Add document to table dynamically
+                window.addDocumentToTable = function (doc) {
+                    console.log('addDocumentToTable called with:', doc);
 
-                // Remove "No documents" row if it exists
-                const noDocumentsRow = tbody.querySelector('td[colspan]');
-                if (noDocumentsRow) {
-                    console.log('Removing no documents row');
-                    noDocumentsRow.parentElement.remove();
-                }
+                    const tbody = document.querySelector('#documentsTable tbody');
+                    if (!tbody) {
+                        console.error('Table tbody not found');
+                        return;
+                    }
 
-                // Get user info for the row
-                const userName = '{{ $user->name }}' || 'User';
-                const initials = '{{ collect(explode(" ", $user->name))->map(fn($p) => strtoupper(substr($p, 0, 1)))->implode("") }}' || 'U';
+                    console.log('Table tbody found:', tbody);
 
-                console.log('User info:', { userName, initials });
+                    // Remove "No documents" row if it exists
+                    const noDocumentsRow = tbody.querySelector('td[colspan]');
+                    if (noDocumentsRow) {
+                        console.log('Removing no documents row');
+                        noDocumentsRow.parentElement.remove();
+                    }
 
-                // Determine icon based on file type
-                const dtype = (doc.type || '').toUpperCase();
-                let icon = 'bxs-file text-gray-600';
-                if (dtype.includes('PDF')) {
-                    icon = 'bxs-file-pdf text-red-600';
-                } else if (dtype.includes('WORD') || dtype.includes('DOC') || dtype.includes('DOCX')) {
-                    icon = 'bxs-file-doc text-blue-600';
-                } else if (dtype.includes('EXCEL') || dtype.includes('XLS') || dtype.includes('XLSX')) {
-                    icon = 'bxs-file-txt text-green-600';
-                }
+                    // Get user info for the row
+                    const userName = '{{ $user->name }}' || 'User';
+                    const initials = '{{ collect(explode(" ", $user->name))->map(fn($p) => strtoupper(substr($p, 0, 1)))->implode("") }}' || 'U';
 
-                console.log('File icon determined:', icon);
+                    console.log('User info:', { userName, initials });
 
-                // Format uploaded date
-                const uploadedDate = doc.uploaded ? new Date(doc.uploaded) : new Date();
-                const formattedDate = uploadedDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                    // Determine icon based on file type
+                    const dtype = (doc.type || '').toUpperCase();
+                    let icon = 'bxs-file text-gray-600';
+                    if (dtype.includes('PDF')) {
+                        icon = 'bxs-file-pdf text-red-600';
+                    } else if (dtype.includes('WORD') || dtype.includes('DOC') || dtype.includes('DOCX')) {
+                        icon = 'bxs-file-doc text-blue-600';
+                    } else if (dtype.includes('EXCEL') || dtype.includes('XLS') || dtype.includes('XLSX')) {
+                        icon = 'bxs-file-txt text-green-600';
+                    }
 
-                console.log('Formatted date:', formattedDate);
+                    console.log('File icon determined:', icon);
 
-                // Create new table row
-                const row = document.createElement('tr');
-                row.className = 'document-row fade-in';
-                row.setAttribute('data-doc-id', doc.id || '');
-                row.setAttribute('data-name', (doc.name || '').toLowerCase());
-                row.setAttribute('data-type', (doc.type || '').toLowerCase());
-                row.setAttribute('data-category', (doc.category || 'other').toLowerCase());
-                row.setAttribute('data-status', (doc.status || 'indexed').toLowerCase());
+                    // Format uploaded date
+                    const uploadedDate = doc.uploaded ? new Date(doc.uploaded) : new Date();
+                    const formattedDate = uploadedDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
 
-                console.log('Creating row with attributes:', {
-                    id: doc.id || '',
-                    name: doc.name || '',
-                    type: doc.type || '',
-                    category: doc.category || 'other',
-                    status: doc.status || 'indexed'
-                });
+                    console.log('Formatted date:', formattedDate);
 
-                row.innerHTML = `
+                    // Create new table row
+                    const row = document.createElement('tr');
+                    row.className = 'document-row fade-in';
+                    row.setAttribute('data-doc-id', doc.id || '');
+                    row.setAttribute('data-name', (doc.name || '').toLowerCase());
+                    row.setAttribute('data-type', (doc.type || '').toLowerCase());
+                    row.setAttribute('data-category', (doc.category || 'other').toLowerCase());
+                    row.setAttribute('data-status', (doc.status || 'indexed').toLowerCase());
+
+                    console.log('Creating row with attributes:', {
+                        id: doc.id || '',
+                        name: doc.name || '',
+                        type: doc.type || '',
+                        category: doc.category || 'other',
+                        status: doc.status || 'indexed'
+                    });
+
+                    row.innerHTML = `
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="flex items-center">
                             <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
@@ -1814,47 +1907,107 @@
                     </td>
                 `;
 
-                console.log('Row HTML created');
+                    console.log('Row HTML created');
 
-                // Add row to table at the beginning
-                tbody.insertBefore(row, tbody.firstChild);
+                    // Add row to table at the beginning
+                    tbody.insertBefore(row, tbody.firstChild);
 
-                console.log('Row added to table');
+                    console.log('Row added to table');
 
-                // Update visible count
-                const visibleCountElement = document.getElementById('visibleCount');
-                if (visibleCountElement) {
-                    const currentCount = parseInt(visibleCountElement.textContent) || 0;
-                    visibleCountElement.textContent = currentCount + 1;
-                    console.log('Updated visible count to:', currentCount + 1);
-                }
+                    // Update visible count
+                    const visibleCountElement = document.getElementById('visibleCount');
+                    if (visibleCountElement) {
+                        const currentCount = parseInt(visibleCountElement.textContent) || 0;
+                        visibleCountElement.textContent = currentCount + 1;
+                        console.log('Updated visible count to:', currentCount + 1);
+                    }
 
-                // Show success animation
-                showUploadSuccessAnimation();
+                    // Show success animation
+                    showUploadSuccessAnimation();
 
-                console.log('addDocumentToTable completed successfully');
-            };
+                    console.log('addDocumentToTable completed successfully');
+                };
 
-            // Show upload success animation
-            function showUploadSuccessAnimation() {
-                const toast = document.createElement('div');
-                toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
-                toast.innerHTML = `
+                // Show upload success animation
+                function showUploadSuccessAnimation() {
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 fade-in';
+                    toast.innerHTML = `
                     <div class="flex items-center">
                         <i class="bx bx-check-circle text-xl mr-2"></i>
                         <span>New version added to table</span>
                     </div>
                 `;
 
-                document.body.appendChild(toast);
+                    document.body.appendChild(toast);
 
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                    setTimeout(() => toast.remove(), 300);
-                }, 3000);
-            }
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 3000);
+                }
+            });
+        </script>
+
+    </div>
+
+    <!-- Loading Screen JavaScript -->
+    <script>
+        // Loading Screen Functions (matching login page style)
+        function showLoadingScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.classList.remove('hidden');
+            // Add fade-in animation
+            setTimeout(() => {
+                loadingScreen.classList.add('opacity-100');
+            }, 10);
+        }
+
+        function hideLoadingScreen() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const mainContent = document.getElementById('mainContent');
+
+            loadingScreen.classList.add('opacity-0');
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+                if (mainContent) {
+                    mainContent.style.opacity = '1';
+                }
+            }, 300);
+        }
+
+        // Hide loading screen and show main content after page loads
+        window.addEventListener('load', function () {
+            setTimeout(function () {
+                hideLoadingScreen();
+            }, 2000); // 2 second delay for better UX
+        });
+
+        // Fallback in case window.load doesn't fire properly
+        document.addEventListener('DOMContentLoaded', function () {
+            // Additional fallback after 5 seconds
+            setTimeout(function () {
+                const loadingScreen = document.getElementById('loadingScreen');
+                const mainContent = document.getElementById('mainContent');
+
+                if (loadingScreen && !loadingScreen.classList.contains('hidden')) {
+                    hideLoadingScreen();
+                }
+            }, 5000);
+        });
+
+        // Initialize loading screen on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            showLoadingScreen();
         });
     </script>
+
+    <!-- Global Loading Scripts -->
+    @include('components.loading-scripts')
+
+    @auth
+        @include('partials.session-timeout-modal')
+    @endauth
 </body>
 
 </html>

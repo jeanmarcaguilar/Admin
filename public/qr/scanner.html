@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner - VIP Access Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="components/navbar.js"></script>
+    <script src="components/sidebar.js"></script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <custom-navbar></custom-navbar>
+    <div class="flex min-h-screen pt-16">
+        <custom-sidebar></custom-sidebar>
+        <main class="flex-1 ml-64 p-6 overflow-auto">
+            <div class="max-w-4xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800 dark:text-white mb-2">QR Code Scanner</h1>
+                    <p class="text-gray-600 dark:text-gray-400">Scan visitor QR codes for verification</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Scanner -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
+                            <i data-feather="camera" class="w-5 h-5 mr-2 text-indigo-600"></i>
+                            Scan QR Code
+                        </h2>
+                        
+                        <div id="reader" class="w-full rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 mb-4"></div>
+                        
+                        <div class="flex gap-3">
+                            <button id="startBtn" onclick="startScanner()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                <i data-feather="play" class="w-5 h-5 mr-2"></i>
+                                Start Scanner
+                            </button>
+                            <button id="stopBtn" onclick="stopScanner()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center hidden">
+                                <i data-feather="square" class="w-5 h-5 mr-2"></i>
+                                Stop
+                            </button>
+                        </div>
+                        
+                        <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Or enter Visitor ID manually:</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="manualId" placeholder="VIS-XXXXXXX" class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                <button onclick="manualVerify()" class="bg-gray-800 dark:bg-gray-600 hover:bg-gray-900 dark:hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+                                    Verify
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Verification Result -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700">
+                        <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-6 flex items-center">
+                            <i data-feather="shield" class="w-5 h-5 mr-2 text-indigo-600"></i>
+                            Verification Status
+                        </h2>
+                        
+                        <div id="scanResult" class="hidden">
+                            <div id="statusIcon" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <!-- Icon injected by JS -->
+                            </div>
+                            
+                            <div id="statusText" class="text-center text-2xl font-bold mb-6"></div>
+                            
+                            <div class="space-y-3 bg-gray-50 dark:bg-gray-700 rounded-xl p-4">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Visitor Name:</span>
+                                    <span id="scanName" class="font-semibold text-gray-800 dark:text-white"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Visitor ID:</span>
+                                    <span id="scanId" class="font-mono text-gray-800 dark:text-white"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Access Level:</span>
+                                    <span id="scanAccess" class="font-semibold"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-400">Valid Date:</span>
+                                    <span id="scanDate" class="text-gray-800 dark:text-white"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 flex gap-3">
+                                <button onclick="grantAccess()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                    <i data-feather="check-circle" class="w-5 h-5 mr-2"></i>
+                                    Grant Access
+                                </button>
+                                <button onclick="denyAccess()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 flex items-center justify-center">
+                                    <i data-feather="x-circle" class="w-5 h-5 mr-2"></i>
+                                    Deny
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="waitingState" class="text-center py-12">
+                            <div class="w-24 h-24 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i data-feather="maximize" class="w-12 h-12 text-gray-400"></i>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400">Scan a QR code or enter ID to verify</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Access Log -->
+                <div class="mt-8 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4 flex items-center">
+                        <i data-feather="list" class="w-5 h-5 mr-2 text-indigo-600"></i>
+                        Today's Access Log
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 dark:bg-gray-700">
+                                <tr>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-tl-lg">Time</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">Visitor</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">ID</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300">Access</th>
+                                    <th class="px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 rounded-tr-lg">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accessLog" class="divide-y divide-gray-100 dark:divide-gray-700">
+                                <tr>
+                                    <td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                        No entries today
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        let html5QrcodeScanner = null;
+        let currentScan = null;
+        
+        feather.replace();
+        
+        function startScanner() {
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            html5QrcodeScanner = new Html5Qrcode("reader");
+            
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                config,
+                onScanSuccess,
+                onScanFailure
+            ).then(() => {
+                document.getElementById('startBtn').classList.add('hidden');
+                document.getElementById('stopBtn').classList.remove('hidden');
+            }).catch(err => {
+                console.error("Scanner error:", err);
+                alert("Error starting scanner: " + err);
+            });
+        }
+        
+        function stopScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    document.getElementById('startBtn').classList.remove('hidden');
+                    document.getElementById('stopBtn').classList.add('hidden');
+                });
+            }
+        }
+        
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log("QR Code scanned:", decodedText);
+            try {
+                const data = JSON.parse(decodedText);
+                verifyVisitor(data);
+            } catch (e) {
+                // Try to find by ID if not JSON
+                verifyVisitor({ id: decodedText });
+            }
+        }
+        
+        function onScanFailure(error) {
+            // console.warn(`Code scan error = ${error}`);
+        }
+        
+        function manualVerify() {
+            const id = document.getElementById('manualId').value.trim();
+            if (id) {
+                verifyVisitor({ id: id });
+            }
+        }
+        
+        function verifyVisitor(data) {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const visitor = visitors.find(v => v.id === data.id);
+            
+            document.getElementById('waitingState').classList.add('hidden');
+            document.getElementById('scanResult').classList.remove('hidden');
+            
+            const statusIcon = document.getElementById('statusIcon');
+            const statusText = document.getElementById('statusText');
+            
+            if (visitor) {
+                const visitDate = new Date(visitor.visitDate).toDateString();
+                const today = new Date().toDateString();
+                const isValid = visitDate === today;
+                
+                currentScan = visitor;
+                
+                if (isValid) {
+                    statusIcon.className = 'w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-100 text-emerald-600';
+                    statusIcon.innerHTML = '<i data-feather="check" class="w-10 h-10"></i>';
+                    statusText.textContent = 'ACCESS VALID';
+                    statusText.className = 'text-center text-2xl font-bold mb-6 text-emerald-600';
+                } else {
+                    statusIcon.className = 'w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-amber-100 text-amber-600';
+                    statusIcon.innerHTML = '<i data-feather="alert-triangle" class="w-10 h-10"></i>';
+                    statusText.textContent = 'DATE EXPIRED';
+                    statusText.className = 'text-center text-2xl font-bold mb-6 text-amber-600';
+                }
+                
+                document.getElementById('scanName').textContent = `${visitor.firstName} ${visitor.lastName}`;
+                document.getElementById('scanId').textContent = visitor.id;
+                
+                const accessColors = {
+                    standard: 'text-blue-600 dark:text-blue-400',
+                    vip: 'text-amber-600 dark:text-amber-400',
+                    restricted: 'text-red-600 dark:text-red-400'
+                };
+                const accessEl = document.getElementById('scanAccess');
+                accessEl.textContent = visitor.accessLevel.toUpperCase();
+                accessEl.className = `font-semibold ${accessColors[visitor.accessLevel]}`;
+                
+                document.getElementById('scanDate').textContent = new Date(visitor.visitDate).toLocaleDateString();
+            } else {
+                currentScan = null;
+                statusIcon.className = 'w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 bg-red-100 text-red-600';
+                statusIcon.innerHTML = '<i data-feather="x" class="w-10 h-10"></i>';
+                statusText.textContent = 'NOT FOUND';
+                statusText.className = 'text-center text-2xl font-bold mb-6 text-red-600';
+                
+                document.getElementById('scanName').textContent = 'Unknown';
+                document.getElementById('scanId').textContent = data.id || 'N/A';
+                document.getElementById('scanAccess').textContent = '-';
+                document.getElementById('scanDate').textContent = '-';
+            }
+            
+            feather.replace();
+        }
+        
+        function grantAccess() {
+            if (currentScan) {
+                logAccess(currentScan, 'GRANTED');
+                showNotification('Access Granted', `${currentScan.firstName} ${currentScan.lastName} has been granted access.`, 'success');
+                resetScanner();
+            }
+        }
+        
+        function denyAccess() {
+            if (currentScan) {
+                logAccess(currentScan, 'DENIED');
+                showNotification('Access Denied', `${currentScan.firstName} ${currentScan.lastName} has been denied access.`, 'error');
+                resetScanner();
+            }
+        }
+        
+        function logAccess(visitor, status) {
+            let logs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
+            logs.unshift({
+                visitor: visitor,
+                status: status,
+                timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('accessLogs', JSON.stringify(logs));
+            updateAccessLog();
+        }
+        
+        function updateAccessLog() {
+            const logs = JSON.parse(localStorage.getItem('accessLogs') || '[]');
+            const today = new Date().toDateString();
+            const todayLogs = logs.filter(l => new Date(l.timestamp).toDateString() === today);
+            
+            const tbody = document.getElementById('accessLog');
+            
+            if (todayLogs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">No entries today</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = todayLogs.slice(0, 10).map(log => `
+                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <td class="px-4 py-3 text-sm text-gray-800 dark:text-white">${new Date(log.timestamp).toLocaleTimeString()}</td>
+                    <td class="px-4 py-3 text-sm text-gray-800 dark:text-white font-medium">${log.visitor.firstName} ${log.visitor.lastName}</td>
+                    <td class="px-4 py-3 text-sm font-mono text-gray-600 dark:text-gray-400">${log.visitor.id}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                            log.visitor.accessLevel === 'vip' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300' :
+                            log.visitor.accessLevel === 'restricted' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
+                            'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                        }">${log.visitor.accessLevel.toUpperCase()}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full ${
+                            log.status === 'GRANTED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300' :
+                            'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                        }">${log.status}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        function resetScanner() {
+            document.getElementById('scanResult').classList.add('hidden');
+            document.getElementById('waitingState').classList.remove('hidden');
+            currentScan = null;
+        }
+        
+        function showNotification(title, message, type) {
+            // Simple alert for now, could be replaced with a toast component
+            alert(`${title}: ${message}`);
+        }
+        
+        // Load access log on page load
+        updateAccessLog();
+    </script>
+</body>
+</html>
