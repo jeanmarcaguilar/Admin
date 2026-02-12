@@ -1,4 +1,4 @@
-@php
+ï»¿@php
     // Get the authenticated user
     $user = auth()->user();
     // Get calendar bookings from database (passed from route)
@@ -506,7 +506,7 @@
                     SYSTEM ONLINE
                 </div>
                 <div class="text-[11px] text-gray-400 mt-2 leading-snug">
-                    Microfinance Admin © {{ date('Y') }}<br />
+                    Microfinance Admin Â© {{ date('Y') }}<br />
                     Administrative System
                 </div>
             </div>
@@ -568,19 +568,23 @@
                         </svg>
                     </button>
 
-                    <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
-                            absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
-                            transition-all duration-200 z-50">
-                        <button id="openProfileBtn"
-                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn"
-                            class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
-                        <div class="h-px bg-gray-100"></div>
-                        <form method="POST" action="{{ route('logout') }}" class="w-full">
-                            @csrf
-                            <button type="submit"
-                                class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
-                        </form>
+                    <div id="user-menu-dropdown" class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                        <div class="py-4 px-6 border-b border-gray-100 text-center">
+                            <div
+                                class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                                <i class="fas fa-user-circle text-3xl"></i>
+                            </div>
+                            <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                            <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
+                        </div>
+                        <ul class="text-sm text-gray-700">
+                            <li><button id="openProfileBtn"
+                                class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
+                                    class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                            <li><button id="openSignOutBtn"
+                                class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
+                                    class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -741,7 +745,7 @@
                                                             </span>
                                                         </div>
                                                         <p class="text-xs text-gray-500 mt-1">{{ $day }} {{ $monthShort }}
-                                                            @if($time) · {{ $time }} @endif
+                                                            @if($time) Â· {{ $time }} @endif
                                                         </p>
                                                     </div>
                                                 </div>
@@ -871,23 +875,13 @@
             if (userMenuButton && userMenuDropdown) {
                 userMenuButton.addEventListener("click", (e) => {
                     e.stopPropagation();
-                    const isHidden = userMenuDropdown.classList.contains("hidden");
-
-                    if (isHidden) {
-                        userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-                    } else {
-                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        userMenuDropdown.classList.remove("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
-                    }
+                    userMenuDropdown.classList.toggle("hidden");
                 });
 
                 // Close dropdown when clicking outside
                 document.addEventListener("click", (e) => {
                     if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                        userMenuDropdown.classList.add("hidden");
                     }
                 });
             }
@@ -1226,6 +1220,104 @@
                 });
             }
 
+
+            // Modal handlers
+            const openProfileBtn = document.getElementById('openProfileBtn');
+            const closeProfileBtn = document.getElementById('closeProfileBtn');
+            const closeProfileBtn2 = document.getElementById('closeProfileBtn2');
+            const profileModal = document.getElementById('profileModal');
+
+            const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
+            const closeAccountSettingsBtn = document.getElementById('closeAccountSettingsBtn');
+            const cancelAccountSettingsBtn = document.getElementById('cancelAccountSettingsBtn');
+            const accountSettingsModal = document.getElementById('accountSettingsModal');
+
+            const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
+            const closePrivacySecurityBtn = document.getElementById('closePrivacySecurityBtn');
+            const cancelPrivacySecurityBtn = document.getElementById('cancelPrivacySecurityBtn');
+            const privacySecurityModal = document.getElementById('privacySecurityModal');
+
+            const openSignOutBtn = document.getElementById('openSignOutBtn');
+            const cancelSignOutBtn = document.getElementById('cancelSignOutBtn');
+            const signOutModal = document.getElementById('signOutModal');
+
+            // Profile modal
+            if (openProfileBtn) {
+                openProfileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    profileModal.classList.add('active');
+                    userMenuDropdown.classList.add('hidden');
+                });
+            }
+
+            if (closeProfileBtn) {
+                closeProfileBtn.addEventListener('click', () => {
+                    profileModal.classList.remove('active');
+                });
+            }
+
+            if (closeProfileBtn2) {
+                closeProfileBtn2.addEventListener('click', () => {
+                    profileModal.classList.remove('active');
+                });
+            }
+
+            // Account settings modal
+            if (openAccountSettingsBtn) {
+                openAccountSettingsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    accountSettingsModal.classList.add('active');
+                    userMenuDropdown.classList.add('hidden');
+                });
+            }
+
+            if (closeAccountSettingsBtn) {
+                closeAccountSettingsBtn.addEventListener('click', () => {
+                    accountSettingsModal.classList.remove('active');
+                });
+            }
+
+            if (cancelAccountSettingsBtn) {
+                cancelAccountSettingsBtn.addEventListener('click', () => {
+                    accountSettingsModal.classList.remove('active');
+                });
+            }
+
+            // Privacy & security modal
+            if (openPrivacySecurityBtn) {
+                openPrivacySecurityBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    privacySecurityModal.classList.add('active');
+                    userMenuDropdown.classList.add('hidden');
+                });
+            }
+
+            if (closePrivacySecurityBtn) {
+                closePrivacySecurityBtn.addEventListener('click', () => {
+                    privacySecurityModal.classList.remove('active');
+                });
+            }
+
+            if (cancelPrivacySecurityBtn) {
+                cancelPrivacySecurityBtn.addEventListener('click', () => {
+                    privacySecurityModal.classList.remove('active');
+                });
+            }
+
+            // Sign out modal
+            if (openSignOutBtn) {
+                openSignOutBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    signOutModal.classList.add('active');
+                    userMenuDropdown.classList.add('hidden');
+                });
+            }
+
+            if (cancelSignOutBtn) {
+                cancelSignOutBtn.addEventListener('click', () => {
+                    signOutModal.classList.remove('active');
+                });
+            }
             // Close modals when clicking outside
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
@@ -1236,6 +1328,22 @@
                         this.style.display = 'none';
                     }
                 });
+            });
+
+            // Close modals when clicking outside (for new modals)
+            window.addEventListener('click', (e) => {
+                if (profileModal && !profileModal.contains(e.target) && openProfileBtn && !openProfileBtn.contains(e.target)) {
+                    profileModal.classList.remove('active');
+                }
+                if (accountSettingsModal && !accountSettingsModal.contains(e.target) && openAccountSettingsBtn && !openAccountSettingsBtn.contains(e.target)) {
+                    accountSettingsModal.classList.remove('active');
+                }
+                if (privacySecurityModal && !privacySecurityModal.contains(e.target) && openPrivacySecurityBtn && !openPrivacySecurityBtn.contains(e.target)) {
+                    privacySecurityModal.classList.remove('active');
+                }
+                if (signOutModal && !signOutModal.contains(e.target)) {
+                    signOutModal.classList.remove('active');
+                }
             });
         });
     </script>
@@ -1299,7 +1407,132 @@
     @auth
         @include('partials.session-timeout-modal')
     @endauth
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog">
+    <div class="bg-white rounded-lg shadow-lg w-[500px] max-w-full mx-4 fade-in" role="document">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">My Profile</h3>
+        <button type="button" class="text-gray-400 hover:text-gray-600" id="closeProfileBtn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="text-center mb-6">
+          <div class="w-20 h-20 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-4">
+            <i class="fas fa-user-circle text-4xl"></i>
+          </div>
+          <h4 class="text-xl font-semibold text-gray-900">{{ $user->name }}</h4>
+          <p class="text-sm text-gray-500">{{ ucfirst($user->role) }}</p>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <p class="text-sm text-gray-900">{{ $user->email }}</p>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+            <p class="text-sm text-gray-900">{{ ucfirst($user->role) }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" id="closeProfileBtn2">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Account Settings Modal -->
+  <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog">
+    <div class="bg-white rounded-lg shadow-lg w-[500px] max-w-full mx-4 fade-in" role="document">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Account Settings</h3>
+        <button type="button" class="text-gray-400 hover:text-gray-600" id="closeAccountSettingsBtn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Display Name</label>
+            <input type="text" value="{{ $user->name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input type="email" value="{{ $user->email }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+              <option>English</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" id="cancelAccountSettingsBtn">Cancel</button>
+        <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-brand-primary rounded-md hover:bg-brand-primary-hover">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy & Security Modal -->
+  <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog">
+    <div class="bg-white rounded-lg shadow-lg w-[500px] max-w-full mx-4 fade-in" role="document">
+      <div class="flex items-center justify-between p-6 border-b border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900">Privacy & Security</h3>
+        <button type="button" class="text-gray-400 hover:text-gray-600" id="closePrivacySecurityBtn">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand-primary">
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
+        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" id="cancelPrivacySecurityBtn">Cancel</button>
+        <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-brand-primary rounded-md hover:bg-brand-primary-hover">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sign Out Modal -->
+  <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog">
+    <div class="bg-white rounded-lg shadow-lg w-[400px] max-w-full mx-4 fade-in" role="document">
+      <div class="p-6">
+        <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+          <i class="fas fa-sign-out-alt text-red-600"></i>
+        </div>
+        <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">Sign Out</h3>
+        <p class="text-sm text-gray-600 text-center mb-6">Are you sure you want to sign out of your account?</p>
+      </div>
+      <div class="flex justify-center gap-3 p-6 border-t border-gray-200">
+        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" id="cancelSignOutBtn">Cancel</button>
+        <form method="POST" action="{{ route('logout') }}" class="inline">
+          @csrf
+          <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">Sign Out</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
+
+
+
+
+
 

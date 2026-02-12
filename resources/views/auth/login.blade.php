@@ -397,14 +397,7 @@
             @endif
           </div>
 
-          <!-- Remember Me -->
-          <div class="flex items-center py-2">
-            <input id="remember_me" type="checkbox" name="remember" class="custom-checkbox">
-            <label for="remember_me" class="ml-2 text-sm text-gray-700 select-none cursor-pointer">
-              Remember me for 30 days
-            </label>
-          </div>
-
+          
           <!-- Two-Factor Authentication Section -->
           <div id="twoFactorSection" class="slide-down p-5 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl {{ $errors->has('two_factor_code') || old('two_factor_code') ? '' : 'hidden' }}">
             <label for="two_factor_code" class="block text-sm font-semibold text-gray-700 mb-2">
@@ -459,11 +452,7 @@
 
         <!-- Footer -->
         <div class="text-center mt-6 pt-4 border-t border-gray-200">
-          <p class="text-xs text-gray-500">
-            Need help? 
-            <a href="#" class="text-brand-primary font-semibold hover:underline ml-1">Contact Support</a>
-          </p>
-          <p class="text-xs text-gray-400 mt-1">&copy; 2025 Login Portal. All Rights Reserved.</p>
+          <p class="text-xs text-gray-400">&copy; 2025 Login Portal. All Rights Reserved.</p>
         </div>
       </div>
     </section>

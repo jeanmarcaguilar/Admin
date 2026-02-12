@@ -63,7 +63,17 @@ $user = auth()->user();
         }
 
         .dropdown-panel {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: all 0.2s ease-in-out;
             transform-origin: top right;
+        }
+
+        .dropdown-panel:not(.hidden) {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
 
         .case-card {
@@ -436,17 +446,23 @@ $user = auth()->user();
                     </button>
 
                     <div id="user-menu-dropdown"
-                        class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
-                            absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
-                            transition-all duration-200 z-50">
-                        <button id="openProfileBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
-                        <button id="openPrivacySecurityBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Privacy & Security</button>
-                        <div class="h-px bg-gray-100"></div>
-                        <form method="POST" action="{{ route('logout') }}" class="w-full">
-                            @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
-                        </form>
+                        class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                        <div class="py-4 px-6 border-b border-gray-100 text-center">
+                            <div
+                                class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                                <i class="fas fa-user-circle text-3xl"></i>
+                            </div>
+                            <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                            <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
+                        </div>
+                        <ul class="text-sm text-gray-700">
+                            <li><button id="openProfileBtn"
+                                class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
+                                    class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                            <li><button id="openSignOutBtn"
+                                class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
+                                    class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -1289,31 +1305,55 @@ $user = auth()->user();
                 });
             }
 
-            // Notification dropdown
-            const notificationBtn = document.getElementById("notificationBtn");
-            const notificationDropdown = document.getElementById("notificationDropdown");
+            // Profile dropdown buttons functionality
+            const openProfileBtn = document.getElementById('openProfileBtn');
+            const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
+            const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
+            const openSignOutBtn = document.getElementById('openSignOutBtn');
 
-            if (notificationBtn && notificationDropdown) {
-                notificationBtn.addEventListener("click", (e) => {
+            if (openProfileBtn) {
+                openProfileBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const isHidden = notificationDropdown.classList.contains("hidden");
-                    
-                    if (isHidden) {
-                        notificationDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        notificationDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-                    } else {
-                        notificationDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        notificationDropdown.classList.remove("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-                        setTimeout(() => notificationDropdown.classList.add("hidden"), 200);
-                    }
+                    userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                    setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                    // Add profile modal functionality here if needed
                 });
+            }
 
-                // Close dropdown when clicking outside
-                document.addEventListener("click", (e) => {
-                    if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                        notificationDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                        setTimeout(() => notificationDropdown.classList.add("hidden"), 200);
-                    }
+            if (openAccountSettingsBtn) {
+                openAccountSettingsBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                    setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                    // Add account settings modal functionality here if needed
+                });
+            }
+
+            if (openPrivacySecurityBtn) {
+                openPrivacySecurityBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                    setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                    // Add privacy & security modal functionality here if needed
+                });
+            }
+
+            if (openSignOutBtn) {
+                openSignOutBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                    setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                    // Submit logout form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ route("logout") }}';
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfToken);
+                    document.body.appendChild(form);
+                    form.submit();
                 });
             }
 

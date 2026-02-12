@@ -487,8 +487,8 @@
 
                     <!-- User Profile Dropdown -->
                     <div class="relative">
-                        <button id="user-menu-button" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
-                               hover:bg-gray-100 active:bg-gray-200 transition">
+                        <button id="userMenuBtn" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                            hover:bg-gray-100 active:bg-gray-200 transition">
                             <div
                                 class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
                                 <div
@@ -503,7 +503,7 @@
                                 </span>
                                 <span
                                     class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
-                                    Admin
+                                    {{ ucfirst($user->role) }}
                                 </span>
                             </div>
                             <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors"
@@ -514,16 +514,25 @@
                             </svg>
                         </button>
 
-                        <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
-                               absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
-                               transition-all duration-200 z-50">
-                            <a href="#"
-                                class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</a>
-                            <a href="#"
-                                class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</a>
-                            <div class="h-px bg-gray-100"></div>
-                            <a href="#"
-                                class="block px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</a>
+                        <!-- User Dropdown Menu -->
+                        <div id="userMenuDropdown"
+                            class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                            <div class="py-4 px-6 border-b border-gray-100 text-center">
+                                <div
+                                    class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                                    <i class="fas fa-user-circle text-3xl"></i>
+                                </div>
+                                <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                                <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
+                            </div>
+                            <ul class="text-sm text-gray-700">
+                                <li><button id="openProfileBtn"
+                                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
+                                        class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                                <li><button id="openSignOutBtn"
+                                    class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
+                                        class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -776,33 +785,145 @@
                     });
                 });
 
-                // User menu dropdown
-                const userMenuButton = document.getElementById("user-menu-button");
-                const userMenuDropdown = document.getElementById("user-menu-dropdown");
+                // User dropdown menu
+                const userMenuBtn = document.getElementById('userMenuBtn');
+                const userMenuDropdown = document.getElementById('userMenuDropdown');
 
-                if (userMenuButton && userMenuDropdown) {
-                    userMenuButton.addEventListener("click", (e) => {
+                // Toggle user dropdown
+                if (userMenuBtn && userMenuDropdown) {
+                    userMenuBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const isHidden = userMenuDropdown.classList.contains("hidden");
-
-                        if (isHidden) {
-                            userMenuDropdown.classList.remove("hidden", "opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                            userMenuDropdown.classList.add("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-                        } else {
-                            userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                            userMenuDropdown.classList.remove("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-                            setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
-                        }
-                    });
-
-                    // Close dropdown when clicking outside
-                    document.addEventListener("click", (e) => {
-                        if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                            userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
-                            setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
-                        }
+                        userMenuDropdown.classList.toggle('hidden');
                     });
                 }
+
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (userMenuDropdown && !userMenuDropdown.contains(e.target) && userMenuBtn && !userMenuBtn.contains(e.target)) {
+                        userMenuDropdown.classList.add('hidden');
+                    }
+                });
+
+                // Modal functionality
+                const openProfileBtn = document.getElementById('openProfileBtn');
+                const closeProfileBtn = document.getElementById('closeProfileBtn');
+                const closeProfileBtn2 = document.getElementById('closeProfileBtn2');
+                const profileModal = document.getElementById('profileModal');
+
+                const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
+                const closeAccountSettingsBtn = document.getElementById('closeAccountSettingsBtn');
+                const cancelAccountSettingsBtn = document.getElementById('cancelAccountSettingsBtn');
+                const accountSettingsModal = document.getElementById('accountSettingsModal');
+
+                const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
+                const closePrivacySecurityBtn = document.getElementById('closePrivacySecurityBtn');
+                const cancelPrivacySecurityBtn = document.getElementById('cancelPrivacySecurityBtn');
+                const privacySecurityModal = document.getElementById('privacySecurityModal');
+
+                const openSignOutBtn = document.getElementById('openSignOutBtn');
+                const cancelSignOutBtn = document.getElementById('cancelSignOutBtn');
+                const cancelSignOutBtn2 = document.getElementById('cancelSignOutBtn2');
+                const signOutModal = document.getElementById('signOutModal');
+
+                // Profile modal
+                if (openProfileBtn) {
+                    openProfileBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        profileModal.classList.add('active');
+                        userMenuDropdown.classList.add('hidden');
+                    });
+                }
+
+                if (closeProfileBtn) {
+                    closeProfileBtn.addEventListener('click', () => {
+                        profileModal.classList.remove('active');
+                    });
+                }
+
+                if (closeProfileBtn2) {
+                    closeProfileBtn2.addEventListener('click', () => {
+                        profileModal.classList.remove('active');
+                    });
+                }
+
+                // Account settings modal
+                if (openAccountSettingsBtn) {
+                    openAccountSettingsBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        accountSettingsModal.classList.add('active');
+                        userMenuDropdown.classList.add('hidden');
+                    });
+                }
+
+                if (closeAccountSettingsBtn) {
+                    closeAccountSettingsBtn.addEventListener('click', () => {
+                        accountSettingsModal.classList.remove('active');
+                    });
+                }
+
+                if (cancelAccountSettingsBtn) {
+                    cancelAccountSettingsBtn.addEventListener('click', () => {
+                        accountSettingsModal.classList.remove('active');
+                    });
+                }
+
+                // Privacy & security modal
+                if (openPrivacySecurityBtn) {
+                    openPrivacySecurityBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        privacySecurityModal.classList.add('active');
+                        userMenuDropdown.classList.add('hidden');
+                    });
+                }
+
+                if (closePrivacySecurityBtn) {
+                    closePrivacySecurityBtn.addEventListener('click', () => {
+                        privacySecurityModal.classList.remove('active');
+                    });
+                }
+
+                if (cancelPrivacySecurityBtn) {
+                    cancelPrivacySecurityBtn.addEventListener('click', () => {
+                        privacySecurityModal.classList.remove('active');
+                    });
+                }
+
+                // Sign out modal
+                if (openSignOutBtn) {
+                    openSignOutBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        signOutModal.classList.add('active');
+                        userMenuDropdown.classList.add('hidden');
+                    });
+                }
+
+                if (cancelSignOutBtn) {
+                    cancelSignOutBtn.addEventListener('click', () => {
+                        signOutModal.classList.remove('active');
+                    });
+                }
+
+                if (cancelSignOutBtn2) {
+                    cancelSignOutBtn2.addEventListener('click', () => {
+                        signOutModal.classList.remove('active');
+                    });
+                }
+
+                // Close modals when clicking outside
+                window.addEventListener('click', (e) => {
+                    if (profileModal && !profileModal.contains(e.target) && openProfileBtn && !openProfileBtn.contains(e.target)) {
+                        profileModal.classList.remove('active');
+                    }
+                    if (accountSettingsModal && !accountSettingsModal.contains(e.target) && openAccountSettingsBtn && !openAccountSettingsBtn.contains(e.target)) {
+                        accountSettingsModal.classList.remove('active');
+                    }
+                    if (privacySecurityModal && !privacySecurityModal.contains(e.target) && openPrivacySecurityBtn && !openPrivacySecurityBtn.contains(e.target)) {
+                        privacySecurityModal.classList.remove('active');
+                    }
+                    if (signOutModal && !signOutModal.contains(e.target)) {
+                        signOutModal.classList.remove('active');
+                    }
+                });
 
                 // Real-time clock with accurate time
                 function updateClock() {
@@ -1110,6 +1231,259 @@
             showLoadingScreen();
         });
     </script>
+
+    <!-- MODALS (Keep your existing modals - just styled to match new design) -->
+    <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
+      <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4" role="document">
+        <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+          <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
+          <button id="closeProfileBtn" type="button"
+            class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
+            aria-label="Close">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+        <div class="px-8 pt-6 pb-8">
+          <div class="flex flex-col items-center mb-4">
+            <div class="bg-[#28644c] rounded-full w-20 h-20 flex items-center justify-center mb-3">
+              <i class="fas fa-user text-white text-3xl"></i>
+            </div>
+            <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
+            <p class="text-xs text-gray-500 leading-4">{{ ucfirst($user->role) }}</p>
+          </div>
+          <form class="space-y-4" action="{{ route('profile.update') }}" method="POST">
+            @csrf
+            @method('PATCH')
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="nameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Full Name</label>
+                <input id="nameProfile" name="name" type="text" value="{{ old('name', $user->name) }}"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+              </div>
+              <div>
+                <label for="usernameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Username</label>
+                <input id="usernameProfile" name="username" type="text" value="{{ old('username', $user->username) }}"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+              </div>
+              <div>
+                <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+                <input id="emailProfile" name="email" type="email" value="{{ old('email', $user->email) }}"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+              </div>
+              <div>
+                <label for="phoneProfile" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
+                <input id="phoneProfile" name="phone" type="text" value="{{ old('phone', $user->phone) }}"
+                  placeholder="+63 9xx xxx xxxx"
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+              </div>
+              <div>
+                <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
+                <input id="department" type="text" value="Administrative" readonly
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+              </div>
+              <div>
+                <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
+                <input id="location" type="text" value="Manila, Philippines" readonly
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+              </div>
+              <div>
+                <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
+                <input id="joined" type="text" value="{{ $user->created_at->format('F d, Y') }}" readonly
+                  class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+              </div>
+            </div>
+            <div class="flex justify-end space-x-3 pt-2">
+              <button id="closeProfileBtn2" type="button"
+                class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+              <button type="submit"
+                class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Save
+                Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog"
+      aria-labelledby="account-settings-modal-title">
+      <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+        <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+          <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings
+          </h3>
+          <button id="closeAccountSettingsBtn" type="button"
+            class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
+            aria-label="Close">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+        <div class="px-8 pt-6 pb-8">
+          <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
+            @csrf
+            @method('PATCH')
+            <div>
+              <label for="username" class="block mb-1 font-semibold">Username</label>
+              <input id="username" name="username" type="text" value="{{ $user->name }}"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="emailAccount" class="block mb-1 font-semibold">Email</label>
+              <input id="emailAccount" name="email" type="email" value="{{ $user->email }}"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="language" class="block mb-1 font-semibold">Language</label>
+              <select id="language" name="language"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                <option selected>English</option>
+              </select>
+            </div>
+            <div>
+              <label for="timezone" class="block mb-1 font-semibold">Time Zone</label>
+              <select id="timezone" name="timezone"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                <option selected>Philippine Time (GMT+8)</option>
+              </select>
+            </div>
+            <fieldset class="space-y-1">
+              <legend class="font-semibold text-xs mb-1">Notifications</legend>
+              <div class="flex items-center space-x-2">
+                <input id="email-notifications" name="email_notifications" type="checkbox" checked
+                  class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                <label for="email-notifications" class="text-xs">Email notifications</label>
+              </div>
+              <div class="flex items-center space-x-2">
+                <input id="browser-notifications" name="browser_notifications" type="checkbox" checked
+                  class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                <label for="browser-notifications" class="text-xs">Browser notifications</label>
+              </div>
+            </fieldset>
+            <div class="flex justify-end space-x-3 pt-2">
+              <button type="button" id="cancelAccountSettingsBtn"
+                class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+              <button type="submit"
+                class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save
+                Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog"
+      aria-labelledby="privacy-security-modal-title">
+      <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+        <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+          <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy &
+            Security</h3>
+          <button id="closePrivacySecurityBtn" type="button"
+            class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
+            aria-label="Close">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+        <div class="px-8 pt-6 pb-8">
+          <form id="changePasswordForm" action="{{ route('account.password.change.request') }}" method="POST"
+            class="space-y-3">
+            @csrf
+            <fieldset>
+              <legend class="font-semibold mb-2 select-none">Change Password</legend>
+              <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
+              <input
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
+                id="current-password" name="current_password" type="password" />
+              <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
+              <input
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
+                id="new-password" name="new_password" type="password" />
+              <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
+              <input
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
+                id="confirm-password" name="new_password_confirmation" type="password" />
+            </fieldset>
+            <div id="verifySection" class="hidden">
+              <label class="block mt-2 mb-1 font-normal select-none" for="pw-verify-code">Enter Verification
+                Code</label>
+              <input
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
+                id="pw-verify-code" name="code" type="text" maxlength="6" />
+              <button id="verifyPasswordBtn" type="button"
+                data-verify-action="{{ route('account.password.change.verify') }}"
+                class="mt-3 w-full bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Verify
+                Code & Update</button>
+            </div>
+            <div class="text-xs" id="pwChangeMsg"></div>
+            <div class="flex justify-end space-x-3 pt-2">
+              <button
+                class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200"
+                id="cancelPrivacySecurityBtn" type="button">Cancel</button>
+              <button id="submitPasswordBtn"
+                class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200"
+                type="submit">Send Code</button>
+            </div>
+          </form>
+          <fieldset>
+            <legend class="font-semibold mb-1 select-none">Two-Factor Authentication</legend>
+            <p class="text-[10px] mb-1 select-none">Enhance your account security</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] text-[#2f855A] font-semibold select-none">Status: Enabled</span>
+              <button
+                class="text-[10px] bg-gray-200 text-gray-700 rounded-lg px-3 py-1.5 font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200"
+                type="button">Configure</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="font-semibold mb-1 select-none">Session Management</legend>
+            <div class="bg-gray-100 rounded px-3 py-2 text-[10px] text-gray-700 select-none">
+              <div class="font-semibold">Current Session</div>
+              <div class="text-[9px] text-gray-500">Manila, Philippines • Chrome</div>
+              <div
+                class="inline-block mt-1 bg-green-100 text-green-700 text-[9px] font-semibold rounded px-2 py-0.5 select-none">
+                Active</div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="font-semibold mb-1 select-none">Privacy Settings</legend>
+            <label class="flex items-center space-x-2 text-[10px] select-none">
+              <input checked class="w-3 h-3" type="checkbox" name="show_profile" />
+              <span>Show my profile to all employees</span>
+            </label>
+            <label class="flex items-center space-x-2 text-[10px] select-none mt-1">
+              <input checked class="w-3 h-3" type="checkbox" name="log_activity" />
+              <span>Log my account activity</span>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="sign-out-modal-title">
+      <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4 text-center" role="document">
+        <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+          <h3 id="sign-out-modal-title" class="font-semibold text-sm text-gray-900 select-none">Sign Out</h3>
+          <button id="cancelSignOutBtn" type="button"
+            class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
+            aria-label="Close">
+            <i class="fas fa-times text-xs"></i>
+          </button>
+        </div>
+        <div class="px-8 pt-6 pb-8">
+          <div class="mx-auto mb-4 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+            <i class="fas fa-sign-out-alt text-red-600 text-xl"></i>
+          </div>
+          <p class="text-xs text-gray-600 mb-6">Are you sure you want to sign out of your account?</p>
+          <div class="flex justify-center space-x-4">
+            <button id="cancelSignOutBtn2"
+              class="bg-gray-200 text-gray-800 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+            <form method="POST" action="{{ route('logout') }}">
+              @csrf
+              <button type="submit"
+                class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Sign
+                Out</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Global Loading Scripts -->
     @include('components.loading-scripts')

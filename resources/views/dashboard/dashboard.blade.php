@@ -531,12 +531,6 @@
                 <li><button id="openProfileBtn"
                     class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
                       class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-                <li><button id="openAccountSettingsBtn"
-                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
-                      class="fas fa-cog mr-2"></i> Account Settings</button></li>
-                <li><button id="openPrivacySecurityBtn"
-                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
-                      class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
                 <li><button id="openSignOutBtn"
                     class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
                       class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
@@ -788,155 +782,7 @@
       </div>
     </div>
 
-    <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog"
-      aria-labelledby="account-settings-modal-title">
-      <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
-        <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-          <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings
-          </h3>
-          <button id="closeAccountSettingsBtn" type="button"
-            class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
-            aria-label="Close">
-            <i class="fas fa-times text-xs"></i>
-          </button>
-        </div>
-        <div class="px-8 pt-6 pb-8">
-          <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
-            @csrf
-            @method('PATCH')
-            <div>
-              <label for="username" class="block mb-1 font-semibold">Username</label>
-              <input id="username" name="username" type="text" value="{{ $user->name }}"
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
-            </div>
-            <div>
-              <label for="emailAccount" class="block mb-1 font-semibold">Email</label>
-              <input id="emailAccount" name="email" type="email" value="{{ $user->email }}"
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
-            </div>
-            <div>
-              <label for="language" class="block mb-1 font-semibold">Language</label>
-              <select id="language" name="language"
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
-                <option selected>English</option>
-              </select>
-            </div>
-            <div>
-              <label for="timezone" class="block mb-1 font-semibold">Time Zone</label>
-              <select id="timezone" name="timezone"
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
-                <option selected>Philippine Time (GMT+8)</option>
-              </select>
-            </div>
-            <fieldset class="space-y-1">
-              <legend class="font-semibold text-xs mb-1">Notifications</legend>
-              <div class="flex items-center space-x-2">
-                <input id="email-notifications" name="email_notifications" type="checkbox" checked
-                  class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
-                <label for="email-notifications" class="text-xs">Email notifications</label>
-              </div>
-              <div class="flex items-center space-x-2">
-                <input id="browser-notifications" name="browser_notifications" type="checkbox" checked
-                  class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
-                <label for="browser-notifications" class="text-xs">Browser notifications</label>
-              </div>
-            </fieldset>
-            <div class="flex justify-end space-x-3 pt-2">
-              <button type="button" id="cancelAccountSettingsBtn"
-                class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-              <button type="submit"
-                class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save
-                Changes</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
 
-    <div id="privacySecurityModal" class="modal hidden" aria-modal="true" role="dialog"
-      aria-labelledby="privacy-security-modal-title">
-      <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
-        <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-          <h3 id="privacy-security-modal-title" class="font-semibold text-sm text-gray-900 select-none">Privacy &
-            Security</h3>
-          <button id="closePrivacySecurityBtn" type="button"
-            class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
-            aria-label="Close">
-            <i class="fas fa-times text-xs"></i>
-          </button>
-        </div>
-        <div class="px-8 pt-6 pb-8">
-          <form id="changePasswordForm" action="{{ route('account.password.change.request') }}" method="POST"
-            class="space-y-3">
-            @csrf
-            <fieldset>
-              <legend class="font-semibold mb-2 select-none">Change Password</legend>
-              <label class="block mb-1 font-normal select-none" for="current-password">Current Password</label>
-              <input
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
-                id="current-password" name="current_password" type="password" />
-              <label class="block mt-3 mb-1 font-normal select-none" for="new-password">New Password</label>
-              <input
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
-                id="new-password" name="new_password" type="password" />
-              <label class="block mt-3 mb-1 font-normal select-none" for="confirm-password">Confirm New Password</label>
-              <input
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
-                id="confirm-password" name="new_password_confirmation" type="password" />
-            </fieldset>
-            <div id="verifySection" class="hidden">
-              <label class="block mt-2 mb-1 font-normal select-none" for="pw-verify-code">Enter Verification
-                Code</label>
-              <input
-                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]"
-                id="pw-verify-code" name="code" type="text" maxlength="6" />
-              <button id="verifyPasswordBtn" type="button"
-                data-verify-action="{{ route('account.password.change.verify') }}"
-                class="mt-3 w-full bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Verify
-                Code & Update</button>
-            </div>
-            <div class="text-xs" id="pwChangeMsg"></div>
-            <div class="flex justify-end space-x-3 pt-2">
-              <button
-                class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200"
-                id="cancelPrivacySecurityBtn" type="button">Cancel</button>
-              <button id="submitPasswordBtn"
-                class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200"
-                type="submit">Send Code</button>
-            </div>
-          </form>
-          <fieldset>
-            <legend class="font-semibold mb-1 select-none">Two-Factor Authentication</legend>
-            <p class="text-[10px] mb-1 select-none">Enhance your account security</p>
-            <div class="flex items-center justify-between">
-              <span class="text-[10px] text-[#2f855A] font-semibold select-none">Status: Enabled</span>
-              <button
-                class="text-[10px] bg-gray-200 text-gray-700 rounded-lg px-3 py-1.5 font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200"
-                type="button">Configure</button>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend class="font-semibold mb-1 select-none">Session Management</legend>
-            <div class="bg-gray-100 rounded px-3 py-2 text-[10px] text-gray-700 select-none">
-              <div class="font-semibold">Current Session</div>
-              <div class="text-[9px] text-gray-500">Manila, Philippines • Chrome</div>
-              <div
-                class="inline-block mt-1 bg-green-100 text-green-700 text-[9px] font-semibold rounded px-2 py-0.5 select-none">
-                Active</div>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend class="font-semibold mb-1 select-none">Privacy Settings</legend>
-            <label class="flex items-center space-x-2 text-[10px] select-none">
-              <input checked class="w-3 h-3" type="checkbox" name="show_profile" />
-              <span>Show my profile to all employees</span>
-            </label>
-            <label class="flex items-center space-x-2 text-[10px] select-none mt-1">
-              <input checked class="w-3 h-3" type="checkbox" name="log_activity" />
-              <span>Log my account activity</span>
-            </label>
-          </fieldset>
-        </div>
       </div>
     </div>
 
@@ -1080,15 +926,6 @@
         const closeProfileBtn2 = document.getElementById('closeProfileBtn2');
         const profileModal = document.getElementById('profileModal');
 
-        const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
-        const closeAccountSettingsBtn = document.getElementById('closeAccountSettingsBtn');
-        const cancelAccountSettingsBtn = document.getElementById('cancelAccountSettingsBtn');
-        const accountSettingsModal = document.getElementById('accountSettingsModal');
-
-        const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
-        const closePrivacySecurityBtn = document.getElementById('closePrivacySecurityBtn');
-        const cancelPrivacySecurityBtn = document.getElementById('cancelPrivacySecurityBtn');
-        const privacySecurityModal = document.getElementById('privacySecurityModal');
 
         const openSignOutBtn = document.getElementById('openSignOutBtn');
         const cancelSignOutBtn = document.getElementById('cancelSignOutBtn');
@@ -1116,47 +953,6 @@
           });
         }
 
-        // Account settings modal
-        if (openAccountSettingsBtn) {
-          openAccountSettingsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            accountSettingsModal.classList.add('active');
-            userMenuDropdown.classList.add('hidden');
-          });
-        }
-
-        if (closeAccountSettingsBtn) {
-          closeAccountSettingsBtn.addEventListener('click', () => {
-            accountSettingsModal.classList.remove('active');
-          });
-        }
-
-        if (cancelAccountSettingsBtn) {
-          cancelAccountSettingsBtn.addEventListener('click', () => {
-            accountSettingsModal.classList.remove('active');
-          });
-        }
-
-        // Privacy & security modal
-        if (openPrivacySecurityBtn) {
-          openPrivacySecurityBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            privacySecurityModal.classList.add('active');
-            userMenuDropdown.classList.add('hidden');
-          });
-        }
-
-        if (closePrivacySecurityBtn) {
-          closePrivacySecurityBtn.addEventListener('click', () => {
-            privacySecurityModal.classList.remove('active');
-          });
-        }
-
-        if (cancelPrivacySecurityBtn) {
-          cancelPrivacySecurityBtn.addEventListener('click', () => {
-            privacySecurityModal.classList.remove('active');
-          });
-        }
 
         // Sign out modal
         if (openSignOutBtn) {
@@ -1184,95 +980,12 @@
           if (profileModal && !profileModal.contains(e.target) && openProfileBtn && !openProfileBtn.contains(e.target)) {
             profileModal.classList.remove('active');
           }
-          if (accountSettingsModal && !accountSettingsModal.contains(e.target) && openAccountSettingsBtn && !openAccountSettingsBtn.contains(e.target)) {
-            accountSettingsModal.classList.remove('active');
-          }
-          if (privacySecurityModal && !privacySecurityModal.contains(e.target) && openPrivacySecurityBtn && !openPrivacySecurityBtn.contains(e.target)) {
-            privacySecurityModal.classList.remove('active');
-          }
           if (signOutModal && !signOutModal.contains(e.target)) {
             signOutModal.classList.remove('active');
           }
         });
 
-        // Password change functionality
-        const changePasswordForm = document.getElementById('changePasswordForm');
-        const verifySection = document.getElementById('verifySection');
-        const pwChangeMsg = document.getElementById('pwChangeMsg');
-        const verifyPasswordBtn = document.getElementById('verifyPasswordBtn');
-        const submitPasswordBtn = document.getElementById('submitPasswordBtn');
-
-        if (changePasswordForm) {
-          const csrfToken = changePasswordForm.querySelector('input[name="_token"]')?.value;
-
-          function setPwMsg(text, ok = true) {
-            pwChangeMsg.textContent = text;
-            pwChangeMsg.className = `text-xs mt-1 ${ok ? 'text-green-700' : 'text-red-600'}`;
-          }
-
-          changePasswordForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            setPwMsg('Sending verification code...', true);
-            submitPasswordBtn.disabled = true;
-            const fd = new FormData(changePasswordForm);
-
-            try {
-              const res = await fetch(changePasswordForm.action, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                body: fd,
-              });
-
-              const data = await res.json();
-              if (res.ok && data.ok) {
-                setPwMsg('Code sent. Check your email and enter the 6-digit code below.', true);
-                verifySection.classList.remove('hidden');
-                changePasswordForm.querySelectorAll('input[type="password"]').forEach(i => i.disabled = true);
-                document.getElementById('pw-verify-code').focus();
-              } else {
-                setPwMsg((data && (data.message || data.error)) || 'Failed to send code.', false);
-                submitPasswordBtn.disabled = false;
-              }
-            } catch (err) {
-              setPwMsg('Network error while sending code.', false);
-              submitPasswordBtn.disabled = false;
-            }
-          });
-
-          if (verifyPasswordBtn) {
-            verifyPasswordBtn.addEventListener('click', async () => {
-              const code = (document.getElementById('pw-verify-code').value || '').trim();
-              if (code.length !== 6) {
-                setPwMsg('Please enter the 6-digit verification code.', false);
-                return;
-              }
-
-              setPwMsg('Verifying code...', true);
-              verifyPasswordBtn.disabled = true;
-
-              try {
-                const res = await fetch(verifyPasswordBtn.dataset.verifyAction, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                  body: JSON.stringify({ code })
-                });
-
-                const data = await res.json();
-                if (res.ok && data.ok) {
-                  setPwMsg('Password changed successfully.', true);
-                  setTimeout(() => { privacySecurityModal.classList.remove('active'); }, 800);
-                } else {
-                  setPwMsg((data && data.message) || 'Invalid or expired code.', false);
-                  verifyPasswordBtn.disabled = false;
-                }
-              } catch (err) {
-                setPwMsg('Network error while verifying code.', false);
-                verifyPasswordBtn.disabled = false;
-              }
-            });
-          }
-        }
-
+        
         // Initialize Chart.js
         const canvas = document.getElementById('dashboardChart');
         if (canvas) {

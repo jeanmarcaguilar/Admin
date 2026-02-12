@@ -267,7 +267,7 @@
     <!-- Loading Screen (Login Style) -->
     <div id="loadingScreen" class="fixed inset-0 z-[9999]">
         <!-- Backdrop -->
-        <div class="fixed inset-0 bg-gradient-to-br from-brand-primary via-emerald-600 to-teal-600"></div>
+        <div class="fixed inset-0 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-600"></div>
 
         <!-- Loading Content -->
         <div class="fixed inset-0 flex flex-col items-center justify-center p-4">
@@ -329,11 +329,11 @@
                hover:bg-gray-100 active:bg-gray-200 transition group">
                     <img src="{{ asset('golden-arc.png') }}" alt="Logo" class="w-10 h-10">
                     <div class="leading-tight">
-                        <div class="font-bold text-gray-800 group-hover:text-brand-primary transition-colors">
+                        <div class="font-bold text-gray-800 group-hover:text-emerald-600 transition-colors">
                             Microfinance Admin
                         </div>
                         <div
-                            class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-brand-primary transition-colors">
+                            class="text-[11px] text-gray-500 font-semibold uppercase group-hover:text-emerald-600 transition-colors">
                             Administrative
                         </div>
                     </div>
@@ -567,7 +567,7 @@
         <!-- MAIN WRAPPER -->
         <div class="md:pl-72">
             <!-- TOP HEADER -->
-            <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 relative
+            <header class="h-16 bg-white flex items-center justify-between px-4 sm:px-6 fixed top-0 left-0 right-0 z-40
                  shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
                 <!-- Border cover to hide sidebar line -->
                 <div class="hidden md:block absolute left-0 top-0 h-16 w-[2px] bg-white"></div>
@@ -595,21 +595,21 @@
                             <div
                                 class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
                                 <div
-                                    class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                                    class="w-full h-full flex items-center justify-center font-bold text-emerald-600 bg-emerald-50">
                                     {{ strtoupper(substr($user->name, 0, 1)) }}
                                 </div>
                             </div>
                             <div class="hidden md:flex flex-col items-start text-left">
                                 <span
-                                    class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                                    class="text-sm font-bold text-gray-700 group-hover:text-emerald-600 transition-colors">
                                     {{ $user->name }}
                                 </span>
                                 <span
-                                    class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                                    class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-emerald-600 transition-colors">
                                     {{ ucfirst($user->role) }}
                                 </span>
                             </div>
-                            <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors"
+                            <svg class="w-4 h-4 text-gray-400 group-hover:text-emerald-600 transition-colors"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 9l-7 7-7-7">
@@ -622,36 +622,27 @@
                             class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                             <div class="py-4 px-6 border-b border-gray-100 text-center">
                                 <div
-                                    class="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white font-bold text-lg mb-2">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                                    <i class="fas fa-user-circle text-3xl"></i>
                                 </div>
-                                <div class="text-sm font-bold text-gray-800">{{ $user->name }}</div>
-                                <div class="text-xs text-gray-500">{{ ucfirst($user->role) }}</div>
+                                <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                                <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
                             </div>
-                            <div class="py-2">
-                                <a href="#"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors">
-                                    <i class="fas fa-user-circle mr-2 text-gray-400"></i> My Profile
-                                </a>
-                                <a href="#"
-                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors">
-                                    <i class="fas fa-cog mr-2 text-gray-400"></i> Settings
-                                </a>
-                                <form method="POST" action="{{ route('logout') }}" class="block">
-                                    @csrf
-                                    <button type="submit"
-                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-brand-primary transition-colors">
-                                        <i class="fas fa-sign-out-alt mr-2 text-gray-400"></i> Logout
-                                    </button>
-                                </form>
-                            </div>
+                            <ul class="text-sm text-gray-700">
+                                <li><button id="openProfileBtn"
+                                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
+                                        class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                                <li><button id="openSignOutBtn"
+                                    class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
+                                        class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </header>
 
             <!-- MAIN CONTENT -->
-            <div class="dashboard-container">
+            <div class="dashboard-container pt-16">
                 <div
                     class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-md border border-gray-100 p-8 space-y-6">
                     <!-- Page Header -->

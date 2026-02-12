@@ -67,7 +67,17 @@
         }
 
         .dropdown-panel {
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: all 0.2s ease-in-out;
             transform-origin: top right;
+        }
+
+        .dropdown-panel:not(.hidden) {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
         }
 
         .contract-card {
@@ -513,19 +523,23 @@
                             </svg>
                         </button>
 
-                        <div id="user-menu-dropdown" class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
-                            absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
-                            transition-all duration-200 z-50">
-                            <button id="openProfileBtn"
-                                class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                            <button id="openAccountSettingsBtn"
-                                class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
-                            <div class="h-px bg-gray-100"></div>
-                            <form method="POST" action="{{ route('logout') }}" class="w-full">
-                                @csrf
-                                <button type="submit"
-                                    class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
-                            </form>
+                        <div id="user-menu-dropdown" class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                            <div class="py-4 px-6 border-b border-gray-100 text-center">
+                                <div
+                                    class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                                    <i class="fas fa-user-circle text-3xl"></i>
+                                </div>
+                                <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                                <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
+                            </div>
+                            <ul class="text-sm text-gray-700">
+                                <li><button id="openProfileBtn"
+                                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
+                                        class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                                <li><button id="openSignOutBtn"
+                                    class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
+                                        class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -1271,6 +1285,72 @@
             </div>
         </div>
 
+        <!-- Account Settings Modal -->
+        <div id="accountSettingsModal" class="modal hidden" aria-modal="true" role="dialog"
+            aria-labelledby="account-settings-modal-title">
+            <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4" role="document">
+                <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                    <h3 id="account-settings-modal-title" class="font-semibold text-sm text-gray-900 select-none">Account Settings
+                    </h3>
+                    <button id="closeAccountSettingsBtn" type="button"
+                        class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
+                        aria-label="Close">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                </div>
+                <div class="px-8 pt-6 pb-8">
+                    <form class="space-y-4 text-xs text-gray-700" action="{{ route('profile.update') }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <div>
+                            <label for="username" class="block mb-1 font-semibold">Username</label>
+                            <input id="username" name="username" type="text" value="{{ $user->name }}"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                        </div>
+                        <div>
+                            <label for="emailAccount" class="block mb-1 font-semibold">Email</label>
+                            <input id="emailAccount" name="email" type="email" value="{{ $user->email }}"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                        </div>
+                        <div>
+                            <label for="language" class="block mb-1 font-semibold">Language</label>
+                            <select id="language" name="language"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                                <option selected>English</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="timezone" class="block mb-1 font-semibold">Time Zone</label>
+                            <select id="timezone" name="timezone"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]">
+                                <option selected>Philippine Time (GMT+8)</option>
+                            </select>
+                        </div>
+                        <fieldset class="space-y-1">
+                            <legend class="font-semibold text-xs mb-1">Notifications</legend>
+                            <div class="flex items-center space-x-2">
+                                <input id="email-notifications" name="email_notifications" type="checkbox" checked
+                                    class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                                <label for="email-notifications" class="text-xs">Email notifications</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input id="browser-notifications" name="browser_notifications" type="checkbox" checked
+                                    class="w-3.5 h-3.5 text-[#2f855A] focus:ring-[#2f855A] border-gray-300 rounded" />
+                                <label for="browser-notifications" class="text-xs">Browser notifications</label>
+                            </div>
+                        </fieldset>
+                        <div class="flex justify-end space-x-3 pt-2">
+                            <button type="button" id="cancelAccountSettingsBtn"
+                                class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                            <button type="submit"
+                                class="bg-[#28644c] text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-[#2f855A] focus:outline-none focus:ring-2 focus:ring-[#2f855A] shadow-sm transition-all duration-200">Save
+                                Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- JavaScript -->
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -1359,6 +1439,58 @@
                             userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                             setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
                         }
+                    });
+                }
+
+                // Profile dropdown buttons functionality
+                const openProfileBtn = document.getElementById('openProfileBtn');
+                const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
+                const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
+                const openSignOutBtn = document.getElementById('openSignOutBtn');
+
+                if (openProfileBtn) {
+                    openProfileBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                        // Add profile modal functionality here if needed
+                    });
+                }
+
+                if (openAccountSettingsBtn) {
+                    openAccountSettingsBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                        openModal('accountSettingsModal');
+                    });
+                }
+
+                if (openPrivacySecurityBtn) {
+                    openPrivacySecurityBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                        // Add privacy & security modal functionality here if needed
+                    });
+                }
+
+                if (openSignOutBtn) {
+                    openSignOutBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                        setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                        // Submit logout form
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ route("logout") }}';
+                        const csrfToken = document.createElement('input');
+                        csrfToken.type = 'hidden';
+                        csrfToken.name = '_token';
+                        csrfToken.value = '{{ csrf_token() }}';
+                        form.appendChild(csrfToken);
+                        document.body.appendChild(form);
+                        form.submit();
                     });
                 }
 
@@ -1453,6 +1585,22 @@
                     setTimeout(() => {
                         modal.style.display = "none";
                     }, 300);
+                }
+
+                // Account Settings Modal Event Listeners
+                const closeAccountSettingsBtn = document.getElementById('closeAccountSettingsBtn');
+                const cancelAccountSettingsBtn = document.getElementById('cancelAccountSettingsBtn');
+
+                if (closeAccountSettingsBtn) {
+                    closeAccountSettingsBtn.addEventListener('click', () => {
+                        closeModal('accountSettingsModal');
+                    });
+                }
+
+                if (cancelAccountSettingsBtn) {
+                    cancelAccountSettingsBtn.addEventListener('click', () => {
+                        closeModal('accountSettingsModal');
+                    });
                 }
 
                 // Add Contract Modal
