@@ -556,11 +556,7 @@
                                 <p class="text-gray-600 mt-1">Upload, organize, and index documents with metadata</p>
                             </div>
                             <div class="mt-4 md:mt-0 flex space-x-3">
-                                <button id="uploadDocumentsBtn"
-                                    class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
-                                    <i class="fas fa-upload mr-2"></i> Upload Documents
-                                </button>
-                                <button id="exportBtn"
+                                                                <button id="exportBtn"
                                     class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
                                     <i class="fas fa-download mr-2"></i> Export
                                 </button>

@@ -302,11 +302,7 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                         <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         Document Upload & Indexing
                     </a>
-                    <a href="{{ route('document.version.control') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                        Version Control
-                    </a>
-                    <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                                        <a href="{{ route('document.access.control.permissions') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
                         <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         Access Control & Permissions
                     </a>
@@ -333,11 +329,7 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
 
             <div id="facilities-submenu" class="submenu mt-1 hidden">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                        Room & Equipment Booking
-                    </a>
-                    <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                                        <a href="{{ route('scheduling.calendar') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
                         <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
                         Scheduling & Calendar Integrations
                     </a>
@@ -431,38 +423,48 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
 
                 <!-- User Profile Dropdown -->
                 <div class="relative">
-                    <button id="user-menu-button"
-                        class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
-                            hover:bg-gray-100 active:bg-gray-200 transition">
-                        <div class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
-                            <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
-                                {{ strtoupper(substr($user->name, 0, 1)) }}
-                            </div>
+                    <button id="userMenuBtn" class="flex items-center gap-3 focus:outline-none group rounded-xl px-2 py-2
+                           hover:bg-gray-100 active:bg-gray-200 transition">
+                      <div
+                        class="w-10 h-10 rounded-full bg-white shadow group-hover:shadow-md transition-shadow overflow-hidden flex items-center justify-center border border-gray-100">
+                        <div class="w-full h-full flex items-center justify-center font-bold text-brand-primary bg-emerald-50">
+                          {{ strtoupper(substr($user->name, 0, 1)) }}
                         </div>
-                        <div class="hidden md:flex flex-col items-start text-left">
-                            <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
-                                {{ $user->name }}
-                            </span>
-                            <span class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
-                                Administrator
-                            </span>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                      </div>
+                      <div class="hidden md:flex flex-col items-start text-left">
+                        <span class="text-sm font-bold text-gray-700 group-hover:text-brand-primary transition-colors">
+                          {{ $user->name }}
+                        </span>
+                        <span
+                          class="text-[10px] text-gray-500 font-medium uppercase group-hover:text-brand-primary transition-colors">
+                          {{ ucfirst($user->role) }}
+                        </span>
+                      </div>
+                      <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-primary transition-colors" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                      </svg>
                     </button>
 
-                    <div id="user-menu-dropdown"
-                        class="dropdown-panel hidden opacity-0 translate-y-2 scale-95 pointer-events-none
-                            absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border border-gray-100
-                            transition-all duration-200 z-50">
-                        <button id="openProfileBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Profile</button>
-                        <button id="openAccountSettingsBtn" class="block w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition">Settings</button>
-                        <div class="h-px bg-gray-100"></div>
-                        <form method="POST" action="{{ route('logout') }}" class="w-full">
-                            @csrf
-                            <button type="submit" class="block w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition">Logout</button>
-                        </form>
+                    <!-- User Dropdown Menu -->
+                    <div id="userMenuDropdown"
+                      class="dropdown-panel hidden absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                      <div class="py-4 px-6 border-b border-gray-100 text-center">
+                        <div
+                          class="w-14 h-14 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-2">
+                          <i class="fas fa-user-circle text-3xl"></i>
+                        </div>
+                        <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
+                        <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
+                      </div>
+                      <ul class="text-sm text-gray-700">
+                        <li><button id="openProfileBtn"
+                            class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
+                              class="fas fa-user-circle mr-2"></i> My Profile</button></li>
+                        <li><button id="openSignOutBtn"
+                            class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
+                              class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
+                      </ul>
                     </div>
                 </div>
             </div>
@@ -848,11 +850,11 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
             });
 
             // User menu dropdown
-            const userMenuButton = document.getElementById("user-menu-button");
-            const userMenuDropdown = document.getElementById("user-menu-dropdown");
+            const userMenuBtn = document.getElementById("userMenuBtn");
+            const userMenuDropdown = document.getElementById("userMenuDropdown");
 
-            if (userMenuButton && userMenuDropdown) {
-                userMenuButton.addEventListener("click", (e) => {
+            if (userMenuBtn && userMenuDropdown) {
+                userMenuBtn.addEventListener("click", (e) => {
                     e.stopPropagation();
                     const isHidden = userMenuDropdown.classList.contains("hidden");
                     
@@ -867,10 +869,40 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
 
                 // Close dropdown when clicking outside
                 document.addEventListener("click", (e) => {
-                    if (!userMenuButton.contains(e.target) && !userMenuDropdown.contains(e.target)) {
+                    if (!userMenuBtn.contains(e.target) && !userMenuDropdown.contains(e.target)) {
                         userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                         setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
                     }
+                });
+            }
+
+            // Profile and Sign Out functionality
+            const openProfileBtn = document.getElementById('openProfileBtn');
+            const openSignOutBtn = document.getElementById('openSignOutBtn');
+
+            if (openProfileBtn) {
+                openProfileBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
+                    setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
+                    // Add profile modal functionality here if needed
+                });
+            }
+
+            if (openSignOutBtn) {
+                openSignOutBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Submit logout form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ route("logout") }}';
+                    const csrfToken = document.createElement('input');
+                    csrfToken.type = 'hidden';
+                    csrfToken.name = '_token';
+                    csrfToken.value = '{{ csrf_token() }}';
+                    form.appendChild(csrfToken);
+                    document.body.appendChild(form);
+                    form.submit();
                 });
             }
 
