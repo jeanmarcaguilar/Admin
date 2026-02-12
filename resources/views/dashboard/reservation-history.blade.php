@@ -405,14 +405,6 @@
                             </svg>
                             Approval Workflow
                         </a>
-                        <a href="{{ route('reservation.history') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                            Reservation History
-                        </a>
                     </div>
                 </div>
 

@@ -545,18 +545,6 @@
                                         class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
                             </ul>
                         </div>
-                                <p class="font-semibold text-[#28644c]">{{ $user->name }}</p>
-                                <p class="text-xs text-gray-400">{{ ucfirst($user->role) }}</p>
-                            </div>
-                            <ul class="text-sm text-gray-700">
-                                <li><button id="openProfileBtn"
-                                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
-                                        class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-                                <li><button id="openSignOutBtn"
-                                    class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
-                                        class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </header>
@@ -600,10 +588,56 @@
                                 class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-12 pr-4 py-3"
                                 placeholder="Search visitors...">
                         </div>
+                        
+                        <!-- Purpose Category Filters -->
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-3">Filter by Purpose Category</h4>
+                            <div class="flex flex-wrap gap-2" id="purposeFilterButtons">
+                                <button class="purpose-filter-btn px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition ring-2 ring-offset-2 ring-brand-primary" data-category="all">
+                                    All Purposes
+                                </button>
+                                <button class="purpose-filter-btn px-3 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition" 
+                                        data-category="business" 
+                                        style="background-color: #3B82F620; color: #3B82F6;">
+                                    <i class="fas fa-briefcase mr-1"></i>
+                                    Business Meetings
+                                </button>
+                                <button class="purpose-filter-btn px-3 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition" 
+                                        data-category="interview" 
+                                        style="background-color: #8B5CF620; color: #8B5CF6;">
+                                    <i class="fas fa-user-tie mr-1"></i>
+                                    Interviews
+                                </button>
+                                <button class="purpose-filter-btn px-3 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition" 
+                                        data-category="delivery" 
+                                        style="background-color: #F59E0B20; color: #F59E0B;">
+                                    <i class="fas fa-truck mr-1"></i>
+                                    Deliveries & Services
+                                </button>
+                                <button class="purpose-filter-btn px-3 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition" 
+                                        data-category="personal" 
+                                        style="background-color: #10B98120; color: #10B981;">
+                                    <i class="fas fa-user mr-1"></i>
+                                    Personal Visits
+                                </button>
+                                <button class="purpose-filter-btn px-3 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition" 
+                                        data-category="official" 
+                                        style="background-color: #EF444420; color: #EF4444;">
+                                    <i class="fas fa-building mr-1"></i>
+                                    Official Business
+                                </button>
+                                <button class="purpose-filter-btn px-3 py-1 rounded-full text-xs font-medium hover:bg-gray-200 transition" 
+                                        data-category="maintenance" 
+                                        style="background-color: #6B728020; color: #6B7280;">
+                                    <i class="fas fa-wrench mr-1"></i>
+                                    Maintenance & Support
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Enhanced Stats Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <!-- Currently Checked In Card -->
                         <div
                             class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
@@ -659,6 +693,34 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Purpose Breakdown Card -->
+                        <div
+                            class="group relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full -mr-12 -mt-12 opacity-50 group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-base mb-3">Purpose Breakdown</p>
+                                    <p class="font-bold text-4xl text-gray-900 mb-2" id="purposeBreakdownCount">0</p>
+                                    <div class="flex items-center gap-3">
+                                        <span
+                                            class="inline-flex items-center px-3 py-2 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                                            <i class="fas fa-chart-pie mr-2"></i>
+                                            Categories
+                                        </span>
+                                        <button id="purposeBreakdownBtn" class="text-sm text-brand-primary hover:text-brand-primary-hover font-medium">
+                                            View Details →
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="fas fa-chart-pie text-white text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Recent Check-Ins Table -->
@@ -684,7 +746,16 @@
                                             Host</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Check-In Date</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Check-In Time</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Duration</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Purpose</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status</th>
@@ -724,14 +795,39 @@
                                                             $__fmtTime = \Carbon\Carbon::createFromFormat('H:i', $__rawTime)->format('g:i A');
                                                         } catch (\Exception $e) {
                                                             try {
-                                                                $__fmtTime = \Carbon\Carbon::createFromFormat('H:i:s', $__rawTime)->format('g:i A');
+                                                                $__fmtTime = \Carbon\Carbon::createFromFormat('H:i:s', $__rawTime)->format('g:i:s A');
                                                             } catch (\Exception $e2) { /* leave as-is */
                                                             }
                                                         }
                                                     }
                                                 @endphp
                                                 <div class="text-sm text-gray-900">{{ $__fmtTime }}</div>
-                                                <div class="text-xs text-gray-500">{{ $v['check_in_date'] ?? '' }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">{{ $v['check_in_date'] }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @php
+                                                try {
+                                                    $checkInDateTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $v['check_in_date'] . ' ' . $v['check_in_time']);
+                                                } catch (\Exception $e) {
+                                                    $checkInDateTime = \Carbon\Carbon::createFromFormat('Y-m-d H:i', $v['check_in_date'] . ' ' . $v['check_in_time']);
+                                                }
+                                                $now = \Carbon\Carbon::now();
+                                                $diff = $checkInDateTime->diff($now);
+                                                $durationText = '';
+                                                if ($diff->h > 0) {
+                                                $durationText .= $diff->h . ' hour' . ($diff->h > 1 ? 's' : '') . ' ';
+                                                }
+                                                if ($diff->i > 0) {
+                                                $durationText .= $diff->i . ' minute' . ($diff->i > 1 ? 's' : '');
+                                                }
+                                                $durationText = trim($durationText);
+                                                @endphp
+                                                <div class="text-sm text-gray-900">{{ $durationText ?: 'Just checked in' }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">{{ $v['purpose'] ?? '—' }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="status-badge status-in-progress">In Progress</span>
@@ -784,8 +880,10 @@
                                                             }
                                                         }
                                                     @endphp
-                                                    <div class="text-sm text-gray-900">{{ $__fmtTime }}</div>
-                                                    <div class="text-xs text-gray-500">{{ $v['check_in_date'] ?? '' }}</div>
+<div class="text-sm text-gray-900">{{ $v['check_in_date'] }} {{ $__fmtTime }}</div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                    <div class="text-sm text-gray-900">{{ $v['purpose'] ?? '—' }}</div>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     @php $st = strtolower($v['status'] ?? 'scheduled'); @endphp
@@ -858,7 +956,19 @@
                                             Host</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Visit Date</th>
+                                            Check-In Date</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Check-In Time</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Check-Out Date</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Check-Out Time</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Purpose</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Duration</th>
@@ -884,7 +994,15 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900">{{ $v['check_in_date'] ?? '' }}</div>
-                                                <div class="text-xs text-gray-500">{{ $v['check_in_time'] ?? '' }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">{{ $v['check_in_time'] ?? '' }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">{{ $v['check_out_date'] ?? '' }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-900">{{ $v['check_out_time'] ?? '' }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900">{{ $v['duration'] ?? '—' }}</div>
@@ -895,7 +1013,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">No
+                                            <td colspan="8" class="px-6 py-10 text-center text-sm text-gray-500">No
                                                 check-outs
                                                 yet.</td>
                                         </tr>
@@ -1039,6 +1157,16 @@
                                     class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                                     required>
                             </div>
+                            <div>
+                                <label for="purpose" class="block text-sm font-medium text-gray-700 mb-1">Purpose
+                                    *</label>
+                                <select id="purpose" name="purpose"
+                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                                    required>
+                                    <option value="">Select Purpose...</option>
+                                </select>
+                                <div id="purpose-category-display" class="mt-2"></div>
+                            </div>
                         </div>
                         <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
                             <button id="cancelNewCheckIn" type="button"
@@ -1050,6 +1178,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- Purpose/Breakdown JavaScript -->
+        <script src="{{ asset('js/check-in-out-tracking-purpose.js') }}"></script>
 
         <!-- JavaScript -->
         <script>
@@ -2043,8 +2174,10 @@
             }, 2000); // 2 second delay for better UX
         });
 
-        // Fallback in case window.load doesn't fire properly
+        // Initialize loading screen on page load and set up fallback
         document.addEventListener('DOMContentLoaded', function () {
+            showLoadingScreen();
+            
             // Additional fallback after 5 seconds
             setTimeout(function () {
                 const loadingScreen = document.getElementById('loadingScreen');
@@ -2054,11 +2187,6 @@
                     hideLoadingScreen();
                 }
             }, 5000);
-        });
-
-        // Initialize loading screen on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            showLoadingScreen();
         });
     </script>
 

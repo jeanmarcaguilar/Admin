@@ -1,31 +1,34 @@
 ﻿@php
+    //============================================================================
+    // DATA INITIALIZATION
+    //============================================================================
+
     // Get the authenticated user
     $user = auth()->user();
 
-    // Use the real requests data passed from the route
+    // Initialize request data from route parameters
     $requests = $requests ?? [];
     $pendingCount = $pendingCount ?? 0;
     $externalCount = $externalCount ?? 0;
 
-    // Debug: Log the data we received
-    if (function_exists('logger')) {
-        logger('Blade template - Total requests: ' . count($requests));
-        logger('Blade template - External count: ' . $externalCount);
-        logger('Blade template - Pending count: ' . $pendingCount);
+    //============================================================================
+    // PROCESS REQUEST DATA
+    //============================================================================
+    
+    // Calculate room statistics for training room availability
+    $roomRequests = collect($requests)->where('type', 'room');
+    $occupiedRooms = $roomRequests->where('status', 'approved')->count();
+    $totalRooms = 1; // Single training room
+    $availableRooms = $totalRooms - $occupiedRooms;
+    
+    // Get current room request for details display
+    $currentRoomRequest = $roomRequests->where('status', 'approved')->first();
+    
+    // Get today's room requests for schedule display
+    $todayRoomRequests = $roomRequests->where('date', now()->format('Y-m-d'))->all();
 
         // Log first few requests to see structure
         $sampleRequests = array_slice($requests, 0, 3);
-        foreach ($sampleRequests as $index => $req) {
-            logger("Request $index: " . json_encode([
-                'id' => $req['id'] ?? 'missing',
-                'title' => $req['title'] ?? 'missing',
-                'is_external' => $req['is_external'] ?? false,
-                'booking_code' => $req['booking_code'] ?? 'missing',
-                'location' => $req['location'] ?? 'missing',
-                'facilitator' => $req['facilitator'] ?? 'missing'
-            ]));
-        }
-    }
 @endphp
 
 <!DOCTYPE html>
@@ -405,14 +408,6 @@
                             </svg>
                             Approval Workflow
                         </a>
-                        <a href="{{ route('reservation.history') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                            Reservation History
-                        </a>
                     </div>
                 </div>
 
@@ -605,7 +600,7 @@
             <main class="p-4 sm:p-6">
                 <div class="max-w-7xl mx-auto">
                     <!-- Enhanced Approval Stats Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                         <!-- Total Requests Card -->
                         <div
                             class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300 overflow-hidden">
@@ -723,6 +718,116 @@
                                 <div
                                     class="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-500 text-white flex items-center justify-center shadow-orange-200 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                                     <i class="bx bx-cloud-download text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Room Availability Card -->
+                        <div
+                            class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl border border-gray-100 transition-all duration-300 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 rounded-full bg-green-50 blur-3xl opacity-60 group-hover:opacity-100 transition-opacity">
+                            </div>
+                            <div class="relative flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500 mb-1">Training Room</p>
+                                    <h3 class="text-3xl font-bold text-gray-900">
+                                        @php
+                                            $roomRequests = collect($requests)->where('type', 'room');
+                                            $occupiedRooms = $roomRequests->where('status', 'approved')->count();
+                                            $totalRooms = 1; // Only 1 training room available
+                                            $availableRooms = $totalRooms - $occupiedRooms;
+                                        @endphp
+                                        {{ $availableRooms > 0 ? 'Available' : 'Occupied' }}
+                                    </h3>
+                                    <div
+                                        class="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $availableRooms > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700' }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ $availableRooms > 0 ? 'bg-green-500' : 'bg-red-500' }} mr-1.5"></span>
+                                        {{ $availableRooms > 0 ? 'Ready for Use' : 'Currently in Use' }}
+                                    </div>
+                                </div>
+                                <div
+                                    class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $availableRooms > 0 ? 'from-green-400 to-green-500' : 'from-red-400 to-red-500' }} text-white flex items-center justify-center shadow-{{ $availableRooms > 0 ? 'green' : 'red' }}-200 shadow-lg transform group-hover:scale-110 transition-transform duration-300">
+                                    <i class='{{ $availableRooms > 0 ? "bx bx-door-open" : "bx bx-user" }} text-2xl'></i>
+                                </div>
+                            </div>
+                            
+                            <!-- Expandable Details Section -->
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <button onclick="toggleTrainingRoomDetails()" 
+                                    class="w-full flex items-center justify-between text-sm text-gray-600 hover:text-brand-primary transition-colors duration-200">
+                                    <span class="font-medium">View Details</span>
+                                    <svg id="trainingRoomArrow" class="w-4 h-4 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                
+                                <div id="trainingRoomDetails" class="hidden mt-4 space-y-3 animate-fade-in">
+                                    <!-- Current User Info -->
+                                    @php
+                                        $currentRoomRequest = $roomRequests->where('status', 'approved')->first();
+                                    @endphp
+                                    @if($currentRoomRequest)
+                                        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                                            <div class="flex items-center mb-2">
+                                                <i class="bx bx-user text-green-600 mr-2"></i>
+                                                <span class="text-sm font-semibold text-green-800">Currently Occupied By</span>
+                                            </div>
+                                            <div class="text-sm text-gray-700">
+                                                <p class="mb-1"><strong>User:</strong> {{ $currentRoomRequest['requested_by'] ?? 'N/A' }}</p>
+                                                <p class="mb-1"><strong>Purpose:</strong> {{ $currentRoomRequest['title'] ?? 'N/A' }}</p>
+                                                <p class="mb-1"><strong>Time:</strong> {{ $currentRoomRequest['start_time'] ?? 'N/A' }} - {{ $currentRoomRequest['end_time'] ?? 'N/A' }}</p>
+                                                <p><strong>Date:</strong> {{ \Carbon\Carbon::parse($currentRoomRequest['date'])->format('M d, Y') }}</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                                            <div class="flex items-center mb-2">
+                                                <i class="bx bx-door-open text-blue-600 mr-2"></i>
+                                                <span class="text-sm font-semibold text-blue-800">Room Available</span>
+                                            </div>
+                                            <div class="text-sm text-gray-700">
+                                                <p class="mb-1"><strong>Status:</strong> Ready for booking</p>
+                                                <p class="mb-1"><strong>Capacity:</strong> Up to 30 people</p>
+                                                <p class="mb-1"><strong>Equipment:</strong> Projector, Whiteboard, Sound System</p>
+                                                <p><strong>Location:</strong> Main Building, 2nd Floor</p>
+                                            </div>
+                                        @endif
+                                    
+                                    <!-- Today's Schedule -->
+                                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                        <div class="flex items-center mb-2">
+                                            <i class="bx bx-calendar text-gray-600 mr-2"></i>
+                                            <span class="text-sm font-semibold text-gray-800">Today's Schedule</span>
+                                        </div>
+                                        @php
+                                            $todayRoomRequests = $roomRequests->where('date', now()->format('Y-m-d'))->all();
+                                        @endphp
+                                        @if(count($todayRoomRequests) > 0)
+                                            @foreach($todayRoomRequests as $req)
+                                                <div class="mb-2 pb-2 border-b border-gray-200 last:border-0">
+                                                    <div class="flex justify-between items-start">
+                                                        <div>
+                                                            <span class="font-medium">{{ $req['start_time'] }} - {{ $req['end_time'] }}</span>
+                                                            <span class="ml-2 px-2 py-1 rounded text-xs {{ $req['status'] === 'approved' ? 'bg-green-100 text-green-800' : ($req['status'] === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800') }}">
+                                                                {{ ucfirst($req['status']) }}
+                                                            </span>
+                                                                <span class="font-medium">{{ $req['start_time'] }} - {{ $req['end_time'] }}</span>
+                                                                <span class="ml-2 px-2 py-1 rounded text-xs {{ $req['status'] === 'approved' ? 'bg-green-100 text-green-800' : ($req['status'] === 'pending' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-800') }}">
+                                                                    {{ ucfirst($req['status']) }}
+                                                                </span>
+                                                            </div>
+                                                            <div class="text-right">
+                                                                <div class="text-xs text-gray-500">{{ $req['requested_by'] }}</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            @else
+                                                <p class="text-gray-500 italic">No bookings scheduled for today</p>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1912,13 +2017,33 @@
             const searchInput = document.getElementById('requestSearch');
             if (searchInput) {
                 searchInput.addEventListener('input', function () {
-                    // Get the currently active tab
+                    // Get currently active tab
                     const activeTab = document.querySelector('button[id^="tab-"].bg-white');
                     if (activeTab) {
                         const tabName = activeTab.id.replace('tab-', '');
                         switchTab(tabName);
                     }
                 });
+            }
+
+            // Training Room Details Toggle Function
+            window.toggleTrainingRoomDetails = function() {
+                const detailsSection = document.getElementById('trainingRoomDetails');
+                const arrow = document.getElementById('trainingRoomArrow');
+                
+                if (detailsSection && arrow) {
+                    const isHidden = detailsSection.classList.contains('hidden');
+                    
+                    if (isHidden) {
+                        // Show details
+                        detailsSection.classList.remove('hidden');
+                        arrow.classList.add('rotate-180');
+                    } else {
+                        // Hide details
+                        detailsSection.classList.add('hidden');
+                        arrow.classList.remove('rotate-180');
+                    }
+                }
             }
         </script>
 
