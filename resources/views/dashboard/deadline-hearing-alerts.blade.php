@@ -796,7 +796,6 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button
                                                     class="text-brand-primary hover:text-brand-primary-hover mr-3">Edit</button>
-                                                <button class="text-red-600 hover:text-red-900">Delete</button>
                                             </td>
                                         </tr>
                                     @empty
@@ -1303,7 +1302,6 @@
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <a href="#" class="text-brand-primary hover:text-brand-primary-hover mr-3" title="View"><i class="fas fa-eye"></i></a>
                                 <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" title="Edit"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="text-red-600 hover:text-red-900" title="Delete"><i class="fas fa-trash"></i></a>
                             </td>`;
 
                             const emptyRowCell = tbody.querySelector('tr td[colspan]');

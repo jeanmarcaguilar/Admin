@@ -876,9 +876,6 @@
                                                     data-description="{{ $item->description }}"
                                                     data-responsible="{{ $item->responsible_person }}"
                                                     data-priority="{{ $item->priority }}"><i class="fas fa-edit"></i></a>
-                                                <a href="#" class="deleteComplianceBtn text-red-600 hover:text-red-900"
-                                                    data-tooltip="Delete" data-id="{{ $item->id }}"
-                                                    data-title="{{ $item->title }}"><i class="fas fa-trash"></i></a>
                                             </td>
                                         </tr>
                                     @empty
@@ -915,9 +912,7 @@
                                                 data-tooltip="View"><i class="fas fa-eye"></i></a>
                                             <a href="#" class="text-blue-600 hover:text-blue-900 mr-3"
                                                 data-tooltip="Edit"><i class="fas fa-edit"></i></a>
-                                            <a href="#" class="text-red-600 hover:text-red-900" data-tooltip="Delete"><i
-                                                    class="fas fa-trash"></i></a>
-                                        </td>
+                                                                                    </td>
                                     </tr>
                                     <tr class="table-row">
                                         <td class="px-6 py-4 whitespace-nowrap">
@@ -946,9 +941,7 @@
                                                 data-tooltip="View"><i class="fas fa-eye"></i></a>
                                             <a href="#" class="text-blue-600 hover:text-blue-900 mr-3"
                                                 data-tooltip="Edit"><i class="fas fa-edit"></i></a>
-                                            <a href="#" class="text-red-600 hover:text-red-900" data-tooltip="Delete"><i
-                                                    class="fas fa-trash"></i></a>
-                                        </td>
+                                                                                    </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1647,32 +1640,6 @@
             </div>
         </div>
 
-        <!-- Delete Compliance Modal (moved outside main content) -->
-        <div id="deleteComplianceModal" class="modal hidden" aria-modal="true" role="dialog"
-            aria-labelledby="delete-compliance-modal-title">
-            <div class="bg-white rounded-md shadow-lg w-[360px] max-w-full mx-4" role="document">
-                <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
-                    <h3 id="delete-compliance-modal-title" class="font-semibold text-sm text-gray-900 select-none">
-                        Delete
-                        Compliance</h3>
-                    <button id="closeDeleteComplianceModal" type="button"
-                        class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
-                        aria-label="Close">
-                        <i class="fas fa-times text-xs"></i>
-                    </button>
-                </div>
-                <div class="px-8 pt-6 pb-8 text-center">
-                    <p class="text-xs text-gray-700 mb-4">Are you sure you want to delete <span class="font-semibold"
-                            id="deleteComplianceTitle"></span>?</p>
-                    <div class="flex justify-center space-x-3">
-                        <button type="button" id="cancelDeleteCompliance"
-                            class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
-                        <button type="button" id="confirmDeleteCompliance"
-                            class="bg-red-600 text-white rounded-lg px-4 py-2 text-sm font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-all duration-200">Delete</button>
-                    </div>
-                </div>
-            </div>
-        </div>
         <!-- Profile Modal -->
         <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog"
             aria-labelledby="profile-modal-title">
@@ -2433,15 +2400,17 @@
                    data-description="${compliance.description || ''}" 
                    data-responsible="${compliance.responsible_person || ''}" 
                    data-priority="${compliance.priority || 'Medium'}"><i class="fas fa-eye"></i></a>
-                <a href="#" class="editComplianceBtn text-blue-600 hover:text-blue-900 mr-3" data-tooltip="Edit" 
-                   data-id="${compliance.id}" data-title="${compliance.title}" 
-                   data-type="${compliance.type}" data-status="${compliance.status}" 
-                   data-due-date="${compliance.due_date.split('T')[0]}" 
+                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3" 
+                   data-tooltip="Edit" 
+                   data-id="${compliance.id}" 
+                   data-code="${compliance.code}" 
+                   data-title="${compliance.title}" 
+                   data-type="${compliance.type}" 
+                   data-status="${compliance.status}" 
+                   data-due-date="${compliance.due_date || ''}" 
                    data-description="${compliance.description || ''}" 
                    data-responsible="${compliance.responsible_person || ''}" 
                    data-priority="${compliance.priority || 'Medium'}"><i class="fas fa-edit"></i></a>
-                <a href="#" class="deleteComplianceBtn text-red-600 hover:text-red-900" data-tooltip="Delete" 
-                   data-id="${compliance.id}" data-title="${compliance.title}"><i class="fas fa-trash"></i></a>
             </td>
         `;
                 tbody.insertBefore(tr, tbody.firstChild);
@@ -2474,17 +2443,13 @@
                 localStorage.setItem('compliance_backup', JSON.stringify(existingData));
             }
 
-            // Handle View/Edit/Delete buttons
+            // Handle View/Edit buttons
             const viewComplianceModal = document.getElementById('viewComplianceModal');
             const editComplianceModal = document.getElementById('editComplianceModal');
-            const deleteComplianceModal = document.getElementById('deleteComplianceModal');
             const closeViewComplianceModal = document.getElementById('closeViewComplianceModal');
             const closeViewComplianceModal2 = document.getElementById('closeViewComplianceModal2');
             const closeEditComplianceModal = document.getElementById('closeEditComplianceModal');
             const cancelEditCompliance = document.getElementById('cancelEditCompliance');
-            const closeDeleteComplianceModal = document.getElementById('closeDeleteComplianceModal');
-            const cancelDeleteCompliance = document.getElementById('cancelDeleteCompliance');
-            const confirmDeleteCompliance = document.getElementById('confirmDeleteCompliance');
 
             function openViewModal(data) {
                 document.getElementById('viewComplianceCode').textContent = data.code;
@@ -2512,16 +2477,10 @@
                 editComplianceModal.classList.add('active');
             }
 
-            function openDeleteModal(data) {
-                document.getElementById('deleteComplianceTitle').textContent = data.title;
-                deleteComplianceModal.classList.remove('hidden');
-                deleteComplianceModal.classList.add('active');
-            }
 
             function attachEventListenersToTable() {
                 const viewBtns = document.querySelectorAll('.viewComplianceBtn');
                 const editBtns = document.querySelectorAll('.editComplianceBtn');
-                const deleteBtns = document.querySelectorAll('.deleteComplianceBtn');
 
                 viewBtns.forEach(btn => {
                     btn.replaceWith(btn.cloneNode(true));
@@ -2529,13 +2488,9 @@
                 editBtns.forEach(btn => {
                     btn.replaceWith(btn.cloneNode(true));
                 });
-                deleteBtns.forEach(btn => {
-                    btn.replaceWith(btn.cloneNode(true));
-                });
 
                 const newViewBtns = document.querySelectorAll('.viewComplianceBtn');
                 const newEditBtns = document.querySelectorAll('.editComplianceBtn');
-                const newDeleteBtns = document.querySelectorAll('.deleteComplianceBtn');
 
                 newViewBtns.forEach(btn => btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -2568,13 +2523,6 @@
                         description: d.description
                     });
                 }));
-
-                newDeleteBtns.forEach(btn => btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const d = e.currentTarget.dataset;
-                    openDeleteModal({ id: d.id, title: d.title });
-                }));
             }
 
             // Modal close handlers
@@ -2586,11 +2534,8 @@
             if (cancelEditCompliance) cancelEditCompliance.addEventListener('click', () => closeModal(editComplianceModal));
             if (editComplianceModal) editComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
 
-            if (closeDeleteComplianceModal) closeDeleteComplianceModal.addEventListener('click', () => closeModal(deleteComplianceModal));
-            if (cancelDeleteCompliance) cancelDeleteCompliance.addEventListener('click', () => closeModal(deleteComplianceModal));
-            if (deleteComplianceModal) deleteComplianceModal.querySelector('div').addEventListener('click', (e) => e.stopPropagation());
 
-            // Edit and Delete form submissions
+            // Edit form submissions
             if (document.getElementById('editComplianceForm')) {
                 document.getElementById('editComplianceForm').addEventListener('submit', async (e) => {
                     e.preventDefault();
@@ -2632,51 +2577,6 @@
                             icon: 'error',
                             title: 'Error',
                             text: 'An error occurred while updating the compliance.',
-                            confirmButtonColor: '#2f855a'
-                        });
-                    }
-                });
-            }
-
-            if (confirmDeleteCompliance) {
-                confirmDeleteCompliance.addEventListener('click', async () => {
-                    const id = document.getElementById('deleteComplianceTitle').closest('.modal').querySelector('[data-id]')?.dataset?.id;
-                    if (!id) return;
-
-                    try {
-                        const resp = await fetch('{{ route('compliance.delete') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest',
-                                'Content-Type': 'application/x-www-form-urlencoded'
-                            },
-                            body: new URLSearchParams({ id })
-                        });
-                        const result = await resp.json();
-                        if (result.success) {
-                            closeModal(deleteComplianceModal);
-                            await loadComplianceData();
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Deleted',
-                                text: 'Compliance deleted successfully.',
-                                confirmButtonColor: '#2f855a'
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Failed',
-                                text: result.message || 'Delete failed.',
-                                confirmButtonColor: '#2f855a'
-                            });
-                        }
-                    } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'An error occurred while deleting the compliance.',
                             confirmButtonColor: '#2f855a'
                         });
                     }

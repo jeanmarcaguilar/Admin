@@ -774,9 +774,6 @@
                                                         data-id="{{ $v['id'] ?? '' }}" data-tooltip="Check In"><i
                                                             class="fas fa-sign-in-alt"></i></a>
                                                 @endif
-                                                <a href="#" class="visitorDeleteBtn text-red-600 hover:text-red-900"
-                                                    data-id="{{ $v['id'] ?? '' }}" data-tooltip="Delete"><i
-                                                        class="fas fa-trash"></i></a>
                                             </td>
                                         </tr>
                                     @empty
@@ -968,30 +965,6 @@
         </div>
     </div>
 
-    <!-- Delete Visitor Modal -->
-    <div id="deleteVisitorModal" class="modal hidden" aria-modal="true" role="dialog">
-        <div class="bg-white rounded-lg shadow-lg w-[420px] max-w-full mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-3">
-                <h3 class="font-semibold text-sm text-gray-900">Delete Visitor</h3>
-                <button id="closeDeleteVisitor" type="button"
-                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200"
-                    aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="px-6 pt-5 pb-6">
-                <p class="text-sm text-gray-700 mb-3">Are you sure you want to delete visitor <span id="dvText"
-                        class="font-semibold text-gray-900"></span>?</p>
-                <input type="hidden" id="dvId" />
-                <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancelDeleteVisitor"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="button" id="confirmDeleteVisitor"
-                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Check In Modal -->
     <div id="checkInModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="check-in-modal-title">
@@ -2004,7 +1977,7 @@
             // Modal Management
             const viewVisitorModal = document.getElementById("viewVisitorModal");
             const editVisitorModal = document.getElementById("editVisitorModal");
-            const deleteVisitorModal = document.getElementById("deleteVisitorModal");
+            const deleteVisitorModal = null;
             const checkInModal = document.getElementById("checkInModal");
 
             const qrScannerModal = document.getElementById("qrScannerModal");
@@ -2033,7 +2006,7 @@
             }
 
             function closeAllModals(excludeModal = null) {
-                const allModals = [viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal, qrScannerModal, qrResultModal];
+                const allModals = [viewVisitorModal, editVisitorModal, checkInModal, qrScannerModal, qrResultModal];
                 allModals.forEach(modal => {
                     if (modal && modal !== excludeModal) {
                         closeModal(modal);
@@ -2975,16 +2948,13 @@
         document.getElementById("closeEditVisitor")?.addEventListener("click", () => closeModal(editVisitorModal));
         document.getElementById("cancelEditVisitor")?.addEventListener("click", () => closeModal(editVisitorModal));
 
-        // Delete Visitor Modal
-        document.getElementById("closeDeleteVisitor")?.addEventListener("click", () => closeModal(deleteVisitorModal));
-        document.getElementById("cancelDeleteVisitor")?.addEventListener("click", () => closeModal(deleteVisitorModal));
 
         // Check In Modal
         document.getElementById("closeCheckIn")?.addEventListener("click", () => closeModal(checkInModal));
         document.getElementById("cancelCheckIn")?.addEventListener("click", () => closeModal(checkInModal));
 
         // Close modals when clicking outside (excluding add visitor modal)
-        const modals = [viewVisitorModal, editVisitorModal, deleteVisitorModal, checkInModal]; // Removed addVisitorModal
+        const modals = [viewVisitorModal, editVisitorModal, checkInModal]; // Removed addVisitorModal
         modals.forEach(modal => {
             if (modal) {
                 modal.addEventListener('click', function (e) {
@@ -3008,10 +2978,10 @@
         document.addEventListener("click", async (e) => {
             const vView = e.target.closest(".visitorViewBtn");
             const vEdit = e.target.closest(".visitorEditBtn");
-            const vDel = e.target.closest(".visitorDeleteBtn");
+            const vDel = null;
             const vIn = e.target.closest(".visitorCheckInBtn");
 
-            if (!vView && !vEdit && !vDel && !vIn) return;
+            if (!vView && !vEdit && !vIn) return;
             e.preventDefault();
             const id = (vView || vEdit || vDel || vIn)?.dataset.id;
 
@@ -3045,12 +3015,6 @@
                 return;
             }
 
-            if (vDel) {
-                document.getElementById("dvId").value = id;
-                document.getElementById("dvText").textContent = id;
-                openModal(deleteVisitorModal);
-                return;
-            }
 
             if (vIn) {
                 e.stopPropagation();
@@ -3108,35 +3072,6 @@
                 }
             });
         }
-
-        // Confirm delete
-        document.getElementById("confirmDeleteVisitor")?.addEventListener("click", async () => {
-            const id = document.getElementById("dvId").value;
-            const fd = new FormData();
-            fd.append("id", id);
-
-            try {
-                const res = await fetch(`{{ route('visitor.delete') }}`, {
-                    method: "POST",
-                    headers: { "X-CSRF-TOKEN": csrf, "Accept": "application/json" },
-                    body: fd,
-                });
-
-                if (res.ok) {
-                    closeModal(deleteVisitorModal);
-                    location.reload();
-                } else {
-                    throw new Error("Failed to delete visitor");
-                }
-            } catch (err) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Deletion failed",
-                    text: err.message || "Please try again.",
-                    confirmButtonColor: "#059669",
-                });
-            }
-        });
 
         // Confirm check in
         document.getElementById("confirmCheckIn")?.addEventListener("click", async function () {

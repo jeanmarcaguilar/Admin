@@ -908,10 +908,6 @@ $user = auth()->user();
                                                        data-hearing-time="{{ (function($t){ try { return $t ? \Carbon\Carbon::parse($t)->format('g:i A') : ''; } catch (\Exception $e) { return $t; } })($c['hearing_time'] ?? '') }}">
                                                     <i class="fas fa-edit"></i>
                                                 </button>
-                                                <button class="deleteCaseBtn text-red-600 hover:text-red-800" title="Delete"
-                                                       data-number="{{ $c['number'] }}">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -1177,24 +1173,6 @@ $user = auth()->user();
         </div>
     </div>
 
-    <!-- Delete Case Modal -->
-    <div id="deleteCaseModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="delete-case-title">
-        <div class="bg-white rounded-lg shadow-lg w-[360px] max-w-full mx-4 fade-in" role="document">
-            <div class="flex justify-between items-center border-b border-gray-200 px-6 py-4">
-                <h3 id="delete-case-title" class="font-semibold text-lg text-gray-900">Delete Case</h3>
-                <button id="closeDeleteCaseBtn" class="text-gray-400 hover:text-gray-600 rounded-lg p-2 hover:bg-gray-100 transition-all duration-200" aria-label="Close">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="p-6 text-sm text-gray-700">
-                <p>Are you sure you want to delete case <span class="font-semibold" id="delCaseNumberText">—</span>? This action cannot be undone.</p>
-            </div>
-            <div class="px-6 pb-6 flex justify-end gap-3">
-                <button id="cancelDeleteCaseBtn" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">Cancel</button>
-                <button id="confirmDeleteCaseBtn" class="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700">Delete</button>
-            </div>
-        </div>
-    </div>
 
     <!-- JavaScript -->
     <script>
@@ -1707,24 +1685,11 @@ $user = auth()->user();
                 openModal('editCaseModal');
             }
 
-            // Delete Case Modal handler
-            function openDeleteCaseModal(btn) {
-                if (!btn) return;
-                const number = btn.dataset.number || '';
-                const txtEl = document.getElementById('delCaseNumberText');
-                if (txtEl) txtEl.textContent = number || '—';
-                
-                const confirmBtn = document.getElementById('confirmDeleteCaseBtn');
-                if (confirmBtn) confirmBtn.dataset.number = number || '';
-                
-                openModal('deleteCaseModal');
-            }
 
-            // Event delegation for view, edit, and delete case buttons
+            // Event delegation for view and edit case buttons
             document.addEventListener("click", (e) => {
                 const viewBtn = e.target.closest(".viewCaseBtn");
                 const editBtn = e.target.closest(".editCaseBtn");
-                const delBtn = e.target.closest(".deleteCaseBtn");
                 
                 if (viewBtn) {
                     e.preventDefault();
@@ -1732,9 +1697,6 @@ $user = auth()->user();
                 } else if (editBtn) {
                     e.preventDefault();
                     openEditCaseModal(editBtn);
-                } else if (delBtn) {
-                    e.preventDefault();
-                    openDeleteCaseModal(delBtn);
                 }
             });
 
@@ -1743,50 +1705,7 @@ $user = auth()->user();
             document.getElementById('closeViewCaseBtn2')?.addEventListener('click', () => closeModal('viewCaseModal'));
             document.getElementById('closeEditCaseBtn')?.addEventListener('click', () => closeModal('editCaseModal'));
             document.getElementById('cancelEditCaseBtn')?.addEventListener('click', () => closeModal('editCaseModal'));
-            document.getElementById('closeDeleteCaseBtn')?.addEventListener('click', () => closeModal('deleteCaseModal'));
-            document.getElementById('cancelDeleteCaseBtn')?.addEventListener('click', () => closeModal('deleteCaseModal'));
 
-            // Delete case confirmation
-            document.getElementById('confirmDeleteCaseBtn')?.addEventListener('click', async function() {
-                const number = this.dataset.number || '';
-                if (!number) {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Missing case number to delete.' });
-                    return;
-                }
-                
-                const tokenMeta = document.querySelector('meta[name="csrf-token"]');
-                const csrf = tokenMeta ? tokenMeta.getAttribute('content') : '';
-                const fd = new FormData();
-                fd.append('number', number);
-                fd.append('_token', csrf);
-                
-                // Loading state
-                const original = this.innerHTML;
-                this.disabled = true;
-                this.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Deleting...';
-                
-                try {
-                    const res = await fetch('{{ route("case.delete") }}', {
-                        method: 'POST',
-                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                        body: fd
-                    });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok || data.success === false) {
-                        throw new Error((data && (data.message || data.error)) || 'Failed to delete case');
-                    }
-                    
-                    await Swal.fire({ icon: 'success', title: 'Deleted', text: 'Case has been deleted.', showConfirmButton: false, timer: 1200 });
-                    closeModal('deleteCaseModal');
-                    window.location.reload();
-                } catch(err) {
-                    console.error('Delete failed:', err);
-                    Swal.fire({ icon: 'error', title: 'Error', text: (err && err.message) || 'Failed to delete case. Please try again.' });
-                } finally {
-                    this.disabled = false;
-                    this.innerHTML = original;
-                }
-            });
 
             // Edit case form submission
             const editCaseForm = document.getElementById('editCaseForm');

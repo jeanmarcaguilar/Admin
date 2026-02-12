@@ -898,25 +898,27 @@
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button type="button" onclick='showRequestDetails(@json($request))'
-                                                    class="px-3 py-1.5 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg text-xs font-semibold hover:from-teal-600 hover:to-cyan-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
-                                                    <i class="fas fa-eye mr-1"></i>
-                                                    View
-                                                </button>
-                                                @if($request['status'] === 'pending')
-                                                    <button type="button"
-                                                        onclick="showActionConfirmation('{{ $request['id'] }}', 'approve', {{ $request['is_external'] ?? 'false' }})"
-                                                        class="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-xs font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
-                                                        <i class="fas fa-check-circle mr-1"></i>
-                                                        Approve
+                                                <div class="flex flex-wrap gap-2 justify-end">
+                                                    <button type="button" onclick='showRequestDetails(@json($request))'
+                                                        class="px-3 py-1.5 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg text-xs font-semibold hover:from-teal-600 hover:to-cyan-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 flex items-center">
+                                                        <i class="fas fa-eye mr-1"></i>
+                                                        View
                                                     </button>
-                                                    <button type="button"
-                                                        onclick="showActionConfirmation('{{ $request['id'] }}', 'reject', {{ $request['is_external'] ?? 'false' }})"
-                                                        class="px-3 py-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg text-xs font-semibold hover:from-red-600 hover:to-rose-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 flex items-center">
-                                                        <i class="fas fa-times-circle mr-1"></i>
-                                                        Reject
-                                                    </button>
-                                                @endif
+                                                    @if($request['status'] === 'pending')
+                                                        <button type="button"
+                                                            onclick="showActionConfirmation('{{ $request['id'] }}', 'approve', {{ $request['is_external'] ?? 'false' }})"
+                                                            class="px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg text-xs font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 flex items-center">
+                                                            <i class="fas fa-check-circle mr-1"></i>
+                                                            Approve
+                                                        </button>
+                                                        <button type="button"
+                                                            onclick="showActionConfirmation('{{ $request['id'] }}', 'reject', {{ $request['is_external'] ?? 'false' }})"
+                                                            class="px-3 py-1.5 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-lg text-xs font-semibold hover:from-red-600 hover:to-rose-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 flex items-center">
+                                                            <i class="fas fa-times-circle mr-1"></i>
+                                                            Reject
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </td>
                                         </tr>
                                     @empty
