@@ -352,14 +352,6 @@
                             </svg>
                             Document Upload & Indexing
                         </a>
-                        <a href="{{ route('document.version.control') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                            Version Control
-                        </a>
                         <a href="{{ route('document.access.control.permissions') }}"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
                             <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -397,14 +389,6 @@
 
                 <div id="facilities-submenu" class="submenu mt-1">
                     <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                        <a href="{{ route('room-equipment') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                            Room & Equipment Booking
-                        </a>
                         <a href="{{ route('scheduling.calendar') }}"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
                             <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -816,7 +800,7 @@
                                                     $timeStr = $start12 && $end12 ? ($start12 . ' - ' . $end12) : ($start12 ?: '');
                                                 @endphp
                                                 <div class="text-sm text-gray-900">{{ $dateStr }}</div>
-                                                <div class="text-sm text-gray-500">{{ $timeStr ?: 'â€”' }}</div>
+                                                <div class="text-sm text-gray-500">{{ $timeStr ?: '”' }}</div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 @php
@@ -901,7 +885,7 @@
                                                         <div class="text-gray-700">{{ $note }}</div>
                                                     @endif
                                                 @else
-                                                    <span class="text-gray-400">â€”</span>
+                                                    <span class="text-gray-400">”</span>
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -973,43 +957,43 @@
                 <div class="p-6 space-y-3 text-sm" id="reservationDetailsContent">
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Request ID</div>
-                        <div class="col-span-2 text-gray-900" id="resId">â€”</div>
+                        <div class="col-span-2 text-gray-900" id="resId">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Booking Code</div>
-                        <div class="col-span-2 text-gray-900 font-mono" id="resBookingCode">â€”</div>
+                        <div class="col-span-2 text-gray-900 font-mono" id="resBookingCode">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Title</div>
-                        <div class="col-span-2 text-gray-900 font-semibold" id="resTitle">â€”</div>
+                        <div class="col-span-2 text-gray-900 font-semibold" id="resTitle">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Facility / Type</div>
-                        <div class="col-span-2 text-gray-900" id="resType">â€”</div>
+                        <div class="col-span-2 text-gray-900" id="resType">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Location</div>
-                        <div class="col-span-2 text-gray-900" id="resLocation">â€”</div>
+                        <div class="col-span-2 text-gray-900" id="resLocation">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Date</div>
-                        <div class="col-span-2 text-gray-900" id="resDate">â€”</div>
+                        <div class="col-span-2 text-gray-900" id="resDate">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Time</div>
-                        <div class="col-span-2 text-gray-900" id="resTime">â€”</div>
+                        <div class="col-span-2 text-gray-900" id="resTime">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium">Status</div>
-                        <div class="col-span-2 font-bold" id="resStatus">â€”</div>
+                        <div class="col-span-2 font-bold" id="resStatus">”</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
                         <div class="text-gray-500 font-medium" id="labelRequestedBy">Requested By</div>
-                        <div class="col-span-2 text-gray-900" id="resRequestedBy">â€”</div>
+                        <div class="col-span-2 text-gray-900" id="resRequestedBy"”</div>
                     </div>
                     <div id="facilitatorRow" class="grid grid-cols-3 gap-2 hidden">
                         <div class="text-gray-500 font-medium">Facilitator</div>
-                        <div class="col-span-2 text-gray-900" id="resFacilitator">â€”</div>
+                        <div class="col-span-2 text-gray-900" id="resFacilitator">”</div>
                     </div>
                     <div class="border-t border-gray-100 my-4 pt-4">
                         <div class="text-gray-500 font-medium mb-1">Purpose / Notes</div>
@@ -1274,16 +1258,16 @@
                         e.preventDefault();
                         e.stopPropagation();
 
-                        const id = btn.getAttribute('data-id') || 'â€”';
+                        const id = btn.getAttribute('data-id') || '”';
                         const requestId = btn.getAttribute('data-request-id') || id;
                         const bookingCode = btn.getAttribute('data-booking-code') || 'N/A';
-                        const title = btn.getAttribute('data-title') || 'â€”';
-                        const type = btn.getAttribute('data-type') || 'â€”';
+                        const title = btn.getAttribute('data-title') || '”';
+                        const type = btn.getAttribute('data-type') || '”';
                         const date = btn.getAttribute('data-date') || '';
                         const start = btn.getAttribute('data-start') || '';
                         const end = btn.getAttribute('data-end') || '';
                         const status = btn.getAttribute('data-status') || 'pending';
-                        const requestedBy = btn.getAttribute('data-requested-by') || 'â€”';
+                        const requestedBy = btn.getAttribute('data-requested-by') || '”';
                         const facilitator = btn.getAttribute('data-facilitator') || 'N/A';
                         const location = btn.getAttribute('data-location') || 'N/A';
                         const purpose = btn.getAttribute('data-purpose') || 'No description provided';
@@ -1297,11 +1281,11 @@
                             year: 'numeric',
                             month: 'short',
                             day: '2-digit'
-                        }) : 'â€”';
+                        }) : '”';
 
                         const start12 = to12h(start);
                         const end12 = to12h(end);
-                        const timeStr = start12 && end12 ? `${start12} - ${end12}` : (start12 || end12 || 'â€”');
+                        const timeStr = start12 && end12 ? `${start12} - ${end12}` : (start12 || end12 || '”');
                         document.getElementById('resTime').textContent = timeStr;
 
                         const statusElem = document.getElementById('resStatus');

@@ -581,11 +581,28 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
 
                 <!-- Search and Filters -->
                 <div class="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <i class="fas fa-search text-gray-400"></i>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-12 pr-4 py-3" placeholder="Search visitors...">
                         </div>
-                        <input type="text" id="searchInput" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-12 pr-4 py-3" placeholder="Search visitors...">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fas fa-filter text-gray-400"></i>
+                            </div>
+                            <select id="statusFilter" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-12 pr-4 py-3 appearance-none">
+                                <option value="">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="checked_in">Checked In</option>
+                                <option value="checked_out">Checked Out</option>
+                                <option value="scheduled">Scheduled</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -642,7 +659,8 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                                                 $st = strtolower($v['status'] ?? 'scheduled');
                                                 $statusClass = $st === 'checked_in' ? 'status-checked-in' : 
                                                               ($st === 'checked_out' ? 'status-checked-out' : 
-                                                              ($st === 'overdue' ? 'status-overdue' : 'status-expected'));
+                                                              ($st === 'overdue' ? 'status-overdue' : 
+                                                              ($st === 'pending' ? 'status-expected' : 'status-expected')));
                                             @endphp
                                             <span class="status-badge {{ $statusClass }}">
                                                 @if($st === 'checked_in')
@@ -651,6 +669,8 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                                                     <i class='bx bx-log-out mr-1'></i>
                                                 @elseif($st === 'overdue')
                                                     <i class='bx bx-time-five mr-1'></i>
+                                                @elseif($st === 'pending')
+                                                    <i class='bx bx-time mr-1'></i>
                                                 @else
                                                     <i class='bx bx-calendar mr-1'></i>
                                                 @endif
@@ -884,16 +904,45 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
 
             // Search functionality
             const searchInput = document.getElementById('searchInput');
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase();
-                    const rows = document.querySelectorAll('#visitorTable tbody tr');
+            const statusFilter = document.getElementById('statusFilter');
+            
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const statusValue = statusFilter.value.toLowerCase();
+                const rows = document.querySelectorAll('#visitorTable tbody tr');
+                
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    const statusElement = row.querySelector('.status-badge');
+                    // Get the actual status text from the badge and normalize it
+                    const rowStatus = statusElement ? statusElement.textContent.toLowerCase().trim().replace(/\s+/g, '_') : '';
                     
-                    rows.forEach(row => {
-                        const text = row.textContent.toLowerCase();
-                        row.style.display = text.includes(searchTerm) ? '' : 'none';
-                    });
+                    const matchesSearch = text.includes(searchTerm);
+                    
+                    // Handle status matching with normalized values
+                    let matchesStatus = true;
+                    if (statusValue) {
+                        if (statusValue === 'pending') {
+                            matchesStatus = rowStatus === 'pending' || rowStatus === 'expected';
+                        } else if (statusValue === 'checked_in') {
+                            matchesStatus = rowStatus === 'checked_in' || rowStatus === 'checked in';
+                        } else if (statusValue === 'checked_out') {
+                            matchesStatus = rowStatus === 'checked_out' || rowStatus === 'checked out';
+                        } else if (statusValue === 'scheduled') {
+                            matchesStatus = rowStatus === 'scheduled' || rowStatus === 'expected';
+                        }
+                    }
+                    
+                    row.style.display = matchesSearch && matchesStatus ? '' : 'none';
                 });
+            }
+            
+            if (searchInput) {
+                searchInput.addEventListener('input', filterTable);
+            }
+            
+            if (statusFilter) {
+                statusFilter.addEventListener('change', filterTable);
             }
 
             // Export functionality
@@ -988,11 +1037,7 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                             <div class="footer">
                                 <p>This report was generated from the Visitor Management System</p>
                             </div>
-                        
-    @auth
-        @include('partials.session-timeout-modal')
-    @endauth
-</body>
+                        </body>
                         </html>
                     `;
                     
@@ -1021,29 +1066,7 @@ $todayPct = $totalVisitors > 0 ? round(($visitorsToday / $totalVisitors) * 100) 
                 });
             }
 
-            // Status filter buttons
-            const statusButtons = document.querySelectorAll('button:not([id])');
-            statusButtons.forEach(btn => {
-                if (btn.textContent.includes('Checked') || btn.textContent.includes('Expected')) {
-                    btn.addEventListener('click', function() {
-                        const status = this.textContent.toLowerCase();
-                        const rows = document.querySelectorAll('#visitorTable tbody tr');
-                        
-                        rows.forEach(row => {
-                            const rowStatus = row.querySelector('.status-badge').textContent.toLowerCase();
-                            if (status.includes('all') || rowStatus.includes(status)) {
-                                row.style.display = '';
-                            } else {
-                                row.style.display = 'none';
-                            }
-                        });
-                        
-                        // Reset search
-                        if (searchInput) searchInput.value = '';
-                    });
-                }
-            });
-
+            
             // View Visitor Modal
             const viewVisitorModal = document.getElementById("viewVisitorModal");
             const closeViewVisitorBtn = document.getElementById("closeViewVisitorBtn");

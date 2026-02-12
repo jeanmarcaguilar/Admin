@@ -293,7 +293,7 @@
                 class="mt-3 flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📊</span>
                     Dashboard
                 </span>
             </a>
@@ -304,7 +304,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">👥</span>
                     Visitor Management
                 </span>
                 <svg id="visitor-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
@@ -348,7 +348,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📁</span>
                     Document Management
                 </span>
                 <svg id="document-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
@@ -366,14 +366,6 @@
                             </path>
                         </svg>
                         Document Upload & Indexing
-                    </a>
-                    <a href="{{ route('document.version.control') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Version Control
                     </a>
                     <a href="{{ route('document.access.control.permissions') }}"
                         class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
@@ -400,7 +392,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">🏢</span>
                     Facilities Management
                 </span>
                 <svg id="facilities-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300 rotate-180"
@@ -411,14 +403,6 @@
 
             <div id="facilities-submenu" class="submenu mt-1">
                 <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                    <a href="{{ route('room-equipment') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                        <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                        Room & Equipment Booking
-                    </a>
                     <a href="{{ route('scheduling.calendar') }}"
                         class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -452,7 +436,7 @@
                     text-gray-700 hover:bg-green-50 hover:text-brand-primary
                     transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
                 <span class="flex items-center gap-3">
-                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">??</span>
+                    <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">⚖️</span>
                     Legal Management
                 </span>
                 <svg id="legal-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300" fill="none"
@@ -601,10 +585,6 @@
                             <p class="text-gray-600 mt-1">Manage room bookings, calendar events, and integrations</p>
                         </div>
                         <div class="mt-4 md:mt-0 flex space-x-3">
-                            <a href="{{ route('room-equipment') }}"
-                                class="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary-hover transition-colors font-medium flex items-center">
-                                <i class="fas fa-plus mr-2"></i> New Booking
-                            </a>
                             <button id="exportBtn"
                                 class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center">
                                 <i class="fas fa-download mr-2"></i> Export

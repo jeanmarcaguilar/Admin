@@ -312,14 +312,6 @@
                             </svg>
                             Document Upload & Indexing
                         </a>
-                        <a href="{{ route('document.version.control') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                            Version Control
-                        </a>
                         <a href="{{ route('document.access.control.permissions') }}"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-green-50 text-brand-primary font-medium transition-all duration-200 hover:translate-x-1">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -356,14 +348,6 @@
 
                 <div id="facilities-submenu" class="submenu mt-1 hidden">
                     <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                        <a href="{{ route('room-equipment') }}"
-                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                </path>
-                            </svg>
-                            Room & Equipment Booking
-                        </a>
                         <a href="{{ route('scheduling.calendar') }}"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
                             <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
