@@ -609,6 +609,9 @@
                                             Role</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            POV</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Department</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -637,6 +640,37 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="text-sm font-medium text-gray-900">{{ $user->roles }}</span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                @php
+                                                    $povBadge = '';
+                                                    $povText = '';
+                                                    $povIcon = '';
+                                                    
+                                                    $userRole = strtolower($user->role ?? $user->roles ?? '');
+                                                    
+                                                    if($userRole === 'admin' || $userRole === 'administrator') {
+                                                        $povBadge = 'bg-purple-100 text-purple-800';
+                                                        $povText = 'UNLIMITED ACCESS';
+                                                        $povIcon = 'fas fa-infinity';
+                                                    } elseif($userRole === 'manager') {
+                                                        $povBadge = 'bg-blue-100 text-blue-800';
+                                                        $povText = 'Team Management';
+                                                        $povIcon = 'fas fa-users';
+                                                    } elseif($userRole === 'employee') {
+                                                        $povBadge = 'bg-emerald-100 text-emerald-800';
+                                                        $povText = 'Personal Access';
+                                                        $povIcon = 'fas fa-user';
+                                                    } else {
+                                                        $povBadge = 'bg-gray-100 text-gray-600';
+                                                        $povText = 'Limited';
+                                                        $povIcon = 'fas fa-eye-slash';
+                                                    }
+                                                @endphp
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {{ $povBadge }}">
+                                                    <i class="{{ $povIcon }} mr-1"></i>
+                                                    {{ $povText }}
+                                                </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $user->department ?? 'Not Assigned' }}
@@ -672,6 +706,295 @@
                                         class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
                                         Next
                                     </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employee POV Section -->
+                    <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-900">Employee Point of View (POV)</h2>
+                            <p class="text-sm text-gray-500 mt-1">What employees can see and access within the system</p>
+                        </div>
+
+                        <div class="p-6">
+                            <!-- POV Overview Cards -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <!-- Dashboard POV -->
+                                <div class="group relative bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-blue-200 to-blue-300 rounded-full -mr-8 -mt-8 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div class="relative">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md mb-4">
+                                            <i class="fas fa-chart-line text-white text-xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">Dashboard Access</h3>
+                                        <p class="text-sm text-gray-600 mb-4">Personal overview and company announcements</p>
+                                        
+                                        <div class="space-y-2">
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Personal statistics</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Company announcements</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-times-circle text-red-400"></i>
+                                                <span class="text-gray-500">Admin analytics</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Document Management POV -->
+                                <div class="group relative bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-emerald-200 to-teal-200 rounded-full -mr-8 -mt-8 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div class="relative">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md mb-4">
+                                            <i class="fas fa-file-alt text-white text-xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">Document Access</h3>
+                                        <p class="text-sm text-gray-600 mb-4">View and manage assigned documents</p>
+                                        
+                                        <div class="space-y-2">
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">View assigned documents</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Download permitted files</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-times-circle text-red-400"></i>
+                                                <span class="text-gray-500">Upload permissions</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Facilities POV -->
+                                <div class="group relative bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-6 border border-purple-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full -mr-8 -mt-8 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div class="relative">
+                                        <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-md mb-4">
+                                            <i class="fas fa-building text-white text-xl"></i>
+                                        </div>
+                                        <h3 class="text-lg font-bold text-gray-900 mb-2">Facilities Access</h3>
+                                        <p class="text-sm text-gray-600 mb-4">Room and equipment booking</p>
+                                        
+                                        <div class="space-y-2">
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Book meeting rooms</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Request equipment</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-sm">
+                                                <i class="fas fa-times-circle text-red-400"></i>
+                                                <span class="text-gray-500">Approve requests</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Permission Matrix -->
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <h3 class="text-lg font-bold text-gray-900 mb-4">Permission Matrix by Role</h3>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr class="border-b border-gray-200">
+                                                <th class="text-left py-3 px-4 text-sm font-semibold text-gray-700">Module</th>
+                                                <th class="text-center py-3 px-4 text-sm font-semibold text-gray-700">Employee</th>
+                                                <th class="text-center py-3 px-4 text-sm font-semibold text-gray-700">Manager</th>
+                                                <th class="text-center py-3 px-4 text-sm font-semibold text-gray-700">Admin</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-chart-line text-blue-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">Dashboard</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-eye mr-1"></i> View Only
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <i class="fas fa-chart-bar mr-1"></i> Team Stats
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        <i class="fas fa-cog mr-1"></i> Full Access
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-file-alt text-emerald-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">Documents</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-download mr-1"></i> View/Download
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <i class="fas fa-upload mr-1"></i> Upload/Manage
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        <i class="fas fa-shield-alt mr-1"></i> Full Control
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-building text-purple-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">Facilities</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-calendar-plus mr-1"></i> Book/Request
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <i class="fas fa-check-circle mr-1"></i> Approve
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        <i class="fas fa-cogs mr-1"></i> Configure
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-users text-orange-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">Visitor Management</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-user-plus mr-1"></i> Register
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <i class="fas fa-history mr-1"></i> View History
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        <i class="fas fa-user-shield mr-1"></i> Manage All
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-balance-scale text-red-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">Legal & Compliance</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-lock mr-1"></i> No Access
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                        <i class="fas fa-eye mr-1"></i> Limited View
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        <i class="fas fa-gavel mr-1"></i> Full Legal
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Employee Experience Summary -->
+                            <div class="mt-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                                        <i class="fas fa-user-tie text-white text-xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-lg font-bold text-gray-900 mb-2">Employee Experience Summary</h4>
+                                        <p class="text-sm text-gray-600 mb-4">
+                                            Employees have access to essential tools for daily operations while maintaining security and data privacy. 
+                                            The system provides role-based access to ensure users can perform their jobs efficiently without exposure to sensitive information.
+                                        </p>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="bg-white/70 rounded-lg p-3">
+                                                <h5 class="text-sm font-semibold text-gray-900 mb-2">Available to All Employees</h5>
+                                                <ul class="space-y-1 text-xs text-gray-600">
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-check text-green-500"></i>
+                                                        <span>Personal dashboard and profile</span>
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-check text-green-500"></i>
+                                                        <span>View assigned documents</span>
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-check text-green-500"></i>
+                                                        <span>Book facilities and equipment</span>
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-check text-green-500"></i>
+                                                        <span>Register visitors</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div class="bg-white/70 rounded-lg p-3">
+                                                <h5 class="text-sm font-semibold text-gray-900 mb-2">Restricted Access</h5>
+                                                <ul class="space-y-1 text-xs text-gray-600">
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-lock text-red-400"></i>
+                                                        <span>System configuration</span>
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-lock text-red-400"></i>
+                                                        <span>User management</span>
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-lock text-red-400"></i>
+                                                        <span>Legal documents</span>
+                                                    </li>
+                                                    <li class="flex items-center gap-2">
+                                                        <i class="fas fa-lock text-red-400"></i>
+                                                        <span>Financial reports</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

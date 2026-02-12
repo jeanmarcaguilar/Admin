@@ -1040,6 +1040,383 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- User Access Permissions Section -->
+                    <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-900">User Access Permissions</h2>
+                            <p class="text-sm text-gray-500 mt-1">Manage user permissions for approval workflow system</p>
+                        </div>
+
+                        <div class="p-6">
+                            <!-- Permission Overview Cards -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                                <!-- Admin Permissions -->
+                                <div class="group relative bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-4 border border-purple-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-purple-200 to-indigo-200 rounded-full -mr-6 -mt-6 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div class="relative">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md mb-3">
+                                            <i class="fas fa-crown text-white text-lg"></i>
+                                        </div>
+                                        <h4 class="text-base font-bold text-gray-900 mb-2">Administrator</h4>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-infinity text-purple-500"></i>
+                                                <span class="text-gray-700 font-semibold">UNLIMITED ACCESS</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Full system control</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Manage all users</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Approve all requests</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">System settings</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Full data access</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Manager Permissions -->
+                                <div class="group relative bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-4 border border-blue-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-blue-200 to-cyan-200 rounded-full -mr-6 -mt-6 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div class="relative">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-md mb-3">
+                                            <i class="fas fa-user-tie text-white text-lg"></i>
+                                        </div>
+                                        <h4 class="text-base font-bold text-gray-900 mb-2">Manager</h4>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Team requests</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Approve bookings</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-times-circle text-red-400"></i>
+                                                <span class="text-gray-500">System settings</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Employee Permissions -->
+                                <div class="group relative bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-4 border border-emerald-100 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-emerald-200 to-teal-200 rounded-full -mr-6 -mt-6 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div class="relative">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md mb-3">
+                                            <i class="fas fa-user text-white text-lg"></i>
+                                        </div>
+                                        <h4 class="text-base font-bold text-gray-900 mb-2">Employee</h4>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">Submit requests</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">View own requests</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-times-circle text-red-400"></i>
+                                                <span class="text-gray-500">Approve others</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Guest Permissions -->
+                                <div class="group relative bg-gradient-to-br from-gray-50 to-slate-50 rounded-2xl p-4 border border-gray-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                                    <div class="absolute top-0 right-0 w-12 h-12 bg-gradient-to-br from-gray-200 to-slate-200 rounded-full -mr-6 -mt-6 opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                                    <div class="relative">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl flex items-center justify-center shadow-md mb-3">
+                                            <i class="fas fa-user-clock text-white text-lg"></i>
+                                        </div>
+                                        <h4 class="text-base font-bold text-gray-900 mb-2">Guest</h4>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-check-circle text-green-500"></i>
+                                                <span class="text-gray-700">View public info</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-times-circle text-red-400"></i>
+                                                <span class="text-gray-500">Submit requests</span>
+                                            </div>
+                                            <div class="flex items-center gap-2 text-xs">
+                                                <i class="fas fa-times-circle text-red-400"></i>
+                                                <span class="text-gray-500">Access system</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Permission Table -->
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <h3 class="text-lg font-bold text-gray-900 mb-4">Detailed Permission Matrix</h3>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full">
+                                        <thead>
+                                            <tr class="border-b border-gray-200">
+                                                <th class="text-left py-3 px-4 text-sm font-semibold text-gray-700">Module/Feature</th>
+                                                <th class="text-center py-3 px-4 text-sm font-semibold text-gray-700">Admin</th>
+                                                <th class="text-center py-3 px-4 text-sm font-semibold text-gray-700">Manager</th>
+                                                <th class="text-center py-3 px-4 text-sm font-semibold text-gray-700">Employee</th>
+                                                <th class="text-center py-3 px-4 text-sm font-semibold text-gray-700">Guest</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-100">
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-eye text-blue-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">View Dashboard</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-check mr-1"></i> Full
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <i class="fas fa-chart-bar mr-1"></i> Team
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                        <i class="fas fa-user mr-1"></i> Personal
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> None
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-plus-circle text-emerald-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">Submit Requests</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-check mr-1"></i> All
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                        <i class="fas fa-check mr-1"></i> Yes
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                        <i class="fas fa-check mr-1"></i> Own
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> No
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-check-circle text-green-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">Approve Requests</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-gavel mr-1"></i> All
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <i class="fas fa-users mr-1"></i> Team
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> No
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> No
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-history text-orange-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">View History</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <i class="fas fa-globe mr-1"></i> All
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                        <i class="fas fa-users mr-1"></i> Team
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                                        <i class="fas fa-user mr-1"></i> Own
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> No
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="py-3 px-4">
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="fas fa-cog text-purple-500"></i>
+                                                        <span class="text-sm font-medium text-gray-900">System Settings</span>
+                                                    </div>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                                        <i class="fas fa-cogs mr-1"></i> Full
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> No
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> No
+                                                    </span>
+                                                </td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                                                        <i class="fas fa-ban mr-1"></i> No
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Current User Permissions -->
+                            <div class="mt-6 bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-6 border border-indigo-100">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+                                        <i class="fas fa-user-check text-white text-xl"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-lg font-bold text-gray-900 mb-2">Your Current Permissions</h4>
+                                        <div class="bg-white/70 rounded-lg p-4">
+                                            <div class="flex items-center justify-between mb-2">
+                                                <span class="text-sm font-medium text-gray-700">Your Role:</span>
+                                                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-800">
+                                                    {{ ucfirst($user->role) }}
+                                                </span>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
+                                                <div class="flex items-center gap-2 text-sm">
+                                                    @if($user->role === 'admin')
+                                                        <i class="fas fa-crown text-purple-500"></i>
+                                                        <span class="text-gray-700 font-semibold">Full system administration</span>
+                                                    @elseif($user->role === 'manager')
+                                                        <i class="fas fa-check-circle text-green-500"></i>
+                                                        <span class="text-gray-700">Team request management</span>
+                                                    @else
+                                                        <i class="fas fa-check-circle text-green-500"></i>
+                                                        <span class="text-gray-700">Personal request submission</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center gap-2 text-sm">
+                                                    @if($user->role === 'admin')
+                                                        <i class="fas fa-globe text-purple-500"></i>
+                                                        <span class="text-gray-700 font-semibold">Global dashboard access</span>
+                                                    @elseif($user->role === 'manager')
+                                                        <i class="fas fa-chart-bar text-blue-500"></i>
+                                                        <span class="text-gray-700">Team analytics</span>
+                                                    @else
+                                                        <i class="fas fa-user text-emerald-500"></i>
+                                                        <span class="text-gray-700">Personal dashboard</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center gap-2 text-sm">
+                                                    @if($user->role === 'admin')
+                                                        <i class="fas fa-gavel text-purple-500"></i>
+                                                        <span class="text-gray-700 font-semibold">Approve all requests</span>
+                                                    @elseif($user->role === 'manager')
+                                                        <i class="fas fa-check-circle text-green-500"></i>
+                                                        <span class="text-gray-700">Approve team requests</span>
+                                                    @else
+                                                        <i class="fas fa-times-circle text-red-400"></i>
+                                                        <span class="text-gray-500">Cannot approve</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center gap-2 text-sm">
+                                                    @if($user->role === 'admin')
+                                                        <i class="fas fa-history text-purple-500"></i>
+                                                        <span class="text-gray-700 font-semibold">View all history</span>
+                                                    @elseif($user->role === 'manager')
+                                                        <i class="fas fa-users text-blue-500"></i>
+                                                        <span class="text-gray-700">View team history</span>
+                                                    @else
+                                                        <i class="fas fa-user text-emerald-500"></i>
+                                                        <span class="text-gray-700">View own history</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center gap-2 text-sm">
+                                                    @if($user->role === 'admin')
+                                                        <i class="fas fa-cogs text-purple-500"></i>
+                                                        <span class="text-gray-700 font-semibold">System settings</span>
+                                                    @else
+                                                        <i class="fas fa-times-circle text-red-400"></i>
+                                                        <span class="text-gray-500">No system access</span>
+                                                    @endif
+                                                </div>
+                                                <div class="flex items-center gap-2 text-sm">
+                                                    @if($user->role === 'admin')
+                                                        <i class="fas fa-users-cog text-purple-500"></i>
+                                                        <span class="text-gray-700 font-semibold">Manage all users</span>
+                                                    @elseif($user->role === 'manager')
+                                                        <i class="fas fa-user-shield text-blue-500"></i>
+                                                        <span class="text-gray-700">Manage team users</span>
+                                                    @else
+                                                        <i class="fas fa-user-edit text-emerald-500"></i>
+                                                        <span class="text-gray-700">Edit own profile</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
         </div>
