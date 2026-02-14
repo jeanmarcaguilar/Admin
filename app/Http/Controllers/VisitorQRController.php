@@ -1,0 +1,268 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Visitor;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use chillerlan\QRCode\QRCode;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+
+class VisitorController extends Controller
+{
+       /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        // Removed authentication middleware
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function index(Request $request, $uuid)
+    {
+        if ($request->isMethod('get')) {
+            // Check if visitor exists.
+            if (Visitor::where('uuid', $uuid)->first()) {
+                $visitor = Visitor::where('uuid', $uuid)->first();
+
+                return view('visitors.view')->with(['visitor' => $visitor]);
+            } else {
+                return abort(404);
+            }
+        }
+    }
+
+    public function create(Request $request)
+    {
+
+        if ($request->isMethod('post')) {
+
+            $validated = $request->validate([
+                'visitor-name' => ['required', 'string', 'max:255'],
+                'visitor-email' => ['required', 'email', 'max:255'],
+                'visitor-phone' => ['required', 'string', 'max:20'],
+                'visitor-company' => ['required', 'string', 'max:255'],
+                'visitor-purpose' => ['required', 'string', 'max:1000'],
+                'visitor-access-level' => ['required', 'in:standard,vip,contractor,delivery,guest'],
+                'visitor-datetime' => ['required', 'date'],
+            ]);
+
+            $uuid = (string) Str::uuid();
+            $name = $request->input('visitor-name');
+            $email = $request->input('visitor-email');
+            $phone = $request->input('visitor-phone');
+            $company = $request->input('visitor-company');
+            $purpose = $request->input('visitor-purpose');
+            $accessLevel = $request->input('visitor-access-level');
+            $accessDateTime = $request->input('visitor-datetime');
+            $userId = 1; // Static user ID since authentication is removed
+
+            $visitor = Visitor::create([
+                'uuid' => $uuid,
+                'name' => $name,
+                'ic_number' => 'N/A', // Provide default value for required field
+                'vehicle_plate_number' => 'N/A', // Provide default value for required field
+                'email' => $email,
+                'phone' => $phone,
+                'company' => $company,
+                'purpose' => $purpose,
+                'visitor_type' => $accessLevel,
+                'visit_datetime' => $accessDateTime,
+                'added_by' => $userId,
+            ]);
+
+            $request->session()->flash('addVisitorSuccess', 'Visitor successfully added!');
+            $request->session()->flash('qrCode', $visitor->qr);
+            $request->session()->flash('uuid', $uuid);
+            $request->session()->flash('visitor_name', $name);
+            $request->session()->flash('visitor_email', $email);
+            $request->session()->flash('visitor_company', $company);
+            $request->session()->flash('visitor_type', $accessLevel);
+
+            return back();
+        }
+
+        if ($request->isMethod('get')) {
+            return view('visitors.add');
+        }
+    }
+
+    public function edit(Request $request, $uuid)
+    {
+
+        if ($request->isMethod('post')) {
+            // Check if visitor exists.
+            if (Visitor::where('uuid', $uuid)->first()) {
+                $visitor = Visitor::where('uuid', $uuid)->first();
+
+                // Visitor can't be edited if they already checked in.
+                if (!empty($visitor->check_in_date_time_carbon)) {
+                    abort(403, 'Visitor cannot be edited after they checked in!');
+                } else {
+                    $validated = $request->validate([
+                        'visitor-name' => ['required'],
+                        'visitor-ic-number' => ['required'],
+                        'visitor-vehicle-plate-number' => ['required'],
+                        'visitor-datetime' => ['required'],
+                    ]);
+
+                    $name = $request->input('visitor-name');
+                    $icNumber = $request->input('visitor-ic-number');
+                    $plateNumber = $request->input('visitor-vehicle-plate-number');
+                    $accessDateTime = $request->input('visitor-datetime');
+
+                    $visitor = Visitor::where('uuid', $uuid)
+                    ->update([
+                        'uuid' => $uuid,
+                        'name' => $name,
+                        'ic_number' => $icNumber,
+                        'vehicle_plate_number' => $plateNumber,
+                        'visit_datetime' => $accessDateTime,
+                    ]);
+
+                    $request->session()->flash('editVisitorSuccess', 'Visitor details successfully edited!');
+
+                    $request->session()->flash('uuid', $uuid);
+
+                    return back();
+
+                }
+
+            } else {
+                return abort(404);
+            }
+        }
+
+        if ($request->isMethod('get')) {
+
+            // Check if visitor exists.
+            if (Visitor::where('uuid', $uuid)->first()) {
+                $visitor = Visitor::where('uuid', $uuid)->first();
+
+                return view('visitors.edit')->with(['visitor' => $visitor]);
+            } else {
+                return abort(404);
+            }
+
+        }
+    }
+
+    public function delete(Request $request) {
+        if ($request->isMethod('post')) {
+
+            $validated = $request->validate([
+                'delete-visitor-uuid' => ['required', 'uuid'],
+            ]);
+
+            $visitorUuid = $request->input('delete-visitor-uuid');
+            Visitor::destroy($visitorUuid);
+
+            $request->session()->flash('deleteVisitorSuccess', 'Visitor successfully deleted!');
+            $request->session()->flash('uuid', $visitorUuid);
+
+            return back();
+        } else {
+            return redirect()->route('home');
+        }
+    }
+
+    public function checkInVerify(Request $request, $uuid) {
+        if ($request->isMethod('post')) {
+            if (Visitor::where('uuid', $uuid)->first()) {
+
+                $visitor = Visitor::where('uuid', $uuid)->first();
+                // Checks if visitor check in already verified.
+                if (!empty($visitor->check_in_date_time_carbon)) {
+
+                    return redirect()->route('visitors.check.in.verify', ['uuid' => $uuid]);
+
+                } else {
+
+                    $dateTimeNow = Carbon::now();
+
+                    Visitor::where('uuid', $uuid)
+                    ->update([
+                        'check_in_datetime' => $dateTimeNow,
+                        'check_in_verified_by' => 1 // Static user ID
+                    ]);
+
+                    $request->session()->flash('verifyVisitorCheckInSuccess', 'Visitor check in successfully verified!');
+
+                    return back();
+
+                }
+
+            } else {
+                return abort(404);
+            }
+        }
+
+        if ($request->isMethod('get')) {
+            // Check if visitor exists.
+            if (Visitor::where('uuid', $uuid)->first()) {
+                $visitor = Visitor::where('uuid', $uuid)->first();
+
+                return view('visitors.check.in')->with(['visitor' => $visitor]);
+            } else {
+                return abort(404);
+            }
+        }
+    }
+
+    public function checkOutVerify(Request $request, $uuid) {
+        if ($request->isMethod('post')) {
+            if (Visitor::where('uuid', $uuid)->first()) {
+
+                $visitor = Visitor::where('uuid', $uuid)->first();
+                // Checks if visitor check out already verified.
+                if (!empty($visitor->check_out_date_time_carbon)) {
+
+                    return redirect()->route('visitors.check.out.verify', ['uuid' => $uuid]);
+
+                } else {
+                    // Checks if visitor is checked in. If true, continue, if false, return
+                    if (!empty($visitor->check_in_date_time_carbon)) {
+
+                        $dateTimeNow = Carbon::now();
+
+                        Visitor::where('uuid', $uuid)
+                        ->update([
+                            'check_out_datetime' => $dateTimeNow,
+                            'check_out_verified_by' => 1 // Static user ID
+                        ]);
+
+                        $request->session()->flash('verifyVisitorCheckOutSuccess', 'Visitor check out successfully verified!');
+
+                        return back();
+
+                    } else {
+                        return redirect()->route('visitors.check.out.verify', ['uuid' => $uuid]);
+                    }
+                }
+
+            } else {
+                return abort(404);
+            }
+        }
+
+        if ($request->isMethod('get')) {
+            // Check if visitor exists.
+            if (Visitor::where('uuid', $uuid)->first()) {
+                $visitor = Visitor::where('uuid', $uuid)->first();
+
+                return view('visitors.check.out')->with(['visitor' => $visitor]);
+            } else {
+                return abort(404);
+            }
+        }
+    }
+
+}

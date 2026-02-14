@@ -401,48 +401,14 @@
                             </svg>
                             Case Management
                         </a>
-                        <button id="contract-management-btn"
-                            class="mt-3 w-full flex items-center justify-between px-4 py-3 rounded-xl
-                            text-gray-700 hover:bg-green-50 hover:text-brand-primary
-                            transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold">
-                            <span class="flex items-center gap-3">
-                                <span class="inline-flex w-9 h-9 rounded-lg bg-emerald-50 items-center justify-center">📋</span>
-                                Contract Management
-                            </span>
-                            <svg id="contract-arrow" class="w-4 h-4 text-emerald-400 transition-transform duration-300"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        <a href="{{ route('contract.management') }}"
+                            class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
+                            <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
+                                </path>
                             </svg>
-                        </button>
-
-                        <div id="contract-submenu" class="submenu mt-1">
-                            <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-                                <a href="{{ route('contract.management') }}?category=employee"
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                        </path>
-                                    </svg>
-                                    Employee Contract
-                                </a>
-                                <a href="{{ route('contract.management') }}?category=vendors"
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                                    <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                        </path>
-                                    </svg>
-                                    Vendors
-                                </a>
-                                <a href="{{ route('contract.management') }}?category=partnership"
-                                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
-                                    <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7">
-                                        </path>
-                                    </svg>
-                                    Partnership
-                                </a>
-                            </div>
-                        </div>
+                            Contract Management
+                        </a>
                         <a href="{{ route('compliance.tracking') }}"
                             class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1">
                             <svg class="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -616,23 +616,6 @@
                                 <p class="text-xs text-lime-700"><strong>Retention:</strong> 5 years</p>
                             </div>
 
-                            <div class="bg-cyan-50 rounded-lg p-3 border border-cyan-200">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <i class="bx bx-laptop text-cyan-600 text-sm"></i>
-                                    <h4 class="font-semibold text-cyan-800 text-sm">IT</h4>
-                                </div>
-                                <p class="text-xs text-cyan-700"><strong>Archive:</strong> 1 year</p>
-                                <p class="text-xs text-cyan-700"><strong>Retention:</strong> 3 years</p>
-                            </div>
-
-                            <div class="bg-pink-50 rounded-lg p-3 border border-pink-200">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="text-sm font-bold">₱</span>
-                                    <h4 class="font-semibold text-pink-800 text-sm">Payroll</h4>
-                                </div>
-                                <p class="text-xs text-pink-700"><strong>Archive:</strong> 2 years</p>
-                                <p class="text-xs text-pink-700"><strong>Retention:</strong> 7 years</p>
-                            </div>
                         </div>
                     </div>
 
@@ -751,30 +734,132 @@
                                     <div class="text-xs text-gray-500">Vendors, purchases</div>
                                 </div>
                             </button>
-                            <button type="button"
-                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                                data-category="it">
+
+                        </div>
+                    </div>
+
+                    <!-- Search and Filters -->
+                    <div class="mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i class="fas fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="searchInput"
+                                class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-brand-primary focus:border-brand-primary block w-full pl-12 pr-4 py-3"
+                                placeholder="Search documents...">
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Document Stats -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <!-- Total Documents Card -->
+                        <div
+                            class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Total Documents</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1" id="totalDocumentsCount">
+                                        {{ count($documents) }}</p>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            <i class="bx bx-file mr-1"></i>
+                                            All Files
+                                        </span>
+                                        <span class="text-xs text-gray-500">Combined</span>
+                                    </div>
+                                </div>
                                 <div
-                                    class="w-10 h-10 rounded-lg bg-cyan-100 text-cyan-700 flex items-center justify-center">
-                                    <i class="bx bx-laptop text-xl"></i>
+                                    class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="bx bx-file text-white text-xl"></i>
                                 </div>
-                                <div>
-                                    <div class="font-semibold text-gray-900">IT</div>
-                                    <div class="text-xs text-gray-500">Software, hardware</div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Uploads Card -->
+                        <div
+                            class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Recent Uploads</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1" id="recentUploadsCount">
+                                        {{ count(array_filter($documents, function ($doc) {
+    $uploadDate = $doc['uploaded'] ?? null;
+    return $uploadDate && strtotime($uploadDate) > strtotime('-7 days');
+})) }}
+                                    </p>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                            <i class="bx bx-time-five mr-1"></i>
+                                            This Week
+                                        </span>
+                                        <span class="text-xs text-gray-500">New</span>
+                                    </div>
                                 </div>
-                            </button>
-                            <button type="button"
-                                class="category-card group bg-white rounded-xl p-5 text-left flex items-start gap-3"
-                                data-category="payroll">
                                 <div
-                                    class="w-10 h-10 rounded-lg bg-pink-100 text-pink-700 flex items-center justify-center">
-                                    <i class="bx bx-money text-xl"></i>
+                                    class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="bx bx-upload text-white text-xl"></i>
                                 </div>
-                                <div>
-                                    <div class="font-semibold text-gray-900">Payroll</div>
-                                    <div class="text-xs text-gray-500">Employee compensation</div>
+                            </div>
+                        </div>
+
+                        <!-- Total Allocated Card -->
+                        <div
+                            class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-50 to-purple-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Total Allocated</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1" id="totalAllocatedAmount">₱0</p>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                            <i class="bx bx-dollar-circle mr-1"></i>
+                                            Approved
+                                        </span>
+                                        <span class="text-xs text-gray-500">Budget</span>
+                                    </div>
                                 </div>
-                            </button>
+                                <div
+                                    class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="bx bx-wallet text-white text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Total Available Card -->
+                        <div
+                            class="group relative bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden">
+                            <div
+                                class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full -mr-10 -mt-10 opacity-50 group-hover:opacity-75 transition-opacity">
+                            </div>
+                            <div class="relative flex justify-between items-start">
+                                <div class="flex-1">
+                                    <p class="text-gray-600 font-semibold text-sm mb-2">Total Available</p>
+                                    <p class="font-bold text-3xl text-gray-900 mb-1" id="totalAvailableAmount">₱0</p>
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                                            <i class="bx bx-pie-chart mr-1"></i>
+                                            Pending
+                                        </span>
+                                        <span class="text-xs text-gray-500">Remaining</span>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                    <i class="bx bx-pie-chart-alt text-white text-xl"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -782,18 +867,18 @@
                     <div class="mt-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                             <div>
-                                <h2 class="text-lg font-semibold text-gray-900">Archived Documents</h2>
-                                <p class="text-sm text-gray-500 mt-1">Manage and review archived documents</p>
+                                <h2 class="text-lg font-semibold text-gray-900">All Documents</h2>
+                                <p class="text-sm text-gray-500 mt-1">Manage and review all documents</p>
                             </div>
                             <div class="flex items-center space-x-2">
-                                <button class="text-sm text-brand-primary hover:text-brand-primary-hover font-medium">
+                                <button id="refreshBtn" class="text-sm text-brand-primary hover:text-brand-primary-hover font-medium">
                                     <i class="fas fa-sync-alt mr-1"></i> Refresh
                                 </button>
                             </div>
                         </div>
 
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
+                            <table id="documentsTable" class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th scope="col"
@@ -808,6 +893,9 @@
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Uploaded</th>
+                                        <th scope="col"
+                                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            Status</th>
                                         <th scope="col"
                                             class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Retention</th>
@@ -835,14 +923,33 @@
                                                 'Payroll' => 'Archive after 2 years - Retain 7 Years',
                                                 default => 'Archive after 6 months - Retain 3 Years'
                                             };
+                                            $docStatus = $doc['status'] ?? 'Active';
+                                            $statusClass = 'bg-green-100 text-green-800';
+                                            $statusIcon = 'bx-check-circle';
+                                            if (strtolower($docStatus) === 'pending') {
+                                                $statusClass = 'bg-yellow-100 text-yellow-800';
+                                                $statusIcon = 'bx-time-five';
+                                            } elseif (strtolower($docStatus) === 'rejected') {
+                                                $statusClass = 'bg-red-100 text-red-800';
+                                                $statusIcon = 'bx-x-circle';
+                                            } elseif (strtolower($docStatus) === 'archived') {
+                                                $statusClass = 'bg-purple-100 text-purple-800';
+                                                $statusIcon = 'bx-archive';
+                                            } elseif (strtolower($docStatus) === 'approved') {
+                                                $statusClass = 'bg-emerald-100 text-emerald-800';
+                                                $statusIcon = 'bx-check-circle';
+                                            }
                                         @endphp
-                                        <tr class="hover:bg-gray-50" data-doc-id="{{ $doc['id'] ?? '' }}">
+                                        <tr class="document-row hover:bg-gray-50" data-category="{{ strtolower($category) }}"
+                                            data-doc-id="{{ $doc['id'] ?? '' }}">
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
                                                     <i class="bx {{ $icon }} text-xl mr-3"></i>
                                                     <div>
                                                         <div class="text-sm font-medium text-gray-900">
-                                                            {{ $doc['name'] ?? 'Unknown Document' }}</div>
+                                                            <span class="doc-name"
+                                                                data-name="{{ $doc['name'] }}">{{ $doc['name'] ?? 'Unknown Document' }}</span>
+                                                        </div>
                                                         <div class="text-xs text-gray-500">
                                                             {{ $doc['size'] ?? 'Unknown size' }}</div>
                                                     </div>
@@ -854,10 +961,17 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span
-                                                    class="px-2 py-1 bg-{{ $category === 'Financial' ? 'blue' : ($category === 'HR' ? 'purple' : ($category === 'Legal' ? 'red' : 'gray')) }}-100 text-{{ $category === 'Financial' ? 'blue' : ($category === 'HR' ? 'purple' : ($category === 'Legal' ? 'red' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ $category }}</span>
+                                                    class="px-2 py-1 bg-{{ $category === 'Financial' ? 'blue' : ($category === 'HR' ? 'purple' : ($category === 'Legal' ? 'red' : 'gray')) }}-100 text-{{ $category === 'Financial' ? 'blue' : ($category === 'HR' ? 'purple' : ($category === 'Legal' ? 'red' : 'gray')) }}-700 text-xs font-medium rounded-full">{{ ucfirst($category) }}</span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {{ $doc['uploaded'] ?? 'Unknown date' }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span
+                                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $statusClass }}">
+                                                    <i class="bx {{ $statusIcon }} mr-1"></i>
+                                                    {{ ucfirst($docStatus) }}
+                                                </span>
+                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $retention }}
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -870,29 +984,45 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="px-6 py-6 text-center text-sm text-gray-500">No archived
-                                                documents available.</td>
+                                            <td colspan="7" class="px-6 py-6 text-center text-sm text-gray-500">No documents
+                                                available.</td>
                                         </tr>
                                     @endforelse
                                 </tbody>
                             </table>
                         </div>
 
-                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                            <div class="flex items-center justify-between">
-                                <div class="text-sm text-gray-500">
-                                    Showing {{ count($documents ?? []) }} archived documents
+                        <!-- Pagination -->
+                        <div class="bg-white px-6 py-4 flex items-center justify-between border-t border-gray-200">
+                            <div class="text-sm text-gray-700">
+                                Showing <span id="paginationStart">1</span> to <span id="paginationEnd">10</span> of
+                                <span id="paginationTotal">{{ count($documents) }}</span> documents
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button id="prevPageBtn"
+                                    class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled>
+                                    <i class="fas fa-chevron-left mr-2"></i>
+                                    Previous
+                                </button>
+                                <div id="paginationNumbers" class="flex space-x-1">
+                                    <!-- Page numbers will be dynamically generated -->
                                 </div>
-                                <div class="flex space-x-2">
-                                    <button
-                                        class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-                                        Previous
-                                    </button>
-                                    <button
-                                        class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-700 hover:bg-gray-50">
-                                        Next
-                                    </button>
-                                </div>
+                                <button id="nextPageBtn"
+                                    class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled>
+                                    Next
+                                    <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                            <div class="mt-4">
+                                <select id="itemsPerPage"
+                                    class="border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-700 focus:ring-2 focus:ring-brand-primary focus:ring-offset-2">
+                                    <option value="5">5 per page</option>
+                                    <option value="10" selected>10 per page</option>
+                                    <option value="20">20 per page</option>
+                                    <option value="50">50 per page</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1216,6 +1346,243 @@
                     });
                 });
             });
+
+            // Global function declaration for financial data fetching
+            window.fetchFinancialData = async function() {
+                try {
+                    console.log('=== FETCHING FINANCIAL DATA ===');
+                    console.log('API URL: https://finance.microfinancial-1.com/api/manage_proposals.php');
+
+                    // Check if table exists first
+                    const table = document.querySelector('#documentsTable');
+                    const tbody = document.querySelector('#documentsTable tbody');
+
+                    if (!table || !tbody) {
+                        console.error('❌ Table not found! #documentsTable or tbody missing');
+                        return;
+                    }
+
+                    console.log('✅ Table found, proceeding with API call');
+
+                    // Use manage_proposals.php endpoint
+                    const response = await fetch('https://finance.microfinancial-1.com/api/manage_proposals.php', {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    });
+
+                    const data = await response.json();
+                    console.log('=== FINANCIAL API RESPONSE ===');
+                    console.log('Full response:', data);
+
+                    // Check if response has the expected structure
+                    if (data && data.success === true && data.data && Array.isArray(data.data)) {
+                        console.log('✅ SUCCESS: Using data.data structure');
+                        console.log('Data count:', data.count);
+                        console.log('Data items:', data.data.length);
+
+                        // Store financial data globally for stats updates
+                        window.financialData = data.data;
+
+                        // Display the data
+                        displayFinancialData(data);
+                    } else {
+                        console.log('❌ API response structure not as expected');
+                        // Fallback: try different response structures
+                        let financialData = null;
+                        if (data && Array.isArray(data)) {
+                            financialData = data;
+                        } else if (data && data.proposals && Array.isArray(data.proposals)) {
+                            financialData = data.proposals;
+                        } else if (data && data.data && Array.isArray(data.data)) {
+                            financialData = data.data;
+                        }
+
+                        if (financialData) {
+                            window.financialData = financialData;
+                            displayFinancialData({ data: financialData });
+                        } else {
+                            console.log('❌ No valid financial data found in response');
+                        }
+                    }
+                } catch (error) {
+                    console.error('=== FINANCIAL API ERROR ===');
+                    console.error('Error fetching financial data:', error);
+                }
+            };
+
+            // Function to display financial data in the table
+            function displayFinancialData(response) {
+                const tbody = document.querySelector('#documentsTable tbody');
+                if (!tbody) return;
+
+                // Clear existing financial data rows
+                const existingFinancialRows = tbody.querySelectorAll('.financial-data-row');
+                existingFinancialRows.forEach(row => row.remove());
+
+                const financialData = response.data || [];
+                console.log('Displaying financial data:', financialData.length, 'items');
+
+                financialData.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'financial-data-row hover:bg-gray-50';
+
+                    // Generate a unique ID for financial proposals
+                    const financialId = `financial_${item.ref_no || index}`;
+
+                    // Determine document type based on amount or other criteria
+                    const amount = parseFloat(item.amount || 0);
+                    const docType = amount > 100000 ? 'Large Proposal' : 'Standard Proposal';
+                    const category = 'financial';
+
+                    // Calculate retention policy
+                    const retention = 'Archive after 6 months - Retain 7 Years';
+
+                    // Status based on the proposal status
+                    const status = item.status || 'Pending';
+                    let statusClass = 'bg-yellow-100 text-yellow-800';
+                    let statusIcon = 'bx-time-five';
+
+                    if (status.toLowerCase().includes('approved')) {
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusIcon = 'bx-check-circle';
+                    } else if (status.toLowerCase().includes('rejected')) {
+                        statusClass = 'bg-red-100 text-red-800';
+                        statusIcon = 'bx-x-circle';
+                    }
+
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <i class="bx bx-money text-green-500 text-xl mr-3"></i>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">
+                                        <span class="doc-name">${item.project || item.title || 'Financial Proposal'}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-500">₱${amount.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">${docType}</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">Financial</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${item.date_posted || item.created_at || 'Unknown'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+                                <i class="bx ${statusIcon} mr-1"></i>
+                                ${status}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${retention}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick='showViewModal(${JSON.stringify({
+                                id: financialId,
+                                name: item.project || item.title || 'Financial Proposal',
+                                type: docType,
+                                category: category,
+                                size: 'Digital',
+                                uploaded: item.date_posted || item.created_at || 'Unknown',
+                                status: status,
+                                amount: amount,
+                                ref_no: item.ref_no,
+                                department: item.department
+                            }).replace(/'/g, "\\'")})'
+                                class="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-lg text-xs font-semibold hover:from-blue-600 hover:to-indigo-600 transition-all duration-200 shadow hover:shadow-md transform hover:-translate-y-0.5 mr-2 flex items-center">
+                                <i class="fas fa-eye mr-1"></i>
+                                View
+                            </button>
+                        </td>
+                    `;
+
+                    tbody.appendChild(row);
+                });
+
+                // Update stats if financial data is loaded
+                if (financialData.length > 0) {
+                    updateStatsWithFinancialData(financialData);
+                }
+
+                console.log('✅ Financial data displayed successfully');
+            }
+
+            // Function to update stats with financial data
+            function updateStatsWithFinancialData(financialData) {
+                const totalDocsElement = document.getElementById('totalDocumentsCount');
+                const recentUploadsElement = document.getElementById('recentUploadsCount');
+                const totalAllocatedElement = document.getElementById('totalAllocatedAmount');
+                const totalAvailableElement = document.getElementById('totalAvailableAmount');
+
+                if (totalDocsElement) {
+                    const currentTotal = parseInt(totalDocsElement.textContent) || 0;
+                    const financialCount = financialData.length;
+                    totalDocsElement.textContent = currentTotal + financialCount;
+                }
+
+                if (recentUploadsElement) {
+                    // Count recent financial proposals (last 7 days)
+                    const recentFinancial = financialData.filter(item => {
+                        const dateStr = item.date_posted || item.created_at;
+                        if (!dateStr) return false;
+                        try {
+                            const itemDate = new Date(dateStr);
+                            const weekAgo = new Date();
+                            weekAgo.setDate(weekAgo.getDate() - 7);
+                            return itemDate >= weekAgo;
+                        } catch (e) {
+                            return false;
+                        }
+                    }).length;
+
+                    const currentRecent = parseInt(recentUploadsElement.textContent) || 0;
+                    recentUploadsElement.textContent = currentRecent + recentFinancial;
+                }
+
+                // Calculate total allocated and available amounts
+                if (totalAllocatedElement || totalAvailableElement) {
+                    let totalAllocated = 0;
+                    let totalAvailable = 0;
+
+                    financialData.forEach(item => {
+                        const amount = parseFloat(item.amount || 0);
+                        totalAllocated += amount;
+                        if (item.status && item.status.toLowerCase().includes('approved')) {
+                            totalAvailable += amount;
+                        }
+                    });
+
+                    if (totalAllocatedElement) {
+                        totalAllocatedElement.textContent = '₱' + totalAllocated.toLocaleString();
+                    }
+                    if (totalAvailableElement) {
+                        totalAvailableElement.textContent = '₱' + totalAvailable.toLocaleString();
+                    }
+                }
+            }
+
+            // Fetch financial data from API
+            if (window.fetchFinancialData) {
+                window.fetchFinancialData();
+            }
+
+            // Refresh button functionality
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    // Refresh the page or reload data
+                    if (window.fetchFinancialData) {
+                        window.fetchFinancialData();
+                    }
+                    // Also reload the page to refresh documents
+                    window.location.reload();
+                });
+            }
         </script>
 
         <!-- View Document Modal -->
@@ -1649,6 +2016,7 @@
             @method('PATCH')
             <div>
               <label for="username" class="block mb-1 font-semibold">Username</label>
+
               <input id="username" name="username" type="text" value="{{ $user->name }}"
                 class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
             </div>
