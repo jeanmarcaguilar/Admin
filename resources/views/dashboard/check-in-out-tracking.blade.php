@@ -534,12 +534,6 @@
                                 <li><button id="openProfileBtn"
                                     class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
                                         class="fas fa-user-circle mr-2"></i> My Profile</button></li>
-                                <li><button id="openAccountSettingsBtn"
-                                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
-                                        class="fas fa-cog mr-2"></i> Account Settings</button></li>
-                                <li><button id="openPrivacySecurityBtn"
-                                    class="w-full text-left flex items-center px-6 py-2 hover:bg-gray-100 focus:outline-none"><i
-                                        class="fas fa-shield-alt mr-2"></i> Privacy & Security</button></li>
                                 <li><button id="openSignOutBtn"
                                     class="w-full text-left flex items-center px-6 py-2 text-red-600 hover:bg-gray-100 focus:outline-none"><i
                                         class="fas fa-sign-out-alt mr-2"></i> Sign Out</button></li>
@@ -1270,16 +1264,6 @@
                 const closeProfileBtn2 = document.getElementById('closeProfileBtn2');
                 const profileModal = document.getElementById('profileModal');
 
-                const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
-                const closeAccountSettingsBtn = document.getElementById('closeAccountSettingsBtn');
-                const cancelAccountSettingsBtn = document.getElementById('cancelAccountSettingsBtn');
-                const accountSettingsModal = document.getElementById('accountSettingsModal');
-
-                const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
-                const closePrivacySecurityBtn = document.getElementById('closePrivacySecurityBtn');
-                const cancelPrivacySecurityBtn = document.getElementById('cancelPrivacySecurityBtn');
-                const privacySecurityModal = document.getElementById('privacySecurityModal');
-
                 const openSignOutBtn = document.getElementById('openSignOutBtn');
                 const cancelSignOutBtn = document.getElementById('cancelSignOutBtn');
                 const cancelSignOutBtn2 = document.getElementById('cancelSignOutBtn2');
@@ -1303,48 +1287,6 @@
                 if (closeProfileBtn2) {
                     closeProfileBtn2.addEventListener('click', () => {
                         profileModal.classList.remove('active');
-                    });
-                }
-
-                // Account settings modal
-                if (openAccountSettingsBtn) {
-                    openAccountSettingsBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        accountSettingsModal.classList.add('active');
-                        userMenuDropdown.classList.add('hidden');
-                    });
-                }
-
-                if (closeAccountSettingsBtn) {
-                    closeAccountSettingsBtn.addEventListener('click', () => {
-                        accountSettingsModal.classList.remove('active');
-                    });
-                }
-
-                if (cancelAccountSettingsBtn) {
-                    cancelAccountSettingsBtn.addEventListener('click', () => {
-                        accountSettingsModal.classList.remove('active');
-                    });
-                }
-
-                // Privacy & security modal
-                if (openPrivacySecurityBtn) {
-                    openPrivacySecurityBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        privacySecurityModal.classList.add('active');
-                        userMenuDropdown.classList.add('hidden');
-                    });
-                }
-
-                if (closePrivacySecurityBtn) {
-                    closePrivacySecurityBtn.addEventListener('click', () => {
-                        privacySecurityModal.classList.remove('active');
-                    });
-                }
-
-                if (cancelPrivacySecurityBtn) {
-                    cancelPrivacySecurityBtn.addEventListener('click', () => {
-                        privacySecurityModal.classList.remove('active');
                     });
                 }
 
@@ -1373,12 +1315,6 @@
                 window.addEventListener('click', (e) => {
                     if (profileModal && !profileModal.contains(e.target) && openProfileBtn && !openProfileBtn.contains(e.target)) {
                         profileModal.classList.remove('active');
-                    }
-                    if (accountSettingsModal && !accountSettingsModal.contains(e.target) && openAccountSettingsBtn && !openAccountSettingsBtn.contains(e.target)) {
-                        accountSettingsModal.classList.remove('active');
-                    }
-                    if (privacySecurityModal && !privacySecurityModal.contains(e.target) && openPrivacySecurityBtn && !openPrivacySecurityBtn.contains(e.target)) {
-                        privacySecurityModal.classList.remove('active');
                     }
                     if (signOutModal && !signOutModal.contains(e.target)) {
                         signOutModal.classList.remove('active');

@@ -491,7 +491,7 @@
                             </script>
                             <button id="addVisitorBtn"
                                 class="inline-flex items-center bg-brand-primary hover:bg-brand-primary-hover text-white font-medium rounded-lg px-4 py-2.5 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-primary">
-                                <i class="fas fa-qrcode mr-2"></i> Register Visitor with QR
+                                <i class="fas fa-user-plus mr-2"></i> Register Visitor
                             </button>
                         </div>
                     </div>
@@ -1696,30 +1696,30 @@
                 addVisitorBtn.removeEventListener('click', window.openAddVisitorModal);
                 // Add the correct listener
                 addVisitorBtn.addEventListener('click', () => {
-                    if (typeof openQRScannerDirect === 'function') {
-                        openQRScannerDirect();
+                    if (typeof openAddVisitorModal === 'function') {
+                        openAddVisitorModal();
                     }
                 });
             }
 
-            // QR Form submission
-            const qrForm = document.getElementById('qrVisitorForm');
-            if (qrForm) {
-                qrForm.addEventListener('submit', function (e) {
+            // Visitor Form submission
+            const visitorForm = document.getElementById('visitorForm');
+            if (visitorForm) {
+                visitorForm.addEventListener('submit', function (e) {
                     e.preventDefault();
-                    if (typeof generateQRVisitorCode === 'function') {
-                        generateQRVisitorCode();
+                    if (typeof addVisitor === 'function') {
+                        addVisitor();
                     }
                 });
             }
 
             // Close modal when clicking outside
-            const modal = document.getElementById('qrRegistrationModal');
+            const modal = document.getElementById('addVisitorModal');
             if (modal) {
                 modal.addEventListener('click', function (e) {
                     if (e.target === modal) {
-                        if (typeof closeQRRegistrationModal === 'function') {
-                            closeQRRegistrationModal();
+                        if (typeof closeAddVisitorModal === 'function') {
+                            closeAddVisitorModal();
                         }
                     }
                 });
@@ -3126,180 +3126,128 @@
         }); // End of main DOMContentLoaded listener
     </script>
 
-    <!-- QR Registration Modal -->
-    <div id="qrRegistrationModal" class="modal">
+    <!-- Visitor Registration Modal -->
+    <div id="addVisitorModal" class="modal">
         <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full mx-4 max-h-[75vh] overflow-y-auto">
             <!-- Modal Header -->
-            <div
-                class="bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 px-6 py-5 rounded-t-2xl shadow-2xl relative overflow-hidden">
+            <div class="bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 px-6 py-5 rounded-t-2xl shadow-2xl relative overflow-hidden">
                 <!-- Background Pattern -->
                 <div class="absolute inset-0 opacity-10">
-                    <div
-                        class="absolute top-0 left-0 w-32 h-32 bg-emerald-400 rounded-full blur-3xl -translate-x-16 -translate-y-16">
-                    </div>
-                    <div class="absolute top-4 right-4 w-24 h-24 bg-cyan-400 rounded-full blur-2xl"></div>
-                    <div class="absolute bottom-0 right-0 w-16 h-16 bg-teal-400 rounded-full blur-xl"></div>
+                    <div class="absolute top-0 left-0 w-32 h-32 bg-blue-400 rounded-full blur-3xl -translate-x-16 -translate-y-16"></div>
+                    <div class="absolute top-4 right-4 w-24 h-24 bg-purple-400 rounded-full blur-2xl"></div>
+                    <div class="absolute bottom-0 right-0 w-16 h-16 bg-indigo-400 rounded-full blur-xl"></div>
                 </div>
 
                 <div class="relative flex items-center justify-between">
                     <div class="flex items-center">
-                        <div
-                            class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
-                            <i class="fas fa-qrcode text-emerald-600 text-lg"></i>
+                        <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center mr-4">
+                            <i class="fas fa-user-plus text-blue-600 text-lg"></i>
                         </div>
                         <div>
-                            <h3 class="text-2xl font-bold text-white flex items-center tracking-wide">QR Visitor
-                                Registration</h3>
-                            <p class="text-emerald-100 text-sm font-medium mt-1">Generate instant access passes</p>
+                            <h3 class="text-2xl font-bold text-white flex items-center tracking-wide">Add Visitor</h3>
+                            <p class="text-blue-100 text-sm font-medium mt-1">Register new visitor</p>
                         </div>
                     </div>
-                    <button onclick="closeQRRegistrationModal()"
-                        class="text-white/90 hover:text-white transition-all duration-300 transform hover:scale-110 p-2 rounded-xl hover:bg-white/20">
+                    <button onclick="closeAddVisitorModal()"
+                        class="text-white/80 hover:text-white rounded-xl p-2 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-200"
+                        aria-label="Close">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Modal Body -->
-            <div class="p-3">
-                <form id="qrVisitorForm" class="space-y-2">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div class="p-6">
+                <form id="visitorForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <div class="relative">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                    <i class="fas fa-user text-emerald-500 mr-2"></i>
-                                    First Name
-                                </label>
-                                <input type="text" id="qrFirstName" required
-                                    class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400">
-                            </div>
-                        </div>
-                        <div class="relative">
                             <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                                <i class="fas fa-user text-emerald-500 mr-2"></i>
+                                <i class="fas fa-user text-blue-500 mr-2"></i>
+                                First Name
+                            </label>
+                            <input type="text" id="firstName" required
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-user text-blue-500 mr-2"></i>
                                 Last Name
                             </label>
-                            <input type="text" id="qrLastName" required
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400">
+                            <input type="text" id="lastName" required
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400">
                         </div>
                     </div>
 
-                    <div class="relative">
+                    <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-envelope text-emerald-500 mr-2"></i>
+                            <i class="fas fa-envelope text-blue-500 mr-2"></i>
                             Email Address
                         </label>
-                        <input type="email" id="qrEmail" required
-                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400">
+                        <input type="email" id="email" required
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400">
                     </div>
 
-                    <div class="relative">
+                    <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-phone text-emerald-500 mr-2"></i>
+                            <i class="fas fa-phone text-blue-500 mr-2"></i>
                             Phone Number
                         </label>
-                        <input type="tel" id="qrPhone"
-                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400"
+                        <input type="tel" id="phone"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400"
                             placeholder="+63 917 1234 5678">
                     </div>
 
-                    <div class="relative">
+                    <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-building text-emerald-500 mr-2"></i>
+                            <i class="fas fa-building text-blue-500 mr-2"></i>
                             Company/Organization
                         </label>
-                        <input type="text" id="qrCompany"
-                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400">
+                        <input type="text" id="company"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400">
                     </div>
 
-                    <div class="relative">
+                    <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
-                            <i class="fas fa-comment-alt text-emerald-500 mr-2"></i>
+                            <i class="fas fa-comment-alt text-blue-500 mr-2"></i>
                             Purpose of Visit
                         </label>
-                        <textarea id="qrPurpose" rows="3"
-                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400 resize-none"></textarea>
+                        <textarea id="purpose" rows="3"
+                            class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400 resize-none"></textarea>
                     </div>
-
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Access Level</label>
-                            <select id="qrAccessLevel"
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400">
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-shield-alt text-blue-500 mr-2"></i>
+                                Access Level
+                            </label>
+                            <select id="accessLevel"
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400">
                                 <option value="standard">Standard</option>
                                 <option value="vip">VIP</option>
                                 <option value="restricted">Restricted Areas</option>
                             </select>
                         </div>
-                        <div class="relative">
-                            <label class="block text-sm font-medium text-gray-700 mb-1 flex items-center">
-                                <i class="fas fa-calendar text-emerald-500 mr-2"></i>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2 flex items-center">
+                                <i class="fas fa-calendar text-blue-500 mr-2"></i>
                                 Visit Date
                             </label>
-                            <input type="date" id="qrVisitDate" required
-                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:ring-offset-2 transition-all duration-300 hover:border-emerald-400"
-                                placeholder="Select date">
-                        </div>
-                    </div>
-
-                    <!-- QR Code Display -->
-                    <div id="qrDisplaySection" class="hidden">
-                        <div class="border-t border-gray-200 pt-6">
-                            <h4 class="text-lg font-bold text-gray-800 mb-4 text-center flex items-center">
-                                <i class="fas fa-qrcode text-emerald-500 mr-2"></i>
-                                Generated QR Code
-                            </h4>
-                            <div class="flex justify-center mb-4">
-                                <div id="qrCodeDisplay"
-                                    class="bg-white p-6 rounded-2xl border-2 border-gray-800 shadow-lg relative overflow-hidden">
-                                    <!-- High contrast background for better scanning -->
-                                    <div class="absolute inset-0 bg-white"></div>
-                                </div>
-                            </div>
-                            <div class="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-xl p-4 text-center">
-                                <div class="text-sm text-gray-600 mb-2">
-                                    <strong>Visitor ID:</strong> <span id="qrVisitorId"
-                                        class="font-mono font-semibold text-emerald-600"></span>
-                                </div>
-                                <div class="text-sm text-gray-600 mb-2">
-                                    <strong>Name:</strong> <span id="qrVisitorName"
-                                        class="font-semibold text-gray-800"></span>
-                                </div>
-                                <div class="text-sm text-gray-600 mb-2">
-                                    <strong>Access Level:</strong> <span id="qrAccessLevel"
-                                        class="font-semibold px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs"></span>
-                                </div>
-                                <div class="text-sm text-gray-600">
-                                    <strong>Valid Until:</strong> <span id="qrValidDate"
-                                        class="font-semibold text-gray-800"></span>
-                                </div>
-                            </div>
-                            <div class="flex gap-3 justify-center mt-4">
-                                <button type="button" onclick="downloadQRCode()"
-                                    class="flex-1 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 font-medium py-3 px-4 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg border border-gray-200">
-                                    <i class="fas fa-download mr-2"></i>
-                                    Download
-                                </button>
-                                <button type="button" onclick="printQRCode()"
-                                    class="flex-1 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 font-medium py-3 px-4 rounded-xl transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg border border-gray-200">
-                                    <i class="fas fa-printer mr-2"></i>
-                                    Print
-                                </button>
-                            </div>
+                            <input type="date" id="visitDate" required
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:ring-offset-2 transition-all duration-300 hover:border-blue-400">
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex gap-3 pt-4 border-t border-gray-200">
-                        <button type="button" onclick="closeQRRegistrationModal()"
+                        <button type="button" onclick="closeAddVisitorModal()"
                             class="flex-1 py-3 text-center text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-all duration-300 transform hover:scale-105">
                             Cancel
                         </button>
                         <button type="submit"
-                            class="flex-1 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 rounded-xl shadow-lg hover:shadow-xl hover:from-emerald-600 hover:via-teal-500 hover:to-cyan-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5">
-                            <i class="fas fa-qrcode mr-2"></i>
-                            Generate QR Code
+                            class="flex-1 py-3 text-sm font-bold text-white bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl shadow-lg hover:shadow-xl hover:from-blue-600 hover:via-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:-translate-y-0.5">
+                            <i class="fas fa-user-plus mr-2"></i>
+                            Add Visitor
                         </button>
                     </div>
                 </form>
@@ -3308,39 +3256,37 @@
     </div>
 
     <script>
-        // QR Registration Modal Functions
-        function openQRRegistrationModal() {
-            const modal = document.getElementById('qrRegistrationModal');
+        // Visitor Registration Modal Functions
+        function openAddVisitorModal() {
+            const modal = document.getElementById('addVisitorModal');
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
 
             // Set today's date as default
-            document.getElementById('qrVisitDate').valueAsDate = new Date();
+            document.getElementById('visitDate').valueAsDate = new Date();
         }
 
-        function closeQRRegistrationModal() {
-            const modal = document.getElementById('qrRegistrationModal');
+        function closeAddVisitorModal() {
+            const modal = document.getElementById('addVisitorModal');
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
-            resetQRForm();
+            resetVisitorForm();
         }
 
-        function resetQRForm() {
-            document.getElementById('qrVisitorForm').reset();
-            document.getElementById('qrVisitDate').valueAsDate = new Date();
-            document.getElementById('qrDisplaySection').classList.add('hidden');
-            document.getElementById('qrCodeDisplay').innerHTML = '';
+        function resetVisitorForm() {
+            document.getElementById('visitorForm').reset();
+            document.getElementById('visitDate').valueAsDate = new Date();
         }
 
-        function generateQRVisitorCode() {
-            const firstName = document.getElementById('qrFirstName').value;
-            const lastName = document.getElementById('qrLastName').value;
-            const email = document.getElementById('qrEmail').value;
-            const phone = document.getElementById('qrPhone').value;
-            const company = document.getElementById('qrCompany').value;
-            const accessLevel = document.getElementById('qrAccessLevel').value;
-            const visitDate = document.getElementById('qrVisitDate').value;
-            const purpose = document.getElementById('qrPurpose').value;
+        function addVisitor() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const company = document.getElementById('company').value;
+            const accessLevel = document.getElementById('accessLevel').value;
+            const visitDate = document.getElementById('visitDate').value;
+            const purpose = document.getElementById('purpose').value;
 
             const formData = {
                 first_name: firstName,
@@ -3364,20 +3310,23 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Save QR code to database
-                        saveQRCodeToDatabase(data.visitor.id, data.visitor);
-                        displayQRCode(data.visitor);
+                        closeAddVisitorModal();
                         Swal.fire({
                             icon: 'success',
-                            title: 'QR Code Generated',
-                            text: 'Visitor QR code has been generated and saved!',
-                            confirmButtonColor: '#059669'
+                            title: 'Visitor Added',
+                            text: 'Visitor has been registered successfully!',
+                            confirmButtonColor: '#3b82f6'
                         });
+                        
+                        // Refresh the visitor list
+                        if (typeof initializeVisitorsData === 'function') {
+                            initializeVisitorsData();
+                        }
                     } else {
                         Swal.fire({
                             icon: 'error',
                             title: 'Registration Failed',
-                            text: data.message || 'Failed to generate QR code',
+                            text: data.message || 'Failed to add visitor',
                             confirmButtonColor: '#dc2626'
                         });
                     }

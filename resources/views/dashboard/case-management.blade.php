@@ -1273,18 +1273,43 @@ $user = auth()->user();
 
             // Profile dropdown buttons functionality
             const openProfileBtn = document.getElementById('openProfileBtn');
+            const closeProfileBtn = document.getElementById('closeProfileBtn');
+            const closeProfileBtn2 = document.getElementById('closeProfileBtn2');
+            const profileModal = document.getElementById('profileModal');
             const openAccountSettingsBtn = document.getElementById('openAccountSettingsBtn');
             const openPrivacySecurityBtn = document.getElementById('openPrivacySecurityBtn');
             const openSignOutBtn = document.getElementById('openSignOutBtn');
+            const cancelSignOutBtn = document.getElementById('cancelSignOutBtn');
+            const signOutModal = document.getElementById('signOutModal');
 
+            // Profile modal
             if (openProfileBtn) {
                 openProfileBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                     setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
-                    // Add profile modal functionality here if needed
+                    profileModal.classList.add('active');
                 });
             }
+
+            if (closeProfileBtn) {
+                closeProfileBtn.addEventListener('click', () => {
+                    profileModal.classList.remove('active');
+                });
+            }
+
+            if (closeProfileBtn2) {
+                closeProfileBtn2.addEventListener('click', () => {
+                    profileModal.classList.remove('active');
+                });
+            }
+
+            // Close profile modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (profileModal && !profileModal.contains(e.target) && openProfileBtn && !openProfileBtn.contains(e.target)) {
+                    profileModal.classList.remove('active');
+                }
+            });
 
             if (openAccountSettingsBtn) {
                 openAccountSettingsBtn.addEventListener('click', (e) => {
@@ -1309,17 +1334,14 @@ $user = auth()->user();
                     e.stopPropagation();
                     userMenuDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
                     setTimeout(() => userMenuDropdown.classList.add("hidden"), 200);
-                    // Submit logout form
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '{{ route("logout") }}';
-                    const csrfToken = document.createElement('input');
-                    csrfToken.type = 'hidden';
-                    csrfToken.name = '_token';
-                    csrfToken.value = '{{ csrf_token() }}';
-                    form.appendChild(csrfToken);
-                    document.body.appendChild(form);
-                    form.submit();
+                    signOutModal.classList.add('active');
+                });
+            }
+
+            if (cancelSignOutBtn) {
+                cancelSignOutBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    signOutModal.classList.remove('active');
                 });
             }
 
@@ -1489,6 +1511,9 @@ $user = auth()->user();
                     }, 300);
                 }
             }
+
+            // Make closeModal function globally accessible
+            window.closeModal = closeModal;
 
             // Close modals when clicking outside
             document.addEventListener('click', function(e) {
@@ -1830,5 +1855,97 @@ $user = auth()->user();
     @auth
         @include('partials.session-timeout-modal')
     @endauth
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
+        <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4" role="document">
+            <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+                <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
+                <button id="closeProfileBtn" type="button"
+                    class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
+                    aria-label="Close">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+            <div class="px-8 pt-6 pb-8">
+                <div class="flex flex-col items-center mb-4">
+                    <div class="bg-[#28644c] rounded-full w-20 h-20 flex items-center justify-center mb-3">
+                        <i class="fas fa-user text-white text-3xl"></i>
+                    </div>
+                    <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
+                    <p class="text-xs text-gray-500 leading-4">{{ ucfirst($user->role) }}</p>
+                </div>
+                <form class="space-y-4" action="{{ route('profile.update') }}" method="POST">
+                    @csrf
+                    @method('PATCH')
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="nameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Full Name</label>
+                            <input id="nameProfile" name="name" type="text" value="{{ old('name', $user->name) }}"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                        </div>
+                        <div>
+                            <label for="usernameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Username</label>
+                            <input id="usernameProfile" name="username" type="text" value="{{ old('username', $user->username) }}"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                        </div>
+                        <div>
+                            <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+                            <input id="emailProfile" name="email" type="email" value="{{ old('email', $user->email) }}"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                        </div>
+                        <div>
+                            <label for="phoneProfile" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
+                            <input id="phoneProfile" name="phone" type="text" value="{{ old('phone', $user->phone) }}"
+                                placeholder="+63 9xx xxx xxxx"
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+                        </div>
+                        <div>
+                            <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
+                            <input id="department" type="text" value="Administrative" readonly
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+                        </div>
+                        <div>
+                            <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
+                            <input id="location" type="text" value="Manila, Philippines" readonly
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+                        </div>
+                        <div>
+                            <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
+                            <input id="joined" type="text" value="{{ $user->created_at->format('F d, Y') }}" readonly
+                                class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-3 pt-2">
+                        <button id="closeProfileBtn2" type="button"
+                            class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+                        <button type="submit"
+                            class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Save
+                            Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sign Out Modal -->
+    <div id="signOutModal" class="modal hidden" aria-modal="true" role="dialog">
+        <div class="bg-white rounded-lg shadow-lg w-[400px] max-w-full mx-4 fade-in" role="document">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                    <i class="fas fa-sign-out-alt text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">Sign Out</h3>
+                <p class="text-sm text-gray-600 text-center mb-6">Are you sure you want to sign out of your account?</p>
+            </div>
+            <div class="flex justify-center gap-3 p-6 border-t border-gray-200">
+                <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" id="cancelSignOutBtn">Cancel</button>
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">Sign Out</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

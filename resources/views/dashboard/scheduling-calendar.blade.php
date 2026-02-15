@@ -1075,6 +1075,20 @@
                 });
             });
 
+            // Main export button functionality
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Export Started',
+                        text: 'Calendar export has been queued. You will receive an email when ready.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
+            }
+
             // Print functionality
             const printBtn = document.getElementById('printBtn');
             if (printBtn) {

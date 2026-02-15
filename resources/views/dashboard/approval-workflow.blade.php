@@ -1714,6 +1714,13 @@
                     });
                 }
 
+                if (cancelSignOutBtn) {
+                    cancelSignOutBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        signOutModal.classList.remove('active');
+                    });
+                }
+
                 // Real-time clock with accurate time
                 function updateClock() {
                     const now = new Date();
@@ -2485,59 +2492,73 @@
     @endauth
 
   <!-- Profile Modal -->
-  <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog">
-    <div class="bg-white rounded-lg shadow-lg w-[600px] max-w-full mx-4 fade-in" role="document">
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <h3 class="text-lg font-semibold text-gray-900">My Profile</h3>
-        <button type="button" class="text-gray-400 hover:text-gray-600" id="closeProfileBtn">
-          <i class="fas fa-times"></i>
+  <div id="profileModal" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="profile-modal-title">
+    <div class="bg-white rounded-lg shadow-lg w-[480px] max-w-full mx-4" role="document">
+      <div class="flex justify-between items-center border-b border-gray-200 px-4 py-2">
+        <h3 id="profile-modal-title" class="font-semibold text-sm text-gray-900 select-none">My Profile</h3>
+        <button id="closeProfileBtn" type="button"
+          class="text-gray-400 hover:text-gray-600 rounded-lg p-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all duration-200"
+          aria-label="Close">
+          <i class="fas fa-times text-xs"></i>
         </button>
       </div>
-      <div class="p-6">
-        <!-- Profile Header -->
-        <div class="text-center mb-6">
-          <div class="w-24 h-24 rounded-full bg-[#28644c] text-white mx-auto flex items-center justify-center mb-4">
-            <i class="fas fa-user text-5xl"></i>
+      <div class="px-8 pt-6 pb-8">
+        <div class="flex flex-col items-center mb-4">
+          <div class="bg-[#28644c] rounded-full w-20 h-20 flex items-center justify-center mb-3">
+            <i class="fas fa-user text-white text-3xl"></i>
           </div>
-          <h4 class="text-xl font-bold text-gray-900">{{ $user->name }}</h4>
-          <p class="text-sm text-gray-500">{{ ucfirst($user->role) }}</p>
+          <p class="font-semibold text-gray-900 text-base leading-5 mb-0.5">{{ $user->name }}</p>
+          <p class="text-xs text-gray-500 leading-4">{{ ucfirst($user->role) }}</p>
         </div>
-        
-        <!-- Profile Information -->
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name:</label>
-            <p class="text-sm text-gray-900">{{ $user->name }}</p>
+        <form class="space-y-4" action="{{ route('profile.update') }}" method="POST">
+          @csrf
+          @method('PATCH')
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="nameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Full Name</label>
+              <input id="nameProfile" name="name" type="text" value="{{ old('name', $user->name) }}"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="usernameProfile" class="block text-xs font-semibold text-gray-700 mb-1">Username</label>
+              <input id="usernameProfile" name="username" type="text" value="{{ old('username', $user->username) }}"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="emailProfile" class="block text-xs font-semibold text-gray-700 mb-1">Email</label>
+              <input id="emailProfile" name="email" type="email" value="{{ old('email', $user->email) }}"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="phoneProfile" class="block text-xs font-semibold text-gray-700 mb-1">Phone</label>
+              <input id="phoneProfile" name="phone" type="text" value="{{ old('phone', $user->phone) }}"
+                placeholder="+63 9xx xxx xxxx"
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-[#2f855A]" />
+            </div>
+            <div>
+              <label for="department" class="block text-xs font-semibold text-gray-700 mb-1">Department</label>
+              <input id="department" type="text" value="Administrative" readonly
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+            </div>
+            <div>
+              <label for="location" class="block text-xs font-semibold text-gray-700 mb-1">Location</label>
+              <input id="location" type="text" value="Manila, Philippines" readonly
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+            </div>
+            <div>
+              <label for="joined" class="block text-xs font-semibold text-gray-700 mb-1">Joined</label>
+              <input id="joined" type="text" value="{{ $user->created_at->format('F d, Y') }}" readonly
+                class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-gray-700 bg-gray-50" />
+            </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Username:</label>
-            <p class="text-sm text-gray-900">{{ $user->username ?? 'admin' }}</p>
+          <div class="flex justify-end space-x-3 pt-2">
+            <button id="closeProfileBtn2" type="button"
+              class="bg-gray-200 text-gray-700 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 shadow-sm transition-all duration-200">Cancel</button>
+            <button type="submit"
+              class="bg-[#28644c] hover:bg-[#2f855A] text-white text-sm font-semibold rounded-lg px-4 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2f855A] transition-all duration-200">Save
+              Changes</button>
           </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
-            <p class="text-sm text-gray-900">{{ $user->email }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Phone:</label>
-            <p class="text-sm text-gray-900">+63 917 123 4567</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Department:</label>
-            <p class="text-sm text-gray-900">Administrative</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Location:</label>
-            <p class="text-sm text-gray-900">Manila, Philippines</p>
-          </div>
-          <div class="col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Joined:</label>
-            <p class="text-sm text-gray-900">October 18, 2025</p>
-          </div>
-        </div>
-      </div>
-      <div class="flex justify-end gap-3 p-6 border-t border-gray-200">
-        <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50" id="closeProfileBtn2">Cancel</button>
-        <button type="button" class="px-4 py-2 text-sm font-medium text-white bg-brand-primary rounded-md hover:bg-brand-primary-hover">Save Changes</button>
+        </form>
       </div>
     </div>
   </div>
