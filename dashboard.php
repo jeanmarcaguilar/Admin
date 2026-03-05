@@ -1,3 +1,4 @@
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +29,31 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .live-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+      color: #059669; background: #ECFDF5; border: 1px solid #A7F3D0;
+      padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #059669; display: inline-block;
+      animation: livePulse 1.5s ease-in-out infinite;
+    }
+    @keyframes livePulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(5,150,105,0.5); }
+      50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(5,150,105,0); }
+    }
+    .live-badge.refreshing { color: #D97706; background: #FFFBEB; border-color: #FDE68A; }
+    .live-badge.refreshing .live-dot { background: #D97706; animation: livePulseAmber 0.6s ease-in-out infinite; }
+    @keyframes livePulseAmber {
+      0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+    .last-updated {
+      font-size: 10px; color: #9CA3AF; white-space: nowrap;
+    }
+  </style>
 </head>
 
 <body class="bg-brand-background-main min-h-screen font-[Inter,'Segoe_UI',system-ui,-apple-system,sans-serif]">
@@ -198,6 +224,9 @@
                 <div class="widget-subtitle">Monthly reservation trends &amp; status breakdown</div>
               </div>
             </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="last-updated" id="updated-fac"></span>
+            </div>
           </div>
           <div class="chart-widget-body"><canvas id="chartFacilities"></canvas></div>
           <div class="chart-widget-footer">
@@ -221,6 +250,9 @@
                 <div class="widget-title">Document Management</div>
                 <div class="widget-subtitle">Archive distribution by category &amp; OCR status</div>
               </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="last-updated" id="updated-doc"></span>
             </div>
           </div>
           <div class="chart-widget-body"><canvas id="chartDocuments"></canvas></div>
@@ -246,6 +278,9 @@
                 <div class="widget-subtitle">Case status, compliance risk &amp; contract values</div>
               </div>
             </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="last-updated" id="updated-leg"></span>
+            </div>
           </div>
           <div class="chart-widget-body"><canvas id="chartLegal"></canvas></div>
           <div class="chart-widget-footer">
@@ -269,6 +304,9 @@
                 <div class="widget-title">Visitor Management</div>
                 <div class="widget-subtitle">Daily visitor traffic &amp; check-in/out analytics</div>
               </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="last-updated" id="updated-vis"></span>
             </div>
           </div>
           <div class="chart-widget-body"><canvas id="chartVisitors"></canvas></div>
@@ -369,276 +407,364 @@
     </main>
   </div>
 
-<script src="admin.js"></script>
-<script src="export.js"></script>
+<script src="admin.js?v=20260304"></script>
+<script src="export.js?v=20260304"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  Chart.defaults.font.family = "'Inter','Segoe UI',system-ui,sans-serif";
-  Chart.defaults.font.size = 12;
-  Chart.defaults.plugins.legend.labels.usePointStyle = true;
-  Chart.defaults.plugins.legend.labels.padding = 16;
-  Chart.defaults.plugins.legend.labels.boxWidth = 8;
+document.addEventListener("DOMContentLoaded", () => {
+  if (typeof Chart !== 'undefined') {
+    Chart.defaults.font.family = "'Inter','Segoe UI',system-ui,sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.padding = 16;
+    Chart.defaults.plugins.legend.labels.boxWidth = 8;
+  }
 
-  // ─── Fetch all dashboard stats in parallel ───
+  // ─── Shared state ───
   let facStats = {}, docStats = {}, legStats = {}, visStats = {};
   let facReservations = [], docList = [], legCases = [], visLogs = [];
-  try {
-    const [facR, docR, legR, visR, facResR, docListR, legCasesR, visLogsR] = await Promise.all([
-      fetch('api/facilities.php?action=dashboard_stats').then(r => r.json()),
-      fetch('api/documents.php?action=dashboard_stats').then(r => r.json()),
-      fetch('api/legal.php?action=dashboard_stats').then(r => r.json()),
-      fetch('api/visitors.php?action=dashboard_stats').then(r => r.json()),
-      fetch('api/facilities.php?action=list_reservations').then(r => r.json()),
-      fetch('api/documents.php?action=list_documents').then(r => r.json()),
-      fetch('api/legal.php?action=list_cases').then(r => r.json()),
-      fetch('api/visitors.php?action=list_logs').then(r => r.json())
-    ]);
-    facStats = facR; docStats = docR; legStats = legR; visStats = visR;
-    facReservations = facResR.data || [];
-    docList = docListR.data || [];
-    legCases = legCasesR.data || [];
-    visLogs = visLogsR.data || [];
-  } catch(e) { console.error('Dashboard fetch error:', e); }
 
-  // ─── Populate stat cards ───
-  setText('dash-total-facilities', facStats.total_facilities ?? 0);
-  setText('dash-active-docs', docStats.active_documents ?? 0);
-  setText('dash-legal-cases', legStats.total_cases ?? 0);
-  setText('dash-visitors', visStats.total_visitors ?? 0);
+  // ─── Chart instances (for real-time updates) ───
+  let chartFac = null, chartDoc = null, chartLeg = null, chartVis = null;
 
-  // Secondary stats
-  setText('dash-avail-fac', facStats.available_facilities ?? 0);
-  setText('dash-pending-res', facStats.pending_reservations ?? 0);
-  setText('dash-archived-docs', docStats.archived_documents ?? 0);
-  setText('dash-ocr-queue', docStats.pending_ocr ?? 0);
-  setText('dash-active-contracts', legStats.active_contracts ?? 0);
-  setText('dash-compliance', legStats.compliance_items ?? 0);
-  setText('dash-checked-in', visStats.checked_in_now ?? 0);
-  setText('dash-preregs', visStats.pending_preregs ?? 0);
-
-  // Widget footer stats
-  setText('ws-fac-avail', facStats.available_facilities ?? 0);
-  setText('ws-fac-pending', facStats.pending_reservations ?? 0);
-  setText('ws-fac-today', facStats.today_reservations ?? 0);
-  setText('ws-doc-total', docStats.total_documents ?? 0);
-  setText('ws-doc-depts', docStats.departments ?? 0);
-  setText('ws-doc-ocr', docStats.pending_ocr ?? 0);
-  setText('ws-leg-cases', legStats.total_cases ?? 0);
-  setText('ws-leg-contracts', legStats.total_contracts ?? 0);
-  setText('ws-leg-compliance', legStats.compliance_items ?? 0);
-  setText('ws-vis-total', visStats.total_visitors ?? 0);
-  setText('ws-vis-in', visStats.checked_in_now ?? 0);
-  setText('ws-vis-preregs', visStats.pending_preregs ?? 0);
-
-  // Module card stats
-  setText('mc-fac-avail', facStats.available_facilities ?? 0);
-  setText('mc-fac-pending', facStats.pending_reservations ?? 0);
-  setText('mc-fac-equip', facStats.total_equipment ?? 0);
-  setText('mc-doc-total', docStats.total_documents ?? 0);
-  setText('mc-doc-depts', docStats.departments ?? 0);
-  setText('mc-doc-ocr', docStats.pending_ocr ?? 0);
-  setText('mc-leg-cases', legStats.total_cases ?? 0);
-  setText('mc-leg-contracts', legStats.total_contracts ?? 0);
-  setText('mc-leg-compliance', legStats.compliance_items ?? 0);
-  setText('mc-vis-total', visStats.total_visitors ?? 0);
-  setText('mc-vis-in', visStats.checked_in_now ?? 0);
-  setText('mc-vis-preregs', visStats.pending_preregs ?? 0);
+  const REFRESH_INTERVAL = 30000; // 30 seconds
 
   function setText(id, val) {
     const el = document.getElementById(id);
     if (el) el.textContent = val;
   }
+  function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+  function fmtDate(d) { if (!d) return ''; return new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
+  function fmtTime(d) { return new Date(d).toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true }); }
 
-  // ─── Build recent activity from real data ───
-  const activities = [];
+  const statusClass = s => {
+    s = (s || '').toLowerCase();
+    if (['approved','active','checked in','compliant'].includes(s)) return 'badge-green';
+    if (['pending','open','in_progress'].includes(s)) return 'badge-amber';
+    if (['cancelled','rejected','non_compliant'].includes(s)) return 'badge-red';
+    return 'badge-gray';
+  };
 
-  // From reservations
-  facReservations.slice(0, 5).forEach(r => {
-    activities.push({
-      text: (r.title || r.facility_name || 'Reservation') + ' reservation',
-      module: 'Facilities', badge: 'badge-green',
-      status: r.status || 'pending', time: r.created_at || r.start_datetime
-    });
-  });
-  // From documents
-  docList.slice(0, 3).forEach(d => {
-    activities.push({
-      text: (d.title || d.document_name || 'Document') + ' uploaded',
-      module: 'Documents', badge: 'badge-blue',
-      status: 'active', time: d.created_at || d.upload_date
-    });
-  });
-  // From legal cases
-  legCases.slice(0, 3).forEach(c => {
-    activities.push({
-      text: (c.case_number || c.title || 'Case') + ' ' + (c.status || 'open'),
-      module: 'Legal', badge: 'badge-amber',
-      status: c.status || 'open', time: c.created_at || c.filed_date
-    });
-  });
-  // From visitor logs
-  visLogs.slice(0, 3).forEach(l => {
-    activities.push({
-      text: (l.visitor_name || 'Visitor') + ' ' + (l.status === 'checked_in' ? 'checked in' : 'checked out'),
-      module: 'Visitors', badge: 'badge-purple',
-      status: l.status === 'checked_in' ? 'checked in' : 'checked out',
-      time: l.check_in_time
-    });
-  });
+  function setLiveBadge(id, refreshing) {
+    const el = document.getElementById(id);
+    if (el) { if (refreshing) el.classList.add('refreshing'); else el.classList.remove('refreshing'); }
+  }
+  function setUpdatedTime(id) {
+    setText(id, fmtTime(new Date()));
+  }
 
-  // Sort by time descending
-  activities.sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
-
-  const actDiv = document.getElementById('recent-activity-list');
-  if (activities.length === 0) {
-    actDiv.innerHTML = '<div class="empty-state" style="padding:30px"><div style="font-size:36px;margin-bottom:8px">📋</div><div style="font-weight:600">No recent activity</div></div>';
-  } else {
-    const statusClass = s => {
-      s = (s || '').toLowerCase();
-      if (['approved','active','checked in','compliant'].includes(s)) return 'badge-green';
-      if (['pending','open','in_progress'].includes(s)) return 'badge-amber';
-      if (['cancelled','rejected','non_compliant'].includes(s)) return 'badge-red';
-      return 'badge-gray';
-    };
-    actDiv.innerHTML = activities.slice(0, 10).map(a => `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F3F4F6">
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:600;color:#1F2937;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.text)}</div>
-          <div style="display:flex;gap:6px;margin-top:4px">
-            <span class="badge ${a.badge}" style="font-size:10px">${a.module}</span>
-            <span class="badge ${statusClass(a.status)}" style="font-size:10px">${a.status}</span>
+  // ─── Progressive activity & overview updates ───
+  function rebuildRecentActivity() {
+    const activities = [];
+    facReservations.slice(0, 5).forEach(r => {
+      activities.push({ text: (r.title || r.facility_name || 'Reservation') + ' reservation', module: 'Facilities', badge: 'badge-green', status: r.status || 'pending', time: r.created_at || r.start_datetime });
+    });
+    docList.slice(0, 3).forEach(d => {
+      activities.push({ text: (d.title || d.document_name || 'Document') + ' uploaded', module: 'Documents', badge: 'badge-blue', status: 'active', time: d.created_at || d.upload_date });
+    });
+    legCases.slice(0, 3).forEach(c => {
+      activities.push({ text: (c.case_number || c.title || 'Case') + ' ' + (c.status || 'open'), module: 'Legal', badge: 'badge-amber', status: c.status || 'open', time: c.created_at || c.filed_date });
+    });
+    visLogs.slice(0, 3).forEach(l => {
+      activities.push({ text: (l.visitor_name || 'Visitor') + ' ' + (l.status === 'checked_in' ? 'checked in' : 'checked out'), module: 'Visitors', badge: 'badge-purple', status: l.status === 'checked_in' ? 'checked in' : 'checked out', time: l.check_in_time });
+    });
+    activities.sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
+    const actDiv = document.getElementById('recent-activity-list');
+    if (activities.length === 0) {
+      actDiv.innerHTML = '<div class="empty-state" style="padding:30px"><div style="font-size:36px;margin-bottom:8px">📋</div><div style="font-weight:600">No recent activity</div></div>';
+    } else {
+      actDiv.innerHTML = activities.slice(0, 10).map(a => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F3F4F6">
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:600;color:#1F2937;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.text)}</div>
+            <div style="display:flex;gap:6px;margin-top:4px">
+              <span class="badge ${a.badge}" style="font-size:10px">${a.module}</span>
+              <span class="badge ${statusClass(a.status)}" style="font-size:10px">${a.status}</span>
+            </div>
           </div>
+          <div style="font-size:11px;color:#9CA3AF;white-space:nowrap;margin-left:12px">${fmtDate(a.time)}</div>
         </div>
-        <div style="font-size:11px;color:#9CA3AF;white-space:nowrap;margin-left:12px">${fmtDate(a.time)}</div>
+      `).join('');
+    }
+  }
+
+  function rebuildSystemOverview() {
+    const overviewDiv = document.getElementById('system-overview-list');
+    const overviewItems = [
+      { icon: '🏢', label: 'Facilities available', value: facStats.available_facilities ?? 0, color: '#059669' },
+      { icon: '🔧', label: 'Open maintenance', value: facStats.open_maintenance ?? 0, color: facStats.open_maintenance > 0 ? '#D97706' : '#059669' },
+      { icon: '📄', label: 'Pending OCR', value: docStats.pending_ocr ?? 0, color: docStats.pending_ocr > 0 ? '#D97706' : '#059669' },
+      { icon: '⚖️', label: 'Active legal cases', value: legStats.active_cases ?? 0, color: legStats.active_cases > 0 ? '#D97706' : '#059669' },
+      { icon: '🧑‍💼', label: 'Visitors checked in now', value: visStats.checked_in_now ?? 0, color: '#3B82F6' },
+      { icon: '📅', label: "Today's visits", value: visStats.today_visits ?? 0, color: '#8B5CF6' }
+    ];
+    overviewDiv.innerHTML = overviewItems.map(oi => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6;font-size:13px">
+        <span>${oi.icon} <span style="color:#4B5563">${oi.label}</span></span>
+        <span style="font-weight:700;color:${oi.color}">${oi.value}</span>
       </div>
     `).join('');
   }
 
-  // ─── System overview panel ───
-  const overviewDiv = document.getElementById('system-overview-list');
-  const overviewItems = [
-    { icon: '🏢', label: 'Facilities available', value: facStats.available_facilities ?? 0, color: '#059669' },
-    { icon: '🔧', label: 'Open maintenance', value: facStats.open_maintenance ?? 0, color: facStats.open_maintenance > 0 ? '#D97706' : '#059669' },
-    { icon: '📄', label: 'Pending OCR', value: docStats.pending_ocr ?? 0, color: docStats.pending_ocr > 0 ? '#D97706' : '#059669' },
-    { icon: '⚖️', label: 'Active legal cases', value: legStats.active_cases ?? 0, color: legStats.active_cases > 0 ? '#D97706' : '#059669' },
-    { icon: '🧑‍💼', label: 'Visitors checked in now', value: visStats.checked_in_now ?? 0, color: '#3B82F6' },
-    { icon: '📅', label: "Today's visits", value: visStats.today_visits ?? 0, color: '#8B5CF6' }
-  ];
-  overviewDiv.innerHTML = overviewItems.map(oi => `
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F3F4F6;font-size:13px">
-      <span>${oi.icon} <span style="color:#4B5563">${oi.label}</span></span>
-      <span style="font-weight:700;color:${oi.color}">${oi.value}</span>
-    </div>
-  `).join('');
+  // ─── Chart config factories (reusable) ───
+  const facChartOpts = {
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeInOutQuart' },
+    plugins: { legend: { position: 'top', align: 'end' }, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10 }},
+    scales: { x: { grid: { display: false }, border: { display: false }}, y: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { stepSize: 5 }}}
+  };
+  const docChartOpts = {
+    responsive: true, maintainAspectRatio: false, cutout: '62%',
+    animation: { duration: 800, easing: 'easeInOutQuart' },
+    plugins: { legend: { position: 'right', labels: { padding: 12, font: { size: 11 }}}, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10 }}
+  };
+  const legChartOpts = {
+    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeInOutQuart' },
+    plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10 }},
+    scales: { x: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { stepSize: 1 }}, y: { grid: { display: false }, border: { display: false }}}
+  };
+  const visChartOpts = {
+    responsive: true, maintainAspectRatio: false,
+    animation: { duration: 800, easing: 'easeInOutQuart' },
+    plugins: { legend: { position: 'top', align: 'end' }, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10, mode: 'index', intersect: false }},
+    interaction: { mode: 'index', intersect: false },
+    scales: { x: { grid: { display: false }, border: { display: false }}, y: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { stepSize: 2 }}}
+  };
 
-  // ─── Helper ───
-  function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-  function fmtDate(d) { if (!d) return ''; return new Date(d).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }); }
-
-  // ─── Charts (using real reservation data for facilities) ───
-  // Build monthly breakdown from reservations
-  const now = new Date();
-  const monthLabels = [];
-  const approvedData = [], pendingData = [], cancelledData = [];
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const m = d.getMonth(), y = d.getFullYear();
-    monthLabels.push(d.toLocaleDateString('en-US', { month: 'short' }));
-    approvedData.push(facReservations.filter(r => { const rd = new Date(r.start_datetime || r.created_at); return rd.getMonth() === m && rd.getFullYear() === y && r.status === 'approved'; }).length);
-    pendingData.push(facReservations.filter(r => { const rd = new Date(r.start_datetime || r.created_at); return rd.getMonth() === m && rd.getFullYear() === y && r.status === 'pending'; }).length);
-    cancelledData.push(facReservations.filter(r => { const rd = new Date(r.start_datetime || r.created_at); return rd.getMonth() === m && rd.getFullYear() === y && r.status === 'cancelled'; }).length);
+  // ─── Data computation helpers ───
+  function computeFacChartData() {
+    const now = new Date();
+    const monthLabels = [], approvedData = [], pendingData = [], cancelledData = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const m = d.getMonth(), y = d.getFullYear();
+      monthLabels.push(d.toLocaleDateString('en-US', { month: 'short' }));
+      approvedData.push(facReservations.filter(r => { const rd = new Date(r.start_datetime || r.created_at); return rd.getMonth() === m && rd.getFullYear() === y && r.status === 'approved'; }).length);
+      pendingData.push(facReservations.filter(r => { const rd = new Date(r.start_datetime || r.created_at); return rd.getMonth() === m && rd.getFullYear() === y && r.status === 'pending'; }).length);
+      cancelledData.push(facReservations.filter(r => { const rd = new Date(r.start_datetime || r.created_at); return rd.getMonth() === m && rd.getFullYear() === y && r.status === 'cancelled'; }).length);
+    }
+    return { labels: monthLabels, datasets: [
+      { label: 'Approved', data: approvedData, backgroundColor: '#059669', borderRadius: 6, barPercentage: 0.6 },
+      { label: 'Pending', data: pendingData, backgroundColor: '#FCD34D', borderRadius: 6, barPercentage: 0.6 },
+      { label: 'Cancelled', data: cancelledData, backgroundColor: '#FCA5A5', borderRadius: 6, barPercentage: 0.6 }
+    ]};
   }
 
-  new Chart(document.getElementById('chartFacilities'), {
-    type: 'bar',
-    data: {
-      labels: monthLabels,
-      datasets: [
-        { label: 'Approved', data: approvedData, backgroundColor: '#059669', borderRadius: 6, barPercentage: 0.6 },
-        { label: 'Pending', data: pendingData, backgroundColor: '#FCD34D', borderRadius: 6, barPercentage: 0.6 },
-        { label: 'Cancelled', data: cancelledData, backgroundColor: '#FCA5A5', borderRadius: 6, barPercentage: 0.6 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top', align: 'end' }, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10 }},
-      scales: { x: { grid: { display: false }, border: { display: false }}, y: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { stepSize: 5 }}}
-    }
-  });
-
-  // Documents chart — category distribution from real data
-  const catCounts = {};
-  docList.forEach(d => {
-    const cat = d.department || d.category || 'Other';
-    catCounts[cat] = (catCounts[cat] || 0) + 1;
-  });
-  const docLabels = Object.keys(catCounts);
-  const docData = Object.values(catCounts);
-  const docColors = ['#059669','#3B82F6','#F59E0B','#14B8A6','#8B5CF6','#6B7280','#DC2626','#EC4899'];
-
-  new Chart(document.getElementById('chartDocuments'), {
-    type: 'doughnut',
-    data: {
-      labels: docLabels.length ? docLabels : ['No Data'],
+  function computeDocChartData() {
+    const catCounts = {};
+    docList.forEach(d => { const cat = d.department || d.category || 'Other'; catCounts[cat] = (catCounts[cat] || 0) + 1; });
+    const docLabels = Object.keys(catCounts), docData = Object.values(catCounts);
+    const docColors = ['#059669','#3B82F6','#F59E0B','#14B8A6','#8B5CF6','#6B7280','#DC2626','#EC4899'];
+    return { labels: docLabels.length ? docLabels : ['No Data'],
       datasets: [{ data: docData.length ? docData : [1], backgroundColor: docData.length ? docLabels.map((_,i) => docColors[i % docColors.length]) : ['#E5E7EB'], borderWidth: 3, borderColor: '#fff', hoverOffset: 8 }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '62%',
-      plugins: { legend: { position: 'right', labels: { padding: 12, font: { size: 11 }}}, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10 }}
-    }
-  });
-
-  // Legal chart — from real stats
-  const legLabels = ['Open Cases','Active Cases','Active Contracts','Compliant','Non-Compliant'];
-  const legData = [
-    (legStats.total_cases ?? 0) - (legStats.active_cases ?? 0),
-    legStats.active_cases ?? 0,
-    legStats.active_contracts ?? 0,
-    (legStats.compliance_items ?? 0) - (legStats.non_compliant ?? 0),
-    legStats.non_compliant ?? 0
-  ];
-
-  new Chart(document.getElementById('chartLegal'), {
-    type: 'bar',
-    data: {
-      labels: legLabels,
-      datasets: [{ label: 'Count', data: legData, backgroundColor: ['#F59E0B','#3B82F6','#059669','#14B8A6','#EF4444'], borderRadius: 6, barPercentage: 0.7 }]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10 }},
-      scales: { x: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { stepSize: 1 }}, y: { grid: { display: false }, border: { display: false }}}
-    }
-  });
-
-  // Visitors chart — build daily from real logs (last 7 days)
-  const dayLabels = [];
-  const checkIns = [], checkOuts = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().slice(0, 10);
-    dayLabels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-    checkIns.push(visLogs.filter(l => (l.check_in_time || '').slice(0, 10) === ds).length);
-    checkOuts.push(visLogs.filter(l => l.check_out_time && l.check_out_time.slice(0, 10) === ds).length);
+    };
   }
 
-  new Chart(document.getElementById('chartVisitors'), {
-    type: 'line',
-    data: {
-      labels: dayLabels,
-      datasets: [
-        { label: 'Check-Ins', data: checkIns, borderColor: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.08)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#8B5CF6', pointBorderColor: '#fff', pointBorderWidth: 2, borderWidth: 2.5 },
-        { label: 'Check-Outs', data: checkOuts, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,0.06)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#059669', pointBorderColor: '#fff', pointBorderWidth: 2, borderWidth: 2.5 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'top', align: 'end' }, tooltip: { backgroundColor: '#1F2937', cornerRadius: 8, padding: 10, mode: 'index', intersect: false }},
-      interaction: { mode: 'index', intersect: false },
-      scales: { x: { grid: { display: false }, border: { display: false }}, y: { beginAtZero: true, grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { stepSize: 2 }}}
+  function computeLegChartData() {
+    const legLabels = ['Open Cases','Active Cases','Active Contracts','Compliant','Non-Compliant'];
+    const legData = [
+      (legStats.total_cases ?? 0) - (legStats.active_cases ?? 0), legStats.active_cases ?? 0,
+      legStats.active_contracts ?? 0, (legStats.compliance_items ?? 0) - (legStats.non_compliant ?? 0), legStats.non_compliant ?? 0
+    ];
+    return { labels: legLabels, datasets: [{ label: 'Count', data: legData, backgroundColor: ['#F59E0B','#3B82F6','#059669','#14B8A6','#EF4444'], borderRadius: 6, barPercentage: 0.7 }] };
+  }
+
+  function computeVisChartData() {
+    const dayLabels = [], checkIns = [], checkOuts = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const ds = d.toISOString().slice(0, 10);
+      dayLabels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      checkIns.push(visLogs.filter(l => (l.check_in_time || '').slice(0, 10) === ds).length);
+      checkOuts.push(visLogs.filter(l => l.check_out_time && l.check_out_time.slice(0, 10) === ds).length);
     }
-  });
+    return { labels: dayLabels, datasets: [
+      { label: 'Check-Ins', data: checkIns, borderColor: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.08)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#8B5CF6', pointBorderColor: '#fff', pointBorderWidth: 2, borderWidth: 2.5 },
+      { label: 'Check-Outs', data: checkOuts, borderColor: '#059669', backgroundColor: 'rgba(5,150,105,0.06)', fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#059669', pointBorderColor: '#fff', pointBorderWidth: 2, borderWidth: 2.5 }
+    ]};
+  }
+
+  // ─── Update chart data smoothly (animate transitions) ───
+  function updateChartData(chart, newData) {
+    if (!chart) return;
+    chart.data.labels = newData.labels;
+    newData.datasets.forEach((ds, i) => {
+      if (chart.data.datasets[i]) {
+        Object.assign(chart.data.datasets[i], ds);
+      } else {
+        chart.data.datasets.push(ds);
+      }
+    });
+    // Remove extra datasets if new data has fewer
+    while (chart.data.datasets.length > newData.datasets.length) chart.data.datasets.pop();
+    chart.update('active');
+  }
+
+  // ─── Populate stat card values for a module ───
+  function populateFacStats() {
+    setText('dash-total-facilities', facStats.total_facilities ?? 0);
+    setText('dash-avail-fac', facStats.available_facilities ?? 0);
+    setText('dash-pending-res', facStats.pending_reservations ?? 0);
+    setText('ws-fac-avail', facStats.available_facilities ?? 0);
+    setText('ws-fac-pending', facStats.pending_reservations ?? 0);
+    setText('ws-fac-today', facStats.today_reservations ?? 0);
+    setText('mc-fac-avail', facStats.available_facilities ?? 0);
+    setText('mc-fac-pending', facStats.pending_reservations ?? 0);
+    setText('mc-fac-equip', facStats.total_equipment ?? 0);
+  }
+  function populateDocStats() {
+    setText('dash-active-docs', docStats.active_documents ?? 0);
+    setText('dash-archived-docs', docStats.archived_documents ?? 0);
+    setText('dash-ocr-queue', docStats.pending_ocr ?? 0);
+    setText('ws-doc-total', docStats.total_documents ?? 0);
+    setText('ws-doc-depts', docStats.departments ?? 0);
+    setText('ws-doc-ocr', docStats.pending_ocr ?? 0);
+    setText('mc-doc-total', docStats.total_documents ?? 0);
+    setText('mc-doc-depts', docStats.departments ?? 0);
+    setText('mc-doc-ocr', docStats.pending_ocr ?? 0);
+  }
+  function populateLegStats() {
+    setText('dash-legal-cases', legStats.total_cases ?? 0);
+    setText('dash-active-contracts', legStats.active_contracts ?? 0);
+    setText('dash-compliance', legStats.compliance_items ?? 0);
+    setText('ws-leg-cases', legStats.total_cases ?? 0);
+    setText('ws-leg-contracts', legStats.total_contracts ?? 0);
+    setText('ws-leg-compliance', legStats.compliance_items ?? 0);
+    setText('mc-leg-cases', legStats.total_cases ?? 0);
+    setText('mc-leg-contracts', legStats.total_contracts ?? 0);
+    setText('mc-leg-compliance', legStats.compliance_items ?? 0);
+  }
+  function populateVisStats() {
+    setText('dash-visitors', visStats.total_visitors ?? 0);
+    setText('dash-checked-in', visStats.checked_in_now ?? 0);
+    setText('dash-preregs', visStats.pending_preregs ?? 0);
+    setText('ws-vis-total', visStats.total_visitors ?? 0);
+    setText('ws-vis-in', visStats.checked_in_now ?? 0);
+    setText('ws-vis-preregs', visStats.pending_preregs ?? 0);
+    setText('mc-vis-total', visStats.total_visitors ?? 0);
+    setText('mc-vis-in', visStats.checked_in_now ?? 0);
+    setText('mc-vis-preregs', visStats.pending_preregs ?? 0);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // INITIAL LOAD + REAL-TIME REFRESH PER MODULE
+  // ═══════════════════════════════════════════════════════
+
+  // Helper: safe fetch that returns parsed JSON or null on any error
+  async function safeFetch(url) {
+    try {
+      const r = await fetch(url, { credentials: 'same-origin' });
+      if (!r.ok) { console.warn('Dashboard fetch ' + url + ' returned HTTP ' + r.status); return null; }
+      return await r.json();
+    } catch(e) { console.warn('Dashboard fetch failed: ' + url, e); return null; }
+  }
+
+  async function refreshFacilities() {
+    try {
+      const [stats, res] = await Promise.all([
+        safeFetch('api/facilities.php?action=dashboard_stats'),
+        safeFetch('api/facilities.php?action=list_reservations')
+      ]);
+      if (stats) { facStats = stats; }
+      if (res) { facReservations = res.data || []; }
+      populateFacStats();
+      const data = computeFacChartData();
+      if (typeof Chart !== 'undefined') {
+        if (!chartFac) {
+          chartFac = new Chart(document.getElementById('chartFacilities'), { type: 'bar', data, options: facChartOpts });
+        } else {
+          updateChartData(chartFac, data);
+        }
+      }
+      rebuildRecentActivity();
+      rebuildSystemOverview();
+      setUpdatedTime('updated-fac');
+    } catch(e) { console.error('Facilities refresh error:', e); }
+  }
+
+  async function refreshDocuments() {
+    try {
+      const [stats, list] = await Promise.all([
+        safeFetch('api/documents.php?action=dashboard_stats'),
+        safeFetch('api/documents.php?action=list_documents')
+      ]);
+      if (stats) { docStats = stats; }
+      if (list) { docList = list.data || []; }
+      populateDocStats();
+      const data = computeDocChartData();
+      if (typeof Chart !== 'undefined') {
+        if (!chartDoc) {
+          chartDoc = new Chart(document.getElementById('chartDocuments'), { type: 'doughnut', data, options: docChartOpts });
+        } else {
+          updateChartData(chartDoc, data);
+        }
+      }
+      rebuildRecentActivity();
+      rebuildSystemOverview();
+      setUpdatedTime('updated-doc');
+    } catch(e) { console.error('Documents refresh error:', e); }
+  }
+
+  async function refreshLegal() {
+    try {
+      const [stats, cases] = await Promise.all([
+        safeFetch('api/legal.php?action=dashboard_stats'),
+        safeFetch('api/legal.php?action=list_cases')
+      ]);
+      if (stats) { legStats = stats; }
+      if (cases) { legCases = cases.data || []; }
+      populateLegStats();
+      const data = computeLegChartData();
+      if (typeof Chart !== 'undefined') {
+        if (!chartLeg) {
+          chartLeg = new Chart(document.getElementById('chartLegal'), { type: 'bar', data, options: legChartOpts });
+        } else {
+          updateChartData(chartLeg, data);
+        }
+      }
+      rebuildRecentActivity();
+      rebuildSystemOverview();
+      setUpdatedTime('updated-leg');
+    } catch(e) { console.error('Legal refresh error:', e); }
+  }
+
+  async function refreshVisitors() {
+    try {
+      const [stats, logRes] = await Promise.all([
+        safeFetch('api/visitors.php?action=dashboard_stats'),
+        safeFetch('api/visitors.php?action=list_logs')
+      ]);
+      if (stats) { visStats = stats; }
+      if (logRes) { visLogs = logRes.data || []; }
+      populateVisStats();
+      const data = computeVisChartData();
+      if (typeof Chart !== 'undefined') {
+        if (!chartVis) {
+          chartVis = new Chart(document.getElementById('chartVisitors'), { type: 'line', data, options: visChartOpts });
+        } else {
+          updateChartData(chartVis, data);
+        }
+      }
+      rebuildRecentActivity();
+      rebuildSystemOverview();
+      setUpdatedTime('updated-vis');
+    } catch(e) { console.error('Visitors refresh error:', e); }
+  }
+
+  // ─── Initial load (all 4 fire independently) ───
+  refreshFacilities();
+  refreshDocuments();
+  refreshLegal();
+  refreshVisitors();
+
+  // ─── Auto-refresh every 30 seconds ───
+  setInterval(() => {
+    refreshFacilities();
+    refreshDocuments();
+    refreshLegal();
+    refreshVisitors();
+  }, REFRESH_INTERVAL);
 
   // ─── Export Dashboard function (used by header buttons) ───
   window.exportDashboard = function(format) {

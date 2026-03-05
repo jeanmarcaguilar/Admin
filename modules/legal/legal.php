@@ -1,3 +1,4 @@
+<?php if (session_status() === PHP_SESSION_NONE) session_start(); ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +27,8 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="../../hr2-integration.js"></script>
+  <script src="../../hr4-integration.js"></script>
   <style>
     .secure-text { letter-spacing: 2px; font-family: monospace; }
     .doc-secured .doc-title-text { filter: blur(5px); user-select: none; transition: filter 0.3s; }
@@ -79,25 +82,102 @@
 
       <div class="animate-in">
         <h1 class="page-title">Legal Management</h1>
-        <p class="page-subtitle">Loan documentation, collateral management, litigation &amp; recovery, regulatory compliance, and corporate governance</p>
+        <p class="page-subtitle">Loan documentation & disclosure, case tracking & recovery, contracts, permits & legal calendar</p>
       </div>
 
-      <!-- STAT CARDS -->
-      <div class="stats-grid animate-in delay-1">
-        <div class="stat-card"><div class="stat-icon green">📄</div><div class="stat-info"><div class="stat-value" id="stat-loans">0</div><div class="stat-label">Loan Contracts</div></div></div>
-        <div class="stat-card"><div class="stat-icon blue">🏠</div><div class="stat-info"><div class="stat-value" id="stat-collaterals">0</div><div class="stat-label">Collaterals</div></div></div>
-        <div class="stat-card"><div class="stat-icon amber">⚖️</div><div class="stat-info"><div class="stat-value" id="stat-cases">0</div><div class="stat-label">Active Cases</div></div></div>
-        <div class="stat-card"><div class="stat-icon purple">✅</div><div class="stat-info"><div class="stat-value" id="stat-compliance">0</div><div class="stat-label">Compliance Items</div></div></div>
-        <div class="stat-card"><div class="stat-icon red">📋</div><div class="stat-info"><div class="stat-value" id="stat-resolutions">0</div><div class="stat-label">Board Resolutions</div></div></div>
+      <!-- SUBMODULE DIRECTORY -->
+      <div class="animate-in delay-1">
+        <div class="module-directory-label">Submodule Directory</div>
+        <div class="stats-grid" style="margin-bottom:18px">
+          <a href="#tab-loans" onclick="showSection('#tab-loans')" class="stat-card stat-card-link">
+            <div class="stat-icon green">📄</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-loans">0</div>
+              <div class="stat-label">Loan Documentation</div>
+            </div>
+            <div class="stat-arrow">→</div>
+          </a>
+          <a href="#tab-cases" onclick="showSection('#tab-cases')" class="stat-card stat-card-link">
+            <div class="stat-icon amber">⚖️</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-cases">0</div>
+              <div class="stat-label">Case Tracking</div>
+            </div>
+            <div class="stat-arrow">→</div>
+          </a>
+          <a href="#tab-contracts" onclick="showSection('#tab-contracts')" class="stat-card stat-card-link">
+            <div class="stat-icon green">📝</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-contracts">0</div>
+              <div class="stat-label">Contracts</div>
+            </div>
+            <div class="stat-arrow">→</div>
+          </a>
+          <a href="#tab-permits" onclick="showSection('#tab-permits')" class="stat-card stat-card-link">
+            <div class="stat-icon amber">🪪</div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-permits">0</div>
+              <div class="stat-label">Permits & Licenses</div>
+            </div>
+            <div class="stat-arrow">→</div>
+          </a>
+          <a href="#tab-legal-calendar" onclick="showSection('#tab-legal-calendar')" class="stat-card stat-card-link">
+            <div class="stat-icon blue">📅</div>
+            <div class="stat-info">
+              <div class="stat-value">—</div>
+              <div class="stat-label">Legal Calendar</div>
+            </div>
+            <div class="stat-arrow">→</div>
+          </a>
+        </div>
       </div>
 
 
+      <!-- Legal Security PIN Gate (shared for all submodules) -->
+      <div id="legal-pin-gate" style="display:none">
+        <div class="card" style="max-width:520px;margin:40px auto;border:2px solid #FDE68A">
+          <div class="card-body" style="padding:40px 32px;text-align:center">
+            <div style="width:72px;height:72px;margin:0 auto 20px;background:#FEF3C7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px">🔐</div>
+            <h2 style="font-size:22px;font-weight:800;color:#1F2937;margin:0 0 8px">Legal Security Verification</h2>
+            <p style="font-size:14px;color:#6B7280;margin:0 0 24px;line-height:1.6">A 4-digit security PIN will be sent to your email. Enter it below to access <strong id="lpin-tab-label" style="color:#D97706">this legal module</strong>.</p>
 
-      <!-- ==================== TAB 1: LOAN DOCS ==================== -->
+            <!-- Step 1: Request PIN -->
+            <div id="lpin-step-request">
+              <button class="btn btn-primary" onclick="requestLegalPin()" style="font-size:14px;padding:12px 28px;background:#D97706;border-color:#D97706">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Send Security PIN
+              </button>
+            </div>
+
+            <!-- Step 2: Enter PIN -->
+            <div id="lpin-step-verify" style="display:none">
+              <div style="margin-bottom:16px;font-size:13px;color:#D97706;font-weight:600">✅ PIN sent to your email!</div>
+              <div id="lpin-fallback-display" style="display:none;margin-bottom:16px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:12px 16px">
+                <div style="font-size:12px;color:#92400E;font-weight:600;margin-bottom:6px">⚠️ Email could not be sent. Use this PIN:</div>
+                <div id="lpin-fallback-code" style="font-size:28px;font-weight:800;color:#D97706;letter-spacing:8px"></div>
+              </div>
+              <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+                <input type="text" id="lpin-digit-1" class="form-input" maxlength="1" style="width:56px;height:60px;text-align:center;font-size:28px;font-weight:700;color:#D97706;border:2px solid #FDE68A;border-radius:12px" oninput="lpinAutoFocus(this,2)" onkeydown="lpinKeyNav(event,1)">
+                <input type="text" id="lpin-digit-2" class="form-input" maxlength="1" style="width:56px;height:60px;text-align:center;font-size:28px;font-weight:700;color:#D97706;border:2px solid #FDE68A;border-radius:12px" oninput="lpinAutoFocus(this,3)" onkeydown="lpinKeyNav(event,2)">
+                <input type="text" id="lpin-digit-3" class="form-input" maxlength="1" style="width:56px;height:60px;text-align:center;font-size:28px;font-weight:700;color:#D97706;border:2px solid #FDE68A;border-radius:12px" oninput="lpinAutoFocus(this,4)" onkeydown="lpinKeyNav(event,3)">
+                <input type="text" id="lpin-digit-4" class="form-input" maxlength="1" style="width:56px;height:60px;text-align:center;font-size:28px;font-weight:700;color:#D97706;border:2px solid #FDE68A;border-radius:12px" oninput="lpinAutoFocus(this,null)" onkeydown="lpinKeyNav(event,4)">
+              </div>
+              <div id="lpin-timer" style="font-size:12px;color:#9CA3AF;margin-bottom:16px">Expires in <span id="lpin-countdown">120</span>s</div>
+              <div style="display:flex;gap:10px;justify-content:center">
+                <button class="btn btn-primary" onclick="verifyLegalPin()" style="font-size:13px;padding:10px 24px;background:#D97706;border-color:#D97706">Verify PIN</button>
+                <button class="btn btn-outline" onclick="requestLegalPin()" style="font-size:13px;padding:10px 24px">Resend</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ==================== TAB 1: LOAN DOCUMENTATION & DISCLOSURE ==================== -->
       <div id="tab-loans" class="tab-content active animate-in delay-3">
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Loan Documentation</span>
+            <span class="card-title">Loan Documentation & Disclosure</span>
             <div style="display:flex;gap:8px">
               <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportLoans('pdf')">📄 PDF</button>
               <button class="btn-export btn-export-csv btn-export-sm" onclick="exportLoans('csv')">📊 CSV</button>
@@ -126,40 +206,105 @@
         </div>
       </div>
 
-      <!-- ==================== TAB 2: COLLATERAL ==================== -->
-      <div id="tab-collateral" class="tab-content">
-        <div class="card">
+      <!-- ==================== TAB 3: CASE TRACKING & RECOVERY ==================== -->
+      <div id="tab-cases" class="tab-content">
+
+        <!-- Case Workflow Dashboard Cards -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px">
+          <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="filterCasesByStep('complaint_filed')">
+            <div style="font-size:24px">📋</div>
+            <div style="font-size:20px;font-weight:800;color:#92400E" id="wf-complaint-filed">0</div>
+            <div style="font-size:11px;color:#92400E;font-weight:600">Complaint Filed</div>
+          </div>
+          <div style="background:#DBEAFE;border:1px solid #3B82F6;border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="filterCasesByStep('under_review')">
+            <div style="font-size:24px">🔍</div>
+            <div style="font-size:20px;font-weight:800;color:#1E40AF" id="wf-under-review">0</div>
+            <div style="font-size:11px;color:#1E40AF;font-weight:600">Under Review</div>
+          </div>
+          <div style="background:#FEE2E2;border:1px solid #EF4444;border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="filterCasesByStep('for_hearing')">
+            <div style="font-size:24px">🏛️</div>
+            <div style="font-size:20px;font-weight:800;color:#991B1B" id="wf-for-hearing">0</div>
+            <div style="font-size:11px;color:#991B1B;font-weight:600">For Hearing</div>
+          </div>
+          <div style="background:#E0E7FF;border:1px solid #6366F1;border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="filterCasesByStep('ongoing_investigation')">
+            <div style="font-size:24px">🔎</div>
+            <div style="font-size:20px;font-weight:800;color:#3730A3" id="wf-investigating">0</div>
+            <div style="font-size:11px;color:#3730A3;font-weight:600">Investigating</div>
+          </div>
+          <div style="background:#FDE68A;border:1px solid #D97706;border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="filterCasesByStep('verdict')">
+            <div style="font-size:24px">⚖️</div>
+            <div style="font-size:20px;font-weight:800;color:#78350F" id="wf-verdict">0</div>
+            <div style="font-size:11px;color:#78350F;font-weight:600">Verdict</div>
+          </div>
+          <div style="background:#D1FAE5;border:1px solid #059669;border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="filterCasesByStep('closed')">
+            <div style="font-size:24px">✅</div>
+            <div style="font-size:20px;font-weight:800;color:#065F46" id="wf-closed">0</div>
+            <div style="font-size:11px;color:#065F46;font-weight:600">Closed</div>
+          </div>
+          <div style="background:#F3F4F6;border:1px solid #9CA3AF;border-radius:12px;padding:14px;text-align:center;cursor:pointer" onclick="filterCasesByStep('dismissed')">
+            <div style="font-size:24px">🚫</div>
+            <div style="font-size:20px;font-weight:800;color:#374151" id="wf-dismissed">0</div>
+            <div style="font-size:11px;color:#374151;font-weight:600">Dismissed</div>
+          </div>
+        </div>
+
+        <!-- Overdue Escalation Warning -->
+        <div id="escalation-warning" style="display:none;background:#FEF2F2;border:2px solid #EF4444;border-radius:12px;padding:14px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:22px">⏳</span>
+            <div>
+              <div style="font-weight:700;color:#991B1B">Overdue Escalations</div>
+              <div style="font-size:13px;color:#B91C1C"><span id="escalation-count">0</span> case(s) have exceeded their escalation deadline (7 days no action)</div>
+            </div>
+            <button class="btn btn-sm" style="margin-left:auto;background:#EF4444;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-weight:600;cursor:pointer" onclick="runEscalationCheck()">Auto-Escalate Now</button>
+          </div>
+        </div>
+
+        <!-- Legal Cases -->
+        <div class="card" style="margin-bottom:20px">
           <div class="card-header">
-            <span class="card-title">Collateral Registry</span>
-            <div style="display:flex;gap:8px">
-              <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportCollaterals('pdf')">📄 PDF</button>
-              <button class="btn-export btn-export-csv btn-export-sm" onclick="exportCollaterals('csv')">📊 CSV</button>
+            <span class="card-title">⚖️ Legal Cases</span>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button class="btn btn-sm" style="background:#059669;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-weight:600;cursor:pointer" onclick="openFileComplaint()">📋 File Complaint</button>
+              <button class="btn btn-sm" style="background:#6366F1;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-weight:600;cursor:pointer" onclick="openDecisionMatrix()">📊 Decision Matrix</button>
+              <button class="btn btn-sm" style="background:#0EA5E9;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-weight:600;cursor:pointer" onclick="openCaseAnalytics()">📈 Analytics</button>
+              <select id="case-filter-step" onchange="filterCasesByDropdown()" style="padding:5px 10px;border-radius:8px;border:1px solid #D1D5DB;font-size:12px">
+                <option value="">All Steps</option>
+                <option value="complaint_filed">Complaint Filed</option>
+                <option value="under_review">Under Review</option>
+                <option value="for_hearing">For Hearing</option>
+                <option value="ongoing_investigation">Investigating</option>
+                <option value="verdict">Verdict</option>
+                <option value="closed">Closed</option>
+                <option value="dismissed">Dismissed</option>
+              </select>
+              <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportCases('pdf')">📄 PDF</button>
+              <button class="btn-export btn-export-csv btn-export-sm" onclick="exportCases('csv')">📊 CSV</button>
             </div>
           </div>
           <div class="card-body">
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Code</th>
-                  <th>Borrower</th>
+                  <th>Case #</th>
+                  <th>Title</th>
                   <th>Type</th>
-                  <th>Description</th>
-                  <th>Appraised Value</th>
-                  <th>Lien Status</th>
-                  <th>Insurance Expiry</th>
+                  <th>Severity</th>
+                  <th>Workflow</th>
+                  <th>Priority</th>
+                  <th>Complainant</th>
+                  <th>Accused</th>
+                  <th>Financial</th>
                   <th>Actions</th>
                 </tr>
               </thead>
-              <tbody id="collaterals-tbody">
-                <tr><td colspan="8" class="text-center text-gray-400 py-8">Loading...</td></tr>
+              <tbody id="cases-tbody">
+                <tr><td colspan="10" class="text-center text-gray-400 py-8">Loading...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
-      </div>
 
-      <!-- ==================== TAB 3: LITIGATION ==================== -->
-      <div id="tab-cases" class="tab-content">
         <!-- Demand Letters -->
         <div class="card" style="margin-bottom:20px">
           <div class="card-header">
@@ -189,168 +334,9 @@
             </table>
           </div>
         </div>
-
-        <!-- Legal Cases -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">⚖️ Legal Cases</span>
-            <div style="display:flex;gap:8px">
-              <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportCases('pdf')">📄 PDF</button>
-              <button class="btn-export btn-export-csv btn-export-sm" onclick="exportCases('csv')">📊 CSV</button>
-            </div>
-          </div>
-          <div class="card-body">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Case #</th>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                  <th>Opposing Party</th>
-                  <th>Financial Impact</th>
-                  <th>Assigned</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="cases-tbody">
-                <tr><td colspan="9" class="text-center text-gray-400 py-8">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
 
-      <!-- ==================== TAB 4: COMPLIANCE ==================== -->
-      <div id="tab-compliance" class="tab-content">
-        <!-- KYC Records -->
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-header">
-            <span class="card-title">🔍 KYC Records</span>
-            <div style="display:flex;gap:8px">
-              <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportKYC('pdf')">📄 PDF</button>
-              <button class="btn-export btn-export-csv btn-export-sm" onclick="exportKYC('csv')">📊 CSV</button>
-            </div>
-          </div>
-          <div class="card-body">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Client</th>
-                  <th>Type</th>
-                  <th>ID Type</th>
-                  <th>Risk Rating</th>
-                  <th>Verification Status</th>
-                  <th>Next Review</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="kyc-tbody">
-                <tr><td colspan="8" class="text-center text-gray-400 py-8">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Regulatory Compliance -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">📑 Regulatory Compliance</span>
-            <div style="display:flex;gap:8px">
-              <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportCompliance('pdf')">📄 PDF</button>
-              <button class="btn-export btn-export-csv btn-export-sm" onclick="exportCompliance('csv')">📊 CSV</button>
-            </div>
-          </div>
-          <div class="card-body">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Requirement</th>
-                  <th>Body</th>
-                  <th>Status</th>
-                  <th>Deadline</th>
-                  <th>Assigned</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="compliance-tbody">
-                <tr><td colspan="7" class="text-center text-gray-400 py-8">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== TAB 5: GOVERNANCE ==================== -->
-      <div id="tab-governance" class="tab-content">
-        <!-- Board Resolutions -->
-        <div class="card" style="margin-bottom:20px">
-          <div class="card-header">
-            <span class="card-title">🏛️ Board Resolutions</span>
-            <div style="display:flex;gap:8px">
-              <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportResolutions('pdf')">📄 PDF</button>
-              <button class="btn-export btn-export-csv btn-export-sm" onclick="exportResolutions('csv')">📊 CSV</button>
-            </div>
-          </div>
-          <div class="card-body">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Title</th>
-                  <th>Type</th>
-                  <th>Meeting Date</th>
-                  <th>Meeting Type</th>
-                  <th>Votes (F/A/Ab)</th>
-                  <th>Passed</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="resolutions-tbody">
-                <tr><td colspan="9" class="text-center text-gray-400 py-8">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Power of Attorney -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">📜 Power of Attorney</span>
-            <div style="display:flex;gap:8px">
-              <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportPOA('pdf')">📄 PDF</button>
-              <button class="btn-export btn-export-csv btn-export-sm" onclick="exportPOA('csv')">📊 CSV</button>
-            </div>
-          </div>
-          <div class="card-body">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Principal</th>
-                  <th>Agent</th>
-                  <th>Type</th>
-                  <th>Scope</th>
-                  <th>Effective Date</th>
-                  <th>Expiry</th>
-                  <th>Notarized</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="poa-tbody">
-                <tr><td colspan="10" class="text-center text-gray-400 py-8">Loading...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ==================== TAB 6: CONTRACTS ==================== -->
+      <!-- ==================== TAB 6: CONTRACT LIFECYCLE ==================== -->
       <div id="tab-contracts" class="tab-content">
         <!-- Contract Folder Cards -->
         <div id="contract-folders-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:20px">
@@ -428,11 +414,11 @@
         </div>
       </div>
 
-      <!-- ==================== TAB 7: PERMITS ==================== -->
+      <!-- ==================== TAB 7: PERMITS, LICENSES & RENEWALS ==================== -->
       <div id="tab-permits" class="tab-content">
         <div class="card">
           <div class="card-header">
-            <span class="card-title">Permits &amp; Licenses</span>
+            <span class="card-title">Permits, Licenses & Renewals</span>
             <div style="display:flex;gap:8px">
               <button class="btn-export btn-export-pdf btn-export-sm" onclick="exportPermits('pdf')">📄 PDF</button>
               <button class="btn-export btn-export-csv btn-export-sm" onclick="exportPermits('csv')">📊 CSV</button>
@@ -462,27 +448,49 @@
         </div>
       </div>
 
-      <!-- ==================== TAB 8: LEGAL CALENDAR ==================== -->
+      <!-- ==================== TAB 8: LEGAL CALENDAR & DEADLINES ==================== -->
       <div id="tab-legal-calendar" class="tab-content">
-        <div class="card">
-          <div class="card-header">
-            <div style="display:flex;align-items:center;gap:12px">
-              <button class="btn btn-outline btn-sm" onclick="legalCalNav(-1)">‹</button>
-              <span class="card-title" id="legal-cal-title" style="min-width:160px;text-align:center">—</span>
-              <button class="btn btn-outline btn-sm" onclick="legalCalNav(1)">›</button>
-              <button class="btn btn-outline btn-sm" onclick="legalCalToday()" style="font-size:11px">Today</button>
+
+        <!-- ── Navigation bar ── -->
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header" style="flex-wrap:wrap;gap:10px">
+            <div style="display:flex;align-items:center;gap:10px">
+              <button class="btn btn-outline btn-sm" onclick="legalCalNav(-1)">&#8249;</button>
+              <span class="card-title" id="legal-cal-title" style="min-width:170px;text-align:center">—</span>
+              <button class="btn btn-outline btn-sm" onclick="legalCalNav(1)">&#8250;</button>
+              <button class="btn btn-outline btn-sm" onclick="legalCalToday()" style="font-size:11px;padding:4px 10px">Today</button>
             </div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-              <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#EF4444;display:inline-block"></span>Cases</span>
-              <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#3B82F6;display:inline-block"></span>Contracts</span>
-              <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#059669;display:inline-block"></span>Compliance</span>
-              <span style="font-size:11px;display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#F59E0B;display:inline-block"></span>Permits</span>
+            <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+              <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#EF4444;display:inline-block"></span>Cases</span>
+              <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#3B82F6;display:inline-block"></span>Contracts</span>
+              <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#059669;display:inline-block"></span>Compliance</span>
+              <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#F59E0B;display:inline-block"></span>Permits</span>
+              <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#EC4899;display:inline-block"></span>Demands</span>
+              <span style="font-size:11px;display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;border-radius:50%;background:#6366F1;display:inline-block"></span>Board</span>
             </div>
           </div>
-          <div class="card-body" style="padding:10px">
-            <div id="legal-calendar-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#E5E7EB;border-radius:8px;overflow:hidden">
+        </div>
+
+        <!-- ── Two-column layout ── -->
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start">
+
+          <!-- Left: Calendar grid -->
+          <div class="card" style="margin-bottom:0;overflow:hidden">
+            <div id="legal-calendar-grid" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#E5E7EB;gap:1px">
             </div>
           </div>
+
+          <!-- Right: Upcoming deadlines -->
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <span class="card-title">⏰ Upcoming Deadlines</span>
+              <span id="deadline-count-badge" style="background:#FEF3C7;color:#92400E;padding:2px 10px;border-radius:50px;font-size:11px;font-weight:700">0</span>
+            </div>
+            <div id="upcoming-deadlines-body" style="max-height:640px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px">
+              <div style="text-align:center;padding:24px;color:#9CA3AF;font-size:13px">Loading...</div>
+            </div>
+          </div>
+
         </div>
 
         <!-- Day Detail Panel -->
@@ -491,10 +499,11 @@
             <span class="card-title" id="legal-day-title">—</span>
             <button class="btn btn-outline btn-sm" onclick="document.getElementById('legal-day-panel').style.display='none'">Close</button>
           </div>
-          <div class="card-body" id="legal-day-body" style="padding:16px">
-          </div>
+          <div class="card-body" id="legal-day-body" style="padding:16px"></div>
         </div>
       </div>
+
+
 
       <!-- ==================== MODALS ==================== -->
 
@@ -514,18 +523,6 @@
       </div>
 
       <!-- Modal: View Collateral Details -->
-      <div id="modal-collateral-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-collateral-detail')">
-        <div class="modal" style="max-width:700px">
-          <div class="modal-header">
-            <span class="modal-title">🏠 Collateral Details</span>
-            <button class="modal-close" onclick="closeModal('modal-collateral-detail')">&times;</button>
-          </div>
-          <div class="modal-body" id="collateral-detail-body"></div>
-          <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('modal-collateral-detail')">Close</button>
-          </div>
-        </div>
-      </div>
 
       <!-- Modal: View Demand Letter -->
       <div id="modal-demand-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-demand-detail')">
@@ -541,72 +538,343 @@
         </div>
       </div>
 
-      <!-- Modal: View Legal Case -->
+      <!-- Modal: View Legal Case (Enhanced Workflow) -->
       <div id="modal-case-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-case-detail')">
-        <div class="modal" style="max-width:750px">
+        <div class="modal" style="max-width:900px;max-height:92vh;overflow-y:auto">
           <div class="modal-header">
             <span class="modal-title">⚖️ Legal Case Details</span>
             <button class="modal-close" onclick="closeModal('modal-case-detail')">&times;</button>
           </div>
           <div class="modal-body" id="case-detail-body"></div>
-          <div class="modal-footer">
+          <div class="modal-footer" id="case-detail-footer">
             <button class="btn btn-outline" onclick="closeModal('modal-case-detail')">Close</button>
           </div>
         </div>
       </div>
 
-      <!-- Modal: View KYC -->
-      <div id="modal-kyc-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-kyc-detail')">
-        <div class="modal" style="max-width:700px">
+      <!-- Modal: File Complaint -->
+      <div id="modal-file-complaint" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-file-complaint')">
+        <div class="modal" style="max-width:750px;max-height:92vh;overflow-y:auto">
           <div class="modal-header">
-            <span class="modal-title">🔍 KYC Record Details</span>
-            <button class="modal-close" onclick="closeModal('modal-kyc-detail')">&times;</button>
+            <span class="modal-title">📋 File New Complaint</span>
+            <button class="modal-close" onclick="closeModal('modal-file-complaint')">&times;</button>
           </div>
-          <div class="modal-body" id="kyc-detail-body"></div>
+          <div class="modal-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div style="grid-column:1/-1">
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Case Title *</label>
+                <input type="text" id="fc-title" placeholder="e.g. Loan Default - Juan Dela Cruz" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Case Type *</label>
+                <select id="fc-case-type" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+                  <option value="">Select type...</option>
+                  <option value="loan_default">Loan Default</option>
+                  <option value="fraud">Fraud</option>
+                  <option value="theft">Theft</option>
+                  <option value="harassment">Harassment</option>
+                  <option value="data_breach">Data Breach</option>
+                  <option value="forgery">Forgery</option>
+                  <option value="contract_violation">Contract Violation</option>
+                  <option value="policy_violation">Policy Violation</option>
+                  <option value="litigation">Litigation</option>
+                  <option value="compliance">Compliance</option>
+                  <option value="internal_investigation">Internal Investigation</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Priority</label>
+                <select id="fc-priority" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+              <div style="grid-column:1/-1">
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Severity *</label>
+                <div style="display:flex;gap:16px">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+                    <input type="radio" name="fc-severity" value="minor"> 🟢 Minor
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+                    <input type="radio" name="fc-severity" value="moderate" checked> 🟡 Moderate
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
+                    <input type="radio" name="fc-severity" value="major"> 🔴 Major
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Complainant Name</label>
+                <input type="text" id="fc-complainant-name" placeholder="Full name" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Complainant Department</label>
+                <input type="text" id="fc-complainant-dept" placeholder="Department" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Accused Name</label>
+                <input type="text" id="fc-accused-name" placeholder="Full name" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Accused Department</label>
+                <input type="text" id="fc-accused-dept" placeholder="Department" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Accused Employee ID</label>
+                <input type="text" id="fc-accused-empid" placeholder="EMP-XXXX" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Financial Impact (₱)</label>
+                <input type="number" id="fc-financial" placeholder="0.00" step="0.01" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Assigned Lawyer</label>
+                <input type="text" id="fc-lawyer" placeholder="Attorney name" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Legal Officer</label>
+                <input type="text" id="fc-officer" placeholder="Handling officer" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Opposing Party</label>
+                <input type="text" id="fc-opposing" placeholder="External party (if any)" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Court / Venue</label>
+                <input type="text" id="fc-venue" placeholder="Court venue (if applicable)" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div style="grid-column:1/-1">
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Description *</label>
+                <textarea id="fc-description" rows="4" placeholder="Detailed description of the complaint..." style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;resize:vertical"></textarea>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Linked Loan (optional)</label>
+                <select id="fc-linked-loan" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+                  <option value="">None</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Department</label>
+                <input type="text" id="fc-department" placeholder="Filing department" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+            </div>
+          </div>
           <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('modal-kyc-detail')">Close</button>
+            <button class="btn btn-outline" onclick="closeModal('modal-file-complaint')">Cancel</button>
+            <button class="btn" style="background:#059669;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer" onclick="submitComplaint()">📋 File Complaint</button>
           </div>
         </div>
       </div>
 
-      <!-- Modal: View Compliance -->
-      <div id="modal-compliance-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-compliance-detail')">
-        <div class="modal" style="max-width:700px">
+      <!-- Modal: Add Hearing -->
+      <div id="modal-add-hearing" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-add-hearing')">
+        <div class="modal" style="max-width:650px">
           <div class="modal-header">
-            <span class="modal-title">📑 Compliance Details</span>
-            <button class="modal-close" onclick="closeModal('modal-compliance-detail')">&times;</button>
+            <span class="modal-title">🏛️ Schedule Hearing</span>
+            <button class="modal-close" onclick="closeModal('modal-add-hearing')">&times;</button>
           </div>
-          <div class="modal-body" id="compliance-detail-body"></div>
+          <div class="modal-body">
+            <input type="hidden" id="ah-case-id">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Hearing Date & Time *</label>
+                <input type="datetime-local" id="ah-date" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Hearing Type</label>
+                <select id="ah-type" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+                  <option value="initial_review">Initial Review</option>
+                  <option value="admin_hearing">Admin Hearing</option>
+                  <option value="investigation">Investigation</option>
+                  <option value="formal_hearing">Formal Hearing</option>
+                  <option value="verdict_hearing">Verdict Hearing</option>
+                  <option value="follow_up">Follow Up</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Location</label>
+                <input type="text" id="ah-location" placeholder="Room / venue" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Presiding Officer</label>
+                <input type="text" id="ah-officer" placeholder="Officer name" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Attendees (comma sep.)</label>
+                <input type="text" id="ah-attendees" placeholder="Name1, Name2" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Witnesses (comma sep.)</label>
+                <input type="text" id="ah-witnesses" placeholder="Witness1, Witness2" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div style="grid-column:1/-1">
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Minutes / Notes</label>
+                <textarea id="ah-minutes" rows="3" placeholder="Hearing minutes and notes..." style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;resize:vertical"></textarea>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Outcome</label>
+                <input type="text" id="ah-outcome" placeholder="Hearing outcome" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Next Action</label>
+                <input type="text" id="ah-next-action" placeholder="Follow-up action" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+            </div>
+          </div>
           <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('modal-compliance-detail')">Close</button>
+            <button class="btn btn-outline" onclick="closeModal('modal-add-hearing')">Cancel</button>
+            <button class="btn" style="background:#059669;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer" onclick="submitHearing()">🏛️ Save Hearing</button>
           </div>
         </div>
       </div>
 
-      <!-- Modal: View Resolution -->
-      <div id="modal-resolution-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-resolution-detail')">
-        <div class="modal" style="max-width:800px">
+      <!-- Modal: Add Evidence (with file upload) -->
+      <div id="modal-add-evidence" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-add-evidence')">
+        <div class="modal" style="max-width:620px">
           <div class="modal-header">
-            <span class="modal-title">🏛️ Board Resolution Details</span>
-            <button class="modal-close" onclick="closeModal('modal-resolution-detail')">&times;</button>
+            <span class="modal-title">📎 Add Evidence</span>
+            <button class="modal-close" onclick="closeModal('modal-add-evidence')">&times;</button>
           </div>
-          <div class="modal-body" id="resolution-detail-body"></div>
+          <div class="modal-body">
+            <input type="hidden" id="ae-case-id">
+            <div style="display:grid;gap:14px">
+              <!-- File drop zone -->
+              <div id="ae-dropzone"
+                ondragover="event.preventDefault();this.style.borderColor='#059669';this.style.background='#F0FDF4'"
+                ondragleave="this.style.borderColor='#D1D5DB';this.style.background='#F9FAFB'"
+                ondrop="handleEvidenceDrop(event)"
+                onclick="document.getElementById('ae-file-input').click()"
+                style="border:2px dashed #D1D5DB;border-radius:12px;padding:28px;text-align:center;cursor:pointer;background:#F9FAFB;transition:all 0.2s">
+                <div style="font-size:36px;margin-bottom:8px">☁️</div>
+                <div style="font-weight:600;color:#374151;font-size:14px">Click or drag & drop your file here</div>
+                <div style="font-size:12px;color:#9CA3AF;margin-top:4px">Supports: Images, Videos, Audio, PDF, Word, Excel, ZIP — Max 50 MB</div>
+                <input type="file" id="ae-file-input" style="display:none"
+                  accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar,.eml"
+                  onchange="handleEvidenceFileSelect(this.files[0])">
+              </div>
+
+              <!-- File preview -->
+              <div id="ae-preview" style="display:none">
+                <div style="background:#F0FDF4;border:1px solid #A7F3D0;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px">
+                  <div id="ae-preview-icon" style="font-size:32px">📄</div>
+                  <div style="flex:1;min-width:0">
+                    <div id="ae-preview-name" style="font-weight:600;font-size:13px;color:#1F2937;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div>
+                    <div id="ae-preview-size" style="font-size:11px;color:#6B7280"></div>
+                  </div>
+                  <button onclick="clearEvidenceFile()" style="background:none;border:none;cursor:pointer;color:#EF4444;font-size:20px;line-height:1" title="Remove file">✕</button>
+                </div>
+                <!-- Image thumbnail (shown only for images) -->
+                <div id="ae-img-thumb-wrap" style="display:none;margin-top:8px;text-align:center">
+                  <img id="ae-img-thumb" style="max-height:200px;max-width:100%;border-radius:8px;border:1px solid #E5E7EB;object-fit:contain" src="" alt="preview">
+                </div>
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                  <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Evidence Type</label>
+                  <select id="ae-type" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+                    <option value="document">Document</option>
+                    <option value="photo">Photo</option>
+                    <option value="video">Video</option>
+                    <option value="audio">Audio</option>
+                    <option value="email">Email</option>
+                    <option value="report">Report</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Description</label>
+                  <input type="text" id="ae-description" placeholder="Optional description" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+                </div>
+              </div>
+
+              <!-- Upload progress -->
+              <div id="ae-progress-wrap" style="display:none">
+                <div style="font-size:12px;color:#6B7280;margin-bottom:4px">Uploading...</div>
+                <div style="height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden">
+                  <div id="ae-progress-bar" style="height:100%;width:0%;background:#059669;border-radius:4px;transition:width 0.3s"></div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('modal-resolution-detail')">Close</button>
+            <button class="btn btn-outline" onclick="closeModal('modal-add-evidence')">Cancel</button>
+            <button id="ae-submit-btn" class="btn" style="background:#059669;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer" onclick="submitEvidence()">📎 Upload Evidence</button>
           </div>
         </div>
       </div>
 
-      <!-- Modal: View POA -->
-      <div id="modal-poa-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-poa-detail')">
-        <div class="modal" style="max-width:700px">
+      <!-- Modal: Render Verdict -->
+      <div id="modal-render-verdict" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-render-verdict')">
+        <div class="modal" style="max-width:600px">
           <div class="modal-header">
-            <span class="modal-title">📜 Power of Attorney Details</span>
-            <button class="modal-close" onclick="closeModal('modal-poa-detail')">&times;</button>
+            <span class="modal-title">⚖️ Render Verdict</span>
+            <button class="modal-close" onclick="closeModal('modal-render-verdict')">&times;</button>
           </div>
-          <div class="modal-body" id="poa-detail-body"></div>
+          <div class="modal-body">
+            <input type="hidden" id="rv-case-id">
+            <div style="display:grid;gap:14px">
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Verdict *</label>
+                <select id="rv-verdict" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+                  <option value="">Select verdict...</option>
+                  <option value="not_guilty">Not Guilty</option>
+                  <option value="guilty_warning">Guilty — Warning</option>
+                  <option value="guilty_suspension">Guilty — Suspension</option>
+                  <option value="guilty_termination">Guilty — Termination</option>
+                  <option value="filed_in_court">Filed in Court</option>
+                  <option value="deduct_salary">Deduct from Salary</option>
+                  <option value="dismissed">Case Dismissed</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Penalty Amount (₱)</label>
+                <input type="number" id="rv-amount" placeholder="0.00" step="0.01" style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px">
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Penalty Details</label>
+                <textarea id="rv-details" rows="3" placeholder="Describe the penalty and conditions..." style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;resize:vertical"></textarea>
+              </div>
+              <div>
+                <label style="font-weight:600;font-size:13px;display:block;margin-bottom:4px">Resolution Summary</label>
+                <textarea id="rv-summary" rows="3" placeholder="Summary of the resolution..." style="width:100%;padding:8px 12px;border:1px solid #D1D5DB;border-radius:8px;font-size:13px;resize:vertical"></textarea>
+              </div>
+            </div>
+          </div>
           <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('modal-poa-detail')">Close</button>
+            <button class="btn btn-outline" onclick="closeModal('modal-render-verdict')">Cancel</button>
+            <button class="btn" style="background:#EF4444;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-weight:600;cursor:pointer" onclick="submitVerdict()">⚖️ Render Verdict</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal: Decision Matrix -->
+      <div id="modal-decision-matrix" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-decision-matrix')">
+        <div class="modal" style="max-width:850px;max-height:90vh;overflow-y:auto">
+          <div class="modal-header">
+            <span class="modal-title">📊 Legal Decision Matrix</span>
+            <button class="modal-close" onclick="closeModal('modal-decision-matrix')">&times;</button>
+          </div>
+          <div class="modal-body" id="decision-matrix-body">Loading...</div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('modal-decision-matrix')">Close</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal: Case Analytics -->
+      <div id="modal-case-analytics" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-case-analytics')">
+        <div class="modal" style="max-width:900px;max-height:92vh;overflow-y:auto">
+          <div class="modal-header">
+            <span class="modal-title">📈 Case Analytics</span>
+            <button class="modal-close" onclick="closeModal('modal-case-analytics')">&times;</button>
+          </div>
+          <div class="modal-body" id="case-analytics-body">Loading...</div>
+          <div class="modal-footer">
+            <button class="btn btn-outline" onclick="closeModal('modal-case-analytics')">Close</button>
           </div>
         </div>
       </div>
@@ -642,14 +910,14 @@
     </main>
   </div>
 
-<script src="../../admin.js"></script>
-<script src="../../export.js"></script>
+<script src="../../admin.js?v=20260304"></script>
+<script src="../../export.js?v=20260304"></script>
 <script>
 const API = '../../api/legal.php';
 
 // Data stores
-let loans = [], collaterals = [], cases = [], demands = [], kyc = [], compliance = [],
-    resolutions = [], poa = [], contracts = [], permits = [], stats = {};
+let loans = [], cases = [], demands = [], contracts = [], permits = [], stats = {};
+let compliance = [], resolutions = [];
 
 // ===== Helpers =====
 function money(v) {
@@ -702,6 +970,33 @@ function caseStatusBadge(s) {
     resolved: 'badge badge-green', closed: 'badge badge-gray', appealed: 'badge badge-purple'
   };
   return '<span class="' + (map[s] || 'badge badge-gray') + '">' + labelCase(s) + '</span>';
+}
+
+function workflowBadge(s) {
+  const map = {
+    complaint_filed: ['#F59E0B','#78350F'], under_review: ['#3B82F6','#1E3A8A'],
+    for_hearing: ['#EF4444','#7F1D1D'], ongoing_investigation: ['#6366F1','#312E81'],
+    verdict: ['#D97706','#78350F'], closed: ['#059669','#064E3B'], dismissed: ['#9CA3AF','#374151']
+  };
+  const c = map[s] || ['#9CA3AF','#374151'];
+  return '<span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;background:' + c[0] + '22;color:' + c[1] + ';border:1px solid ' + c[0] + '44">' + labelCase(s) + '</span>';
+}
+
+function severityBadge(s) {
+  const map = { minor: ['🟢','#059669'], moderate: ['🟡','#D97706'], major: ['🔴','#EF4444'] };
+  const c = map[s] || ['⚪','#6B7280'];
+  return '<span style="color:' + c[1] + ';font-weight:700;font-size:12px">' + c[0] + ' ' + labelCase(s) + '</span>';
+}
+
+function verdictBadge(v) {
+  if (!v) return '<span style="color:#9CA3AF;font-size:12px">—</span>';
+  const map = {
+    not_guilty: ['#059669','Not Guilty'], guilty_warning: ['#F59E0B','Warning'], guilty_suspension: ['#EF4444','Suspension'],
+    guilty_termination: ['#7F1D1D','Termination'], filed_in_court: ['#7C3AED','Filed in Court'],
+    deduct_salary: ['#D97706','Salary Deduction'], dismissed: ['#6B7280','Dismissed']
+  };
+  const c = map[v] || ['#6B7280', labelCase(v)];
+  return '<span style="display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;background:' + c[0] + '22;color:' + c[0] + '">' + c[1] + '</span>';
 }
 
 function demandStatusBadge(s) {
@@ -774,43 +1069,37 @@ function emptyRow(cols, msg) {
 // ===== Data Loading =====
 async function loadData() {
   try {
-    const [sRes, lRes, cRes, csRes, dRes, kRes, cmRes, rRes, pRes, ctRes, pmRes] = await Promise.all([
+    const [sRes, lRes, csRes, dRes, ctRes, pmRes, coRes, rrRes] = await Promise.all([
       fetch(API + '?action=dashboard_stats'),
       fetch(API + '?action=list_loans'),
-      fetch(API + '?action=list_collaterals'),
       fetch(API + '?action=list_cases'),
       fetch(API + '?action=list_demands'),
-      fetch(API + '?action=list_kyc'),
-      fetch(API + '?action=list_compliance'),
-      fetch(API + '?action=list_resolutions'),
-      fetch(API + '?action=list_poa'),
       fetch(API + '?action=list_contracts'),
-      fetch(API + '?action=list_permits')
+      fetch(API + '?action=list_permits'),
+      fetch(API + '?action=list_compliance'),
+      fetch(API + '?action=list_resolutions')
     ]);
 
     stats = await sRes.json();
     loans = (await lRes.json()).data || [];
-    collaterals = (await cRes.json()).data || [];
     cases = (await csRes.json()).data || [];
     demands = (await dRes.json()).data || [];
-    kyc = (await kRes.json()).data || [];
-    compliance = (await cmRes.json()).data || [];
-    resolutions = (await rRes.json()).data || [];
-    poa = (await pRes.json()).data || [];
     contracts = (await ctRes.json()).data || [];
     permits = (await pmRes.json()).data || [];
+    compliance = (await coRes.json()).data || [];
+    resolutions = (await rrRes.json()).data || [];
 
     renderStats();
     renderLoans();
-    renderCollaterals();
     renderDemands();
     renderCases();
-    renderKyc();
-    renderCompliance();
-    renderResolutions();
-    renderPoa();
     renderContracts();
     renderPermits();
+    if (typeof refreshSidebarCounts === 'function') refreshSidebarCounts();
+    // Re-render calendar now that all data is ready
+    if (document.getElementById('tab-legal-calendar') && document.getElementById('tab-legal-calendar').classList.contains('active')) {
+      renderLegalCalendar();
+    }
   } catch (e) {
     console.error('Load error:', e);
     Swal.fire({ icon: 'error', title: 'Load Error', text: 'Failed to load legal data. Please refresh the page.', confirmButtonColor: '#059669' });
@@ -820,10 +1109,9 @@ async function loadData() {
 // ===== Render: Stats =====
 function renderStats() {
   document.getElementById('stat-loans').textContent = stats.total_loans || 0;
-  document.getElementById('stat-collaterals').textContent = stats.total_collaterals || 0;
   document.getElementById('stat-cases').textContent = stats.active_cases || 0;
-  document.getElementById('stat-compliance').textContent = stats.compliance_items || 0;
-  document.getElementById('stat-resolutions').textContent = stats.total_resolutions || 0;
+  document.getElementById('stat-contracts').textContent = contracts.length;
+  document.getElementById('stat-permits').textContent = permits.length;
 }
 
 // ===== Render: Loans =====
@@ -923,62 +1211,6 @@ function viewLoanContract(idx) {
   openModal('modal-loan-contract');
 }
 
-// ===== Render: Collaterals =====
-function renderCollaterals() {
-  const tb = document.getElementById('collaterals-tbody');
-  if (!collaterals.length) { tb.innerHTML = emptyRow(8, 'No collateral records found'); return; }
-  tb.innerHTML = collaterals.map(function(c, i) {
-    return '<tr>' +
-      '<td><span class="secure-text" style="font-size:11px">' + esc(c.collateral_code) + '</span></td>' +
-      '<td style="font-weight:600">' + esc(c.borrower_name) + '</td>' +
-      '<td>' + labelCase(c.collateral_type) + '</td>' +
-      '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(c.description) + '</td>' +
-      '<td>' + money(c.appraised_value) + '</td>' +
-      '<td>' + lienStatusBadge(c.lien_status) + '</td>' +
-      '<td>' + (c.insurance_expiry ? (isExpiringSoon(c.insurance_expiry) ? '<span class="badge badge-amber">⚠ ' + fmtDate(c.insurance_expiry) + '</span>' : fmtDate(c.insurance_expiry)) : '—') + '</td>' +
-      '<td><button class="btn btn-outline btn-sm" onclick="viewCollateral(' + i + ')">View</button></td>' +
-    '</tr>';
-  }).join('');
-}
-
-// ===== View: Collateral =====
-function viewCollateral(idx) {
-  const c = collaterals[idx];
-  if (!c) return;
-  document.getElementById('collateral-detail-body').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px">' +
-      '<div>' +
-        '<div style="font-weight:700;font-size:16px;color:#1F2937">' + esc(c.collateral_code) + '</div>' +
-        '<div style="font-size:13px;color:#6B7280">Borrower: <strong>' + esc(c.borrower_name) + '</strong></div>' +
-      '</div>' +
-      '<div>' + lienStatusBadge(c.lien_status) + '</div>' +
-    '</div>' +
-    '<div class="grid-2" style="gap:12px">' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Property Details</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Type:</strong> ' + labelCase(c.collateral_type) + '</div>' +
-        '<div style="font-size:13px"><strong>Description:</strong> ' + esc(c.description) + '</div>' +
-        (c.serial_plate_no ? '<div style="font-size:13px"><strong>Serial/Plate:</strong> ' + esc(c.serial_plate_no) + '</div>' : '') +
-        (c.title_deed_no ? '<div style="font-size:13px"><strong>Title/Deed:</strong> ' + esc(c.title_deed_no) + '</div>' : '') +
-        (c.location_address ? '<div style="font-size:13px"><strong>Location:</strong> ' + esc(c.location_address) + '</div>' : '') +
-      '</div>' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Valuation &amp; Lien</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Appraised Value:</strong> ' + money(c.appraised_value) + '</div>' +
-        (c.appraisal_date ? '<div style="font-size:13px"><strong>Appraisal Date:</strong> ' + fmtDate(c.appraisal_date) + '</div>' : '') +
-        (c.appraiser_name ? '<div style="font-size:13px"><strong>Appraiser:</strong> ' + esc(c.appraiser_name) + '</div>' : '') +
-        (c.lien_recorded_date ? '<div style="font-size:13px"><strong>Lien Recorded:</strong> ' + fmtDate(c.lien_recorded_date) + '</div>' : '') +
-        (c.lien_registry_no ? '<div style="font-size:13px"><strong>Registry No:</strong> ' + esc(c.lien_registry_no) + '</div>' : '') +
-      '</div>' +
-    '</div>' +
-    (c.insurance_policy ? '<div style="margin-top:12px;padding:12px;background:#EFF6FF;border-radius:8px;border:1px solid #BFDBFE;font-size:13px">' +
-      '<strong>Insurance Policy:</strong> ' + esc(c.insurance_policy) + ' | <strong>Expiry:</strong> ' + fmtDate(c.insurance_expiry) +
-      (isExpiringSoon(c.insurance_expiry) ? ' <span class="badge badge-amber" style="margin-left:8px">⚠ Expiring Soon</span>' : '') +
-    '</div>' : '') +
-    (c.notes ? '<div style="margin-top:12px;font-size:13px;color:#6B7280"><strong>Notes:</strong> ' + esc(c.notes) + '</div>' : '');
-  openModal('modal-collateral-detail');
-}
-
 // ===== Render: Demands =====
 function renderDemands() {
   const tb = document.getElementById('demands-tbody');
@@ -1037,314 +1269,230 @@ function viewDemand(idx) {
   openModal('modal-demand-detail');
 }
 
-// ===== Render: Cases =====
+// ===== Render: Cases (Enhanced Workflow) =====
+let caseFilterStep = '';
+
+function renderCaseWorkflowCards() {
+  const counts = { complaint_filed:0, under_review:0, for_hearing:0, ongoing_investigation:0, verdict:0, closed:0, dismissed:0 };
+  cases.forEach(c => { if (counts.hasOwnProperty(c.workflow_step)) counts[c.workflow_step]++; });
+  document.getElementById('wf-complaint-filed').textContent = counts.complaint_filed;
+  document.getElementById('wf-under-review').textContent = counts.under_review;
+  document.getElementById('wf-for-hearing').textContent = counts.for_hearing;
+  document.getElementById('wf-investigating').textContent = counts.ongoing_investigation;
+  document.getElementById('wf-verdict').textContent = counts.verdict;
+  document.getElementById('wf-closed').textContent = counts.closed;
+  document.getElementById('wf-dismissed').textContent = counts.dismissed;
+  // Escalation warning
+  const overdue = stats.overdue_escalations || 0;
+  const warn = document.getElementById('escalation-warning');
+  if (overdue > 0) { warn.style.display = 'block'; document.getElementById('escalation-count').textContent = overdue; }
+  else { warn.style.display = 'none'; }
+}
+
+function filterCasesByStep(step) {
+  caseFilterStep = step;
+  document.getElementById('case-filter-step').value = step;
+  renderCases();
+}
+
+function filterCasesByDropdown() {
+  caseFilterStep = document.getElementById('case-filter-step').value;
+  renderCases();
+}
+
 function renderCases() {
+  renderCaseWorkflowCards();
   const tb = document.getElementById('cases-tbody');
-  if (!cases.length) { tb.innerHTML = emptyRow(9, 'No legal cases found'); return; }
-  tb.innerHTML = cases.map(function(c, i) {
-    return '<tr>' +
-      '<td><span class="secure-text" style="font-size:11px">' + esc(c.case_number) + '</span></td>' +
-      '<td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(c.title) + '</td>' +
-      '<td>' + labelCase(c.case_type) + '</td>' +
+  let filtered = cases;
+  if (caseFilterStep) filtered = cases.filter(c => c.workflow_step === caseFilterStep);
+  if (!filtered.length) { tb.innerHTML = emptyRow(10, 'No legal cases found'); return; }
+  tb.innerHTML = filtered.map(function(c) {
+    const idx = cases.indexOf(c);
+    const isOverdue = c.escalation_deadline && new Date(c.escalation_deadline) < new Date() && !['closed','dismissed'].includes(c.workflow_step);
+    return '<tr' + (isOverdue ? ' style="background:#FEF2F2"' : '') + '>' +
+      '<td><span class="secure-text" style="font-size:11px">' + esc(c.case_number) + '</span>' +
+        (isOverdue ? ' <span title="Overdue" style="color:#EF4444;font-size:14px">⏳</span>' : '') +
+        (c.auto_escalated == 1 ? ' <span title="Auto-Escalated" style="color:#F59E0B;font-size:12px">⚡</span>' : '') +
+      '</td>' +
+      '<td style="font-weight:600;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(c.title) + '">' + esc(c.title) + '</td>' +
+      '<td style="font-size:12px">' + labelCase(c.case_type) + '</td>' +
+      '<td>' + severityBadge(c.severity) + '</td>' +
+      '<td>' + workflowBadge(c.workflow_step) + '</td>' +
       '<td>' + priorityBadge(c.priority) + '</td>' +
-      '<td>' + caseStatusBadge(c.status) + '</td>' +
-      '<td>' + (esc(c.opposing_party) || '—') + '</td>' +
+      '<td style="font-size:12px">' + (esc(c.complainant_name) || '—') + '</td>' +
+      '<td style="font-size:12px">' + (esc(c.accused_name) || '—') + '</td>' +
       '<td>' + money(c.financial_impact) + '</td>' +
-      '<td>' + (esc(c.assigned_name) || '—') + '</td>' +
-      '<td><button class="btn btn-outline btn-sm" onclick="viewCase(' + i + ')">View</button></td>' +
+      '<td><button class="btn btn-outline btn-sm" onclick="viewCase(' + idx + ')">View</button></td>' +
     '</tr>';
   }).join('');
 }
 
-// ===== View: Case =====
+// ===== View: Case (Enhanced with Workflow) =====
+let viewCaseIdx = null;
+
 function viewCase(idx) {
   const c = cases[idx];
   if (!c) return;
-  document.getElementById('case-detail-body').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px">' +
-      '<div>' +
-        '<div style="font-weight:700;font-size:16px;color:#1F2937">' + esc(c.case_number) + '</div>' +
-        '<div style="font-weight:600;font-size:14px;color:#374151;margin-top:2px">' + esc(c.title) + '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' + priorityBadge(c.priority) + ' ' + caseStatusBadge(c.status) + '</div>' +
-    '</div>' +
-    '<div class="grid-2" style="gap:12px;margin-bottom:16px">' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Case Info</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Type:</strong> ' + labelCase(c.case_type) + '</div>' +
-        (c.opposing_party ? '<div style="font-size:13px"><strong>Opposing Party:</strong> ' + esc(c.opposing_party) + '</div>' : '') +
-        (c.court_venue ? '<div style="font-size:13px"><strong>Court/Venue:</strong> ' + esc(c.court_venue) + '</div>' : '') +
-        (c.assigned_lawyer ? '<div style="font-size:13px"><strong>Lawyer:</strong> ' + esc(c.assigned_lawyer) + '</div>' : '') +
-        (c.department ? '<div style="font-size:13px"><strong>Department:</strong> ' + esc(c.department) + '</div>' : '') +
-      '</div>' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Dates &amp; Impact</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Filed:</strong> ' + fmtDate(c.filing_date) + '</div>' +
-        '<div style="font-size:13px"><strong>Due:</strong> ' + fmtDate(c.due_date) + '</div>' +
-        (c.resolution_date ? '<div style="font-size:13px"><strong>Resolved:</strong> ' + fmtDate(c.resolution_date) + '</div>' : '') +
-        '<div style="font-size:13px"><strong>Financial Impact:</strong> ' + money(c.financial_impact) + '</div>' +
-        (c.assigned_name ? '<div style="font-size:13px"><strong>Assigned To:</strong> ' + esc(c.assigned_name) + '</div>' : '') +
-      '</div>' +
-    '</div>' +
-    '<div style="background:#F9FAFB;padding:12px;border-radius:8px;margin-bottom:12px">' +
-      '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Description</div>' +
-      '<div style="font-size:13px;margin-top:4px;white-space:pre-wrap">' + esc(c.description) + '</div>' +
-    '</div>' +
-    (c.resolution_summary ? '<div style="background:#F0FDF4;padding:12px;border-radius:8px;border:1px solid #A7F3D0">' +
-      '<div style="font-size:12px;font-weight:600;color:#065F46">📋 Resolution Summary</div>' +
-      '<div style="font-size:13px;margin-top:4px;white-space:pre-wrap">' + esc(c.resolution_summary) + '</div>' +
-    '</div>' : '');
-  openModal('modal-case-detail');
-}
+  viewCaseIdx = idx;
 
-// ===== Render: KYC =====
-function renderKyc() {
-  const tb = document.getElementById('kyc-tbody');
-  if (!kyc.length) { tb.innerHTML = emptyRow(8, 'No KYC records found'); return; }
-  tb.innerHTML = kyc.map(function(k, i) {
-    return '<tr>' +
-      '<td><span class="secure-text" style="font-size:11px">' + esc(k.kyc_code) + '</span></td>' +
-      '<td style="font-weight:600">' + esc(k.client_name) + '</td>' +
-      '<td>' + labelCase(k.client_type) + '</td>' +
-      '<td>' + esc(k.id_type) + '</td>' +
-      '<td>' + riskBadge(k.risk_rating) + '</td>' +
-      '<td>' + kycStatusBadge(k.verification_status) + '</td>' +
-      '<td>' + fmtDate(k.next_review_date) + '</td>' +
-      '<td><button class="btn btn-outline btn-sm" onclick="viewKyc(' + i + ')">View</button></td>' +
-    '</tr>';
-  }).join('');
-}
+  // Workflow stepper
+  const steps = ['complaint_filed','under_review','for_hearing','ongoing_investigation','verdict','closed'];
+  const stepLabels = ['📋 Filed','🔍 Review','🏛️ Hearing','🔎 Investigation','⚖️ Verdict','✅ Closed'];
+  const currentIdx = steps.indexOf(c.workflow_step);
+  const isDismissed = c.workflow_step === 'dismissed';
 
-// ===== View: KYC =====
-function viewKyc(idx) {
-  const k = kyc[idx];
-  if (!k) return;
-  document.getElementById('kyc-detail-body').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px">' +
-      '<div>' +
-        '<div style="font-weight:700;font-size:16px;color:#1F2937">' + esc(k.kyc_code) + '</div>' +
-        '<div style="font-size:13px;color:#6B7280">Client: <strong>' + esc(k.client_name) + '</strong></div>' +
-      '</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' + riskBadge(k.risk_rating) + ' ' + kycStatusBadge(k.verification_status) + '</div>' +
+  let stepperHtml = '<div style="display:flex;align-items:center;gap:0;margin-bottom:20px;overflow-x:auto;padding:4px 0">';
+  steps.forEach((s, i) => {
+    const isActive = i === currentIdx;
+    const isDone = i < currentIdx;
+    let bg = '#F3F4F6', color = '#9CA3AF', border = '#E5E7EB';
+    if (isDismissed) { bg = '#F3F4F6'; color = '#9CA3AF'; }
+    else if (isActive) { bg = '#059669'; color = '#fff'; border = '#059669'; }
+    else if (isDone) { bg = '#D1FAE5'; color = '#065F46'; border = '#A7F3D0'; }
+    stepperHtml += '<div style="flex:1;text-align:center;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:600;background:' + bg + ';color:' + color + ';border:1px solid ' + border + ';min-width:80px">' + stepLabels[i] + '</div>';
+    if (i < steps.length - 1) stepperHtml += '<div style="width:20px;text-align:center;color:#D1D5DB;font-size:16px">→</div>';
+  });
+  if (isDismissed) stepperHtml += '<div style="width:20px;text-align:center;color:#D1D5DB;font-size:16px">→</div><div style="flex:1;text-align:center;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:600;background:#EF4444;color:#fff;border:1px solid #EF4444;min-width:80px">🚫 Dismissed</div>';
+  stepperHtml += '</div>';
+
+  let html = stepperHtml;
+
+  // Header
+  html += '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px">' +
+    '<div>' +
+      '<div style="font-weight:700;font-size:16px;color:#1F2937">' + esc(c.case_number) + '</div>' +
+      '<div style="font-weight:600;font-size:14px;color:#374151;margin-top:2px">' + esc(c.title) + '</div>' +
     '</div>' +
-    '<div class="grid-2" style="gap:12px;margin-bottom:16px">' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Identity</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Client Type:</strong> ' + labelCase(k.client_type) + '</div>' +
-        '<div style="font-size:13px"><strong>ID Type:</strong> ' + esc(k.id_type) + '</div>' +
-        '<div style="font-size:13px" class="doc-secured" onclick="this.classList.toggle(\'revealed\')">' +
-          '<strong>ID Number:</strong> <span class="doc-title-text">' + esc(k.id_number) + '</span> <span class="eye-toggle">👁</span>' +
-        '</div>' +
-        (k.id_expiry ? '<div style="font-size:13px"><strong>ID Expiry:</strong> ' + fmtDate(k.id_expiry) + '</div>' : '') +
-        (k.tin ? '<div style="font-size:13px" class="doc-secured" onclick="this.classList.toggle(\'revealed\')"><strong>TIN:</strong> <span class="doc-title-text">' + esc(k.tin) + '</span> <span class="eye-toggle">👁</span></div>' : '') +
-      '</div>' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Background</div>' +
-        (k.address ? '<div style="font-size:13px;margin-top:4px"><strong>Address:</strong> ' + esc(k.address) + '</div>' : '') +
-        (k.occupation ? '<div style="font-size:13px"><strong>Occupation:</strong> ' + esc(k.occupation) + '</div>' : '') +
-        (k.source_of_funds ? '<div style="font-size:13px"><strong>Source of Funds:</strong> ' + esc(k.source_of_funds) + '</div>' : '') +
-        '<div style="font-size:13px"><strong>Next Review:</strong> ' + fmtDate(k.next_review_date) + '</div>' +
-        (k.verified_date ? '<div style="font-size:13px"><strong>Verified:</strong> ' + fmtDate(k.verified_date) + '</div>' : '') +
-      '</div>' +
+    '<div style="display:flex;gap:6px;flex-wrap:wrap">' + severityBadge(c.severity) + ' ' + priorityBadge(c.priority) + ' ' + workflowBadge(c.workflow_step) + '</div>' +
+  '</div>';
+
+  // Info panels
+  html += '<div class="grid-2" style="gap:12px;margin-bottom:16px">' +
+    '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
+      '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Case Info</div>' +
+      '<div style="font-size:13px;margin-top:4px"><strong>Type:</strong> ' + labelCase(c.case_type) + '</div>' +
+      (c.opposing_party ? '<div style="font-size:13px"><strong>Opposing:</strong> ' + esc(c.opposing_party) + '</div>' : '') +
+      (c.court_venue ? '<div style="font-size:13px"><strong>Venue:</strong> ' + esc(c.court_venue) + '</div>' : '') +
+      (c.assigned_lawyer ? '<div style="font-size:13px"><strong>Lawyer:</strong> ' + esc(c.assigned_lawyer) + '</div>' : '') +
+      (c.legal_officer ? '<div style="font-size:13px"><strong>Legal Officer:</strong> ' + esc(c.legal_officer) + '</div>' : '') +
+      (c.department ? '<div style="font-size:13px"><strong>Dept:</strong> ' + esc(c.department) + '</div>' : '') +
     '</div>' +
-    '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">' +
-      (k.aml_flag ? '<span class="badge badge-red">🚩 AML Flag</span>' : '<span class="badge badge-green">✅ AML Clear</span>') +
-      (k.sanctions_checked ? ' <span class="badge badge-green">✅ Sanctions Checked</span>' : ' <span class="badge badge-gray">Sanctions Not Checked</span>') +
-      (k.pep_checked ? ' <span class="badge badge-green">✅ PEP Checked</span>' : ' <span class="badge badge-gray">PEP Not Checked</span>') +
+    '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
+      '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Dates & Impact</div>' +
+      '<div style="font-size:13px;margin-top:4px"><strong>Filed:</strong> ' + fmtDate(c.filing_date) + '</div>' +
+      '<div style="font-size:13px"><strong>Due:</strong> ' + fmtDate(c.due_date) + '</div>' +
+      (c.next_hearing ? '<div style="font-size:13px"><strong>Next Hearing:</strong> ' + fmtDate(c.next_hearing) + '</div>' : '') +
+      (c.resolution_date ? '<div style="font-size:13px"><strong>Resolved:</strong> ' + fmtDate(c.resolution_date) + '</div>' : '') +
+      '<div style="font-size:13px"><strong>Financial:</strong> ' + money(c.financial_impact) + '</div>' +
+      (c.assigned_name ? '<div style="font-size:13px"><strong>Assigned:</strong> ' + esc(c.assigned_name) + '</div>' : '') +
     '</div>' +
-    (k.aml_notes ? '<div style="background:#FEF2F2;padding:12px;border-radius:8px;border:1px solid #FECACA;font-size:13px">' +
-      '<strong>AML Notes:</strong> ' + esc(k.aml_notes) +
-    '</div>' : '');
-  openModal('modal-kyc-detail');
-}
+  '</div>';
 
-// ===== Render: Compliance =====
-function renderCompliance() {
-  const tb = document.getElementById('compliance-tbody');
-  if (!compliance.length) { tb.innerHTML = emptyRow(7, 'No compliance records found'); return; }
-  tb.innerHTML = compliance.map(function(c, i) {
-    return '<tr>' +
-      '<td><span class="secure-text" style="font-size:11px">' + esc(c.reference_code) + '</span></td>' +
-      '<td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(c.requirement) + '</td>' +
-      '<td>' + (esc(c.regulatory_body) || '—') + '</td>' +
-      '<td>' + complianceStatusBadge(c.status) + '</td>' +
-      '<td>' + fmtDate(c.deadline) + '</td>' +
-      '<td>' + (esc(c.assigned_name) || '—') + '</td>' +
-      '<td><button class="btn btn-outline btn-sm" onclick="viewCompliance(' + i + ')">View</button></td>' +
-    '</tr>';
-  }).join('');
-}
-
-// ===== View: Compliance =====
-function viewCompliance(idx) {
-  const c = compliance[idx];
-  if (!c) return;
-  document.getElementById('compliance-detail-body').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px">' +
-      '<div>' +
-        '<div style="font-weight:700;font-size:16px;color:#1F2937">' + esc(c.reference_code) + '</div>' +
-        '<div style="font-weight:600;font-size:14px;color:#374151;margin-top:2px">' + esc(c.requirement) + '</div>' +
-      '</div>' +
-      '<div>' + complianceStatusBadge(c.status) + '</div>' +
-    '</div>' +
-    '<div class="grid-2" style="gap:12px;margin-bottom:16px">' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Details</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Regulatory Body:</strong> ' + (esc(c.regulatory_body) || '—') + '</div>' +
-        '<div style="font-size:13px"><strong>Category:</strong> ' + labelCase(c.category) + '</div>' +
-        '<div style="font-size:13px"><strong>Risk Level:</strong> ' + priorityBadge(c.risk_level) + '</div>' +
-        (c.assigned_name ? '<div style="font-size:13px"><strong>Assigned To:</strong> ' + esc(c.assigned_name) + '</div>' : '') +
-      '</div>' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Timeline</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Deadline:</strong> ' + fmtDate(c.deadline) + '</div>' +
-        '<div style="font-size:13px"><strong>Last Reviewed:</strong> ' + fmtDate(c.last_reviewed) + '</div>' +
-        '<div style="font-size:13px"><strong>Next Review:</strong> ' + fmtDate(c.next_review_date) + '</div>' +
-      '</div>' +
-    '</div>' +
-    (c.description ? '<div style="background:#F9FAFB;padding:12px;border-radius:8px;margin-bottom:12px">' +
-      '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Description</div>' +
-      '<div style="font-size:13px;margin-top:4px;white-space:pre-wrap">' + esc(c.description) + '</div>' +
-    '</div>' : '') +
-    (c.notes ? '<div style="font-size:13px;color:#6B7280"><strong>Notes:</strong> ' + esc(c.notes) + '</div>' : '');
-  openModal('modal-compliance-detail');
-}
-
-// ===== Render: Resolutions =====
-function renderResolutions() {
-  const tb = document.getElementById('resolutions-tbody');
-  if (!resolutions.length) { tb.innerHTML = emptyRow(9, 'No board resolutions found'); return; }
-  tb.innerHTML = resolutions.map(function(r, i) {
-    return '<tr>' +
-      '<td><span class="secure-text" style="font-size:11px">' + esc(r.resolution_code) + '</span></td>' +
-      '<td style="font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.title) + '</td>' +
-      '<td>' + labelCase(r.resolution_type) + '</td>' +
-      '<td>' + fmtDate(r.meeting_date) + '</td>' +
-      '<td>' + labelCase(r.meeting_type) + '</td>' +
-      '<td><span style="font-size:12px;font-weight:600">' + (r.votes_for != null ? r.votes_for : 0) + '/<span style="color:#EF4444">' + (r.votes_against != null ? r.votes_against : 0) + '</span>/<span style="color:#9CA3AF">' + (r.votes_abstain != null ? r.votes_abstain : 0) + '</span></span></td>' +
-      '<td>' + (r.passed ? '<span class="badge badge-green">✅ Yes</span>' : '<span class="badge badge-red">❌ No</span>') + '</td>' +
-      '<td>' + resolutionStatusBadge(r.status) + '</td>' +
-      '<td><button class="btn btn-outline btn-sm" onclick="viewResolution(' + i + ')">View</button></td>' +
-    '</tr>';
-  }).join('');
-}
-
-// ===== View: Resolution =====
-function viewResolution(idx) {
-  const r = resolutions[idx];
-  if (!r) return;
-
-  var attendeesHtml = '';
-  if (r.attendees) {
-    try {
-      var list = typeof r.attendees === 'string' ? JSON.parse(r.attendees) : r.attendees;
-      if (Array.isArray(list)) {
-        attendeesHtml = '<div style="margin-top:8px"><strong>Attendees:</strong> ' + list.map(function(a) { return esc(a); }).join(', ') + '</div>';
-      }
-    } catch (e) {
-      attendeesHtml = '<div style="margin-top:8px"><strong>Attendees:</strong> ' + esc(String(r.attendees)) + '</div>';
+  // Complainant & Accused
+  if (c.complainant_name || c.accused_name) {
+    html += '<div class="grid-2" style="gap:12px;margin-bottom:16px">';
+    if (c.complainant_name) {
+      html += '<div style="background:#F0FDF4;padding:12px;border-radius:8px;border:1px solid #A7F3D0">' +
+        '<div style="font-size:11px;color:#065F46;text-transform:uppercase;font-weight:600">👤 Complainant</div>' +
+        '<div style="font-size:13px;margin-top:4px;font-weight:600">' + esc(c.complainant_name) + '</div>' +
+        (c.complainant_department ? '<div style="font-size:12px;color:#6B7280">' + esc(c.complainant_department) + '</div>' : '') +
+      '</div>';
     }
+    if (c.accused_name) {
+      html += '<div style="background:#FEF2F2;padding:12px;border-radius:8px;border:1px solid #FECACA">' +
+        '<div style="font-size:11px;color:#991B1B;text-transform:uppercase;font-weight:600">⚠️ Accused</div>' +
+        '<div style="font-size:13px;margin-top:4px;font-weight:600">' + esc(c.accused_name) + '</div>' +
+        (c.accused_department ? '<div style="font-size:12px;color:#6B7280">' + esc(c.accused_department) + '</div>' : '') +
+        (c.accused_employee_id ? '<div style="font-size:12px;color:#6B7280">ID: ' + esc(c.accused_employee_id) + '</div>' : '') +
+      '</div>';
+    }
+    html += '</div>';
   }
 
-  document.getElementById('resolution-detail-body').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px">' +
-      '<div>' +
-        '<div style="font-weight:700;font-size:16px;color:#1F2937">' + esc(r.resolution_code) + '</div>' +
-        '<div style="font-weight:600;font-size:14px;color:#374151;margin-top:2px">' + esc(r.title) + '</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-        (r.passed ? '<span class="badge badge-green">✅ Passed</span>' : '<span class="badge badge-red">❌ Not Passed</span>') + ' ' +
-        resolutionStatusBadge(r.status) +
-      '</div>' +
-    '</div>' +
-    '<div class="grid-2" style="gap:12px;margin-bottom:16px">' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Meeting Details</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>Type:</strong> ' + labelCase(r.resolution_type) + '</div>' +
-        '<div style="font-size:13px"><strong>Meeting Date:</strong> ' + fmtDate(r.meeting_date) + '</div>' +
-        '<div style="font-size:13px"><strong>Meeting Type:</strong> ' + labelCase(r.meeting_type) + '</div>' +
-        '<div style="font-size:13px"><strong>Quorum:</strong> ' + (r.quorum_present ? '✅ Present' : '❌ No Quorum') + '</div>' +
-        (r.effective_date ? '<div style="font-size:13px"><strong>Effective:</strong> ' + fmtDate(r.effective_date) + '</div>' : '') +
-      '</div>' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Voting Results</div>' +
-        '<div style="font-size:13px;margin-top:4px"><strong>For:</strong> <span style="color:#059669;font-weight:700">' + (r.votes_for != null ? r.votes_for : 0) + '</span></div>' +
-        '<div style="font-size:13px"><strong>Against:</strong> <span style="color:#EF4444;font-weight:700">' + (r.votes_against != null ? r.votes_against : 0) + '</span></div>' +
-        '<div style="font-size:13px"><strong>Abstain:</strong> <span style="color:#9CA3AF;font-weight:700">' + (r.votes_abstain != null ? r.votes_abstain : 0) + '</span></div>' +
-        (r.secretary_name ? '<div style="font-size:13px;margin-top:4px"><strong>Secretary:</strong> ' + esc(r.secretary_name) + '</div>' : '') +
-        (r.chairman_name ? '<div style="font-size:13px"><strong>Chairman:</strong> ' + esc(r.chairman_name) + '</div>' : '') +
-      '</div>' +
-    '</div>' +
-    '<div style="font-size:13px;margin-bottom:12px">' + attendeesHtml + '</div>' +
-    (r.resolution_text ? '<div style="font-weight:600;font-size:13px;margin-bottom:8px">📄 Resolution Text</div>' +
-      '<div class="contract-paper">' + esc(r.resolution_text) + '</div>' : '') +
-    (r.minutes_text ? '<div style="font-weight:600;font-size:13px;margin:16px 0 8px">📋 Meeting Minutes</div>' +
-      '<div class="contract-paper" style="max-height:250px">' + esc(r.minutes_text) + '</div>' : '');
-  openModal('modal-resolution-detail');
-}
+  // Verdict panel
+  if (c.verdict) {
+    html += '<div style="background:#FFFBEB;padding:14px;border-radius:10px;border:2px solid #F59E0B;margin-bottom:16px">' +
+      '<div style="font-size:12px;font-weight:700;color:#78350F;margin-bottom:6px">⚖️ VERDICT</div>' +
+      '<div style="font-size:16px;font-weight:800;margin-bottom:4px">' + verdictBadge(c.verdict) + '</div>' +
+      (c.penalty_amount ? '<div style="font-size:13px"><strong>Penalty Amount:</strong> ' + money(c.penalty_amount) + '</div>' : '') +
+      (c.penalty_details ? '<div style="font-size:13px;margin-top:4px">' + esc(c.penalty_details) + '</div>' : '') +
+    '</div>';
+  }
 
-// ===== Render: POA =====
-function renderPoa() {
-  const tb = document.getElementById('poa-tbody');
-  if (!poa.length) { tb.innerHTML = emptyRow(10, 'No power of attorney records found'); return; }
-  tb.innerHTML = poa.map(function(p, i) {
-    return '<tr>' +
-      '<td><span class="secure-text" style="font-size:11px">' + esc(p.poa_code) + '</span></td>' +
-      '<td style="font-weight:600">' + esc(p.principal_name) + '</td>' +
-      '<td>' + esc(p.agent_name) + '</td>' +
-      '<td>' + labelCase(p.poa_type) + '</td>' +
-      '<td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(p.scope) + '</td>' +
-      '<td>' + fmtDate(p.effective_date) + '</td>' +
-      '<td>' + fmtDate(p.expiry_date) + '</td>' +
-      '<td>' + (p.notarized ? '<span class="badge badge-green">✅</span>' : '<span class="badge badge-gray">No</span>') + '</td>' +
-      '<td>' + poaStatusBadge(p.status) + '</td>' +
-      '<td><button class="btn btn-outline btn-sm" onclick="viewPoa(' + i + ')">View</button></td>' +
-    '</tr>';
-  }).join('');
-}
+  // Admin Decision
+  if (c.admin_decision) {
+    html += '<div style="background:#EDE9FE;padding:12px;border-radius:8px;border:1px solid #C4B5FD;margin-bottom:16px">' +
+      '<div style="font-size:11px;color:#5B21B6;text-transform:uppercase;font-weight:600">Admin Decision</div>' +
+      '<div style="font-size:13px;margin-top:4px;font-weight:600">' + labelCase(c.admin_decision) + '</div>' +
+    '</div>';
+  }
 
-// ===== View: POA =====
-function viewPoa(idx) {
-  const p = poa[idx];
-  if (!p) return;
-  document.getElementById('poa-detail-body').innerHTML =
-    '<div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:16px;flex-wrap:wrap;gap:12px">' +
-      '<div>' +
-        '<div style="font-weight:700;font-size:16px;color:#1F2937">' + esc(p.poa_code) + '</div>' +
-        '<div style="font-size:13px;color:#6B7280">' + labelCase(p.poa_type) + ' Power of Attorney</div>' +
-      '</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
-        (p.notarized ? '<span class="badge badge-green">✅ Notarized</span>' : '<span class="badge badge-gray">Not Notarized</span>') + ' ' +
-        poaStatusBadge(p.status) +
-      '</div>' +
+  // Description
+  html += '<div style="background:#F9FAFB;padding:12px;border-radius:8px;margin-bottom:12px">' +
+    '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Description</div>' +
+    '<div style="font-size:13px;margin-top:4px;white-space:pre-wrap">' + esc(c.description) + '</div>' +
+  '</div>';
+
+  if (c.resolution_summary) {
+    html += '<div style="background:#F0FDF4;padding:12px;border-radius:8px;border:1px solid #A7F3D0;margin-bottom:12px">' +
+      '<div style="font-size:12px;font-weight:600;color:#065F46">📋 Resolution Summary</div>' +
+      '<div style="font-size:13px;margin-top:4px;white-space:pre-wrap">' + esc(c.resolution_summary) + '</div>' +
+    '</div>';
+  }
+
+  // Hearing Log placeholder
+  html += '<div style="margin-bottom:16px">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<div style="font-weight:700;font-size:14px;color:#1F2937">🏛️ Hearing Log (' + (c.hearing_count || 0) + ')</div>' +
+      '<button class="btn btn-outline btn-sm" onclick="openAddHearing(' + c.case_id + ')">+ Add Hearing</button>' +
     '</div>' +
-    '<div class="grid-2" style="gap:12px;margin-bottom:16px">' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Principal (Grantor)</div>' +
-        '<div style="font-size:13px;font-weight:600;margin-top:4px">' + esc(p.principal_name) + '</div>' +
-        (p.principal_position ? '<div style="font-size:12px;color:#6B7280">' + esc(p.principal_position) + '</div>' : '') +
-      '</div>' +
-      '<div style="background:#F9FAFB;padding:12px;border-radius:8px">' +
-        '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Agent (Grantee)</div>' +
-        '<div style="font-size:13px;font-weight:600;margin-top:4px">' + esc(p.agent_name) + '</div>' +
-        (p.agent_position ? '<div style="font-size:12px;color:#6B7280">' + esc(p.agent_position) + '</div>' : '') +
-      '</div>' +
+    '<div id="case-hearings-list" style="font-size:13px;color:#6B7280">Loading hearings...</div>' +
+  '</div>';
+
+  // Evidence placeholder
+  html += '<div style="margin-bottom:16px">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+      '<div style="font-weight:700;font-size:14px;color:#1F2937">📎 Evidence (' + (c.evidence_count || 0) + ')</div>' +
+      '<button class="btn btn-outline btn-sm" onclick="openAddEvidence(' + c.case_id + ')">+ Add Evidence</button>' +
     '</div>' +
-    '<div style="background:#F9FAFB;padding:12px;border-radius:8px;margin-bottom:12px">' +
-      '<div style="font-size:11px;color:#9CA3AF;text-transform:uppercase;font-weight:600">Scope of Authority</div>' +
-      '<div style="font-size:13px;margin-top:4px;white-space:pre-wrap">' + esc(p.scope) + '</div>' +
-    '</div>' +
-    '<div class="grid-2" style="gap:12px;margin-bottom:12px">' +
-      '<div style="font-size:13px"><strong>Effective:</strong> ' + fmtDate(p.effective_date) + '</div>' +
-      '<div style="font-size:13px"><strong>Expiry:</strong> ' + fmtDate(p.expiry_date) + '</div>' +
-    '</div>' +
-    (p.notarized ? '<div style="background:#FFFBEB;padding:12px;border-radius:8px;border:1px solid #FDE68A;font-size:13px;margin-bottom:12px">' +
-      '<strong>Notary:</strong> ' + (esc(p.notary_name) || '—') + ' | <strong>Date:</strong> ' + fmtDate(p.notary_date) +
-    '</div>' : '') +
-    (p.revoked_date ? '<div style="background:#FEF2F2;padding:12px;border-radius:8px;border:1px solid #FECACA;font-size:13px">' +
-      '<strong>Revoked:</strong> ' + fmtDate(p.revoked_date) + (p.revoked_reason ? ' | <strong>Reason:</strong> ' + esc(p.revoked_reason) : '') +
-    '</div>' : '');
-  openModal('modal-poa-detail');
+    '<div id="case-evidence-list" style="font-size:13px;color:#6B7280">Loading evidence...</div>' +
+  '</div>';
+
+  // Notices placeholder
+  html += '<div style="margin-bottom:16px">' +
+    '<div style="font-weight:700;font-size:14px;color:#1F2937;margin-bottom:8px">📨 Escalation Notices</div>' +
+    '<div id="case-notices-list" style="font-size:13px;color:#6B7280">Loading notices...</div>' +
+  '</div>';
+
+  document.getElementById('case-detail-body').innerHTML = html;
+
+  // Build footer actions based on workflow step
+  let footerHtml = '<button class="btn btn-outline" onclick="closeModal(\'modal-case-detail\')">Close</button>';
+  const ws = c.workflow_step;
+  if (ws === 'complaint_filed') {
+    footerHtml += ' <button class="btn" style="background:#3B82F6;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="advanceWorkflow(' + c.case_id + ',\'under_review\')">🔍 Start Review</button>';
+    footerHtml += ' <button class="btn" style="background:#9CA3AF;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="advanceWorkflow(' + c.case_id + ',\'dismissed\')">🚫 Dismiss</button>';
+  } else if (ws === 'under_review') {
+    footerHtml += ' <button class="btn" style="background:#EF4444;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="advanceWorkflow(' + c.case_id + ',\'for_hearing\')">🏛️ Set for Hearing</button>';
+    footerHtml += ' <button class="btn" style="background:#6366F1;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="advanceWorkflow(' + c.case_id + ',\'ongoing_investigation\')">🔎 Investigate</button>';
+    footerHtml += ' <button class="btn" style="background:#9CA3AF;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="advanceWorkflow(' + c.case_id + ',\'dismissed\')">🚫 Dismiss</button>';
+  } else if (ws === 'for_hearing') {
+    footerHtml += ' <button class="btn" style="background:#6366F1;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="advanceWorkflow(' + c.case_id + ',\'ongoing_investigation\')">🔎 Investigate</button>';
+    footerHtml += ' <button class="btn" style="background:#D97706;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="openRenderVerdict(' + c.case_id + ')">⚖️ Render Verdict</button>';
+  } else if (ws === 'ongoing_investigation') {
+    footerHtml += ' <button class="btn" style="background:#EF4444;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="advanceWorkflow(' + c.case_id + ',\'for_hearing\')">🏛️ Back to Hearing</button>';
+    footerHtml += ' <button class="btn" style="background:#D97706;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="openRenderVerdict(' + c.case_id + ')">⚖️ Render Verdict</button>';
+  } else if (ws === 'verdict') {
+    footerHtml += ' <button class="btn" style="background:#059669;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer" onclick="closeCase(' + c.case_id + ')">✅ Close Case</button>';
+  }
+  document.getElementById('case-detail-footer').innerHTML = footerHtml;
+
+  openModal('modal-case-detail');
+
+  // Load sub-data
+  loadCaseHearings(c.case_id);
+  loadCaseEvidence(c.case_id);
+  loadCaseNotices(c.case_id);
 }
 
 // ===== Render: Contracts =====
@@ -1519,37 +1667,39 @@ function legalCalToday() {
 
 function getLegalEvents() {
   const events = [];
+  const colorMap = { case:'#EF4444', contract:'#3B82F6', compliance:'#059669', permit:'#F59E0B', demand:'#EC4899', board:'#6366F1' };
   // Cases: filing dates, next hearing
   (cases || []).forEach(c => {
-    if (c.filing_date) events.push({ date: c.filing_date.slice(0,10), type: 'case', color: '#EF4444', label: c.title || c.case_number, detail: c });
-    if (c.next_hearing) events.push({ date: c.next_hearing.slice(0,10), type: 'case', color: '#EF4444', label: '🔔 Hearing: ' + (c.title || c.case_number), detail: c });
+    if (c.filing_date) events.push({ date: c.filing_date.slice(0,10), type:'case', color:colorMap.case, label: c.title || c.case_number, detail:c });
+    if (c.next_hearing) events.push({ date: c.next_hearing.slice(0,10), type:'case', color:colorMap.case, label:'🔔 Hearing: ' + (c.title || c.case_number), detail:c });
   });
   // Contracts: start/end dates
   (contracts || []).forEach(c => {
-    if (c.start_date) events.push({ date: c.start_date.slice(0,10), type: 'contract', color: '#3B82F6', label: '📝 Start: ' + (c.title || c.contract_number), detail: c });
-    if (c.end_date) events.push({ date: c.end_date.slice(0,10), type: 'contract', color: '#3B82F6', label: '📝 End: ' + (c.title || c.contract_number), detail: c });
+    if (c.start_date) events.push({ date: c.start_date.slice(0,10), type:'contract', color:colorMap.contract, label:'📝 Start: ' + (c.title || c.contract_number), detail:c });
+    if (c.end_date) events.push({ date: c.end_date.slice(0,10), type:'contract', color:colorMap.contract, label:'📝 End: ' + (c.title || c.contract_number), detail:c });
   });
   // Compliance: deadlines
   (compliance || []).forEach(c => {
-    if (c.deadline) events.push({ date: c.deadline.slice(0,10), type: 'compliance', color: '#059669', label: '✅ ' + (c.requirement || c.compliance_code), detail: c });
+    if (c.deadline) events.push({ date: c.deadline.slice(0,10), type:'compliance', color:colorMap.compliance, label:'✅ ' + (c.requirement || c.compliance_code), detail:c });
   });
   // Permits: expiry dates
   (permits || []).forEach(p => {
-    if (p.expiry_date) events.push({ date: p.expiry_date.slice(0,10), type: 'permit', color: '#F59E0B', label: '📜 Expiry: ' + (p.permit_name || p.permit_code), detail: p });
+    if (p.expiry_date) events.push({ date: p.expiry_date.slice(0,10), type:'permit', color:colorMap.permit, label:'📜 Expiry: ' + (p.permit_name || p.permit_code), detail:p });
   });
   // Demands: response deadlines
   (demands || []).forEach(d => {
-    if (d.response_deadline) events.push({ date: d.response_deadline.slice(0,10), type: 'case', color: '#EF4444', label: '⚠ Demand deadline: ' + (d.borrower_name || d.demand_code), detail: d });
+    if (d.response_deadline) events.push({ date: d.response_deadline.slice(0,10), type:'demand', color:colorMap.demand, label:'⚠ Demand: ' + (d.borrower_name || d.demand_code), detail:d });
   });
   // Board resolutions: meeting dates
   (resolutions || []).forEach(r => {
-    if (r.meeting_date) events.push({ date: r.meeting_date.slice(0,10), type: 'compliance', color: '#059669', label: '📋 Board: ' + (r.title || r.resolution_code), detail: r });
+    if (r.meeting_date) events.push({ date: r.meeting_date.slice(0,10), type:'board', color:colorMap.board, label:'📋 Board: ' + (r.title || r.resolution_code), detail:r });
   });
   return events;
 }
 
 function renderLegalCalendar() {
   const grid = document.getElementById('legal-calendar-grid');
+  if (!grid) return;
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('legal-cal-title').textContent = monthNames[legalCalMonth] + ' ' + legalCalYear;
 
@@ -1560,14 +1710,14 @@ function renderLegalCalendar() {
   const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
 
   let html = '';
-  // Day headers
+  // Day-of-week headers
   ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
-    html += '<div style="background:#F9FAFB;padding:8px;text-align:center;font-size:11px;font-weight:700;color:#6B7280">' + d + '</div>';
+    html += '<div style="background:#F3F4F6;padding:8px 4px;text-align:center;font-size:11px;font-weight:700;color:#6B7280;border-bottom:1px solid #E5E7EB">' + d + '</div>';
   });
 
   // Empty cells before first day
   for (let i = 0; i < firstDay; i++) {
-    html += '<div style="background:white;padding:8px;min-height:80px"></div>';
+    html += '<div style="background:#FAFAFA;padding:6px;min-height:90px"></div>';
   }
 
   // Day cells
@@ -1575,17 +1725,21 @@ function renderLegalCalendar() {
     const dateStr = legalCalYear + '-' + String(legalCalMonth+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
     const dayEvents = events.filter(e => e.date === dateStr);
     const isToday = dateStr === todayStr;
+    const isPast  = dateStr < todayStr;
+    const hasEvents = dayEvents.length > 0;
 
-    html += '<div style="background:white;padding:6px;min-height:80px;cursor:' + (dayEvents.length ? 'pointer' : 'default') + ';' + (isToday ? 'border:2px solid #059669;' : '') + '" onclick="showLegalDayEvents(\'' + dateStr + '\')">';
-    html += '<div style="font-size:12px;font-weight:' + (isToday ? '800' : '600') + ';color:' + (isToday ? '#059669' : '#1F2937') + ';margin-bottom:4px">' + day + '</div>';
-    // Show dots for events
-    if (dayEvents.length > 0) {
-      html += '<div style="display:flex;flex-wrap:wrap;gap:2px">';
+    let cellBg = isToday ? '#F0FDF4' : (hasEvents ? '#FFFBEB' : (isPast ? '#FAFAFA' : 'white'));
+    let cellExtra = isToday ? 'outline:2px solid #059669;outline-offset:-2px;' : '';
+
+    html += '<div style="background:' + cellBg + ';' + cellExtra + 'padding:6px;min-height:90px;vertical-align:top;cursor:' + (hasEvents ? 'pointer' : 'default') + '" onclick="showLegalDayEvents(\'' + dateStr + '\')">';
+    html += '<div style="font-size:12px;font-weight:' + (isToday ? '800' : '600') + ';color:' + (isToday ? '#059669' : isPast ? '#9CA3AF' : '#1F2937') + ';margin-bottom:3px;line-height:1">' + day + (isToday ? '<span style="font-size:9px;font-weight:700;color:#059669;margin-left:3px">●</span>' : '') + '</div>';
+    if (hasEvents) {
+      html += '<div style="display:flex;flex-direction:column;gap:2px">';
       dayEvents.slice(0, 3).forEach(e => {
-        html += '<div style="width:100%;font-size:9px;padding:1px 4px;border-radius:3px;background:' + e.color + '20;color:' + e.color + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600">' + esc(e.label.substring(0, 25)) + '</div>';
+        html += '<div style="font-size:9px;padding:2px 4px;border-radius:3px;background:' + e.color + '18;color:' + e.color + ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;border-left:2px solid ' + e.color + '">' + esc(e.label.substring(0,22)) + '</div>';
       });
       if (dayEvents.length > 3) {
-        html += '<div style="font-size:9px;color:#6B7280;font-weight:600">+' + (dayEvents.length - 3) + ' more</div>';
+        html += '<div style="font-size:9px;color:#6B7280;font-weight:600;padding-left:4px">+' + (dayEvents.length - 3) + ' more</div>';
       }
       html += '</div>';
     }
@@ -1593,6 +1747,82 @@ function renderLegalCalendar() {
   }
 
   grid.innerHTML = html;
+  renderUpcomingDeadlines();
+}
+
+function renderUpcomingDeadlines() {
+  const body  = document.getElementById('upcoming-deadlines-body');
+  const badge = document.getElementById('deadline-count-badge');
+  if (!body) return;
+
+  const todayStr  = new Date().toISOString().slice(0,10);
+  const cutoff    = new Date(); cutoff.setDate(cutoff.getDate() + 90);
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+
+  const typeLabel = { case:'Case', contract:'Contract', compliance:'Compliance', permit:'Permit', demand:'Demand', board:'Board Resolution' };
+  const colorMap  = { case:'#EF4444', contract:'#3B82F6', compliance:'#059669', permit:'#F59E0B', demand:'#EC4899', board:'#6366F1' };
+
+  const upcoming = getLegalEvents()
+    .filter(e => e.date >= todayStr && e.date <= cutoffStr)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (badge) badge.textContent = upcoming.length;
+
+  if (!upcoming.length) {
+    body.innerHTML = '<div style="text-align:center;padding:32px 16px;color:#9CA3AF"><div style="font-size:28px;margin-bottom:8px">🎉</div><div style="font-size:13px;font-weight:600">No deadlines in the next 90 days</div></div>';
+    return;
+  }
+
+  // Group by date
+  const byDate = {};
+  upcoming.forEach(e => { if (!byDate[e.date]) byDate[e.date] = []; byDate[e.date].push(e); });
+
+  const todayDt = new Date(); todayDt.setHours(0,0,0,0);
+  let html = '';
+  Object.keys(byDate).sort().forEach(dateStr => {
+    const dt      = new Date(dateStr + 'T00:00:00');
+    const diffDay = Math.round((dt - todayDt) / 86400000);
+    const isToday    = diffDay === 0;
+    const isTomorrow = diffDay === 1;
+    const isUrgent   = diffDay <= 3;
+    const isSoon     = diffDay <= 7;
+
+    let dayLabel, pillBg = '#F3F4F6', pillColor = '#6B7280';
+    if (isToday)       { dayLabel = 'TODAY'; pillBg = '#FEE2E2'; pillColor = '#DC2626'; }
+    else if (isTomorrow){ dayLabel = 'TOMORROW'; pillBg = '#FEF3C7'; pillColor = '#D97706'; }
+    else if (isUrgent) { dayLabel = 'In ' + diffDay + ' days'; pillBg = '#FEF3C7'; pillColor = '#D97706'; }
+    else if (isSoon)   { dayLabel = 'In ' + diffDay + ' days'; pillBg = '#DBEAFE'; pillColor = '#1D4ED8'; }
+    else               { dayLabel = 'In ' + diffDay + ' days'; }
+
+    html += '<div style="display:flex;align-items:center;gap:8px;margin-top:6px;margin-bottom:2px">';
+    html += '<span style="font-size:11px;font-weight:700;color:#4B5563">' + esc(fmtDate(dateStr)) + '</span>';
+    html += '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:' + pillBg + ';color:' + pillColor + '">' + esc(dayLabel) + '</span>';
+    html += '</div>';
+
+    byDate[dateStr].forEach(e => {
+      const c = colorMap[e.type] || '#6B7280';
+      // Compute view button onclick
+      let viewOnclick = '';
+      if (e.type === 'case')       { const i = cases.indexOf(e.detail);       if (i !== -1) viewOnclick = 'viewCase(' + i + ')'; }
+      else if (e.type === 'demand')   { const i = demands.indexOf(e.detail);    if (i !== -1) viewOnclick = 'viewDemand(' + i + ')'; }
+      else if (e.type === 'contract') { const i = contracts.indexOf(e.detail);  if (i !== -1) viewOnclick = 'viewContract(' + i + ')'; }
+      else if (e.type === 'permit')   { const i = permits.indexOf(e.detail);    if (i !== -1) viewOnclick = 'viewPermit(' + i + ')'; }
+      else if (e.type === 'compliance'){ const i = compliance.indexOf(e.detail);if (i !== -1) viewOnclick = 'viewComplianceRecord(' + i + ')'; }
+      else if (e.type === 'board')    { const i = resolutions.indexOf(e.detail);if (i !== -1) viewOnclick = 'viewResolutionRecord(' + i + ')'; }
+
+      html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:' + c + '08;border:1px solid ' + c + '22;border-left:3px solid ' + c + '">';
+      html += '<div style="flex:1;min-width:0">';
+      html += '<div style="font-size:12px;font-weight:600;color:#1F2937;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(e.label) + '</div>';
+      html += '<div style="font-size:10px;color:' + c + ';font-weight:600;margin-top:1px">' + esc(typeLabel[e.type] || e.type) + '</div>';
+      html += '</div>';
+      if (viewOnclick) {
+        html += '<button onclick="' + viewOnclick + '" style="flex-shrink:0;font-size:10px;padding:3px 8px;border-radius:6px;border:1px solid ' + c + ';color:' + c + ';background:white;cursor:pointer;white-space:nowrap;font-weight:600">👁 View</button>';
+      }
+      html += '</div>';
+    });
+  });
+
+  body.innerHTML = html;
 }
 
 function showLegalDayEvents(dateStr) {
@@ -1605,12 +1835,13 @@ function showLegalDayEvents(dateStr) {
 
   let html = '';
   events.forEach(e => {
-    const colorMap = { case: '#EF4444', contract: '#3B82F6', compliance: '#059669', permit: '#F59E0B' };
-    const typeLabel = { case: 'Case/Litigation', contract: 'Contract', compliance: 'Compliance/Governance', permit: 'Permit/License' };
-    html += '<div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px;margin-bottom:8px;border-left:4px solid ' + (colorMap[e.type] || '#6B7280') + '">';
+    const colorMap  = { case:'#EF4444', contract:'#3B82F6', compliance:'#059669', permit:'#F59E0B', demand:'#EC4899', board:'#6366F1' };
+    const typeLabel = { case:'Case/Litigation', contract:'Contract', compliance:'Compliance/Governance', permit:'Permit/License', demand:'Demand Letter', board:'Board Resolution' };
+    const c = colorMap[e.type] || '#6B7280';
+    html += '<div style="border:1px solid #E5E7EB;border-radius:10px;padding:12px 16px;margin-bottom:8px;border-left:4px solid ' + c + '">';
     html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">';
     html += '<span style="font-weight:700;font-size:13px;color:#1F2937">' + esc(e.label) + '</span>';
-    html += '<span class="badge" style="background:' + (colorMap[e.type] || '#6B7280') + '20;color:' + (colorMap[e.type] || '#6B7280') + ';font-size:10px">' + (typeLabel[e.type] || e.type) + '</span>';
+    html += '<span class="badge" style="background:' + c + '20;color:' + c + ';font-size:10px">' + (typeLabel[e.type] || e.type) + '</span>';
     html += '</div>';
     // Show key details based on type
     const d = e.detail;
@@ -1638,7 +1869,42 @@ function showLegalDayEvents(dateStr) {
       if (d.permit_number) html += 'Permit #' + esc(d.permit_number) + ' · ';
       if (d.status) html += 'Status: ' + esc(d.status);
       html += '</div>';
+    } else if (e.type === 'demand' && d) {
+      html += '<div style="font-size:12px;color:#6B7280">';
+      if (d.demand_code) html += '<strong>#</strong> ' + esc(d.demand_code) + ' · ';
+      if (d.borrower_name) html += 'Borrower: ' + esc(d.borrower_name) + ' · ';
+      if (d.demand_amount) html += 'Amount: ' + esc(d.demand_amount) + ' · ';
+      if (d.status) html += 'Status: ' + esc(d.status);
+      html += '</div>';
+    } else if (e.type === 'board' && d) {
+      html += '<div style="font-size:12px;color:#6B7280">';
+      if (d.resolution_code) html += '<strong>#</strong> ' + esc(d.resolution_code) + ' · ';
+      if (d.resolution_type) html += 'Type: ' + esc(d.resolution_type) + ' · ';
+      if (d.status) html += 'Status: ' + esc(d.status);
+      html += '</div>';
     }
+    // View button
+    let viewBtn = '';
+    if (e.type === 'case') {
+      const idx = cases.indexOf(e.detail);
+      if (idx !== -1) viewBtn = '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 12px;margin-top:8px;border-color:' + c + ';color:' + c + '" onclick="viewCase(' + idx + ')">👁 View Case</button>';
+    } else if (e.type === 'demand') {
+      const idx = demands.indexOf(e.detail);
+      if (idx !== -1) viewBtn = '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 12px;margin-top:8px;border-color:' + c + ';color:' + c + '" onclick="viewDemand(' + idx + ')">👁 View Demand</button>';
+    } else if (e.type === 'contract') {
+      const idx = contracts.indexOf(e.detail);
+      if (idx !== -1) viewBtn = '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 12px;margin-top:8px;border-color:' + c + ';color:' + c + '" onclick="viewContract(' + idx + ')">👁 View Contract</button>';
+    } else if (e.type === 'permit') {
+      const idx = permits.indexOf(e.detail);
+      if (idx !== -1) viewBtn = '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 12px;margin-top:8px;border-color:' + c + ';color:' + c + '" onclick="viewPermit(' + idx + ')">👁 View Permit</button>';
+    } else if (e.type === 'compliance') {
+      const idx = compliance.indexOf(e.detail);
+      if (idx !== -1) viewBtn = '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 12px;margin-top:8px;border-color:' + c + ';color:' + c + '" onclick="viewComplianceRecord(' + idx + ')">👁 View Compliance</button>';
+    } else if (e.type === 'board') {
+      const idx = resolutions.indexOf(e.detail);
+      if (idx !== -1) viewBtn = '<button class="btn btn-outline btn-sm" style="font-size:11px;padding:4px 12px;margin-top:8px;border-color:' + c + ';color:' + c + '" onclick="viewResolutionRecord(' + idx + ')">👁 View Resolution</button>';
+    }
+    if (viewBtn) html += viewBtn;
     html += '</div>';
   });
 
@@ -1646,15 +1912,84 @@ function showLegalDayEvents(dateStr) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
+function viewComplianceRecord(idx) {
+  const r = compliance[idx];
+  if (!r) return;
+  Swal.fire({
+    title: '<strong>Compliance / Governance</strong>',
+    html:
+      '<div style="text-align:left;font-size:13px;line-height:1.8">' +
+      (r.compliance_code ? '<div><strong>Code:</strong> ' + esc(r.compliance_code) + '</div>' : '') +
+      (r.requirement    ? '<div><strong>Requirement:</strong> ' + esc(r.requirement) + '</div>' : '') +
+      (r.regulatory_body? '<div><strong>Regulatory Body:</strong> ' + esc(r.regulatory_body) + '</div>' : '') +
+      (r.deadline        ? '<div><strong>Deadline:</strong> ' + fmtDate(r.deadline) + '</div>' : '') +
+      (r.status          ? '<div><strong>Status:</strong> ' + esc(r.status) + '</div>' : '') +
+      (r.description     ? '<div style="margin-top:8px;padding:10px;background:#F9FAFB;border-radius:8px;font-size:12px">' + esc(r.description) + '</div>' : '') +
+      '</div>',
+    icon: 'info',
+    confirmButtonColor: '#059669',
+    confirmButtonText: 'Close',
+    width: 480
+  });
+}
+
+function viewResolutionRecord(idx) {
+  const r = resolutions[idx];
+  if (!r) return;
+  Swal.fire({
+    title: '<strong>Board Resolution</strong>',
+    html:
+      '<div style="text-align:left;font-size:13px;line-height:1.8">' +
+      (r.resolution_code ? '<div><strong>Code:</strong> ' + esc(r.resolution_code) + '</div>' : '') +
+      (r.title           ? '<div><strong>Title:</strong> ' + esc(r.title) + '</div>' : '') +
+      (r.resolution_type ? '<div><strong>Type:</strong> ' + esc(r.resolution_type) + '</div>' : '') +
+      (r.meeting_date    ? '<div><strong>Meeting Date:</strong> ' + fmtDate(r.meeting_date) + '</div>' : '') +
+      (r.status          ? '<div><strong>Status:</strong> ' + esc(r.status) + '</div>' : '') +
+      (r.summary         ? '<div style="margin-top:8px;padding:10px;background:#F9FAFB;border-radius:8px;font-size:12px">' + esc(r.summary) + '</div>' : '') +
+      '</div>',
+    icon: 'info',
+    confirmButtonColor: '#6366F1',
+    confirmButtonText: 'Close',
+    width: 480
+  });
+}
+
+// ===== Legal Tab Names =====
+const legalTabNames = {
+  'tab-loans': 'Loan Documentation',
+  'tab-cases': 'Case Tracking',
+  'tab-contracts': 'Contracts',
+  'tab-permits': 'Permits & Licenses',
+  'tab-legal-calendar': 'Legal Calendar'
+};
+const legalTabIds = Object.keys(legalTabNames);
+
 // ===== Section Switching (hash-driven) =====
 function showSection(hash) {
   var sections = document.querySelectorAll('.tab-content');
   var id = hash ? hash.replace('#', '') : 'tab-loans';
+
+  // Highlight active directory card
+  document.querySelectorAll('.module-directory-label + .stats-grid .stat-card-link').forEach(function(c) {
+    var href = c.getAttribute('href') || '';
+    if (href === '#' + id) { c.classList.add('active-module'); var a = c.querySelector('.stat-arrow'); if(a) a.textContent = '●'; }
+    else { c.classList.remove('active-module'); var a = c.querySelector('.stat-arrow'); if(a) a.textContent = '→'; }
+  });
+
   sections.forEach(function(s) { s.classList.remove('active'); });
   var target = document.getElementById(id);
   if (target) target.classList.add('active');
   else if (sections[0]) sections[0].classList.add('active');
   if (id === 'tab-legal-calendar') renderLegalCalendar();
+
+  // Security check for all legal tabs
+  if (legalTabIds.includes(id)) {
+    // Hide content immediately to prevent flash before access check
+    if (target) target.style.display = 'none';
+    checkLegalAccess(id);
+  } else {
+    document.getElementById('legal-pin-gate').style.display = 'none';
+  }
 }
 window.addEventListener('hashchange', function() { showSection(location.hash); });
 
@@ -1664,6 +1999,167 @@ document.addEventListener('DOMContentLoaded', function() {
     showSection(location.hash);
   });
 });
+
+
+// ═══════════════════════════════════════════════════════
+// LEGAL SECURITY PIN (shared gate for all submodules)
+// ═══════════════════════════════════════════════════════
+
+let legalPinVerified = false;
+let lpinCountdownInterval = null;
+let currentLegalTab = 'tab-loans';
+
+async function checkLegalAccess(tabId) {
+  currentLegalTab = tabId || 'tab-loans';
+  const label = legalTabNames[currentLegalTab] || 'Legal Module';
+  const el = document.getElementById('lpin-tab-label');
+  if (el) el.textContent = label;
+
+  try {
+    const res = await fetch(API + '?action=check_legal_access&tab=legal');
+    const json = await res.json();
+    if (json.verified) {
+      legalPinVerified = true;
+      showLegalContent(tabId);
+    } else {
+      legalPinVerified = false;
+      document.getElementById('legal-pin-gate').style.display = '';
+      // Hide the active tab content
+      var target = document.getElementById(tabId);
+      if (target) target.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('Check legal access error:', err);
+  }
+}
+
+async function requestLegalPin() {
+  try {
+    const reqBtn = document.querySelector('#lpin-step-request button');
+    if (reqBtn) { reqBtn.disabled = true; reqBtn.textContent = 'Sending...'; }
+    const label = legalTabNames[currentLegalTab] || 'Legal Module';
+
+    const res = await fetch(API + '?action=send_legal_pin&tab=' + encodeURIComponent(label), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      // SweetAlert: Legal OTP sent successfully
+      Swal.fire({
+        icon: 'success',
+        title: 'OTP Sent!',
+        text: json.mail_failed ? 'Security PIN generated. Check fallback code below.' : 'A security PIN has been sent to your registered email for legal access.',
+        timer: 2500,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        confirmButtonColor: '#D97706',
+        customClass: { popup: 'rounded-2xl' }
+      });
+
+      document.getElementById('lpin-step-request').style.display = 'none';
+      document.getElementById('lpin-step-verify').style.display = '';
+
+      if (json.mail_failed && json.fallback_pin) {
+        document.getElementById('lpin-fallback-display').style.display = '';
+        document.getElementById('lpin-fallback-code').textContent = json.fallback_pin;
+      } else {
+        document.getElementById('lpin-fallback-display').style.display = 'none';
+      }
+
+      for (let i = 1; i <= 4; i++) document.getElementById('lpin-digit-' + i).value = '';
+      document.getElementById('lpin-digit-1').focus();
+      startLegalPinCountdown(json.expires_in || 120);
+    }
+  } catch (err) {
+    console.error('Request legal PIN error:', err);
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Could not send security PIN.', confirmButtonColor: '#D97706' });
+  } finally {
+    const reqBtn = document.querySelector('#lpin-step-request button');
+    if (reqBtn) { reqBtn.disabled = false; reqBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:6px"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Send Security PIN'; }
+  }
+}
+
+async function verifyLegalPin() {
+  const pin = [1,2,3,4].map(i => document.getElementById('lpin-digit-' + i).value).join('');
+  if (pin.length !== 4) {
+    Swal.fire({ icon: 'warning', title: 'Incomplete PIN', text: 'Please enter all 4 digits.', confirmButtonColor: '#D97706' });
+    return;
+  }
+  try {
+    const res = await fetch(API + '?action=verify_legal_pin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pin: pin, tab: 'legal' })
+    });
+    const json = await res.json();
+    if (json.success) {
+      legalPinVerified = true;
+      if (lpinCountdownInterval) clearInterval(lpinCountdownInterval);
+      Swal.fire({ icon: 'success', title: 'Verified!', text: 'Legal access granted.', confirmButtonColor: '#D97706', timer: 1500 });
+      showLegalContent(currentLegalTab);
+    } else if (json.expired) {
+      Swal.fire({ icon: 'warning', title: 'PIN Expired', text: 'Please request a new PIN.', confirmButtonColor: '#D97706' });
+      resetLegalPinUI();
+    } else {
+      Swal.fire({ icon: 'error', title: 'Invalid PIN', text: json.message || 'Please try again.', confirmButtonColor: '#D97706' });
+      for (let i = 1; i <= 4; i++) document.getElementById('lpin-digit-' + i).value = '';
+      document.getElementById('lpin-digit-1').focus();
+    }
+  } catch (err) {
+    console.error('Verify legal PIN error:', err);
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Verification failed.', confirmButtonColor: '#D97706' });
+  }
+}
+
+function showLegalContent(tabId) {
+  document.getElementById('legal-pin-gate').style.display = 'none';
+  // Show the tab content
+  var target = document.getElementById(tabId);
+  if (target) target.style.display = '';
+  if (tabId === 'tab-legal-calendar') renderLegalCalendar();
+}
+
+function resetLegalPinUI() {
+  document.getElementById('lpin-step-request').style.display = '';
+  document.getElementById('lpin-step-verify').style.display = 'none';
+  if (lpinCountdownInterval) clearInterval(lpinCountdownInterval);
+}
+
+function startLegalPinCountdown(seconds) {
+  let remaining = seconds;
+  const el = document.getElementById('lpin-countdown');
+  if (lpinCountdownInterval) clearInterval(lpinCountdownInterval);
+  el.textContent = remaining;
+  lpinCountdownInterval = setInterval(() => {
+    remaining--;
+    el.textContent = remaining;
+    if (remaining <= 0) {
+      clearInterval(lpinCountdownInterval);
+      Swal.fire({ icon: 'warning', title: 'PIN Expired', text: 'Please request a new PIN.', confirmButtonColor: '#D97706' });
+      resetLegalPinUI();
+    }
+  }, 1000);
+}
+
+function lpinAutoFocus(el, nextNum) {
+  el.value = el.value.replace(/[^0-9]/g, '');
+  if (el.value && nextNum) document.getElementById('lpin-digit-' + nextNum).focus();
+  if (!nextNum && el.value) {
+    const pin = [1,2,3,4].map(i => document.getElementById('lpin-digit-' + i).value).join('');
+    if (pin.length === 4) verifyLegalPin();
+  }
+}
+
+function lpinKeyNav(event, currentNum) {
+  if (event.key === 'Backspace' && !event.target.value && currentNum > 1) {
+    document.getElementById('lpin-digit-' + (currentNum - 1)).focus();
+  }
+  if (event.key === 'Enter') verifyLegalPin();
+}
+
 
 // ===== Export Functions =====
 function exportLoans(format) {
@@ -1676,16 +2172,6 @@ function exportLoans(format) {
     : ExportHelper.exportPDF('Legal_Loans', 'Legal — Loan Documentation', headers, rows, { landscape: true, subtitle: loans.length + ' records' });
 }
 
-function exportCollaterals(format) {
-  const headers = ['Code', 'Borrower', 'Type', 'Description', 'Appraised Value', 'Lien Status', 'Insurance Expiry'];
-  const rows = collaterals.map(c => [
-    c.collateral_code || '', c.borrower_name || '', c.collateral_type || '', c.description || '',
-    money(c.appraised_value), c.lien_status || '', fmtDate(c.insurance_expiry)
-  ]);
-  format === 'csv' ? ExportHelper.exportCSV('Legal_Collaterals', headers, rows)
-    : ExportHelper.exportPDF('Legal_Collaterals', 'Legal — Collateral Registry', headers, rows, { landscape: true, subtitle: collaterals.length + ' records' });
-}
-
 function exportDemands(format) {
   const headers = ['Code', 'Borrower', 'Amount', 'Type', 'Status', 'Sent Date', 'Response Deadline'];
   const rows = demands.map(d => [
@@ -1696,56 +2182,595 @@ function exportDemands(format) {
     : ExportHelper.exportPDF('Legal_Demands', 'Legal — Demand Letters', headers, rows, { subtitle: demands.length + ' records' });
 }
 
+// ═══════════════════════════════════════════════════════
+// CASE WORKFLOW FUNCTIONS
+// ═══════════════════════════════════════════════════════
+
+function openFileComplaint() {
+  // Reset form
+  ['fc-title','fc-complainant-name','fc-complainant-dept','fc-accused-name','fc-accused-dept','fc-accused-empid','fc-financial','fc-lawyer','fc-officer','fc-opposing','fc-venue','fc-description','fc-department'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('fc-case-type').value = '';
+  document.getElementById('fc-priority').value = 'medium';
+  document.querySelector('input[name="fc-severity"][value="moderate"]').checked = true;
+  // Populate linked loan dropdown
+  const loanSel = document.getElementById('fc-linked-loan');
+  loanSel.innerHTML = '<option value="">None</option>' + loans.map(l =>
+    '<option value="' + l.loan_doc_id + '">' + esc(l.loan_doc_code) + ' — ' + esc(l.borrower_name) + ' (' + money(l.loan_amount) + ')</option>'
+  ).join('');
+  openModal('modal-file-complaint');
+}
+
+async function submitComplaint() {
+  const title = document.getElementById('fc-title').value.trim();
+  const caseType = document.getElementById('fc-case-type').value;
+  const desc = document.getElementById('fc-description').value.trim();
+  if (!title || !caseType) {
+    Swal.fire({ icon: 'warning', title: 'Required', text: 'Title and case type are required.', confirmButtonColor: '#059669' });
+    return;
+  }
+  const severity = document.querySelector('input[name="fc-severity"]:checked')?.value || 'moderate';
+  const body = {
+    title, case_type: caseType, description: desc, severity,
+    priority: document.getElementById('fc-priority').value,
+    complainant_name: document.getElementById('fc-complainant-name').value.trim() || null,
+    complainant_department: document.getElementById('fc-complainant-dept').value.trim() || null,
+    accused_name: document.getElementById('fc-accused-name').value.trim() || null,
+    accused_department: document.getElementById('fc-accused-dept').value.trim() || null,
+    accused_employee_id: document.getElementById('fc-accused-empid').value.trim() || null,
+    financial_impact: parseFloat(document.getElementById('fc-financial').value) || 0,
+    assigned_lawyer: document.getElementById('fc-lawyer').value.trim() || null,
+    legal_officer: document.getElementById('fc-officer').value.trim() || null,
+    opposing_party: document.getElementById('fc-opposing').value.trim() || null,
+    court_venue: document.getElementById('fc-venue').value.trim() || null,
+    department: document.getElementById('fc-department').value.trim() || null,
+    linked_loan_id: document.getElementById('fc-linked-loan').value || null
+  };
+  try {
+    const res = await fetch(API + '?action=file_complaint', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal('modal-file-complaint');
+      Swal.fire({ icon: 'success', title: 'Complaint Filed', text: 'Case ' + data.case_number + ' has been created.', confirmButtonColor: '#059669', timer: 3000, showConfirmButton: false });
+      loadData();
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed to file complaint.', confirmButtonColor: '#059669' });
+    }
+  } catch (e) {
+    Swal.fire({ icon: 'error', title: 'Network Error', text: e.message, confirmButtonColor: '#059669' });
+  }
+}
+
+async function advanceWorkflow(caseId, newStep) {
+  const labels = {
+    under_review: 'Start Review', for_hearing: 'Set for Hearing', ongoing_investigation: 'Begin Investigation',
+    verdict: 'Proceed to Verdict', closed: 'Close Case', dismissed: 'Dismiss Case'
+  };
+  const confirm = await Swal.fire({
+    icon: 'question', title: labels[newStep] || 'Advance Workflow',
+    text: 'Move this case to "' + labelCase(newStep) + '"?',
+    showCancelButton: true, confirmButtonColor: '#059669', confirmButtonText: 'Yes, proceed'
+  });
+  if (!confirm.isConfirmed) return;
+  try {
+    const res = await fetch(API + '?action=update_workflow', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ case_id: caseId, workflow_step: newStep })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal('modal-case-detail');
+      Swal.fire({ icon: 'success', title: 'Updated', text: 'Case moved to ' + labelCase(newStep), confirmButtonColor: '#059669', timer: 2500, showConfirmButton: false });
+      loadData();
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed', confirmButtonColor: '#059669' });
+    }
+  } catch (e) {
+    Swal.fire({ icon: 'error', title: 'Network Error', text: e.message, confirmButtonColor: '#059669' });
+  }
+}
+
+async function closeCase(caseId) {
+  const { value: summary } = await Swal.fire({
+    title: 'Close Case', input: 'textarea', inputLabel: 'Resolution Summary (optional)',
+    inputPlaceholder: 'Summarize the resolution...', showCancelButton: true,
+    confirmButtonColor: '#059669', confirmButtonText: 'Close Case'
+  });
+  if (summary === undefined) return; // cancelled
+  try {
+    const res = await fetch(API + '?action=close_case', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ case_id: caseId, resolution_summary: summary || null })
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal('modal-case-detail');
+      Swal.fire({ icon: 'success', title: 'Case Closed', confirmButtonColor: '#059669', timer: 2500, showConfirmButton: false });
+      loadData();
+    }
+  } catch (e) {
+    Swal.fire({ icon: 'error', title: 'Error', text: e.message, confirmButtonColor: '#059669' });
+  }
+}
+
+function openAddHearing(caseId) {
+  document.getElementById('ah-case-id').value = caseId;
+  ['ah-date','ah-location','ah-officer','ah-attendees','ah-witnesses','ah-minutes','ah-outcome','ah-next-action'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.getElementById('ah-type').value = 'initial_review';
+  openModal('modal-add-hearing');
+}
+
+async function submitHearing() {
+  const caseId = document.getElementById('ah-case-id').value;
+  const hearingDate = document.getElementById('ah-date').value;
+  if (!caseId || !hearingDate) {
+    Swal.fire({ icon: 'warning', title: 'Required', text: 'Hearing date is required.', confirmButtonColor: '#059669' });
+    return;
+  }
+  const body = {
+    case_id: parseInt(caseId), hearing_date: hearingDate,
+    hearing_type: document.getElementById('ah-type').value,
+    location: document.getElementById('ah-location').value.trim() || null,
+    officer_name: document.getElementById('ah-officer').value.trim() || null,
+    attendees: document.getElementById('ah-attendees').value.trim() || null,
+    witnesses: document.getElementById('ah-witnesses').value.trim() || null,
+    minutes: document.getElementById('ah-minutes').value.trim() || null,
+    outcome: document.getElementById('ah-outcome').value.trim() || null,
+    next_action: document.getElementById('ah-next-action').value.trim() || null
+  };
+  try {
+    const res = await fetch(API + '?action=add_hearing', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal('modal-add-hearing');
+      Swal.fire({ icon: 'success', title: 'Hearing Saved', confirmButtonColor: '#059669', timer: 2000, showConfirmButton: false });
+      loadCaseHearings(caseId);
+      loadData();
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed', confirmButtonColor: '#059669' });
+    }
+  } catch (e) {
+    Swal.fire({ icon: 'error', title: 'Error', text: e.message, confirmButtonColor: '#059669' });
+  }
+}
+
+function openRenderVerdict(caseId) {
+  document.getElementById('rv-case-id').value = caseId;
+  document.getElementById('rv-verdict').value = '';
+  document.getElementById('rv-amount').value = '';
+  document.getElementById('rv-details').value = '';
+  document.getElementById('rv-summary').value = '';
+  openModal('modal-render-verdict');
+}
+
+async function submitVerdict() {
+  const caseId = document.getElementById('rv-case-id').value;
+  const verdict = document.getElementById('rv-verdict').value;
+  if (!verdict) {
+    Swal.fire({ icon: 'warning', title: 'Required', text: 'Select a verdict.', confirmButtonColor: '#059669' });
+    return;
+  }
+  const body = {
+    case_id: parseInt(caseId), verdict,
+    penalty_amount: parseFloat(document.getElementById('rv-amount').value) || null,
+    penalty_details: document.getElementById('rv-details').value.trim() || null,
+    resolution_summary: document.getElementById('rv-summary').value.trim() || null
+  };
+  try {
+    const res = await fetch(API + '?action=render_verdict', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.success) {
+      closeModal('modal-render-verdict');
+      closeModal('modal-case-detail');
+      Swal.fire({ icon: 'success', title: 'Verdict Rendered', confirmButtonColor: '#059669', timer: 2500, showConfirmButton: false });
+      loadData();
+    } else {
+      Swal.fire({ icon: 'error', title: 'Error', text: data.error || 'Failed', confirmButtonColor: '#059669' });
+    }
+  } catch (e) {
+    Swal.fire({ icon: 'error', title: 'Error', text: e.message, confirmButtonColor: '#059669' });
+  }
+}
+
+async function loadCaseHearings(caseId) {
+  try {
+    const res = await fetch(API + '?action=list_hearings&case_id=' + caseId);
+    const data = await res.json();
+    const list = data.data || [];
+    const el = document.getElementById('case-hearings-list');
+    if (!list.length) { el.innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:12px">No hearings recorded yet</div>'; return; }
+    el.innerHTML = list.map(h =>
+      '<div style="background:#F9FAFB;padding:10px;border-radius:8px;margin-bottom:8px;border-left:3px solid #3B82F6">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div style="font-weight:600">' + fmtDate(h.hearing_date) + ' — ' + labelCase(h.hearing_type) + '</div>' +
+          '<span style="font-size:11px;color:#6B7280">by ' + esc(h.created_by_name) + '</span>' +
+        '</div>' +
+        (h.location ? '<div style="font-size:12px;color:#6B7280">📍 ' + esc(h.location) + '</div>' : '') +
+        (h.officer_name ? '<div style="font-size:12px;color:#6B7280">👤 Officer: ' + esc(h.officer_name) + '</div>' : '') +
+        (h.attendees ? '<div style="font-size:12px;color:#6B7280">👥 Attendees: ' + esc(h.attendees) + '</div>' : '') +
+        (h.witnesses ? '<div style="font-size:12px;color:#6B7280">🧑‍⚖️ Witnesses: ' + esc(h.witnesses) + '</div>' : '') +
+        (h.minutes ? '<div style="font-size:12px;margin-top:4px;white-space:pre-wrap">' + esc(h.minutes) + '</div>' : '') +
+        (h.outcome ? '<div style="font-size:12px;margin-top:4px;color:#059669;font-weight:600">Outcome: ' + esc(h.outcome) + '</div>' : '') +
+        (h.next_action ? '<div style="font-size:12px;color:#D97706">Next: ' + esc(h.next_action) + '</div>' : '') +
+      '</div>'
+    ).join('');
+  } catch (e) {
+    document.getElementById('case-hearings-list').innerHTML = '<div style="color:#EF4444">Failed to load hearings</div>';
+  }
+}
+
+async function loadCaseEvidence(caseId) {
+  try {
+    const res = await fetch(API + '?action=list_evidence&case_id=' + caseId);
+    const data = await res.json();
+    const list = data.data || [];
+    const el = document.getElementById('case-evidence-list');
+    if (!list.length) { el.innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:12px">No evidence attached yet</div>'; return; }
+    const typeIcons = { document:'📄', photo:'🖼️', video:'🎥', audio:'🔊', email:'📧', report:'📊', other:'📎' };
+    el.innerHTML = list.map(e => {
+      const base = '../../api/legal.php?action=get_evidence_file&evidence_id=' + e.evidence_id;
+      const mt = e.mime_type || '';
+      const isImage = mt.startsWith('image/');
+      const isVideo = mt.startsWith('video/');
+      const isAudio = mt.startsWith('audio/');
+      const isPdf   = mt === 'application/pdf';
+
+      let preview = '';
+      if (isImage) {
+        preview = '<div style="margin-top:8px"><img src="' + base + '" style="max-height:160px;max-width:100%;border-radius:8px;border:1px solid #E5E7EB;object-fit:cover;cursor:pointer" onclick="window.open(\'' + base + '\',\'_blank\')" title="Click to open"></div>';
+      } else if (isVideo) {
+        preview = '<div style="margin-top:8px"><video controls style="max-height:180px;max-width:100%;border-radius:8px;border:1px solid #E5E7EB" src="' + base + '"></video></div>';
+      } else if (isAudio) {
+        preview = '<div style="margin-top:6px"><audio controls style="width:100%" src="' + base + '"></audio></div>';
+      }
+
+      const fmtSize = e.file_size ? (e.file_size > 1048576 ? (e.file_size/1048576).toFixed(1)+' MB' : (e.file_size/1024).toFixed(0)+' KB') : '';
+
+      return '<div style="background:#F9FAFB;padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid #E5E7EB">' +
+        '<div style="display:flex;align-items:center;gap:10px">' +
+          '<span style="font-size:22px">' + (typeIcons[e.evidence_type] || '📎') + '</span>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-weight:600;font-size:13px;color:#1F2937;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(e.file_name) + '</div>' +
+            '<div style="font-size:11px;color:#6B7280">' + labelCase(e.evidence_type) + (fmtSize ? ' · ' + fmtSize : '') + (e.description ? ' · ' + esc(e.description) : '') + '</div>' +
+            '<div style="font-size:11px;color:#9CA3AF">' + fmtDate(e.uploaded_at) + (e.uploaded_by_name ? ' · ' + esc(e.uploaded_by_name) : '') + '</div>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;flex-shrink:0">' +
+            (isImage || isVideo || isPdf
+              ? '<a href="' + base + '" target="_blank" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#DBEAFE;color:#1E40AF;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">👁 View</a>'
+              : '') +
+            '<a href="' + base + '&download=1" style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:#D1FAE5;color:#065F46;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">⬇ Download</a>' +
+          '</div>' +
+        '</div>' +
+        preview +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    document.getElementById('case-evidence-list').innerHTML = '<div style="color:#EF4444">Failed to load evidence</div>';
+  }
+}
+
+// ─── Evidence Upload Modal ───
+let _evidenceFile = null;
+
+function handleEvidenceDrop(ev) {
+  ev.preventDefault();
+  const dz = document.getElementById('ae-dropzone');
+  dz.style.borderColor = '#D1D5DB'; dz.style.background = '#F9FAFB';
+  const file = ev.dataTransfer.files[0];
+  if (file) handleEvidenceFileSelect(file);
+}
+
+function handleEvidenceFileSelect(file) {
+  if (!file) return;
+  _evidenceFile = file;
+  const icons = { 'image': '🖼️', 'video': '🎥', 'audio': '🔊', 'application/pdf': '📄' };
+  const topType = file.type.split('/')[0];
+  const icon = icons[topType] || (file.type === 'application/pdf' ? '📄' : '📎');
+
+  document.getElementById('ae-preview-icon').textContent = icon;
+  document.getElementById('ae-preview-name').textContent = file.name;
+  const sz = file.size > 1048576 ? (file.size/1048576).toFixed(1)+' MB' : (file.size/1024).toFixed(0)+' KB';
+  document.getElementById('ae-preview-size').textContent = sz + ' · ' + file.type;
+  document.getElementById('ae-preview').style.display = 'block';
+  document.getElementById('ae-dropzone').style.display = 'none';
+
+  // Auto-set evidence type
+  const typeMap = { image: 'photo', video: 'video', audio: 'audio', text: 'document', application: 'document' };
+  document.getElementById('ae-type').value = typeMap[topType] || 'document';
+
+  // Show image thumbnail
+  if (topType === 'image') {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('ae-img-thumb').src = e.target.result;
+      document.getElementById('ae-img-thumb-wrap').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  } else {
+    document.getElementById('ae-img-thumb-wrap').style.display = 'none';
+  }
+}
+
+function clearEvidenceFile() {
+  _evidenceFile = null;
+  document.getElementById('ae-file-input').value = '';
+  document.getElementById('ae-preview').style.display = 'none';
+  document.getElementById('ae-img-thumb-wrap').style.display = 'none';
+  document.getElementById('ae-dropzone').style.display = 'block';
+}
+
+function openAddEvidence(caseId) {
+  _evidenceFile = null;
+  document.getElementById('ae-case-id').value = caseId;
+  document.getElementById('ae-file-input').value = '';
+  document.getElementById('ae-description').value = '';
+  document.getElementById('ae-type').value = 'document';
+  document.getElementById('ae-preview').style.display = 'none';
+  document.getElementById('ae-img-thumb-wrap').style.display = 'none';
+  document.getElementById('ae-dropzone').style.display = 'block';
+  document.getElementById('ae-progress-wrap').style.display = 'none';
+  document.getElementById('ae-progress-bar').style.width = '0%';
+  openModal('modal-add-evidence');
+}
+
+async function submitEvidence() {
+  if (!_evidenceFile) {
+    Swal.fire({ icon: 'warning', title: 'No File', text: 'Please select a file to upload.', confirmButtonColor: '#059669' });
+    return;
+  }
+  const caseId = document.getElementById('ae-case-id').value;
+  const formData = new FormData();
+  formData.append('case_id', caseId);
+  formData.append('evidence_type', document.getElementById('ae-type').value);
+  formData.append('description', document.getElementById('ae-description').value.trim());
+  formData.append('evidence_file', _evidenceFile, _evidenceFile.name);
+
+  const btn = document.getElementById('ae-submit-btn');
+  btn.disabled = true; btn.textContent = 'Uploading...';
+  document.getElementById('ae-progress-wrap').style.display = 'block';
+
+  // Use XHR for progress tracking
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', API + '?action=add_evidence');
+  xhr.upload.addEventListener('progress', e => {
+    if (e.lengthComputable) {
+      document.getElementById('ae-progress-bar').style.width = Math.round(e.loaded / e.total * 100) + '%';
+    }
+  });
+  xhr.onload = () => {
+    btn.disabled = false; btn.textContent = '📎 Upload Evidence';
+    try {
+      const data = JSON.parse(xhr.responseText);
+      if (data.success) {
+        closeModal('modal-add-evidence');
+        Swal.fire({ icon: 'success', title: 'Evidence Uploaded', text: _evidenceFile.name + ' saved.', confirmButtonColor: '#059669', timer: 2500, showConfirmButton: false });
+        loadCaseEvidence(caseId);
+        loadData();
+      } else {
+        Swal.fire({ icon: 'error', title: 'Upload Failed', text: data.error || 'Unknown error', confirmButtonColor: '#059669' });
+        document.getElementById('ae-progress-wrap').style.display = 'none';
+      }
+    } catch(e) {
+      Swal.fire({ icon: 'error', title: 'Error', text: 'Server returned invalid response.', confirmButtonColor: '#059669' });
+      document.getElementById('ae-progress-wrap').style.display = 'none';
+    }
+  };
+  xhr.onerror = () => {
+    btn.disabled = false; btn.textContent = '📎 Upload Evidence';
+    Swal.fire({ icon: 'error', title: 'Network Error', text: 'Upload failed.', confirmButtonColor: '#059669' });
+    document.getElementById('ae-progress-wrap').style.display = 'none';
+  };
+  xhr.send(formData);
+}
+
+async function deleteEvidence(evidenceId, caseId) {
+  const conf = await Swal.fire({
+    icon:'warning', title:'Delete Evidence?', text:'This will permanently remove the file.',
+    showCancelButton:true, confirmButtonColor:'#EF4444', confirmButtonText:'Delete'
+  });
+  if (!conf.isConfirmed) return;
+  try {
+    const res = await fetch(API + '?action=delete_evidence', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ evidence_id: evidenceId })
+    });
+    const data = await res.json();
+    if (data.success) {
+      Swal.fire({ icon:'success', title:'Deleted', timer:1800, showConfirmButton:false });
+      loadCaseEvidence(caseId);
+      loadData();
+    } else {
+      Swal.fire({ icon:'error', title:'Error', text: data.error || 'Failed', confirmButtonColor:'#059669' });
+    }
+  } catch(e) {
+    Swal.fire({ icon:'error', title:'Error', text: e.message, confirmButtonColor:'#059669' });
+  }
+}
+
+async function loadCaseNotices(caseId) {
+  try {
+    const res = await fetch(API + '?action=list_notices&case_id=' + caseId);
+    const data = await res.json();
+    const list = data.data || [];
+    const el = document.getElementById('case-notices-list');
+    if (!list.length) { el.innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:12px">No notices issued</div>'; return; }
+    el.innerHTML = list.map(n =>
+      '<div style="background:#FFFBEB;padding:8px 12px;border-radius:8px;margin-bottom:6px;border-left:3px solid #F59E0B">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<div style="font-weight:600;font-size:13px">' + labelCase(n.notice_type) + (n.auto_generated == 1 ? ' ⚡ Auto' : '') + '</div>' +
+          '<span style="font-size:11px;padding:2px 8px;border-radius:99px;background:' + (n.status==='sent'?'#D1FAE5':'#F3F4F6') + ';color:' + (n.status==='sent'?'#065F46':'#6B7280') + '">' + labelCase(n.status) + '</span>' +
+        '</div>' +
+        '<div style="font-size:12px;color:#6B7280">To: ' + esc(n.recipient_name) + (n.recipient_dept ? ' (' + esc(n.recipient_dept) + ')' : '') + '</div>' +
+        '<div style="font-size:12px;font-weight:500">' + esc(n.subject) + '</div>' +
+        (n.days_overdue ? '<div style="font-size:11px;color:#EF4444">Days Overdue: ' + n.days_overdue + '</div>' : '') +
+        '<div style="font-size:11px;color:#9CA3AF">' + fmtDate(n.created_at) + '</div>' +
+      '</div>'
+    ).join('');
+  } catch (e) {
+    document.getElementById('case-notices-list').innerHTML = '<div style="color:#EF4444">Failed to load notices</div>';
+  }
+}
+
+async function runEscalationCheck() {
+  try {
+    const res = await fetch(API + '?action=check_escalations', { method: 'POST' });
+    const data = await res.json();
+    if (data.success) {
+      if (data.escalated_count > 0) {
+        Swal.fire({ icon: 'warning', title: 'Auto-Escalated', text: data.escalated_count + ' case(s) escalated: ' + data.escalated_cases.join(', '), confirmButtonColor: '#059669' });
+      } else {
+        Swal.fire({ icon: 'info', title: 'No Escalations', text: 'All cases are within their escalation windows.', confirmButtonColor: '#059669' });
+      }
+      loadData();
+    }
+  } catch (e) {
+    Swal.fire({ icon: 'error', title: 'Error', text: e.message, confirmButtonColor: '#059669' });
+  }
+}
+
+async function openDecisionMatrix() {
+  document.getElementById('decision-matrix-body').innerHTML = 'Loading...';
+  openModal('modal-decision-matrix');
+  try {
+    const res = await fetch(API + '?action=list_decision_matrix');
+    const data = await res.json();
+    const list = data.data || [];
+    if (!list.length) { document.getElementById('decision-matrix-body').innerHTML = '<div style="text-align:center;color:#9CA3AF;padding:20px">No decision matrix rules found</div>'; return; }
+    let html = '<table class="data-table"><thead><tr><th>Case Type</th><th>Severity</th><th>Recommended Action</th><th>Days Threshold</th><th>Amount Threshold</th><th>Description</th></tr></thead><tbody>';
+    list.forEach(r => {
+      html += '<tr>' +
+        '<td style="font-weight:600">' + esc(r.case_type) + '</td>' +
+        '<td>' + severityBadge(r.severity) + '</td>' +
+        '<td style="font-weight:600;color:#1F2937">' + esc(r.recommended_action) + '</td>' +
+        '<td style="text-align:center">' + (r.days_threshold ? r.days_threshold + ' days' : '—') + '</td>' +
+        '<td style="text-align:center">' + (r.amount_threshold ? money(r.amount_threshold) : '—') + '</td>' +
+        '<td style="font-size:12px;color:#6B7280">' + esc(r.description) + '</td>' +
+      '</tr>';
+    });
+    html += '</tbody></table>';
+    document.getElementById('decision-matrix-body').innerHTML = html;
+  } catch (e) {
+    document.getElementById('decision-matrix-body').innerHTML = '<div style="color:#EF4444">Failed to load decision matrix</div>';
+  }
+}
+
+async function openCaseAnalytics() {
+  document.getElementById('case-analytics-body').innerHTML = 'Loading analytics...';
+  openModal('modal-case-analytics');
+  try {
+    const res = await fetch(API + '?action=case_analytics');
+    const data = await res.json();
+    let html = '';
+
+    // Summary cards
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:20px">';
+    html += '<div style="background:#F0FDF4;padding:14px;border-radius:10px;text-align:center"><div style="font-size:24px;font-weight:800;color:#065F46">' + (data.avg_resolution_days || 0) + '</div><div style="font-size:12px;color:#6B7280">Avg Days to Resolve</div></div>';
+    html += '<div style="background:#FEF2F2;padding:14px;border-radius:10px;text-align:center"><div style="font-size:24px;font-weight:800;color:#991B1B">' + (data.overdue_escalations || 0) + '</div><div style="font-size:12px;color:#6B7280">Overdue Escalations</div></div>';
+    const totalCases = (data.by_status || []).reduce((s, r) => s + parseInt(r.count), 0);
+    html += '<div style="background:#DBEAFE;padding:14px;border-radius:10px;text-align:center"><div style="font-size:24px;font-weight:800;color:#1E40AF">' + totalCases + '</div><div style="font-size:12px;color:#6B7280">Total Cases</div></div>';
+    html += '</div>';
+
+    // By Workflow Status
+    html += '<div style="margin-bottom:20px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">Cases by Workflow Status</div>';
+    if (data.by_status && data.by_status.length) {
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      data.by_status.forEach(r => {
+        html += '<div style="background:#F3F4F6;padding:8px 14px;border-radius:8px;text-align:center">' +
+          '<div style="font-size:18px;font-weight:800">' + r.count + '</div>' +
+          '<div style="font-size:11px;color:#6B7280">' + labelCase(r.workflow_step || 'unknown') + '</div></div>';
+      });
+      html += '</div>';
+    } else html += '<div style="color:#9CA3AF">No data</div>';
+    html += '</div>';
+
+    // By Severity
+    html += '<div style="margin-bottom:20px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">Cases by Severity</div>';
+    if (data.by_severity && data.by_severity.length) {
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      data.by_severity.forEach(r => {
+        html += '<div style="padding:8px 14px;border-radius:8px;text-align:center">' + severityBadge(r.severity) + ' <strong>' + r.count + '</strong></div>';
+      });
+      html += '</div>';
+    } else html += '<div style="color:#9CA3AF">No data</div>';
+    html += '</div>';
+
+    // By Type
+    html += '<div style="margin-bottom:20px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">Cases by Type</div>';
+    if (data.by_type && data.by_type.length) {
+      const maxCount = Math.max(...data.by_type.map(r => parseInt(r.count)));
+      data.by_type.forEach(r => {
+        const pct = maxCount > 0 ? (parseInt(r.count) / maxCount * 100) : 0;
+        html += '<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px"><span>' + labelCase(r.case_type) + '</span><strong>' + r.count + '</strong></div>' +
+          '<div style="height:8px;background:#E5E7EB;border-radius:4px;overflow:hidden"><div style="height:100%;width:' + pct + '%;background:#059669;border-radius:4px"></div></div></div>';
+      });
+    } else html += '<div style="color:#9CA3AF">No data</div>';
+    html += '</div>';
+
+    // By Department
+    html += '<div style="margin-bottom:20px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">Top Departments</div>';
+    if (data.by_department && data.by_department.length) {
+      data.by_department.forEach(r => {
+        html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px;border-bottom:1px solid #F3F4F6"><span>' + esc(r.dept) + '</span><strong>' + r.count + '</strong></div>';
+      });
+    } else html += '<div style="color:#9CA3AF">No data</div>';
+    html += '</div>';
+
+    // Verdict Distribution
+    html += '<div style="margin-bottom:20px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">Verdict Distribution</div>';
+    if (data.by_verdict && data.by_verdict.length) {
+      html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+      data.by_verdict.forEach(r => {
+        html += '<div style="padding:6px 12px;border-radius:8px;background:#F3F4F6">' + verdictBadge(r.verdict) + ' <strong>' + r.count + '</strong></div>';
+      });
+      html += '</div>';
+    } else html += '<div style="color:#9CA3AF">No verdicts yet</div>';
+    html += '</div>';
+
+    // Monthly Trend
+    html += '<div style="margin-bottom:20px"><div style="font-weight:700;font-size:14px;margin-bottom:8px">Monthly Trend (Last 12 Months)</div>';
+    if (data.monthly_trend && data.monthly_trend.length) {
+      const maxM = Math.max(...data.monthly_trend.map(r => parseInt(r.count)));
+      html += '<div style="display:flex;align-items:flex-end;gap:4px;height:120px;padding-top:10px">';
+      data.monthly_trend.forEach(r => {
+        const pct = maxM > 0 ? (parseInt(r.count) / maxM * 100) : 0;
+        html += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px">' +
+          '<div style="font-size:10px;font-weight:600">' + r.count + '</div>' +
+          '<div style="width:100%;background:#059669;border-radius:4px 4px 0 0;min-height:4px;height:' + pct + '%"></div>' +
+          '<div style="font-size:9px;color:#6B7280;transform:rotate(-45deg);white-space:nowrap;margin-top:4px">' + r.month + '</div>' +
+        '</div>';
+      });
+      html += '</div>';
+    } else html += '<div style="color:#9CA3AF">No data</div>';
+    html += '</div>';
+
+    document.getElementById('case-analytics-body').innerHTML = html;
+  } catch (e) {
+    document.getElementById('case-analytics-body').innerHTML = '<div style="color:#EF4444">Failed to load analytics: ' + e.message + '</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT FUNCTIONS
+// ═══════════════════════════════════════════════════════
+
 function exportCases(format) {
-  const headers = ['Case #', 'Title', 'Type', 'Priority', 'Status', 'Opposing Party', 'Financial Impact', 'Assigned'];
+  const headers = ['Case #', 'Title', 'Type', 'Severity', 'Workflow', 'Priority', 'Complainant', 'Accused', 'Financial Impact', 'Verdict'];
   const rows = cases.map(c => [
-    c.case_number || '', c.title || '', c.case_type || '', c.priority || '',
-    c.status || '', c.opposing_party || '', money(c.financial_impact), c.assigned_attorney || ''
+    c.case_number || '', c.title || '', c.case_type || '', c.severity || '',
+    c.workflow_step || '', c.priority || '', c.complainant_name || '', c.accused_name || '',
+    money(c.financial_impact), c.verdict || ''
   ]);
   format === 'csv' ? ExportHelper.exportCSV('Legal_Cases', headers, rows)
     : ExportHelper.exportPDF('Legal_Cases', 'Legal — Legal Cases', headers, rows, { landscape: true, subtitle: cases.length + ' records' });
-}
-
-function exportKYC(format) {
-  const headers = ['Code', 'Client', 'Type', 'ID Type', 'Risk Rating', 'Verification Status', 'Next Review'];
-  const rows = kyc.map(k => [
-    k.kyc_code || '', k.client_name || '', k.client_type || '', k.id_type || '',
-    k.risk_rating || '', k.verification_status || '', fmtDate(k.next_review_date)
-  ]);
-  format === 'csv' ? ExportHelper.exportCSV('Legal_KYC', headers, rows)
-    : ExportHelper.exportPDF('Legal_KYC', 'Legal — KYC Records', headers, rows, { subtitle: kyc.length + ' records' });
-}
-
-function exportCompliance(format) {
-  const headers = ['Code', 'Requirement', 'Body', 'Status', 'Deadline', 'Assigned'];
-  const rows = compliance.map(c => [
-    c.compliance_code || '', c.requirement || '', c.regulatory_body || '',
-    c.status || '', fmtDate(c.deadline), c.assigned_to || ''
-  ]);
-  format === 'csv' ? ExportHelper.exportCSV('Legal_Compliance', headers, rows)
-    : ExportHelper.exportPDF('Legal_Compliance', 'Legal — Regulatory Compliance', headers, rows, { subtitle: compliance.length + ' records' });
-}
-
-function exportResolutions(format) {
-  const headers = ['Code', 'Title', 'Type', 'Meeting Date', 'Meeting Type', 'Votes For', 'Votes Against', 'Abstain', 'Passed', 'Status'];
-  const rows = resolutions.map(r => [
-    r.resolution_code || '', r.title || '', r.resolution_type || '', fmtDate(r.meeting_date),
-    r.meeting_type || '', r.votes_for || 0, r.votes_against || 0, r.votes_abstain || 0,
-    r.passed ? 'Yes' : 'No', r.status || ''
-  ]);
-  format === 'csv' ? ExportHelper.exportCSV('Legal_Resolutions', headers, rows)
-    : ExportHelper.exportPDF('Legal_Resolutions', 'Legal — Board Resolutions', headers, rows, { landscape: true, subtitle: resolutions.length + ' records' });
-}
-
-function exportPOA(format) {
-  const headers = ['Code', 'Principal', 'Agent', 'Type', 'Scope', 'Effective Date', 'Expiry', 'Notarized', 'Status'];
-  const rows = poa.map(p => [
-    p.poa_code || '', p.principal_name || '', p.agent_name || '', p.poa_type || '',
-    p.scope || '', fmtDate(p.effective_date), fmtDate(p.expiry_date),
-    p.notarized ? 'Yes' : 'No', p.status || ''
-  ]);
-  format === 'csv' ? ExportHelper.exportCSV('Legal_POA', headers, rows)
-    : ExportHelper.exportPDF('Legal_POA', 'Legal — Power of Attorney', headers, rows, { landscape: true, subtitle: poa.length + ' records' });
 }
 
 function exportContracts(format) {
@@ -2221,6 +3246,124 @@ function exportLoanContractPDF() {
     showConfirmButton: false
   });
 }
+// ═══════════════════════════════════════════════════════
+// HR2 INTEGRATION — Data Display Logic
+// ═══════════════════════════════════════════════════════
+
+var hr2Loaded = false;
+var hr2EmployeesData = [];
+var HR2_BRIDGE = '../../api/hr2.php';
+
+function switchHR2Tab(panelId, btn) {
+  document.querySelectorAll('#hr2-sub-tabs .sub-tab').forEach(function(t) { t.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.hr2-panel').forEach(function(p) { p.style.display = 'none'; });
+  var panel = document.getElementById(panelId);
+  if (panel) panel.style.display = '';
+}
+
+function hr2InitTab() {
+  if (hr2Loaded) return;
+  hr2Loaded = true;
+  hr2CheckConnection();
+  hr2LoadEmployees();
+  hr2LoadLeaves();
+  hr2LoadTraining();
+  hr2LoadSuccessors();
+  hr2LoadJobs();
+}
+
+function hr2RefreshAll() { hr2Loaded = false; hr2InitTab(); }
+
+function hr2CheckConnection() {
+  var dot = document.getElementById('hr2-status-dot');
+  var txt = document.getElementById('hr2-status-text');
+  fetch(HR2_BRIDGE + '?action=health').then(function(r){return r.json();}).then(function(res) {
+    if (res.hr2_alive) {
+      dot.style.background = '#059669'; dot.style.animation = 'none';
+      txt.textContent = '\u2713 Connected to HR2 (' + (res.domain || 'hr2.microfinancial-1.com') + ')';
+      txt.style.color = '#059669';
+      document.getElementById('stat-hr2').innerHTML = '<span style="color:#059669;font-weight:700">Online</span>';
+    } else {
+      dot.style.background = '#EF4444'; dot.style.animation = 'none';
+      txt.textContent = '\u2717 HR2 unreachable'; txt.style.color = '#EF4444';
+      document.getElementById('stat-hr2').innerHTML = '<span style="color:#EF4444">Offline</span>';
+    }
+  }).catch(function() {
+    dot.style.background = '#EF4444'; dot.style.animation = 'none';
+    txt.textContent = '\u2717 HR2 bridge error'; txt.style.color = '#EF4444';
+    document.getElementById('stat-hr2').innerHTML = '<span style="color:#EF4444">Error</span>';
+  });
+}
+
+function hr2LoadEmployees() {
+  var tbody = document.getElementById('hr2-emp-tbody');
+  fetch(HR2_BRIDGE + '?action=employees').then(function(r){return r.json();}).then(function(res) {
+    hr2EmployeesData = res.data || [];
+    document.getElementById('hr2-stat-employees').textContent = hr2EmployeesData.length;
+    hr2RenderEmployees(hr2EmployeesData);
+  }).catch(function(err) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#EF4444">Failed: ' + err.message + '</td></tr>'; });
+}
+
+function hr2RenderEmployees(list) {
+  var tbody = document.getElementById('hr2-emp-tbody');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#9CA3AF">No employees found</td></tr>'; return; }
+  tbody.innerHTML = list.slice(0, 100).map(function(e) {
+    var st = e.status || e.employment_status || '\u2014';
+    var stColor = ['active','regular'].indexOf((st+'').toLowerCase()) >= 0 ? '#059669' : '#EF4444';
+    return '<tr><td style="font-weight:600">' + (e.employee_id||'\u2014') + '</td><td style="font-weight:600">' + (e.full_name||'\u2014') + '</td><td style="font-size:12px;color:#6B7280">' + (e.email||'\u2014') + '</td><td>' + (e.department||'\u2014') + '</td><td>' + (e.position||e.job_title||'\u2014') + '</td><td><span style="padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;background:' + stColor + '20;color:' + stColor + '">' + st + '</span></td></tr>';
+  }).join('');
+}
+
+function hr2SearchEmployees() {
+  var q = (document.getElementById('hr2-emp-search').value || '').toLowerCase();
+  if (!q) { hr2RenderEmployees(hr2EmployeesData); return; }
+  hr2RenderEmployees(hr2EmployeesData.filter(function(e) { return (e.full_name||'').toLowerCase().indexOf(q)>=0||(e.email||'').toLowerCase().indexOf(q)>=0||(e.department||'').toLowerCase().indexOf(q)>=0; }));
+}
+
+function hr2LoadLeaves() {
+  var tbody = document.getElementById('hr2-leaves-tbody');
+  fetch(HR2_BRIDGE + '?action=leaves').then(function(r){return r.json();}).then(function(res) {
+    var leaves = res.data || [];
+    document.getElementById('hr2-stat-leaves').textContent = leaves.length;
+    if (!leaves.length) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#9CA3AF">No leave records</td></tr>'; return; }
+    tbody.innerHTML = leaves.slice(0,100).map(function(l) {
+      var st = l.status || '\u2014';
+      var stColor = st==='approved'?'#059669':st==='pending'?'#D97706':'#EF4444';
+      return '<tr><td style="font-weight:600">' + (l.employee_name||'\u2014') + '</td><td>' + (l.leave_type||'\u2014') + '</td><td style="font-size:12px">' + (l.start_date||'\u2014') + '</td><td style="font-size:12px">' + (l.end_date||'\u2014') + '</td><td style="text-align:center">' + (l.days||'\u2014') + '</td><td><span style="padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;background:' + stColor + '20;color:' + stColor + '">' + st + '</span></td></tr>';
+    }).join('');
+  }).catch(function(err) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#EF4444">Failed: ' + err.message + '</td></tr>'; });
+}
+
+function hr2LoadTraining() {
+  var tbody = document.getElementById('hr2-training-tbody');
+  fetch(HR2_BRIDGE + '?action=training').then(function(r){return r.json();}).then(function(res) {
+    var items = res.data || [];
+    document.getElementById('hr2-stat-training').textContent = items.length;
+    if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#9CA3AF">No training records</td></tr>'; return; }
+    tbody.innerHTML = items.slice(0,100).map(function(t) { return '<tr><td style="font-weight:600">' + (t.employee_name||'\u2014') + '</td><td>' + (t.training_name||t.title||'\u2014') + '</td><td>' + (t.provider||'\u2014') + '</td><td style="font-size:12px">' + (t.date||t.start_date||'\u2014') + '</td><td><span style="padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;background:#05966920;color:#059669">' + (t.status||'enrolled') + '</span></td></tr>'; }).join('');
+  }).catch(function(err) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#EF4444">Failed: ' + err.message + '</td></tr>'; });
+}
+
+function hr2LoadSuccessors() {
+  var tbody = document.getElementById('hr2-successors-tbody');
+  fetch(HR2_BRIDGE + '?action=successors').then(function(r){return r.json();}).then(function(res) {
+    var items = res.data || [];
+    if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#9CA3AF">No succession data</td></tr>'; return; }
+    tbody.innerHTML = items.slice(0,100).map(function(s) { return '<tr><td style="font-weight:600">' + (s.position||'\u2014') + '</td><td>' + (s.incumbent||'\u2014') + '</td><td>' + (s.successor||'\u2014') + '</td><td>' + (s.readiness||'\u2014') + '</td><td>' + (s.priority||'\u2014') + '</td></tr>'; }).join('');
+  }).catch(function(err) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#EF4444">Failed: ' + err.message + '</td></tr>'; });
+}
+
+function hr2LoadJobs() {
+  var tbody = document.getElementById('hr2-jobs-tbody');
+  fetch(HR2_BRIDGE + '?action=jobs').then(function(r){return r.json();}).then(function(res) {
+    var items = res.data || [];
+    document.getElementById('hr2-stat-jobs').textContent = items.length;
+    if (!items.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#9CA3AF">No job titles</td></tr>'; return; }
+    tbody.innerHTML = items.slice(0,100).map(function(j) { return '<tr><td style="font-weight:600">' + (j.title||j.job_title||'\u2014') + '</td><td>' + (j.department||'\u2014') + '</td><td>' + (j.level||'\u2014') + '</td><td style="text-align:center">' + (j.headcount||'\u2014') + '</td><td><span style="padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;background:#05966920;color:#059669">' + (j.status||'active') + '</span></td></tr>'; }).join('');
+  }).catch(function(err) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#EF4444">Failed: ' + err.message + '</td></tr>'; });
+}
+
 </script>
 </body>
 </html>

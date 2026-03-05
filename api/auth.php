@@ -4,7 +4,9 @@
  * Authentication API — Database-backed login with OTP verification
  */
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
@@ -54,6 +56,7 @@ switch ($action) {
                 'last_name'  => $user['last_name'],
                 'email'      => $user['email'],
                 'role'       => $user['role'],
+                'position_level' => intval($user['position_level'] ?? 1),
                 'department' => $user['department'],
                 'avatar_url' => $user['avatar_url'],
                 'login_time' => date('Y-m-d H:i:s')
@@ -107,9 +110,107 @@ switch ($action) {
         }
         break;
 
+    // ─── UPDATE PROFILE ───
+    case 'update_profile':
+        if (empty($_SESSION['authenticated']) || empty($_SESSION['user'])) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+            break;
+        }
+        $input = json_decode(file_get_contents('php://input'), true);
+        $firstName = trim($input['first_name'] ?? '');
+        $lastName  = trim($input['last_name'] ?? '');
+        $email     = trim($input['email'] ?? '');
+        $userId    = $_SESSION['user']['user_id'];
+
+        if (!$firstName) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'First name is required.']);
+            break;
+        }
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'A valid email address is required.']);
+            break;
+        }
+
+        try {
+            $db = getDB();
+            // Check if email is taken by another user
+            $chk = $db->prepare("SELECT user_id FROM users WHERE email = :email AND user_id != :uid LIMIT 1");
+            $chk->execute([':email' => $email, ':uid' => $userId]);
+            if ($chk->fetch()) {
+                echo json_encode(['success' => false, 'message' => 'This email is already in use by another account.']);
+                break;
+            }
+
+            $oldData = ['first_name' => $_SESSION['user']['first_name'] ?? '', 'last_name' => $_SESSION['user']['last_name'] ?? '', 'email' => $_SESSION['user']['email'] ?? ''];
+            $stmt = $db->prepare("UPDATE users SET first_name = :fn, last_name = :ln, email = :em, updated_at = NOW() WHERE user_id = :uid");
+            $stmt->execute([':fn' => $firstName, ':ln' => $lastName, ':em' => $email, ':uid' => $userId]);
+
+            // Update session
+            $_SESSION['user']['first_name'] = $firstName;
+            $_SESSION['user']['last_name']  = $lastName;
+            $_SESSION['user']['name']       = $firstName . ($lastName ? ' ' . $lastName : '');
+            $_SESSION['user']['email']      = $email;
+
+            logAudit('system', 'PROFILE_UPDATE', 'users', $userId, $oldData, ['first_name' => $firstName, 'last_name' => $lastName, 'email' => $email]);
+            echo json_encode(['success' => true, 'message' => 'Profile updated successfully.']);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Database error. Please try again.']);
+        }
+        break;
+
+    // ─── CHANGE PASSWORD ───
+    case 'change_password':
+        if (empty($_SESSION['authenticated']) || empty($_SESSION['user'])) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+            break;
+        }
+        $input = json_decode(file_get_contents('php://input'), true);
+        $currentPassword = $input['current_password'] ?? '';
+        $newPassword     = $input['new_password'] ?? '';
+        $userId          = $_SESSION['user']['user_id'];
+
+        if (!$currentPassword) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Current password is required.']);
+            break;
+        }
+        if (!$newPassword || strlen($newPassword) < 6) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'New password must be at least 6 characters.']);
+            break;
+        }
+
+        try {
+            $db = getDB();
+            $stmt = $db->prepare("SELECT password_hash FROM users WHERE user_id = :uid LIMIT 1");
+            $stmt->execute([':uid' => $userId]);
+            $user = $stmt->fetch();
+
+            if (!$user || !password_verify($currentPassword, $user['password_hash'])) {
+                echo json_encode(['success' => false, 'message' => 'Current password is incorrect.']);
+                break;
+            }
+
+            $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+            $stmt = $db->prepare("UPDATE users SET password_hash = :pw, updated_at = NOW() WHERE user_id = :uid");
+            $stmt->execute([':pw' => $newHash, ':uid' => $userId]);
+
+            logAudit('system', 'PASSWORD_CHANGE', 'users', $userId, null, null);
+            echo json_encode(['success' => true, 'message' => 'Password changed successfully.']);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Database error. Please try again.']);
+        }
+        break;
+
     default:
         http_response_code(400);
-        echo json_encode(['error' => 'Invalid action. Use: login, logout, check']);
+        echo json_encode(['error' => 'Invalid action. Use: login, logout, check, update_profile, change_password']);
 }
 
 /**
@@ -136,7 +237,8 @@ function sendLoginOTP(string $otp) {
         ];
 
         $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
-        $mail->addAddress(OTP_RECIPIENT);
+        $recipientEmail = $_SESSION['otp_user_data']['email'] ?? OTP_RECIPIENT;
+        $mail->addAddress($recipientEmail);
 
         // Embed the logo as an inline attachment
         $logoPath = __DIR__ . '/../assets/images/logo.png';

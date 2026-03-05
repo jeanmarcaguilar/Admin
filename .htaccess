@@ -1,0 +1,20 @@
+# Microfinancial Admin - OpenLiteSpeed / Apache Compatible Configuration
+
+# Enable Rewrite Engine
+RewriteEngine On
+RewriteBase /
+
+# Set default index page
+DirectoryIndex login.php index.php
+
+# Redirect root to login page
+RewriteRule ^$ login.php [L]
+
+# Block access to sensitive files and directories
+RewriteRule ^config/ - [F,L]
+RewriteRule ^database/ - [F,L]
+RewriteRule ^vendor/ - [F,L]
+RewriteRule ^\.htaccess$ - [F,L]
+
+# Set charset
+AddDefaultCharset UTF-8
