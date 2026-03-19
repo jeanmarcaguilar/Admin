@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!userDropdown) return;
     userDropdown.classList.add("opacity-0", "translate-y-2", "scale-95", "pointer-events-none");
     userDropdown.classList.remove("opacity-100", "translate-y-0", "scale-100", "pointer-events-auto");
-    setTimeout(() => userDropdown.classList.add("hidden"), 200);
+    setTimeout(() => userDropdown.classList.add("hidden"), 100);
   };
 
   if (userBtn && userDropdown) {
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!sidebar || !overlay) return;
     sidebar.classList.add("-translate-x-full");
     overlay.classList.add("opacity-0");
-    setTimeout(() => overlay.classList.add("hidden"), 300);
+    setTimeout(() => overlay.classList.add("hidden"), 150);
   };
 
   if (mobileBtn && sidebar && overlay) {
@@ -97,6 +97,28 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ───── Sidebar Submenu Toggles ─────
+  const currentFile = window.location.pathname.split('/').pop() || 'dashboard.php';
+
+  // Active/inactive class sets for module buttons
+  const MOD_ACTIVE_CLS = ['bg-brand-primary', 'text-white', 'shadow', 'font-semibold'];
+  const MOD_INACTIVE_CLS = ['text-gray-700', 'hover:bg-green-50', 'hover:text-brand-primary', 'hover:translate-x-1'];
+
+  function setModuleBtnActive(btn, active) {
+    const iconEl = btn.querySelector('span > span:first-child');
+    const arrow = btn.querySelector('.arrow');
+    if (active) {
+      MOD_INACTIVE_CLS.forEach(c => btn.classList.remove(c));
+      MOD_ACTIVE_CLS.forEach(c => btn.classList.add(c));
+      if (iconEl) { iconEl.classList.remove('bg-emerald-50'); iconEl.classList.add('bg-white/15'); }
+      if (arrow) { arrow.classList.remove('text-emerald-400'); arrow.classList.add('text-white'); }
+    } else {
+      MOD_ACTIVE_CLS.forEach(c => btn.classList.remove(c));
+      MOD_INACTIVE_CLS.forEach(c => btn.classList.add(c));
+      if (iconEl) { iconEl.classList.remove('bg-white/15'); iconEl.classList.add('bg-emerald-50'); }
+      if (arrow) { arrow.classList.remove('text-white'); arrow.classList.add('text-emerald-400'); }
+    }
+  }
+
   document.querySelectorAll("[data-submenu]").forEach(btn => {
     const submenu = document.getElementById(btn.dataset.submenu);
     const arrow = btn.querySelector(".arrow");
@@ -109,8 +131,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btn.addEventListener("click", (e) => {
       e.preventDefault();
+
+      // Close all OTHER submenus and deactivate their buttons
+      document.querySelectorAll("[data-submenu]").forEach(otherBtn => {
+        if (otherBtn === btn) return;
+        const otherMenu = document.getElementById(otherBtn.dataset.submenu);
+        const otherArrow = otherBtn.querySelector(".arrow");
+        if (otherMenu && otherMenu.classList.contains("is-open")) {
+          otherMenu.classList.remove("is-open");
+          if (otherArrow) otherArrow.classList.remove("rotate-180");
+        }
+        setModuleBtnActive(otherBtn, false);
+      });
+
+      // Toggle this submenu
+      const isNowOpen = !submenu.classList.contains("is-open");
       submenu.classList.toggle("is-open");
       if (arrow) arrow.classList.toggle("rotate-180");
+
+      // Set this button active/inactive based on open state
+      setModuleBtnActive(btn, isNowOpen);
     });
   });
 
@@ -131,7 +171,17 @@ document.addEventListener("DOMContentLoaded", () => {
     let matched = false;
     sublinks.forEach(link => {
       const linkHash = link.getAttribute('data-hash') || '';
-      const isActive = hash && linkHash === hash;
+      const subtab = link.getAttribute('data-subtab') || '';
+      let isActive = false;
+      if (hash && linkHash === hash) {
+        // If link has data-subtab, check if that sub-tab is currently active
+        if (subtab) {
+          const subtabEl = document.getElementById('subtab-' + subtab);
+          isActive = subtabEl ? subtabEl.classList.contains('active') : (subtab === 'registered');
+        } else {
+          isActive = true;
+        }
+      }
       if (isActive) matched = true;
 
       // Update link classes
@@ -165,11 +215,39 @@ document.addEventListener("DOMContentLoaded", () => {
   updateActiveSublink();
   window.addEventListener('hashchange', updateActiveSublink);
 
-  // Click handler for sublinks — update active state immediately on click
+  // Click handler for sublinks — optimize same-page navigation and update active state
   document.querySelectorAll('.sidebar-sublink').forEach(link => {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href') || '';
+      const parts = href.split('#');
+      const hashPart = parts[1] || '';
+      const filePart = parts[0].split('/').pop();
+
+      // If already on the same module page, prevent full reload and just update hash
+      if (filePart === currentFile && hashPart) {
+        e.preventDefault();
+        if (location.hash !== '#' + hashPart) {
+          location.hash = '#' + hashPart;
+        } else {
+          // Hash is the same — manually trigger showSection if available
+          if (typeof showSection === 'function') showSection('#' + hashPart);
+        }
+      }
+
+      // Handle sub-tab switching for links with data-subtab
+      const subtab = link.getAttribute('data-subtab');
+      if (subtab) {
+        setTimeout(() => {
+          // Activate correct sub-tab inside the tab
+          const container = document.getElementById('tab-registration');
+          if (container) {
+            const btn = container.querySelector(`.sub-tab[onclick*="'${subtab}'"]`);
+            if (btn && typeof switchSubTab === 'function') switchSubTab(btn, subtab);
+          }
+        }, 80);
+      }
       // Small delay to let hash change propagate, then update
-      setTimeout(updateActiveSublink, 50);
+      setTimeout(updateActiveSublink, 20);
     });
   });
 
@@ -393,22 +471,81 @@ document.addEventListener("DOMContentLoaded", () => {
       modal.id = 'profile-modal';
       modal.className = 'modal-overlay fixed inset-0 z-[9999] flex items-center justify-center bg-black/40';
       modal.innerHTML = `
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col">
           <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-6 text-white">
             <div class="flex items-center gap-4">
               <div id="prof-avatar" class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold"></div>
               <div><div id="prof-name" class="text-lg font-bold"></div><div id="prof-role" class="text-sm opacity-90"></div></div>
             </div>
           </div>
-          <div class="px-6 py-5 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div><div class="text-xs text-gray-400 uppercase font-medium">Employee ID</div><div id="prof-eid" class="text-sm font-semibold text-gray-800 mt-1"></div></div>
-              <div><div class="text-xs text-gray-400 uppercase font-medium">Department</div><div id="prof-dept" class="text-sm font-semibold text-gray-800 mt-1"></div></div>
-              <div class="col-span-2"><div class="text-xs text-gray-400 uppercase font-medium">Email</div><div id="prof-email" class="text-sm font-semibold text-gray-800 mt-1"></div></div>
+
+          <!-- Tab Navigation -->
+          <div class="flex border-b border-gray-200">
+            <button id="prof-tab-info" onclick="switchProfileTab('info')" class="flex-1 py-3 text-sm font-semibold text-emerald-600 border-b-2 border-emerald-600 transition">Profile Info</button>
+            <button id="prof-tab-password" onclick="switchProfileTab('password')" class="flex-1 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition">Change Password</button>
+          </div>
+
+          <div class="overflow-y-auto flex-1">
+            <!-- Profile Info Tab -->
+            <div id="prof-panel-info" class="px-6 py-5 space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-gray-400 uppercase font-medium">Employee ID</label>
+                  <div id="prof-eid" class="text-sm font-semibold text-gray-800 mt-1 bg-gray-50 px-3 py-2 rounded-lg"></div>
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 uppercase font-medium">Department</label>
+                  <div id="prof-dept" class="text-sm font-semibold text-gray-800 mt-1 bg-gray-50 px-3 py-2 rounded-lg"></div>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 uppercase font-medium">First Name</label>
+                <input id="prof-fname" type="text" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-300 focus:border-emerald-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 uppercase font-medium">Last Name</label>
+                <input id="prof-lname" type="text" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-300 focus:border-emerald-500 outline-none transition" />
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 uppercase font-medium">Email Address</label>
+                <input id="prof-email" type="email" class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-300 focus:border-emerald-500 outline-none transition" />
+              </div>
+              <div id="prof-info-msg" class="hidden text-sm rounded-lg px-3 py-2"></div>
+            </div>
+
+            <!-- Change Password Tab -->
+            <div id="prof-panel-password" class="px-6 py-5 space-y-4 hidden">
+              <div>
+                <label class="text-xs text-gray-400 uppercase font-medium">Current Password</label>
+                <div class="relative mt-1">
+                  <input id="prof-cur-pw" type="password" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-300 focus:border-emerald-500 outline-none transition pr-10" placeholder="Enter current password" />
+                  <button type="button" onclick="togglePwVis('prof-cur-pw', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 uppercase font-medium">New Password</label>
+                <div class="relative mt-1">
+                  <input id="prof-new-pw" type="password" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-300 focus:border-emerald-500 outline-none transition pr-10" placeholder="Minimum 6 characters" />
+                  <button type="button" onclick="togglePwVis('prof-new-pw', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-gray-400 uppercase font-medium">Confirm New Password</label>
+                <div class="relative mt-1">
+                  <input id="prof-confirm-pw" type="password" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-300 focus:border-emerald-500 outline-none transition pr-10" placeholder="Re-enter new password" />
+                  <button type="button" onclick="togglePwVis('prof-confirm-pw', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></button>
+                </div>
+              </div>
+              <div id="prof-pw-msg" class="hidden text-sm rounded-lg px-3 py-2"></div>
             </div>
           </div>
-          <div class="px-6 py-4 border-t border-gray-100 flex justify-end">
+
+          <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
             <button onclick="closeModal('profile-modal')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition">Close</button>
+            <button id="prof-save-btn" onclick="saveProfile()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Save Changes
+            </button>
           </div>
         </div>`;
       document.body.appendChild(modal);
@@ -419,14 +556,177 @@ document.addEventListener("DOMContentLoaded", () => {
     const u = window.__mf_user || {};
     document.getElementById('prof-avatar').textContent = u.initial || '?';
     document.getElementById('prof-name').textContent = u.name || 'Unknown';
-    document.getElementById('prof-role').textContent = u.role || '';
+    document.getElementById('prof-role').textContent = (u.role || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     document.getElementById('prof-eid').textContent = u.employee_id || '—';
     document.getElementById('prof-dept').textContent = u.department || '—';
-    document.getElementById('prof-email').textContent = u.email || '—';
+
+    // Split name into first/last for editable fields
+    const nameParts = (u.name || '').split(' ');
+    document.getElementById('prof-fname').value = u.first_name || nameParts[0] || '';
+    document.getElementById('prof-lname').value = u.last_name || nameParts.slice(1).join(' ') || '';
+    document.getElementById('prof-email').value = u.email || '';
+
+    // Reset password fields
+    document.getElementById('prof-cur-pw').value = '';
+    document.getElementById('prof-new-pw').value = '';
+    document.getElementById('prof-confirm-pw').value = '';
+
+    // Reset messages
+    const infoMsg = document.getElementById('prof-info-msg');
+    const pwMsg = document.getElementById('prof-pw-msg');
+    if (infoMsg) { infoMsg.classList.add('hidden'); infoMsg.textContent = ''; }
+    if (pwMsg) { pwMsg.classList.add('hidden'); pwMsg.textContent = ''; }
+
+    // Show info tab by default
+    switchProfileTab('info');
     openModal('profile-modal');
   };
 
+  // Toggle password visibility
+  window.togglePwVis = (inputId, btn) => {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    btn.innerHTML = isPassword
+      ? '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>'
+      : '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+  };
+
+  // Profile tab switching
+  window.switchProfileTab = (tab) => {
+    const infoTab = document.getElementById('prof-tab-info');
+    const pwTab = document.getElementById('prof-tab-password');
+    const infoPanel = document.getElementById('prof-panel-info');
+    const pwPanel = document.getElementById('prof-panel-password');
+    const saveBtn = document.getElementById('prof-save-btn');
+    if (tab === 'info') {
+      infoTab.className = 'flex-1 py-3 text-sm font-semibold text-emerald-600 border-b-2 border-emerald-600 transition';
+      pwTab.className = 'flex-1 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition';
+      infoPanel.classList.remove('hidden');
+      pwPanel.classList.add('hidden');
+      saveBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Save Changes';
+    } else {
+      pwTab.className = 'flex-1 py-3 text-sm font-semibold text-emerald-600 border-b-2 border-emerald-600 transition';
+      infoTab.className = 'flex-1 py-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent hover:text-gray-600 transition';
+      pwPanel.classList.remove('hidden');
+      infoPanel.classList.add('hidden');
+      saveBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Update Password';
+    }
+  };
+
+  // Save profile or change password
+  window.saveProfile = async () => {
+    const activeTab = document.getElementById('prof-panel-info').classList.contains('hidden') ? 'password' : 'info';
+    const saveBtn = document.getElementById('prof-save-btn');
+    const origText = saveBtn.innerHTML;
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> Saving…';
+
+    try {
+      if (activeTab === 'info') {
+        const firstName = document.getElementById('prof-fname').value.trim();
+        const lastName = document.getElementById('prof-lname').value.trim();
+        const email = document.getElementById('prof-email').value.trim();
+        const msgEl = document.getElementById('prof-info-msg');
+
+        if (!firstName) { showProfileMsg(msgEl, 'First name is required.', false); saveBtn.disabled = false; saveBtn.innerHTML = origText; return; }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showProfileMsg(msgEl, 'Please enter a valid email address.', false); saveBtn.disabled = false; saveBtn.innerHTML = origText; return; }
+
+        const res = await fetch(apiPrefix + 'api/auth.php?action=update_profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ first_name: firstName, last_name: lastName, email })
+        });
+        const data = await res.json();
+        if (data.success) {
+          // Update window.__mf_user
+          window.__mf_user.first_name = firstName;
+          window.__mf_user.last_name = lastName;
+          window.__mf_user.name = firstName + (lastName ? ' ' + lastName : '');
+          window.__mf_user.email = email;
+          window.__mf_user.initial = firstName.charAt(0).toUpperCase();
+
+          // Update header display
+          document.querySelectorAll('[data-user-name]').forEach(el => el.textContent = window.__mf_user.name);
+          document.querySelectorAll('[data-user-initial]').forEach(el => el.textContent = window.__mf_user.initial);
+          document.getElementById('prof-name').textContent = window.__mf_user.name;
+          document.getElementById('prof-avatar').textContent = window.__mf_user.initial;
+
+          showProfileMsg(msgEl, 'Profile updated successfully!', true);
+          Swal.fire({ icon: 'success', title: 'Profile Updated', text: 'Your profile has been saved.', timer: 2000, showConfirmButton: false });
+        } else {
+          showProfileMsg(msgEl, data.message || 'Failed to update profile.', false);
+        }
+      } else {
+        // Change password
+        const curPw = document.getElementById('prof-cur-pw').value;
+        const newPw = document.getElementById('prof-new-pw').value;
+        const confirmPw = document.getElementById('prof-confirm-pw').value;
+        const msgEl = document.getElementById('prof-pw-msg');
+
+        if (!curPw) { showProfileMsg(msgEl, 'Current password is required.', false); saveBtn.disabled = false; saveBtn.innerHTML = origText; return; }
+        if (!newPw || newPw.length < 6) { showProfileMsg(msgEl, 'New password must be at least 6 characters.', false); saveBtn.disabled = false; saveBtn.innerHTML = origText; return; }
+        if (newPw !== confirmPw) { showProfileMsg(msgEl, 'New passwords do not match.', false); saveBtn.disabled = false; saveBtn.innerHTML = origText; return; }
+
+        const res = await fetch(apiPrefix + 'api/auth.php?action=change_password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ current_password: curPw, new_password: newPw })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('prof-cur-pw').value = '';
+          document.getElementById('prof-new-pw').value = '';
+          document.getElementById('prof-confirm-pw').value = '';
+          showProfileMsg(msgEl, 'Password changed successfully!', true);
+          Swal.fire({ icon: 'success', title: 'Password Changed', text: 'Your password has been updated.', timer: 2000, showConfirmButton: false });
+        } else {
+          showProfileMsg(msgEl, data.message || 'Failed to change password.', false);
+        }
+      }
+    } catch (err) {
+      console.error('Profile save error:', err);
+      Swal.fire({ icon: 'error', title: 'Error', text: 'An unexpected error occurred. Please try again.' });
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = origText;
+    }
+  };
+
+  function showProfileMsg(el, text, success) {
+    if (!el) return;
+    el.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700', 'bg-red-50', 'text-red-700');
+    el.classList.add(success ? 'bg-emerald-50' : 'bg-red-50', success ? 'text-emerald-700' : 'text-red-700');
+    el.textContent = text;
+  }
+
   // ───── Settings Modal ─────
+  const SETTINGS_KEY = 'mf_admin_settings';
+
+  function loadSettings() {
+    try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {}; } catch(e) { return {}; }
+  }
+
+  function saveSettings(settings) {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  }
+
+  // Apply settings on page load
+  function applySettings() {
+    try {
+      const s = loadSettings();
+      if (s.compactView) document.body.classList.add('compact-view');
+      else document.body.classList.remove('compact-view');
+      if (s.desktopNotifications && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        window.__desktopNotifsEnabled = true;
+      }
+    } catch (e) { console.warn('Settings apply error:', e); }
+  }
+  applySettings();
+
   window.openSettingsModal = () => {
     let modal = document.getElementById('settings-modal');
     if (!modal) {
@@ -436,41 +736,250 @@ document.addEventListener("DOMContentLoaded", () => {
       modal.innerHTML = `
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
           <div class="px-6 py-5 border-b border-gray-100">
-            <h3 class="text-lg font-bold text-gray-800">⚙️ Settings</h3>
+            <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+              <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              Settings
+            </h3>
           </div>
           <div class="px-6 py-5 space-y-5">
             <div class="flex items-center justify-between">
               <div><div class="text-sm font-semibold text-gray-700">Email Notifications</div><div class="text-xs text-gray-400">Receive alerts via email</div></div>
-              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" checked class="sr-only peer"><div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label>
+              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="set-email-notif" class="sr-only peer"><div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label>
             </div>
             <div class="flex items-center justify-between">
               <div><div class="text-sm font-semibold text-gray-700">Desktop Notifications</div><div class="text-xs text-gray-400">Browser push alerts</div></div>
-              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer"><div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label>
+              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="set-desktop-notif" class="sr-only peer"><div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label>
             </div>
             <div class="flex items-center justify-between">
               <div><div class="text-sm font-semibold text-gray-700">Compact View</div><div class="text-xs text-gray-400">Reduce spacing in tables</div></div>
-              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" class="sr-only peer"><div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label>
+              <label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="set-compact-view" class="sr-only peer"><div class="w-10 h-5 bg-gray-200 peer-focus:ring-2 peer-focus:ring-emerald-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-emerald-600 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all"></div></label>
             </div>
           </div>
-          <div class="px-6 py-4 border-t border-gray-100 flex justify-end">
-            <button onclick="closeModal('settings-modal')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition">Close</button>
+          <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+            <button onclick="closeModal('settings-modal')" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-medium transition">Cancel</button>
+            <button onclick="saveSettingsFromModal()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+              Save
+            </button>
           </div>
         </div>`;
       document.body.appendChild(modal);
       modal.addEventListener('click', (e) => { if (e.target === modal) closeModal('settings-modal'); });
     }
+
+    // Load current settings into toggles
+    const s = loadSettings();
+    document.getElementById('set-email-notif').checked = s.emailNotifications !== false; // default on
+    document.getElementById('set-desktop-notif').checked = !!s.desktopNotifications;
+    document.getElementById('set-compact-view').checked = !!s.compactView;
+
     openModal('settings-modal');
+  };
+
+  window.saveSettingsFromModal = async () => {
+    const emailNotif = document.getElementById('set-email-notif').checked;
+    const desktopNotif = document.getElementById('set-desktop-notif').checked;
+    const compactView = document.getElementById('set-compact-view').checked;
+
+    // Request browser notification permission if enabling desktop notifications
+    if (desktopNotif && 'Notification' in window && Notification.permission === 'default') {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        Swal.fire({ icon: 'info', title: 'Permission Denied', text: 'Browser notification permission was not granted. Desktop notifications will not work.', timer: 3000, showConfirmButton: false });
+      }
+    }
+
+    saveSettings({ emailNotifications: emailNotif, desktopNotifications: desktopNotif, compactView });
+    applySettings();
+    closeModal('settings-modal');
+    Swal.fire({ icon: 'success', title: 'Settings Saved', text: 'Your preferences have been saved.', timer: 1500, showConfirmButton: false });
   };
 
   // ───── Logout Handler ─────
   document.querySelectorAll('.logout').forEach(link => {
     link.addEventListener('click', async (e) => {
       e.preventDefault();
+      e.stopPropagation();
+
+      // Guard: if SweetAlert2 not loaded, use native confirm
+      if (typeof Swal === 'undefined') {
+        if (!confirm('Are you sure you want to log out?')) return;
+      } else {
+        const result = await Swal.fire({
+          title: 'Log Out?',
+          text: 'Are you sure you want to end your session?',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#059669',
+          cancelButtonColor: '#6B7280',
+          confirmButtonText: 'Yes, log out',
+          cancelButtonText: 'Cancel',
+          reverseButtons: true,
+          customClass: { popup: 'rounded-2xl' }
+        });
+        if (!result.isConfirmed) return;
+      }
+
       try {
         await fetch(apiPrefix + 'api/auth.php?action=logout', { credentials: 'same-origin' });
       } catch (_) {}
       sessionStorage.removeItem('mf_auth');
+
+      // Show success message before redirect
+      if (typeof Swal !== 'undefined') {
+        await Swal.fire({
+          icon: 'success',
+          title: 'Logged Out Successfully',
+          text: 'You have been securely logged out. Redirecting to login page...',
+          timer: 2000,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          customClass: { popup: 'rounded-2xl' }
+        });
+      }
       window.location.href = apiPrefix + 'login.php';
     });
   });
-});
+
+  // ───── Sidebar Stats (fetch for dashboard/modules to use) ─────
+  async function loadSidebarCounts() {
+    try {
+      const [fac, doc, leg, vis] = await Promise.all([
+        fetch(apiPrefix + 'api/facilities.php?action=dashboard_stats').then(r => r.json()).catch(() => ({})),
+        fetch(apiPrefix + 'api/documents.php?action=dashboard_stats').then(r => r.json()).catch(() => ({})),
+        fetch(apiPrefix + 'api/legal.php?action=dashboard_stats').then(r => r.json()).catch(() => ({})),
+        fetch(apiPrefix + 'api/visitors.php?action=dashboard_stats').then(r => r.json()).catch(() => ({}))
+      ]);
+      // Store stats globally for modules to use
+      window.__sidebarStats = { fac, doc, leg, vis };
+    } catch(e) {
+      console.warn('Sidebar stats load error:', e);
+    }
+  }
+
+  // Load sidebar stats on page load
+  loadSidebarCounts();
+
+  // Expose for modules to refresh after data changes
+  window.refreshSidebarCounts = loadSidebarCounts;
+
+}); // end DOMContentLoaded
+
+// ═══════════════════════════════════════════════════════
+// Reusable Table Paginator
+// ═══════════════════════════════════════════════════════
+window.Paginator = (function() {
+  const instances = {};
+
+  function create(id, opts) {
+    instances[id] = {
+      page: 1,
+      perPage: opts.perPage || 10,
+      totalRows: 0,
+      onPageChange: opts.onPageChange || null,
+      alwaysShow: opts.alwaysShow || false,
+    };
+    return instances[id];
+  }
+
+  function get(id) { return instances[id]; }
+
+  function paginate(id, allRowsHtml) {
+    const inst = instances[id];
+    if (!inst) return allRowsHtml;
+    inst.totalRows = allRowsHtml.length;
+    const totalPages = Math.max(1, Math.ceil(inst.totalRows / inst.perPage));
+    if (inst.page > totalPages) inst.page = totalPages;
+    const start = (inst.page - 1) * inst.perPage;
+    return allRowsHtml.slice(start, start + inst.perPage);
+  }
+
+  function renderControls(id, containerId) {
+    const inst = instances[id];
+    if (!inst) return;
+    let container = document.getElementById(containerId);
+    if (!container) return;
+    const total = inst.totalRows;
+    const totalPages = Math.max(1, Math.ceil(total / inst.perPage));
+    const page = inst.page;
+    const start = (page - 1) * inst.perPage + 1;
+    const end = Math.min(page * inst.perPage, total);
+
+    if (!inst.alwaysShow && total <= 10 && inst.perPage >= total) {
+      container.innerHTML = '';
+      return;
+    }
+
+    let pages = buildPageNumbers(page, totalPages);
+
+    let html = '<div class="pagination-wrapper">';
+    html += '<div class="pagination-info">Showing <strong>' + start + '–' + end + '</strong> of <strong>' + total + '</strong> entries</div>';
+    html += '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">';
+
+    html += '<div class="pagination-per-page"><span>Rows:</span><select onchange="Paginator.setPerPage(\'' + id + '\',this.value)">';
+    [10, 25, 50, 100].forEach(function(n) {
+      html += '<option value="' + n + '"' + (inst.perPage === n ? ' selected' : '') + '>' + n + '</option>';
+    });
+    html += '</select></div>';
+
+    html += '<div class="pagination-controls">';
+    html += '<button class="pagination-btn pagination-nav" onclick="Paginator.goTo(\'' + id + '\',' + 1 + ')" ' + (page <= 1 ? 'disabled' : '') + ' title="First">«</button>';
+    html += '<button class="pagination-btn pagination-nav" onclick="Paginator.goTo(\'' + id + '\',' + (page - 1) + ')" ' + (page <= 1 ? 'disabled' : '') + ' title="Previous">‹</button>';
+
+    pages.forEach(function(p) {
+      if (p === '...') {
+        html += '<span class="pagination-ellipsis">…</span>';
+      } else {
+        html += '<button class="pagination-btn' + (p === page ? ' active' : '') + '" onclick="Paginator.goTo(\'' + id + '\',' + p + ')">' + p + '</button>';
+      }
+    });
+
+    html += '<button class="pagination-btn pagination-nav" onclick="Paginator.goTo(\'' + id + '\',' + (page + 1) + ')" ' + (page >= totalPages ? 'disabled' : '') + ' title="Next">›</button>';
+    html += '<button class="pagination-btn pagination-nav" onclick="Paginator.goTo(\'' + id + '\',' + totalPages + ')" ' + (page >= totalPages ? 'disabled' : '') + ' title="Last">»</button>';
+    html += '</div></div></div>';
+
+    container.innerHTML = html;
+  }
+
+  function buildPageNumbers(current, total) {
+    if (total <= 7) {
+      var arr = [];
+      for (var i = 1; i <= total; i++) arr.push(i);
+      return arr;
+    }
+    var pages = [1];
+    if (current > 3) pages.push('...');
+    var rangeStart = Math.max(2, current - 1);
+    var rangeEnd = Math.min(total - 1, current + 1);
+    for (var i = rangeStart; i <= rangeEnd; i++) pages.push(i);
+    if (current < total - 2) pages.push('...');
+    pages.push(total);
+    return pages;
+  }
+
+  function goTo(id, page) {
+    var inst = instances[id];
+    if (!inst) return;
+    var totalPages = Math.max(1, Math.ceil(inst.totalRows / inst.perPage));
+    page = Math.max(1, Math.min(page, totalPages));
+    if (inst.page === page) return;
+    inst.page = page;
+    if (inst.onPageChange) inst.onPageChange();
+  }
+
+  function setPerPage(id, val) {
+    var inst = instances[id];
+    if (!inst) return;
+    inst.perPage = parseInt(val) || 10;
+    inst.page = 1;
+    if (inst.onPageChange) inst.onPageChange();
+  }
+
+  function reset(id) {
+    var inst = instances[id];
+    if (inst) inst.page = 1;
+  }
+
+  return { create: create, get: get, paginate: paginate, renderControls: renderControls, goTo: goTo, setPerPage: setPerPage, reset: reset };
+})();

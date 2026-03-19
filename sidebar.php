@@ -37,7 +37,7 @@ function sidebarBtnClass($page, $current) {
   if ($page === $current) {
     return 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-brand-primary text-white shadow transition-all duration-200 active:scale-[0.99] font-semibold text-[13px]';
   }
-  return 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-700 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1 active:translate-x-0 active:scale-[0.99] font-semibold text-[13px]';
+  return 'w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-gray-700 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 font-semibold text-[13px]';
 }
 
 function sidebarIconWrap($page, $current) {
@@ -56,7 +56,7 @@ function submenuClass($page, $current) {
 
 function subLinkClass($isActive = false) {
   if ($isActive) return 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-brand-primary bg-green-50 font-semibold transition-all duration-200';
-  return 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200 hover:translate-x-1';
+  return 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-600 hover:bg-green-50 hover:text-brand-primary transition-all duration-200';
 }
 
 function subArrow($isActive = false) {
@@ -66,12 +66,12 @@ function subArrow($isActive = false) {
 ?>
 
 <!-- Overlay (mobile) -->
-<div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-300 z-40"></div>
+<div id="sidebar-overlay" class="fixed inset-0 bg-black/30 hidden opacity-0 transition-opacity duration-150 z-40"></div>
 
 <!-- SIDEBAR -->
 <aside id="sidebar"
   class="fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-100 shadow-sm z-50
-         transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+         transform -translate-x-full md:translate-x-0 transition-transform duration-150">
 
   <div class="h-16 flex items-center px-3 border-b border-gray-100">
     <a href="<?= $dash ?>" class="flex items-center gap-2.5 w-full rounded-xl px-2 py-2 hover:bg-gray-100 active:bg-gray-200 transition group">
@@ -106,14 +106,16 @@ function subArrow($isActive = false) {
       <span class="flex items-center gap-2 min-w-0">
         <span class="<?= sidebarIconWrap('facilities', $activePage) ?>">🏢</span><span class="truncate">Facilities Reservation</span>
       </span>
-      <svg class="<?= sidebarArrowClass('facilities', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      <div class="flex items-center gap-1.5">
+        <svg class="<?= sidebarArrowClass('facilities', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
     </button>
     <div id="facilities-submenu" class="<?= submenuClass('facilities', $activePage) ?>">
       <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
         <a href="<?= $fac ?>#tab-monitoring" data-hash="tab-monitoring" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Room Booking & Calendar</a>
-        <a href="<?= $fac ?>#tab-approved" data-hash="tab-approved" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Approved Bookings</a>
-        <a href="<?= $fac ?>#tab-equipment" data-hash="tab-equipment" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Equipment Reservation</a>
-        <a href="<?= $fac ?>#tab-maintenance" data-hash="tab-maintenance" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Maintenance Requests</a>
+        <a href="<?= $fac ?>#tab-approved" data-hash="tab-approved" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Booking Approvals & Status</a>
+        <a href="<?= $fac ?>#tab-maintenance" data-hash="tab-maintenance" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Maintenance & Repair</a>
+        <a href="<?= $fac ?>#tab-utilization" data-hash="tab-utilization" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Room Utilization</a>
       </div>
     </div>
 
@@ -122,17 +124,16 @@ function subArrow($isActive = false) {
       <span class="flex items-center gap-2 min-w-0">
         <span class="<?= sidebarIconWrap('documents', $activePage) ?>">📄</span><span class="truncate">Document Management</span>
       </span>
-      <svg class="<?= sidebarArrowClass('documents', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      <div class="flex items-center gap-1.5">
+        <svg class="<?= sidebarArrowClass('documents', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
     </button>
     <div id="documents-submenu" class="<?= submenuClass('documents', $activePage) ?>">
       <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
         <a href="<?= $doc ?>#tab-folders" data-hash="tab-folders" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Department Folders</a>
-        <a href="<?= $doc ?>#tab-all" data-hash="tab-all" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> All Documents</a>
-        <a href="<?= $doc ?>#tab-secure-storage" data-hash="tab-secure-storage" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Secure Storage</a>
-        <a href="<?= $doc ?>#tab-ocr" data-hash="tab-ocr" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> OCR Scanning</a>
-        <a href="<?= $doc ?>#tab-versions" data-hash="tab-versions" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Version Control</a>
-        <a href="<?= $doc ?>#tab-archiving" data-hash="tab-archiving" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Archiving</a>
-        <a href="<?= $doc ?>#tab-access-control" data-hash="tab-access-control" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Access Control</a>
+        <a href="<?= $doc ?>#tab-archiving" data-hash="tab-archiving" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Secure Archive Vault</a>
+        <a href="<?= $doc ?>#tab-access-control" data-hash="tab-access-control" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Access Control & Audit</a>
+        <a href="<?= $doc ?>#tab-doc-analytics" data-hash="tab-doc-analytics" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Document Analytics</a>
       </div>
     </div>
 
@@ -141,18 +142,17 @@ function subArrow($isActive = false) {
       <span class="flex items-center gap-2 min-w-0">
         <span class="<?= sidebarIconWrap('legal', $activePage) ?>">⚖️</span><span class="truncate">Legal Management</span>
       </span>
-      <svg class="<?= sidebarArrowClass('legal', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      <div class="flex items-center gap-1.5">
+        <svg class="<?= sidebarArrowClass('legal', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
     </button>
     <div id="legal-submenu" class="<?= submenuClass('legal', $activePage) ?>">
       <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-        <a href="<?= $legal ?>#tab-loans" data-hash="tab-loans" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Loan Documentation</a>
-        <a href="<?= $legal ?>#tab-collateral" data-hash="tab-collateral" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Collateral & Security</a>
-        <a href="<?= $legal ?>#tab-cases" data-hash="tab-cases" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Litigation & Recovery</a>
-        <a href="<?= $legal ?>#tab-compliance" data-hash="tab-compliance" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Compliance & KYC</a>
-        <a href="<?= $legal ?>#tab-governance" data-hash="tab-governance" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Corporate Governance</a>
-        <a href="<?= $legal ?>#tab-contracts" data-hash="tab-contracts" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Contracts & Agreements</a>
-        <a href="<?= $legal ?>#tab-permits" data-hash="tab-permits" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Permits & Licensing</a>
-        <a href="<?= $legal ?>#tab-legal-calendar" data-hash="tab-legal-calendar" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Legal Calendar</a>
+        <a href="<?= $legal ?>#tab-loans" data-hash="tab-loans" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Loan Documentation & Disclosure</a>
+        <a href="<?= $legal ?>#tab-cases" data-hash="tab-cases" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Case Tracking & Recovery</a>
+        <a href="<?= $legal ?>#tab-contracts" data-hash="tab-contracts" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Contract Lifecycle</a>
+        <a href="<?= $legal ?>#tab-permits" data-hash="tab-permits" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Permits, Licenses & Renewals</a>
+        <a href="<?= $legal ?>#tab-legal-calendar" data-hash="tab-legal-calendar" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Legal Calendar & Deadlines</a>
       </div>
     </div>
 
@@ -161,20 +161,22 @@ function subArrow($isActive = false) {
       <span class="flex items-center gap-2 min-w-0">
         <span class="<?= sidebarIconWrap('visitors', $activePage) ?>">🧑‍💼</span><span class="truncate">Visitor Management</span>
       </span>
-      <svg class="<?= sidebarArrowClass('visitors', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      <div class="flex items-center gap-1.5">
+        <svg class="<?= sidebarArrowClass('visitors', $activePage) ?>" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </div>
     </button>
     <div id="visitors-submenu" class="<?= submenuClass('visitors', $activePage) ?>">
       <div class="pl-4 pr-2 py-2 space-y-1 border-l-2 border-gray-100 ml-6">
-        <a href="<?= $vis ?>#tab-registration" data-hash="tab-registration" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Visitor Registration</a>
-        <a href="<?= $vis ?>#tab-qr" data-hash="tab-qr" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> QR Pass Generation</a>
-        <a href="<?= $vis ?>#tab-logs" data-hash="tab-logs" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Visitor Logs</a>
-        <a href="<?= $vis ?>#tab-analytics" data-hash="tab-analytics" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Visitor Analytics</a>
+        <a href="<?= $vis ?>#tab-registration" data-hash="tab-registration" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Registered Visitors</a>
+        <a href="<?= $vis ?>#tab-qr" data-hash="tab-qr" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> QR Pass & Digital Badge</a>
+        <a href="<?= $vis ?>#tab-logs" data-hash="tab-logs" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Visit History & Logs</a>
+        <a href="<?= $vis ?>#tab-analytics" data-hash="tab-analytics" class="sidebar-sublink <?= subLinkClass() ?>"><?= subArrow() ?> Visitor Analytics & Insights</a>
       </div>
     </div>
 
     <div class="mt-8 px-2">
       <div class="flex items-center gap-2 text-xs font-bold text-emerald-600">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
         SYSTEM ONLINE
       </div>
       <div class="text-[11px] text-gray-400 mt-2 leading-snug">
@@ -183,12 +185,14 @@ function subArrow($isActive = false) {
       </div>
     </div>
 
-    
+  </div><!-- /.custom-scrollbar -->
 </aside>
 
 <script>
   window.__mf_user = {
     name: <?= json_encode($userName) ?>,
+    first_name: <?= json_encode($sessionUser['first_name'] ?? '') ?>,
+    last_name: <?= json_encode($sessionUser['last_name'] ?? '') ?>,
     role: <?= json_encode($userRole) ?>,
     initial: <?= json_encode($userInitial) ?>,
     employee_id: <?= json_encode($sessionUser['employee_id'] ?? '') ?>,

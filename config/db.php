@@ -3,19 +3,33 @@
  * MICROFINANCIAL MANAGEMENT SYSTEM I: ADMINISTRATIVE
  * Database Configuration - localhost:3306
  * 
- * Connects to the `administrative` database used by all 4 modules:
+ * Single consolidated database: admin_administratives
+ * All modules share one database:
  *  - Facilities Reservation
  *  - Document Management (Archiving)
  *  - Legal Management
  *  - Visitor Management
  */
 
-define('DB_HOST',    'localhost');
-define('DB_PORT',    3306);
-define('DB_NAME',    'administrative');
-define('DB_USER',    'root');
-define('DB_PASS',    '');          // default XAMPP - change in production
-define('DB_CHARSET', 'utf8mb4');
+// ─── Database Connection ───
+// Detect environment: production vs local development
+$isProduction = isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'microfinancial') !== false;
+
+if ($isProduction) {
+    define('DB_HOST',    'localhost');
+    define('DB_PORT',    3306);
+    define('DB_NAME',    'admin_administratives');
+    define('DB_USER',    'admin_administrator');
+    define('DB_PASS',    'admin01');
+    define('DB_CHARSET', 'utf8mb4');
+} else {
+    define('DB_HOST',    'localhost');
+    define('DB_PORT',    3306);
+    define('DB_NAME',    'admin_administratives');
+    define('DB_USER',    'root');
+    define('DB_PASS',    '');
+    define('DB_CHARSET', 'utf8mb4');
+}
 
 /**
  * Get a PDO connection to the administrative database.
@@ -43,6 +57,15 @@ function getDB(): PDO {
     }
     return $pdo;
 }
+
+/** @deprecated Use getDB() — kept for backward compatibility */
+function getPhotoDB(): PDO { return getDB(); }
+
+/** @deprecated Use getDB() — kept for backward compatibility */
+function getFacilitiesDB(): PDO { return getDB(); }
+
+/** @deprecated Use getDB() — kept for backward compatibility */
+function getDocDB(): PDO { return getDB(); }
 
 /**
  * Send a JSON response and terminate.

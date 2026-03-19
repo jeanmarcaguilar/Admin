@@ -42,19 +42,21 @@ switch ($action) {
 
         $sent = sendOTPEmail($otp);
 
+        $userEmail = $_SESSION['otp_user_data']['email'] ?? 'your email';
+        $maskedEmail = maskEmail($userEmail);
+
         if ($sent === true) {
             echo json_encode([
                 'success'    => true,
-                'message'    => 'OTP sent to your email.',
+                'message'    => "OTP sent to $maskedEmail",
                 'expires_in' => OTP_EXPIRY
             ]);
         } else {
-            // Dev fallback: email failed, return OTP so user can still proceed
             echo json_encode([
-                'success'      => true,
+                'success'      => false,
+                'message'      => 'Could not send OTP email. Showing code on screen.',
                 'mail_failed'  => true,
                 'fallback_otp' => $otp,
-                'message'      => 'Email could not be sent (SMTP blocked). Use the code shown on screen.',
                 'expires_in'   => OTP_EXPIRY
             ]);
         }
@@ -133,19 +135,21 @@ switch ($action) {
 
         $sent = sendOTPEmail($otp);
 
+        $userEmail = $_SESSION['otp_user_data']['email'] ?? 'your email';
+        $maskedEmail = maskEmail($userEmail);
+
         if ($sent === true) {
             echo json_encode([
                 'success'    => true,
-                'message'    => 'New OTP sent to your email.',
+                'message'    => "New OTP sent to $maskedEmail",
                 'expires_in' => OTP_EXPIRY
             ]);
         } else {
-            // Dev fallback: email failed, return OTP
             echo json_encode([
-                'success'      => true,
+                'success'      => false,
+                'message'      => 'Could not send OTP email. Showing code on screen.',
                 'mail_failed'  => true,
                 'fallback_otp' => $otp,
-                'message'      => 'Email could not be sent. Use the code shown on screen.',
                 'expires_in'   => OTP_EXPIRY
             ]);
         }
@@ -168,6 +172,18 @@ switch ($action) {
 }
 
 // ─────────────── HELPERS ───────────────
+
+/**
+ * Mask an email address for display (e.g. je***@gmail.com)
+ */
+function maskEmail(string $email): string {
+    $parts = explode('@', $email);
+    if (count($parts) !== 2) return '***@***.com';
+    $name = $parts[0];
+    $domain = $parts[1];
+    $visible = min(2, strlen($name));
+    return substr($name, 0, $visible) . str_repeat('*', max(3, strlen($name) - $visible)) . '@' . $domain;
+}
 
 /**
  * Generate a random numeric OTP of the given length.
@@ -205,9 +221,10 @@ function sendOTPEmail(string $otp) {
             ],
         ];
 
-        // Sender / Recipient
+        // Sender / Recipient — send to the logged-in user's email
         $mail->setFrom(MAIL_FROM_EMAIL, MAIL_FROM_NAME);
-        $mail->addAddress(OTP_RECIPIENT);
+        $recipientEmail = $_SESSION['otp_user_data']['email'] ?? OTP_RECIPIENT;
+        $mail->addAddress($recipientEmail);
 
         // Embed the logo as an inline attachment
         $logoPath = __DIR__ . '/../assets/images/logo.png';

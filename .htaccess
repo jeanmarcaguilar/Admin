@@ -1,0 +1,17 @@
+# Microfinancial Admin - Front Controller
+# Document root: public_html/public
+# App files: public_html/
+
+DirectoryIndex index.php
+
+RewriteEngine On
+RewriteBase /
+
+# If file exists in public/, serve it directly (e.g. verify.php)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Everything else goes through the front controller
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L]
